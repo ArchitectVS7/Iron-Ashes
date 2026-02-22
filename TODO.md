@@ -7,17 +7,17 @@
 
 ---
 
-## Phase 0: Project Setup & Architecture
+## Phase 0: Project Setup & Architecture ✅
 
-- [ ] Choose game engine / framework (e.g., Unity, Godot, or web-based)
-- [ ] Initialize project scaffolding (directory structure, build system, dependency management)
-- [ ] Define GLL (Genre Language Library) token architecture — all in-world nouns must be swappable content wrappers, no hardcoded nouns in game logic
-- [ ] Implement GLL token registry and lookup system
-- [ ] Set up deterministic random seed system (required for simulation reproducibility and balance testing)
-- [ ] Define core data models: GameState, Player, Board, Round, Phase
-- [ ] Set up automated test framework
-- [ ] Set up CI/CD pipeline
-- [ ] Establish coding standards and contribution guidelines
+- [x] Choose game engine / framework — TypeScript + Vitest (Phaser for rendering in later phases)
+- [x] Initialize project scaffolding (directory structure, build system, dependency management)
+- [x] Define GLL (Genre Language Library) token architecture — all in-world nouns must be swappable content wrappers, no hardcoded nouns in game logic
+- [x] Implement GLL token registry and lookup system
+- [x] Set up deterministic random seed system (required for simulation reproducibility and balance testing)
+- [x] Define core data models: GameState, Player, Board, Round, Phase
+- [x] Set up automated test framework — 49 tests passing
+- [x] Set up CI/CD pipeline — GitHub Actions workflow
+- [x] Establish coding standards and contribution guidelines — CLAUDE.md
 
 ---
 
