@@ -7,6 +7,10 @@ import { KNOWN_LANDS, createInitialBoardState, selectWandererNodes } from '../mo
 import { SeededRandom } from '../utils/seeded-random.js';
 import { ResourceDisplay, ResourceState } from './resource-display.js';
 import { CharacterPanel, CharacterPanelState } from './character-panel.js';
+import { CombatOverlay } from './combat-overlay.js';
+import { DoomTollDisplay } from './doom-toll-display.js';
+import { VotingPanel } from './voting-panel.js';
+import { BrokenCourtUI } from './broken-court-ui.js';
 
 interface MockPlayerUI {
   id: string;
@@ -32,6 +36,10 @@ export class StandingsPanel {
   private atmosphere: AtmosphereEngine;
   private summary: SummaryEngine;
   private tutorial: TutorialEngine;
+  private combatOverlay: CombatOverlay;
+  private doomTollDisplay: DoomTollDisplay;
+  private votingPanel: VotingPanel;
+  private brokenCourtUI: BrokenCourtUI;
 
   constructor(parentId: string) {
     const parent = document.getElementById(parentId);
@@ -44,6 +52,11 @@ export class StandingsPanel {
     this.atmosphere = new AtmosphereEngine('game-app');
     this.summary = new SummaryEngine();
     this.tutorial = new TutorialEngine();
+
+    this.combatOverlay = new CombatOverlay('ui-layer');
+    this.doomTollDisplay = new DoomTollDisplay('ui-layer');
+    this.votingPanel = new VotingPanel('ui-layer');
+    this.brokenCourtUI = new BrokenCourtUI('ui-layer');
 
     // Default mock state
     this.state = {
@@ -80,6 +93,7 @@ export class StandingsPanel {
 
     if (newState.doomToll !== undefined && newState.doomToll !== oldDoomToll) {
       this.atmosphere.updateDoomTollEvent(oldDoomToll, newState.doomToll);
+      this.doomTollDisplay.updateToll(newState.doomToll);
     }
 
     this.render();
@@ -159,7 +173,9 @@ export class StandingsPanel {
       <button id="btn-defeat">Defeat Knight</button>
       <button id="btn-summary">Test Summary (Phase 18)</button>
       <button id="btn-tutorial">Test Tutorial (Phase 14)</button>
-      <button id="btn-tooltip">Test Tooltip</button>
+      <button id="btn-voting">Test Voting (Phase 7)</button>
+      <button id="btn-combat">Test Combat (Phase 5)</button>
+      <button id="btn-recovery">Test Recovery (Phase 8)</button>
     `;
     document.body.appendChild(div);
 
@@ -176,9 +192,38 @@ export class StandingsPanel {
 
       const p = [...this.state.players];
       if (p[1].isBrokenCourt) {
-        p[1].isBrokenCourt = false;
-        this.updateState({ players: p });
+        this.brokenCourtUI.showRescueMenu(p[1].name);
       }
+    });
+
+    document.getElementById('btn-recovery')?.addEventListener('click', () => {
+      this.brokenCourtUI.playRecoveryAnimation("House Frost");
+      const p = [...this.state.players];
+      p[1].isBrokenCourt = false;
+      this.updateState({ players: p });
+    });
+
+    document.getElementById('btn-voting')?.addEventListener('click', () => {
+      this.votingPanel.showVoting({
+        playerId: 'Player 1',
+        hasFateCards: true,
+        timeRemaining: 10
+      });
+    });
+
+    document.getElementById('btn-combat')?.addEventListener('click', () => {
+      this.combatOverlay.showCombat({
+        attackerId: 'Court of Ash',
+        defenderId: 'House Frost',
+        baseStrengthAttacker: 12,
+        baseStrengthDefender: 8,
+        attackerCardIndex: null, // face down
+        defenderCardIndex: 3, // face up (+3)
+        attackerFaceDown: true,
+        defenderFaceUp: true,
+        margin: 7, // 12 + X vs 8 + 3
+        reshuffleOccurred: true
+      });
     });
 
     document.getElementById('btn-defeat')?.addEventListener('click', () => {

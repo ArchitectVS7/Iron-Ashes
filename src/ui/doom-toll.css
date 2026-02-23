@@ -1,0 +1,77 @@
+/* Large persistent element for Doom Toll (Phase 6) */
+.doom-toll-large {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid #475569;
+    border-radius: 8px;
+    padding: 12px 24px;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.doom-toll-header {
+    font-family: 'Cinzel', serif;
+    color: #ef4444;
+    font-size: 1.2rem;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+    text-shadow: 0 0 5px rgba(220, 38, 38, 0.5);
+}
+
+.doom-track {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.doom-marker {
+    width: 24px;
+    height: 24px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    color: #1e293b;
+}
+
+.marker-past {
+    background: #dc2626;
+    border: 1px solid #7f1d1d;
+    box-shadow: 0 0 5px rgba(220, 38, 38, 0.4);
+}
+
+.marker-current {
+    background: #f87171;
+    border: 2px solid #fff;
+    color: #fff;
+    transform: scale(1.2);
+    z-index: 2;
+    box-shadow: 0 0 15px rgba(248, 113, 113, 0.8);
+}
+
+.marker-future {
+    background: #334155;
+    border: 1px solid #1e293b;
+    color: #64748b;
+}
+
+.marker-future.final-phase {
+    border-color: #7f1d1d;
+    background: #450a0a;
+    color: #991b1b;
+}
+
+/* Hide the old HUD doom toll since we have a large persistent one */
+.hud-header .doom-toll-wrapper {
+    display: none;
+}
