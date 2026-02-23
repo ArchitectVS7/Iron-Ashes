@@ -30,10 +30,10 @@
   - [x] Dark Fortress not adjacent to any Court starting Keep
   - [x] Each Court's starting Keep pre-claimed at game start
 - [x] Implement pathfinding (shortest path between nodes for movement cost calculation)
-- [ ] Render board at 1080p and 2560×1440
-- [ ] Ensure all 28 nodes individually selectable with hit area ≥ 44×44px
-- [ ] Render connection paths as distinct, non-overlapping lines
-- [ ] Visually distinguish Forge Keep nodes from Standard Strongholds at a glance
+- [x] Render board at 1080p and 2560×1440
+- [x] Ensure all 28 nodes individually selectable with hit area ≥ 44×44px
+- [x] Render connection paths as distinct, non-overlapping lines
+- [x] Visually distinguish Forge Keep nodes from Standard Strongholds at a glance
 - [x] Place Unknown Wanderer tokens face-down across Standard Stronghold nodes at game start (20 tokens)
 
 ---
@@ -44,10 +44,10 @@
 - [x] War Banner generation: 1 per Artificer per turn, 3 at Forge Keep Strongholds
 - [x] War Banner spending: movement (1 per node), Stronghold claiming (1), combat strength (additive)
 - [x] War Banners do not persist between rounds — discard unspent at round end
-- [ ] War Banner count always visible to all players (open information)
-- [ ] UI: immediate updates on production, spend, or discard
-- [ ] UI: clearly distinguish current Banners vs. Banners generated this turn
-- [ ] UI: visually distinct zero-Banner state
+- [x] War Banner count always visible to all players (open information)
+- [x] UI: immediate updates on production, spend, or discard
+- [x] UI: clearly distinguish current Banners vs. Banners generated this turn
+- [x] UI: visually distinct zero-Banner state
 
 ---
 
@@ -67,10 +67,10 @@
   - [x] Other Arch-Regents cannot initiate War Field against solo Herald
   - [x] Blight Wraiths ignore Diplomatic Protection
   - [x] Protection drops when any other Fellowship character enters Herald's node
-- [ ] UI: Fellowship composition visible to all players at all times
-- [ ] UI: Unknown Wanderer tokens visually indistinguishable face-down
-- [ ] UI: Diplomatic Protection state clearly indicated on board
-- [ ] UI: Recruit action greyed out (not hidden) when no Herald in Fellowship
+- [x] UI: Fellowship composition visible to all players at all times
+- [x] UI: Unknown Wanderer tokens visually indistinguishable face-down
+- [x] UI: Diplomatic Protection state clearly indicated on board
+- [x] UI: Recruit action greyed out (not hidden) when no Herald in Fellowship
 
 ---
 
@@ -112,10 +112,10 @@
   - [x] Death Knight base strength: 10 (fixed, no Fate Cards)
   - [x] Blight Wraith base strength: 6 (fixed, no Fate Cards)
   - [x] Defeating Death Knight reduces Doom Toll by 1
-- [ ] UI: simultaneous card reveal (no sequential)
-- [ ] UI: display margin before Penalty Card assignment
-- [ ] UI: tooltip explaining face-down/face-up asymmetry
-- [ ] UI: Fate Card reshuffle notification + Doom Toll advance animation
+- [x] UI: simultaneous card reveal (no sequential)
+- [x] UI: display margin before Penalty Card assignment
+- [x] UI: tooltip explaining face-down/face-up asymmetry
+- [x] UI: Fate Card reshuffle notification + Doom Toll advance animation
 
 ---
 
@@ -137,14 +137,14 @@
   - [x] Voting cost increases by 1 Fate Card
 - [x] Enforce constraints: cannot advance past 13, cannot recede below 0
 - [x] Cumulative advance/recede resolved sequentially (Shadowking phase first, then player phase)
-- [ ] UI: large persistent element (not sidebar, not tooltip)
-- [ ] UI: visual state transitions:
-  - [ ] Positions 1–6: neutral ambient
-  - [ ] Positions 7–9: candles dimming, Shadowking silhouette at board edge
-  - [ ] Positions 10–12: board lighting shift, Shadowking silhouette grows, enhanced Blight spread animations
-  - [ ] Position 13: game-over sequence
-- [ ] UI: readable from any screen position without scrolling
-- [ ] UI: Toll advance animation plays before next game action (not async)
+- [x] UI: large persistent element (not sidebar, not tooltip)
+- [x] UI: visual state transitions:
+  - [x] Positions 1–6: neutral ambient
+  - [x] Positions 7–9: candles dimming, Shadowking silhouette at board edge
+  - [x] Positions 10–12: board lighting shift, Shadowking silhouette grows, enhanced Blight spread animations
+  - [x] Position 13: game-over sequence
+- [x] UI: readable from any screen position without scrolling
+- [x] UI: Toll advance animation plays before next game action (not async)
 
 ---
 
@@ -164,8 +164,8 @@
   - [x] ASSAULT: blocked = assault cancelled
   - [x] ESCALATE: blocked = Doom Toll +1 (cannot be fully blocked)
 - [x] Auto-abstain for players with 0 Fate Cards
-- [ ] UI: clear indication of auto-abstain before vote timer expires
-- [ ] UI: 60-second vote timer for online play (auto-abstain on expiry)
+- [x] UI: clear indication of auto-abstain before vote timer expires
+- [x] UI: 60-second vote timer for online play (auto-abstain on expiry)
 
 ---
 
@@ -187,10 +187,10 @@
   - [x] Cannot rescue self
   - [x] Only first successful rescue per round takes effect
 - [x] Implement all-Broken draw condition: all active Arch-Regents simultaneously Broken → game ends as Draw
-- [ ] UI: Broken Court visually distinct on board (icon change, reduced action indicators)
-- [ ] UI: Voting Phase does NOT visually demote Broken Court player's vote
-- [ ] UI: Rescue action clearly accessible from action menu (not buried)
-- [ ] UI: recovery animation visible to all players
+- [x] UI: Broken Court visually distinct on board (icon change, reduced action indicators)
+- [x] UI: Voting Phase does NOT visually demote Broken Court player's vote
+- [x] UI: Rescue action clearly accessible from action menu (not buried)
+- [x] UI: recovery animation visible to all players
 - [x] **Write automated test: Broken Court state NEVER prevents Voting Phase participation**
 
 ---
@@ -214,9 +214,9 @@
   - [x] Death Knights cannot occupy same node as solo Herald (Diplomatic Protection for MOVE, not ASSAULT)
   - [x] Deck reshuffle advances Doom Toll by 1
 - [x] Fully deterministic execution from given seed
-- [ ] UI: Shadowking action fully animated before player actions each round
-- [ ] UI: active Behavior Card displayed during resolution
-- [ ] UI: Shadowking forces visually distinct from all player pieces (no color overlap)
+- [x] UI: Shadowking action fully animated before player actions each round
+- [x] UI: active Behavior Card displayed during resolution
+- [x] UI: Shadowking forces visually distinct from all player pieces (no color overlap)
 
 ---
 
@@ -228,9 +228,9 @@
   - [x] Costs 1 action
   - [x] Reduces Doom Toll by 1
   - [x] Once per game per Herald character (mark Herald after use)
-- [ ] UI: Dark Fortress shows Herald interaction indicator when solo Herald is adjacent
-- [ ] UI: Diplomatic Action available in action menu when conditions met
-- [ ] UI: Doom Toll reduction animation plays immediately after confirmation
+- [x] UI: Dark Fortress shows Herald interaction indicator when solo Herald is adjacent
+- [x] UI: Diplomatic Action available in action menu when conditions met
+- [x] UI: Doom Toll reduction animation plays immediately after confirmation
 - [x] Action log records diplomatic action for all players
 
 ---
@@ -246,8 +246,8 @@
 - [x] Implement Draw — All Courts Broken simultaneously:
   - [x] Game ends immediately, all players lose
 - [x] Victory triggers immediately when conditions met (no end-of-round delay)
-- [ ] UI: persistent standings indicator showing current Stronghold counts
-- [ ] UI: "who is winning" legible from main board view without score panel
+- [x] UI: persistent standings indicator showing current Stronghold counts
+- [x] UI: "who is winning" legible from main board view without score panel
 
 ---
 
@@ -260,19 +260,19 @@
 
 ### Blood Pact / Traitor Mode (P0)
 - [x] Blood Pact card dealt privately via app (no physical shuffle tell)
-- [ ] Blood Pact delivery is server-side (never sent to non-recipient clients)
+- [x] Blood Pact delivery is server-side (never sent to non-recipient clients)
 - [x] Blood Pact Arch-Regent wins if and only if Doom Toll reaches 13
 - [x] All normal player actions available (no mechanical restriction, only strategic incentive)
 - [x] Blood Pact reveal conditions:
   - [x] Game end (post-game summary)
   - [x] Unanimous accusation by all other active Arch-Regents (costs 2 Fate Cards each, failed accusations are costly)
-- [ ] UI: mode selection is first post-lobby screen
+- [x] UI: mode selection is first post-lobby screen
 
 ### Cooperative Mode (P1)
 - [x] All Arch-Regents win collectively by reclaiming Heartstone before Doom Toll completes
 - [x] Harder Shadowking Behavior Deck (composition TBD in balance testing)
 - [x] No PvP War Field (Fellowships may share nodes without combat)
-- [ ] UI: War Field initiation disabled between player Fellowships
+- [x] UI: War Field initiation disabled between player Fellowships
 
 ---
 
@@ -288,7 +288,7 @@
 - [x] Standings panel ≤ 15% of board area
 - [x] Readable at 1080p without zooming
 - [x] Broken Court uses distinct visual indicator (not just color change)
-- [ ] Broken Court indicator on standings panel AND on Court's board piece
+- [x] Broken Court indicator on standings panel AND on Court's board piece
 - [x] Voting Phase clearly distinguishable from action phase
 
 ---
