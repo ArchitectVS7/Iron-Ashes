@@ -80,3 +80,18 @@ export {
   hasBeenRescuedThisRound,
   type PlayerAction,
 } from './broken-court.js';
+
+export {
+  getWeakestPlayer,
+  moveForceToward,
+  placeMinion,
+  resolveBehaviorCard,
+  resolveAssault,
+  resolveClaim,
+  resolveEscalate,
+  resolveMove,
+  resolveSpawn,
+  type AssaultAction,
+  type AssaultTarget,
+  type ShadowkingAction,
+} from './shadowking.js';
