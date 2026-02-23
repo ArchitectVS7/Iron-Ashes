@@ -11,6 +11,9 @@ import { CombatOverlay } from './combat-overlay.js';
 import { DoomTollDisplay } from './doom-toll-display.js';
 import { VotingPanel } from './voting-panel.js';
 import { BrokenCourtUI } from './broken-court-ui.js';
+import { ShadowkingDisplay } from './shadowking-display.js';
+import { HeraldActionUI } from './herald-action.js';
+import { ModeSelectUI } from './mode-select.js';
 
 interface MockPlayerUI {
   id: string;
@@ -40,6 +43,9 @@ export class StandingsPanel {
   private doomTollDisplay: DoomTollDisplay;
   private votingPanel: VotingPanel;
   private brokenCourtUI: BrokenCourtUI;
+  private shadowkingDisplay: ShadowkingDisplay;
+  private heraldActionUI: HeraldActionUI;
+  private modeSelectUI: ModeSelectUI;
 
   constructor(parentId: string) {
     const parent = document.getElementById(parentId);
@@ -57,6 +63,10 @@ export class StandingsPanel {
     this.doomTollDisplay = new DoomTollDisplay('ui-layer');
     this.votingPanel = new VotingPanel('ui-layer');
     this.brokenCourtUI = new BrokenCourtUI('ui-layer');
+
+    this.shadowkingDisplay = new ShadowkingDisplay('ui-layer');
+    this.heraldActionUI = new HeraldActionUI('ui-layer');
+    this.modeSelectUI = new ModeSelectUI('ui-layer');
 
     // Default mock state
     this.state = {
@@ -176,6 +186,9 @@ export class StandingsPanel {
       <button id="btn-voting">Test Voting (Phase 7)</button>
       <button id="btn-combat">Test Combat (Phase 5)</button>
       <button id="btn-recovery">Test Recovery (Phase 8)</button>
+      <button id="btn-shadowking">Test Shadowking (Phase 9)</button>
+      <button id="btn-herald">Test Herald (Phase 10)</button>
+      <button id="btn-mode">Test Mode (Phase 12)</button>
     `;
     document.body.appendChild(div);
 
@@ -226,6 +239,20 @@ export class StandingsPanel {
       });
     });
 
+    document.getElementById('btn-shadowking')?.addEventListener('click', () => {
+      this.shadowkingDisplay.showBehaviorCard('SPAWN', 'Place 2 Blight Wraiths adjacent to the Dark Fortress.');
+    });
+
+    document.getElementById('btn-herald')?.addEventListener('click', () => {
+      this.heraldActionUI.showInteraction(() => {
+        if (this.state.doomToll > 0) this.updateState({ doomToll: this.state.doomToll - 1 });
+      });
+    });
+
+    document.getElementById('btn-mode')?.addEventListener('click', async () => {
+      const mode = await this.modeSelectUI.showModeSelection();
+      console.log('Selected Mode:', mode);
+    });
     document.getElementById('btn-defeat')?.addEventListener('click', () => {
       this.atmosphere.explodeParticles(window.innerWidth / 2, window.innerHeight / 2, '#3b82f6');
       if (this.state.doomToll > 0) {
