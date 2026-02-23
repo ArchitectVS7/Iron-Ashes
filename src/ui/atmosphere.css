@@ -1,0 +1,140 @@
+/* src/ui/atmosphere.css */
+#atmosphere-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 5;
+    transition: background-color 2s ease, opacity 2s ease;
+}
+
+.shadowking-silhouette {
+    position: absolute;
+    bottom: -100px;
+    right: -100px;
+    width: 800px;
+    height: 800px;
+    background-image: url('/shadowking.png');
+    background-size: cover;
+    background-position: bottom right;
+    opacity: 0;
+    transform: scale(0.9) translate(50px, 50px);
+    transition: all 4s ease-out;
+    mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 0) 70%);
+    -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 0) 70%);
+    filter: drop-shadow(0 0 50px rgba(0, 0, 0, 0.8));
+}
+
+.shadowking-10 {
+    opacity: 0.8 !important;
+    transform: scale(1) translate(0, 0) !important;
+    filter: drop-shadow(0 0 100px rgba(8, 14, 50, 0.9));
+}
+
+.shadowking-7 {
+    opacity: 0.3 !important;
+    transform: scale(0.95) translate(25px, 25px) !important;
+}
+
+/* The board lighting layer */
+.board-lighting {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.3) 100%);
+    transition: background 3s ease, box-shadow 3s ease;
+}
+
+.lighting-cold {
+    background: radial-gradient(ellipse at center, rgba(4, 15, 30, 0.3) 20%, rgba(0, 5, 10, 0.8) 100%) !important;
+}
+
+/* Vignette dimming candles */
+.vignette-dim {
+    box-shadow: inset 0 0 150px 30px rgba(0, 0, 0, 0.7);
+}
+
+.vignette-heavy {
+    box-shadow: inset 0 0 300px 80px rgba(0, 0, 0, 0.95);
+}
+
+.bell-strike-flash {
+    animation: white-flash 0.5s ease-out;
+}
+
+@keyframes white-flash {
+    0% {
+        background-color: rgba(255, 255, 255, 0);
+    }
+
+    10% {
+        background-color: rgba(200, 200, 255, 0.2);
+    }
+
+    100% {
+        background-color: rgba(255, 255, 255, 0);
+    }
+}
+
+.game-over-cutscene {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 3s ease;
+}
+
+.game-over-cutscene.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.overlord-title {
+    color: #e11d48;
+    font-family: 'Cinzel', serif;
+    font-size: 5rem;
+    text-shadow: 0 0 30px #e11d48;
+    letter-spacing: 12px;
+    animation: slow-zoom 10s ease-out forwards;
+}
+
+@keyframes slow-zoom {
+    from {
+        transform: scale(0.8);
+    }
+
+    to {
+        transform: scale(1.1);
+    }
+}
+
+/* Particle effects layer */
+#particle-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 6;
+}
+
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+}

@@ -337,26 +337,26 @@
 ## Phase 16: Atmosphere & Audio (F-015, P1)
 
 ### Visual State Layers
-- [ ] Doom Toll 1–6: default board state
-- [ ] Doom Toll 7–9: candles dimming (10% opacity reduction per position), Shadowking silhouette at board edge (low opacity)
-- [ ] Doom Toll 10–12: warm-to-cold lighting shift, Shadowking silhouette 80%, enhanced Blight Wraith animations
-- [ ] Doom Toll 13: game-over cutscene
+- [x] Doom Toll 1–6: default board state
+- [x] Doom Toll 7–9: candles dimming (10% opacity reduction per position), Shadowking silhouette at board edge (low opacity)
+- [x] Doom Toll 10–12: warm-to-cold lighting shift, Shadowking silhouette 80%, enhanced Blight Wraith animations
+- [x] Doom Toll 13: game-over cutscene
 
 ### Event Animations (Required)
-- [ ] Doom Toll advance: bell-strike animation, audio cue, counter increment
-- [ ] Rescue confirmation: distinct visual + audio beat (emotional peak of session — premium production value)
-- [ ] Blood Pact reveal: full-screen moment (not sidebar notification), requires intentional confirmation to dismiss
-- [ ] Death Knight defeated: particle effect at node, Doom Toll recede animation
+- [x] Doom Toll advance: bell-strike animation, audio cue, counter increment
+- [x] Rescue confirmation: distinct visual + audio beat (emotional peak of session — premium production value)
+- [x] Blood Pact reveal: full-screen moment (not sidebar notification), requires intentional confirmation to dismiss
+- [x] Death Knight defeated: particle effect at node, Doom Toll recede animation
 
 ### Audio
-- [ ] Ambient soundtrack: 3 states (Default, Pressure at Toll 7+, Final Phase at Toll 10+)
-- [ ] Doom Toll advance: distinct audio cue (different from other notifications)
-- [ ] Rescue action: unique audio signature
-- [ ] All audio mutable via settings
+- [x] Ambient soundtrack: 3 states (Default, Pressure at Toll 7+, Final Phase at Toll 10+)
+- [x] Doom Toll advance: distinct audio cue (different from other notifications)
+- [x] Rescue action: unique audio signature
+- [x] All audio mutable via settings
 
 ### Constraints
-- [ ] All atmosphere changes driven by game state variables (not timers)
-- [ ] Atmosphere must not obscure board readability at any Toll position
+- [x] All atmosphere changes driven by game state variables (not timers)
+- [x] Atmosphere must not obscure board readability at any Toll position
 
 ---
 

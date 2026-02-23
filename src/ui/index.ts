@@ -1,4 +1,5 @@
 // src/ui/index.ts
+import { AtmosphereEngine } from './atmosphere.js';
 
 interface MockPlayerUI {
   id: string;
@@ -19,6 +20,7 @@ interface MockGameStateUI {
 export class StandingsPanel {
   private container: HTMLElement;
   private state: MockGameStateUI;
+  private atmosphere: AtmosphereEngine;
 
   constructor(parentId: string) {
     const parent = document.getElementById(parentId);
@@ -28,11 +30,13 @@ export class StandingsPanel {
     this.container.className = 'standings-panel';
     parent.appendChild(this.container);
 
+    this.atmosphere = new AtmosphereEngine('game-app');
+
     // Default mock state
     this.state = {
       round: 3,
       phase: 'ACTION',
-      doomToll: 8,
+      doomToll: 5,
       players: [
         { id: '1', name: 'Court of Ash', strongholds: 4, warBanners: 2, isActiveTurn: true, isBrokenCourt: false },
         { id: '2', name: 'House Frost', strongholds: 3, warBanners: 0, isActiveTurn: false, isBrokenCourt: true },
@@ -42,10 +46,17 @@ export class StandingsPanel {
 
     this.render();
     this.createTestControls();
+    this.atmosphere.updateDoomTollEvent(0, this.state.doomToll);
   }
 
   public updateState(newState: Partial<MockGameStateUI>) {
+    const oldDoomToll = this.state.doomToll;
     this.state = { ...this.state, ...newState };
+
+    if (newState.doomToll !== undefined && newState.doomToll !== oldDoomToll) {
+      this.atmosphere.updateDoomTollEvent(oldDoomToll, newState.doomToll);
+    }
+
     this.render();
   }
 
@@ -106,8 +117,9 @@ export class StandingsPanel {
     div.innerHTML = `
       <div style="margin-bottom: 8px;"><b>Dev Tools</b></div>
       <button id="btn-doom">Advance Doom (+1)</button>
-      <button id="btn-next-turn">Next Turn</button>
-      <button id="btn-broken">Toggle Broken</button>
+      <button id="btn-doom-recede">Recede Doom (-1)</button>
+      <button id="btn-rescue">Test Rescue Sound</button>
+      <button id="btn-defeat">Defeat Knight</button>
     `;
     document.body.appendChild(div);
 
@@ -115,20 +127,25 @@ export class StandingsPanel {
       this.updateState({ doomToll: Math.min(13, this.state.doomToll + 1) });
     });
 
-    document.getElementById('btn-next-turn')?.addEventListener('click', () => {
-      const p = [...this.state.players];
-      const activeIdx = p.findIndex(x => x.isActiveTurn);
-      p.forEach(x => x.isActiveTurn = false);
-      p[(activeIdx + 1) % p.length].isActiveTurn = true;
-      
-      const nextPhase = this.state.phase === 'ACTION' ? 'VOTING' : 'ACTION';
-      this.updateState({ players: p, phase: nextPhase });
+    document.getElementById('btn-doom-recede')?.addEventListener('click', () => {
+      this.updateState({ doomToll: Math.max(0, this.state.doomToll - 1) });
     });
 
-    document.getElementById('btn-broken')?.addEventListener('click', () => {
+    document.getElementById('btn-rescue')?.addEventListener('click', () => {
+      this.atmosphere.playRescueSound();
+
       const p = [...this.state.players];
-      p[0].isBrokenCourt = !p[0].isBrokenCourt;
-      this.updateState({ players: p });
+      if (p[1].isBrokenCourt) {
+        p[1].isBrokenCourt = false;
+        this.updateState({ players: p });
+      }
+    });
+
+    document.getElementById('btn-defeat')?.addEventListener('click', (e) => {
+      this.atmosphere.explodeParticles(window.innerWidth / 2, window.innerHeight / 2, '#3b82f6');
+      if (this.state.doomToll > 0) {
+        this.updateState({ doomToll: this.state.doomToll - 1 });
+      }
     });
   }
 }
