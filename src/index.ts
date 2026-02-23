@@ -19,10 +19,14 @@ export {
 export {
   ACTIONS_PER_TURN_BROKEN,
   ACTIONS_PER_TURN_NORMAL,
+  BOARD_FORGE_NODES,
+  BOARD_STANDARD_NODES,
+  BOARD_TOTAL_NODES,
   DEFAULT_BEHAVIOR_DECK_COMPOSITION,
   DOOM_TOLL_FINAL_PHASE_THRESHOLD,
   DOOM_TOLL_MAX,
   DOOM_TOLL_MIN,
+  KNOWN_LANDS,
   LIEUTENANT_MAX_COUNT,
   LIEUTENANT_POWER,
   LIEUTENANT_START_COUNT,
@@ -32,11 +36,17 @@ export {
   POWER_LEVELS,
   VOTE_COST_FINAL_PHASE,
   VOTE_COST_STANDARD,
+  WANDERER_TOKEN_COUNT,
   createCharacter,
   createInitialBoardState,
   createInitialStats,
   createPlayer,
   createStartingFellowship,
+  getForgeNodes,
+  getNodesByType,
+  getStandardNodes,
+  selectWandererNodes,
+  validateBoard,
   type AIDifficulty,
   type ActionLogEntry,
   type AntagonistForce,
@@ -45,6 +55,7 @@ export {
   type BoardDefinition,
   type BoardNode,
   type BoardState,
+  type BoardValidationResult,
   type Character,
   type CharacterRole,
   type Fellowship,
@@ -61,4 +72,30 @@ export {
 } from './models/index.js';
 
 // Utilities
-export { SeededRandom } from './utils/index.js';
+export {
+  SeededRandom,
+  findNearest,
+  findShortestPath,
+  getAllDistances,
+  getDistance,
+  getNodesWithinDistance,
+} from './utils/index.js';
+
+// Game systems
+export {
+  BANNER_COST_CLAIM,
+  BANNER_COST_MOVE,
+  BANNER_PER_PRODUCER,
+  BANNER_PER_PRODUCER_AT_FORGE,
+  calculateBannerProduction,
+  calculateMovementCost,
+  canAffordClaim,
+  canAffordCombatSpend,
+  canAffordMovement,
+  discardUnspentBanners,
+  generateBanners,
+  spendBanners,
+  spendBannersForClaim,
+  spendBannersForCombat,
+  spendBannersForMovement,
+} from './systems/index.js';
