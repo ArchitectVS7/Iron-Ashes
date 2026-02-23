@@ -81,6 +81,18 @@ export {
   getNodesWithinDistance,
 } from './utils/index.js';
 
+// Engine
+export {
+  createGameState,
+  createBehaviorDeck,
+  createFateDeck,
+  advancePhase,
+  advanceActionTurn,
+  isActionPhaseComplete,
+  startRound,
+  startCleanup,
+} from './engine/index.js';
+
 // Game systems
 export {
   BANNER_COST_CLAIM,
