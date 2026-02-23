@@ -301,6 +301,8 @@ export function validateBoard(definition: BoardDefinition): BoardValidationResul
 
   // 5. Dark Fortress not adjacent to any starting keep
   const dfNode = definition.nodes[definition.antagonistBase];
+  const dfNode = definition.nodes[definition.antagonistBase];
+  // The board validation should ensure dfNode exists, but a defensive check doesn't hurt.
   if (dfNode) {
     for (const keepId of definition.startingKeeps) {
       if (dfNode.connections.includes(keepId)) {
