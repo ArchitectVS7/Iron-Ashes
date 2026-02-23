@@ -15,3 +15,15 @@ export {
   spendBannersForCombat,
   spendBannersForMovement,
 } from './resources.js';
+
+export {
+  WANDERER_COMPOSITION,
+  canAddToFellowship,
+  canRecruit,
+  countRole,
+  generateWandererPool,
+  getFellowshipPower,
+  hasDiplomaticProtection,
+  hasRole,
+  performRecruit,
+} from './characters.js';

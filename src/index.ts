@@ -98,4 +98,13 @@ export {
   spendBannersForClaim,
   spendBannersForCombat,
   spendBannersForMovement,
+  WANDERER_COMPOSITION,
+  canAddToFellowship,
+  canRecruit,
+  countRole,
+  generateWandererPool,
+  getFellowshipPower,
+  hasDiplomaticProtection,
+  hasRole,
+  performRecruit,
 } from './systems/index.js';
