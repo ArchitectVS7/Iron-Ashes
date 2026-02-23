@@ -1,4 +1,4 @@
-import { KNOWN_LANDS, BoardState, BoardNode, NodeType } from '../models/board.js';
+import { KNOWN_LANDS, BoardState, BoardNode } from '../models/board.js';
 
 interface Point {
     x: number;
@@ -12,6 +12,8 @@ export class BoardRenderer {
     private hoveredNode: string | null = null;
     private selectedNode: string | null = null;
     private boardState: BoardState | null = null;
+    private diplomaticNodes: string[] = [];
+    private renderLoopId: number = 0;
     public onNodeClick?: (nodeId: string) => void;
 
     constructor(canvasId: string) {
@@ -30,9 +32,23 @@ export class BoardRenderer {
         this.render();
     }
 
-    public updateState(state: BoardState) {
+    public updateState(state: BoardState, diplomaticNodes: string[] = []) {
         this.boardState = state;
-        this.render();
+        this.diplomaticNodes = diplomaticNodes;
+
+        if (this.diplomaticNodes.length > 0 && !this.renderLoopId) {
+            const loop = () => {
+                this.render();
+                if (this.diplomaticNodes.length > 0) {
+                    this.renderLoopId = requestAnimationFrame(loop);
+                } else {
+                    this.renderLoopId = 0;
+                }
+            };
+            this.renderLoopId = requestAnimationFrame(loop);
+        } else {
+            this.render();
+        }
     }
 
     private initCoordinates() {
@@ -123,7 +139,7 @@ export class BoardRenderer {
         }
     }
 
-    private handleClick(e: MouseEvent) {
+    private handleClick(_e: MouseEvent) {
         if (this.hoveredNode) {
             this.selectedNode = this.hoveredNode;
             if (this.onNodeClick) {
@@ -290,6 +306,20 @@ export class BoardRenderer {
             }
             this.ctx.stroke();
             this.ctx.setLineDash([]);
+        }
+
+        if (this.diplomaticNodes.includes(node.id)) {
+            this.ctx.beginPath();
+            this.ctx.arc(0, 0, radius + 12, 0, Math.PI * 2);
+            this.ctx.strokeStyle = '#3b82f6';
+            this.ctx.lineWidth = 2;
+            this.ctx.setLineDash([6, 6]);
+            this.ctx.lineDashOffset = -(Date.now() / 50) % 12;
+            this.ctx.stroke();
+            this.ctx.setLineDash([]);
+
+            this.ctx.fillStyle = 'rgba(59, 130, 246, 0.15)';
+            this.ctx.fill();
         }
 
         // Board State Visuals

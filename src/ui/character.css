@@ -1,0 +1,92 @@
+.character-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #334155;
+}
+
+.fellowship-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.character-token {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    background: #1e293b;
+    border: 1px solid #475569;
+    cursor: help;
+    transition: transform 0.2s ease;
+}
+
+.character-token:hover {
+    transform: scale(1.1);
+    z-index: 2;
+}
+
+.role-leader {
+    border-color: #fbbf24;
+    box-shadow: 0 0 4px rgba(251, 191, 36, 0.3);
+}
+
+.role-warrior {
+    border-color: #ef4444;
+}
+
+.role-diplomat {
+    border-color: #3b82f6;
+}
+
+.role-producer {
+    border-color: #a8a29e;
+}
+
+.character-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.action-btn {
+    background: #2563eb;
+    color: #f8fafc;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover:not(:disabled) {
+    background: #3b82f6;
+}
+
+.action-btn.action-disabled {
+    background: #334155;
+    color: #64748b;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Diplomatic Protection Indicator on Board */
+.diplomatic-protection {
+    stroke: #3b82f6 !important;
+    stroke-dasharray: 4;
+    animation: diplomatic-spin 10s linear infinite;
+    fill: rgba(59, 130, 246, 0.1) !important;
+}
+
+@keyframes diplomatic-spin {
+    100% {
+        stroke-dashoffset: 40;
+    }
+}

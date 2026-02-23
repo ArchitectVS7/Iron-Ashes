@@ -5,6 +5,8 @@ import { TutorialEngine } from './tutorial.js';
 import { BoardRenderer } from './board-renderer.js';
 import { KNOWN_LANDS, createInitialBoardState, selectWandererNodes } from '../models/board.js';
 import { SeededRandom } from '../utils/seeded-random.js';
+import { ResourceDisplay, ResourceState } from './resource-display.js';
+import { CharacterPanel, CharacterPanelState } from './character-panel.js';
 
 interface MockPlayerUI {
   id: string;
@@ -13,6 +15,8 @@ interface MockPlayerUI {
   warBanners: number;
   isActiveTurn: boolean;
   isBrokenCourt: boolean;
+  resources: ResourceState;
+  characterState: CharacterPanelState;
 }
 
 interface MockGameStateUI {
@@ -47,9 +51,21 @@ export class StandingsPanel {
       phase: 'ACTION',
       doomToll: 5,
       players: [
-        { id: '1', name: 'Court of Ash', strongholds: 4, warBanners: 2, isActiveTurn: true, isBrokenCourt: false },
-        { id: '2', name: 'House Frost', strongholds: 3, warBanners: 0, isActiveTurn: false, isBrokenCourt: true },
-        { id: '3', name: 'The Iron Core', strongholds: 5, warBanners: 4, isActiveTurn: false, isBrokenCourt: false },
+        {
+          id: '1', name: 'Court of Ash', strongholds: 4, warBanners: 2, isActiveTurn: true, isBrokenCourt: false,
+          resources: { currentBanners: 2, generatedThisTurn: 3 },
+          characterState: { characters: [{ id: 'c1', role: 'leader', powerLevel: 8 }, { id: 'c2', role: 'warrior', powerLevel: 6 }, { id: 'c3', role: 'producer', powerLevel: 3 }], hasHerald: false, canRecruit: false }
+        },
+        {
+          id: '2', name: 'House Frost', strongholds: 3, warBanners: 0, isActiveTurn: false, isBrokenCourt: true,
+          resources: { currentBanners: 0, generatedThisTurn: 0 },
+          characterState: { characters: [{ id: 'c4', role: 'leader', powerLevel: 8 }, { id: 'c5', role: 'diplomat', powerLevel: 0 }], hasHerald: true, canRecruit: false }
+        },
+        {
+          id: '3', name: 'The Iron Core', strongholds: 5, warBanners: 4, isActiveTurn: false, isBrokenCourt: false,
+          resources: { currentBanners: 4, generatedThisTurn: 0 },
+          characterState: { characters: [{ id: 'c6', role: 'leader', powerLevel: 8 }, { id: 'c7', role: 'warrior', powerLevel: 6 }, { id: 'c8', role: 'warrior', powerLevel: 6 }], hasHerald: false, canRecruit: false }
+        },
       ]
     };
 
@@ -97,11 +113,23 @@ export class StandingsPanel {
         ${this.state.players.map(p => this.renderPlayerCard(p)).join('')}
       </div>
     `;
+
+    // Attach sub-panels after rendering HTML
+    for (const p of this.state.players) {
+      const parentCard = document.getElementById(`player-card-${p.id}`);
+      if (parentCard) {
+        const rd = new ResourceDisplay(parentCard);
+        rd.update(p.resources);
+
+        const cp = new CharacterPanel(parentCard);
+        cp.update(p.characterState);
+      }
+    }
   }
 
   private renderPlayerCard(player: MockPlayerUI) {
     return `
-      <div class="player-card ${player.isActiveTurn ? 'active-turn' : ''} ${player.isBrokenCourt ? 'broken-court' : ''}">
+      <div id="player-card-${player.id}" class="player-card ${player.isActiveTurn ? 'active-turn' : ''} ${player.isBrokenCourt ? 'broken-court' : ''}">
         <div class="player-header">
           <div class="player-name">${player.name}</div>
           <div class="broken-icon">BROKEN COURT</div>
@@ -214,7 +242,7 @@ window.addEventListener('DOMContentLoaded', () => {
   mockBoardState['dark-fortress'].antagonistForces = ['dk1', 'dk2'];
   mockBoardState['s09'].antagonistForces = ['bw1'];
 
-  boardRenderer.updateState(mockBoardState);
+  boardRenderer.updateState(mockBoardState, ['s10']); // give s10 mock diplomatic protection
 
   const _ui = new StandingsPanel('ui-layer');
 });
