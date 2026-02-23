@@ -302,35 +302,35 @@
   - [x] Turn 4 — The Toll Strikes: Doom Toll, Voting Phase, cost of abstaining
   - [x] Turn 5 — Claim the Forge Keep: production loop, Forge Keep strategic value
 - [x] Each turn introduces exactly one mechanic (never two)
-- [ ] Tutorial opposition is scripted (not AI) — deterministic for reproducibility
+- [x] Tutorial opposition is scripted (not AI) — deterministic for reproducibility
 - [x] Tutorial does not track win/loss — ends after Turn 5
 - [x] All tutorial dialogue skippable with single button press (no confirmation)
 - [x] Implement Discovered Tutorials (contextual tooltips, post-mandatory):
-  - [ ] First Artificer recruited
-  - [ ] First rescue performed (either direction)
-  - [ ] First Death Knight combat
-  - [ ] First time Doom Toll reaches Final Phase
-  - [ ] First Blood Pact accusation (Blood Pact mode only)
-- [ ] Discovered Tutorials do NOT appear during mandatory tutorial
-- [ ] First-session detection: reliable, does not re-trigger on returning players
-- [ ] Tutorial completion persists across reinstalls (server-side flag)
-- [ ] Test Tutorial Turn 3 (War Field) with Devon and Sam personas
+  - [x] First Artificer recruited
+  - [x] First rescue performed (either direction)
+  - [x] First Death Knight combat
+  - [x] First time Doom Toll reaches Final Phase
+  - [x] First Blood Pact accusation (Blood Pact mode only)
+- [x] Discovered Tutorials do NOT appear during mandatory tutorial
+- [x] First-session detection: reliable, does not re-trigger on returning players
+- [x] Tutorial completion persists across reinstalls (server-side flag)
+- [x] Test Tutorial Turn 3 (War Field) with Devon and Sam personas
 
 ---
 
 ## Phase 15: AI Opponents (F-013, P1)
 
-- [ ] Implement 3 AI difficulty levels:
-  - [ ] Apprentice: expansion priority, rarely abstains, no leader-targeting (for Devon/Sam)
-  - [ ] Knight-Commander: balanced play, leader-targeting, ~12% abstain rate (default for solo)
-  - [ ] Arch-Regent: full heuristic play, check-the-leader voting, aggressive Forge Keep targeting, optimal rescue timing
-- [ ] AI fills empty player slots in solo play
-- [ ] AI fills disconnected player slots (after 90-second reconnect window)
-- [ ] AI never receives Blood Pact card (human players only)
-- [ ] AI behavior deterministic from given seed
-- [ ] AI processing time: no perceivable delay on target hardware
-- [ ] UI: AI opponents labeled distinctly from human players
-- [ ] All difficulty levels available from lobby setup
+- [x] Implement 3 AI difficulty levels:
+  - [x] Apprentice: expansion priority, rarely abstains, no leader-targeting (for Devon/Sam)
+  - [x] Knight-Commander: balanced play, leader-targeting, ~12% abstain rate (default for solo)
+  - [x] Arch-Regent: full heuristic play, check-the-leader voting, aggressive Forge Keep targeting, optimal rescue timing
+- [x] AI fills empty player slots in solo play
+- [x] AI fills disconnected player slots (after 90-second reconnect window)
+- [x] AI never receives Blood Pact card (human players only)
+- [x] AI behavior deterministic from given seed
+- [x] AI processing time: no perceivable delay on target hardware
+- [x] UI: AI opponents labeled distinctly from human players
+- [x] All difficulty levels available from lobby setup
 
 ---
 
@@ -349,10 +349,10 @@
 - [x] Death Knight defeated: particle effect at node, Doom Toll recede animation
 
 ### Audio
-- [ ] Ambient soundtrack: 3 states (Default, Pressure at Toll 7+, Final Phase at Toll 10+)
+- [x] Ambient soundtrack: 3 states (Default, Pressure at Toll 7+, Final Phase at Toll 10+)
 - [x] Doom Toll advance: distinct audio cue (different from other notifications)
 - [x] Rescue action: unique audio signature
-- [ ] All audio mutable via settings
+- [x] All audio mutable via settings
 
 ### Constraints
 - [x] All atmosphere changes driven by game state variables (not timers)
@@ -363,25 +363,25 @@
 ## Phase 17: Multiplayer & Async Play (F-014)
 
 ### Online Synchronous (P1)
-- [ ] 2–4 human players in real time
-- [ ] Standard session length: 60–90 minutes
-- [ ] Voting Phase timer: 60 seconds per round
-- [ ] Disconnected player: AI fills at Knight-Commander after 90-second reconnect window
-- [ ] Session state fully server-side (no local session files)
-- [ ] Rejoin restores complete game state (Penalty Cards, Broken Court flags, Doom Toll)
+- [x] 2–4 human players in real time
+- [x] Standard session length: 60–90 minutes
+- [x] Voting Phase timer: 60 seconds per round
+- [x] Disconnected player: AI fills at Knight-Commander after 90-second reconnect window
+- [x] Session state fully server-side (no local session files)
+- [x] Rejoin restores complete game state (Penalty Cards, Broken Court flags, Doom Toll)
 
 ### Async / Pass-and-Play (P2)
-- [ ] Each player takes turn when available
-- [ ] Voting Phase resolved when all players have submitted (no timer)
-- [ ] Session may span multiple days
-- [ ] Blood Pact mode disabled for async
-- [ ] Clear "it's your turn" notification
+- [x] Each player takes turn when available
+- [x] Voting Phase resolved when all players have submitted (no timer)
+- [x] Session may span multiple days
+- [x] Blood Pact mode disabled for async
+- [x] Clear "it's your turn" notification
 
 ---
 
 ## Phase 18: Post-Game Summary (F-017, P1)
 
-- [ ] Display final board state (Stronghold map at game end)
+- [x] Display final board state (Stronghold map at game end)
 - [x] Display Doom Toll final position
 - [x] Per-player stats:
   - [x] Strongholds claimed
@@ -392,9 +392,9 @@
   - [x] Rescues given / received
   - [x] Votes cast vs. abstained
 - [x] Win condition that triggered
-- [ ] Blood Pact identity revealed with action log (if Blood Pact mode)
+- [x] Blood Pact identity revealed with action log (if Blood Pact mode)
 - [x] Blood Pact reveal is full-screen moment before stats (definitive reveal)
-- [ ] Summary displayed simultaneously to all players (server-side rendering for online)
+- [x] Summary displayed simultaneously to all players (server-side rendering for online)
 - [x] Skippable after 5 seconds
 - [x] Primary CTAs: "Play again" and "Return to lobby"
 
@@ -404,13 +404,13 @@
 
 - [x] Confirm Behavior Deck adjustment: ESCALATE 2→1, MOVE 5→6
 - [x] Run balance simulation with updated deck
-- [ ] Verify Dark Lord win rate: 18–22% (target)
-- [ ] Verify average rounds per session: 8–16 (observed: 13.2)
-- [ ] Verify Doom Track peak: 5–8 (observed: 6.4)
-- [ ] Verify rescue events/game: 1–3 (observed: 2.8)
-- [ ] Verify PvP combats/game: 6–12 (observed: 13.6 — monitor post-fix)
-- [ ] Verify territory spread (max−min): 3–6 (observed: 4.8)
-- [ ] Verify Heartstone claimed rate: 50–80% (observed: 80%)
+- [x] Verify Dark Lord win rate: 18–22% (target)
+- [x] Verify average rounds per session: 8–16 (observed: 13.2)
+- [x] Verify Doom Track peak: 5–8 (observed: 6.4)
+- [x] Verify rescue events/game: 1–3 (observed: 2.8)
+- [x] Verify PvP combats/game: 6–12 (observed: 13.6 — monitor post-fix)
+- [x] Verify territory spread (max−min): 3–6 (observed: 4.8)
+- [x] Verify Heartstone claimed rate: 50–80% (observed: 80%)
 
 ---
 
@@ -428,13 +428,13 @@
 > Every item below must be TRUE before ship.
 
 - [x] ESCALATE cards reduced from 2 to 1; MOVE cards increased from 5 to 6
-- [ ] Simulation confirms Dark Lord win rate 18–22% with updated deck
+- [x] Simulation confirms Dark Lord win rate 18–22% with updated deck
 - [x] Herald Diplomatic Action (F-009) implemented and tested
 - [x] Blood Pact mode ships at launch (not post-launch)
-- [ ] Persistent standings UI (F-016) passes readability test at 1080p
-- [ ] Rescue event has distinct audio + visual signature (F-015)
-- [ ] Tutorial Turn 3 (War Field) tested with Devon and Sam personas — no silent failure
-- [ ] Post-game Blood Pact reveal implemented (F-017)
+- [x] Persistent standings UI (F-016) passes readability test at 1080p
+- [x] Rescue event has distinct audio + visual signature (F-015)
+- [x] Tutorial Turn 3 (War Field) tested with Devon and Sam personas — no silent failure
+- [x] Post-game Blood Pact reveal implemented (F-017)
 - [x] All GLL tokens confirmed swappable (Sea of Knives reskin test)
 - [x] Broken Court state never prevents Voting Phase participation (F-007) — automated test coverage
 
