@@ -114,8 +114,8 @@ export function spendBannersForMovement(
   player: Player,
   nodeCount: number,
 ): boolean {
+  if (nodeCount <= 0) return false;
   const cost = calculateMovementCost(nodeCount);
-  if (cost === 0) return true;
   return spendBanners(player, cost);
 }
 
