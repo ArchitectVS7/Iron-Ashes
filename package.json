@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "dev": "vite",
     "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -21,6 +22,7 @@
   "devDependencies": {
     "@types/node": "^25.3.0",
     "typescript": "^5.9.3",
+    "vite": "^7.3.1",
     "vitest": "^4.0.18"
   }
 }

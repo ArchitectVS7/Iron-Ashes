@@ -278,18 +278,18 @@
 
 ## Phase 13: Persistent UI — Standings & Status (F-016, P0)
 
-- [ ] Always visible on main board view (no separate panel required):
-  - [ ] Doom Toll position and current phase
-  - [ ] Each player's Stronghold count
-  - [ ] Each player's War Banner count
-  - [ ] Each player's Broken Court status
-  - [ ] Current round number
-  - [ ] Whose turn / Voting Phase active indicator
-- [ ] Standings panel ≤ 15% of board area
-- [ ] Readable at 1080p without zooming
-- [ ] Broken Court uses distinct visual indicator (not just color change)
-- [ ] Broken Court indicator on standings panel AND on Court's board piece
-- [ ] Voting Phase clearly distinguishable from action phase
+- [x] Always visible on main board view (no separate panel required):
+  - [x] Doom Toll position and current phase
+  - [x] Each player's Stronghold count
+  - [x] Each player's War Banner count
+  - [x] Each player's Broken Court status
+  - [x] Current round number
+  - [x] Whose turn / Voting Phase active indicator
+- [x] Standings panel ≤ 15% of board area
+- [x] Readable at 1080p without zooming
+- [x] Broken Court uses distinct visual indicator (not just color change)
+- [x] Broken Court indicator on standings panel AND on Court's board piece
+- [x] Voting Phase clearly distinguishable from action phase
 
 ---
 
