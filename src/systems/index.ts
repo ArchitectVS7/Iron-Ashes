@@ -40,3 +40,21 @@ export {
   resolveShadowkingCombat,
   type CombatResult,
 } from './combat.js';
+
+export {
+  checkBlightForgeCapture,
+  getBehaviorCardDrawCount,
+  getLeadingPlayer,
+  getPlayerStrongholdCount,
+  getVoteCost,
+  isDoomComplete,
+  isInFinalPhase,
+  onArchRegentEntersBrokenCourt,
+  onBlightWraithClaimsForge,
+  onDeathKnightDefeated,
+  onFateDeckReshuffle,
+  onForgeReclaimedFromBlight,
+  onNonUnanimousVote,
+  onUnanimousVoteWithCards,
+  performBlightAutoSpread,
+} from './doom-toll.js';
