@@ -2,6 +2,9 @@
 import { AtmosphereEngine } from './atmosphere.js';
 import { SummaryEngine } from './summary.js';
 import { TutorialEngine } from './tutorial.js';
+import { BoardRenderer } from './board-renderer.js';
+import { KNOWN_LANDS, createInitialBoardState, selectWandererNodes } from '../models/board.js';
+import { SeededRandom } from '../utils/seeded-random.js';
 
 interface MockPlayerUI {
   id: string;
@@ -200,5 +203,18 @@ export class StandingsPanel {
 // Initialize Application UI
 window.addEventListener('DOMContentLoaded', () => {
   console.log("Initializing Iron Throne of Ashes UI Engine...");
+
+  // Initialize Board Renderer
+  const boardRenderer = new BoardRenderer('game-canvas');
+  const rng = new SeededRandom(12345);
+  const wandererNodes = selectWandererNodes(KNOWN_LANDS, rng);
+  const mockBoardState = createInitialBoardState(KNOWN_LANDS, wandererNodes);
+
+  // Add some test antagonist forces
+  mockBoardState['dark-fortress'].antagonistForces = ['dk1', 'dk2'];
+  mockBoardState['s09'].antagonistForces = ['bw1'];
+
+  boardRenderer.updateState(mockBoardState);
+
   const _ui = new StandingsPanel('ui-layer');
 });

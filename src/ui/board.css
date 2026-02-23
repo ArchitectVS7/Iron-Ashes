@@ -1,0 +1,33 @@
+/* src/ui/board.css */
+#game-app {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #000;
+}
+
+#game-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+    /* Let clicks pass through to canvas when clicking empty space */
+}
+
+/* Children of ui-layer should react to pointer events */
+#ui-layer>* {
+    pointer-events: auto;
+}

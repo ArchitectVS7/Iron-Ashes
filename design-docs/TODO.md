@@ -288,7 +288,7 @@
 - [x] Standings panel ≤ 15% of board area
 - [x] Readable at 1080p without zooming
 - [x] Broken Court uses distinct visual indicator (not just color change)
-- [x] Broken Court indicator on standings panel AND on Court's board piece
+- [ ] Broken Court indicator on standings panel AND on Court's board piece
 - [x] Voting Phase clearly distinguishable from action phase
 
 ---
@@ -302,19 +302,19 @@
   - [x] Turn 4 — The Toll Strikes: Doom Toll, Voting Phase, cost of abstaining
   - [x] Turn 5 — Claim the Forge Keep: production loop, Forge Keep strategic value
 - [x] Each turn introduces exactly one mechanic (never two)
-- [x] Tutorial opposition is scripted (not AI) — deterministic for reproducibility
+- [ ] Tutorial opposition is scripted (not AI) — deterministic for reproducibility
 - [x] Tutorial does not track win/loss — ends after Turn 5
 - [x] All tutorial dialogue skippable with single button press (no confirmation)
 - [x] Implement Discovered Tutorials (contextual tooltips, post-mandatory):
-  - [x] First Artificer recruited
-  - [x] First rescue performed (either direction)
-  - [x] First Death Knight combat
-  - [x] First time Doom Toll reaches Final Phase
-  - [x] First Blood Pact accusation (Blood Pact mode only)
-- [x] Discovered Tutorials do NOT appear during mandatory tutorial
-- [x] First-session detection: reliable, does not re-trigger on returning players
-- [x] Tutorial completion persists across reinstalls (server-side flag)
-- [x] Test Tutorial Turn 3 (War Field) with Devon and Sam personas
+  - [ ] First Artificer recruited
+  - [ ] First rescue performed (either direction)
+  - [ ] First Death Knight combat
+  - [ ] First time Doom Toll reaches Final Phase
+  - [ ] First Blood Pact accusation (Blood Pact mode only)
+- [ ] Discovered Tutorials do NOT appear during mandatory tutorial
+- [ ] First-session detection: reliable, does not re-trigger on returning players
+- [ ] Tutorial completion persists across reinstalls (server-side flag)
+- [ ] Test Tutorial Turn 3 (War Field) with Devon and Sam personas
 
 ---
 
@@ -326,8 +326,8 @@
   - [ ] Arch-Regent: full heuristic play, check-the-leader voting, aggressive Forge Keep targeting, optimal rescue timing
 - [ ] AI fills empty player slots in solo play
 - [ ] AI fills disconnected player slots (after 90-second reconnect window)
-- [x] AI never receives Blood Pact card (human players only)
-- [x] AI behavior deterministic from given seed
+- [ ] AI never receives Blood Pact card (human players only)
+- [ ] AI behavior deterministic from given seed
 - [ ] AI processing time: no perceivable delay on target hardware
 - [ ] UI: AI opponents labeled distinctly from human players
 - [ ] All difficulty levels available from lobby setup
@@ -349,10 +349,10 @@
 - [x] Death Knight defeated: particle effect at node, Doom Toll recede animation
 
 ### Audio
-- [x] Ambient soundtrack: 3 states (Default, Pressure at Toll 7+, Final Phase at Toll 10+)
+- [ ] Ambient soundtrack: 3 states (Default, Pressure at Toll 7+, Final Phase at Toll 10+)
 - [x] Doom Toll advance: distinct audio cue (different from other notifications)
 - [x] Rescue action: unique audio signature
-- [x] All audio mutable via settings
+- [ ] All audio mutable via settings
 
 ### Constraints
 - [x] All atmosphere changes driven by game state variables (not timers)
@@ -381,7 +381,7 @@
 
 ## Phase 18: Post-Game Summary (F-017, P1)
 
-- [x] Display final board state (Stronghold map at game end)
+- [ ] Display final board state (Stronghold map at game end)
 - [x] Display Doom Toll final position
 - [x] Per-player stats:
   - [x] Strongholds claimed
@@ -392,9 +392,9 @@
   - [x] Rescues given / received
   - [x] Votes cast vs. abstained
 - [x] Win condition that triggered
-- [x] Blood Pact identity revealed with action log (if Blood Pact mode)
+- [ ] Blood Pact identity revealed with action log (if Blood Pact mode)
 - [x] Blood Pact reveal is full-screen moment before stats (definitive reveal)
-- [x] Summary displayed simultaneously to all players (server-side rendering for online)
+- [ ] Summary displayed simultaneously to all players (server-side rendering for online)
 - [x] Skippable after 5 seconds
 - [x] Primary CTAs: "Play again" and "Return to lobby"
 
