@@ -182,4 +182,11 @@ export {
   claimArtifact,
   isArtifactAvailable,
   isGameOver,
+  ACCUSATION_COST,
+  assignBloodPact,
+  canAccuse,
+  getModeName,
+  hasBloodPactCard,
+  isPvPCombatAllowed,
+  performAccusation,
 } from './systems/index.js';

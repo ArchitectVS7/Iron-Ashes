@@ -111,3 +111,13 @@ export {
   isArtifactAvailable,
   isGameOver,
 } from './victory.js';
+
+export {
+  ACCUSATION_COST,
+  assignBloodPact,
+  canAccuse,
+  getModeName,
+  hasBloodPactCard,
+  isPvPCombatAllowed,
+  performAccusation,
+} from './game-modes.js';
