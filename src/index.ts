@@ -172,4 +172,8 @@ export {
   type AssaultAction,
   type AssaultTarget,
   type ShadowkingAction,
+  canPerformDiplomaticAction,
+  getEligibleDiplomats,
+  isDarkFortressClear,
+  performDiplomaticAction,
 } from './systems/index.js';

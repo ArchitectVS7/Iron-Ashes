@@ -95,3 +95,10 @@ export {
   type AssaultTarget,
   type ShadowkingAction,
 } from './shadowking.js';
+
+export {
+  canPerformDiplomaticAction,
+  getEligibleDiplomats,
+  isDarkFortressClear,
+  performDiplomaticAction,
+} from './herald-diplomacy.js';
