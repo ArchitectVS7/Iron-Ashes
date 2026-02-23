@@ -27,3 +27,16 @@ export {
   hasRole,
   performRecruit,
 } from './characters.js';
+
+export {
+  advanceDoomToll,
+  calculateBaseStrength,
+  calculateFateCardDraw,
+  canInitiateCombat,
+  canInitiateCombatAgainstPlayer,
+  drawFateCards,
+  recedeDoomToll,
+  resolvePlayerCombat,
+  resolveShadowkingCombat,
+  type CombatResult,
+} from './combat.js';
