@@ -176,4 +176,10 @@ export {
   getEligibleDiplomats,
   isDarkFortressClear,
   performDiplomaticAction,
+  applyVictory,
+  checkTerritoryVictory,
+  checkVictoryConditions,
+  claimArtifact,
+  isArtifactAvailable,
+  isGameOver,
 } from './systems/index.js';

@@ -102,3 +102,12 @@ export {
   isDarkFortressClear,
   performDiplomaticAction,
 } from './herald-diplomacy.js';
+
+export {
+  applyVictory,
+  checkTerritoryVictory,
+  checkVictoryConditions,
+  claimArtifact,
+  isArtifactAvailable,
+  isGameOver,
+} from './victory.js';
