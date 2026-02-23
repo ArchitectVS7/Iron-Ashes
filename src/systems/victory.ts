@@ -92,7 +92,7 @@ export function claimArtifact(
  */
 export function checkTerritoryVictory(
   state: GameState,
-  rng: SeededRandom,
+  _rng: SeededRandom,
 ): number | null {
   if (state.artifactHolder === null) return null;
 

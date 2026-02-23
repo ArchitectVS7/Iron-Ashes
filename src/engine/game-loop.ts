@@ -27,7 +27,7 @@ import {
   createInitialBoardState,
   selectWandererNodes,
 } from '../models/board.js';
-import { createPlayer, createInitialStats } from '../models/player.js';
+import { createPlayer } from '../models/player.js';
 import { createStartingFellowship } from '../models/characters.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 import { generateBanners, discardUnspentBanners } from '../systems/resources.js';
@@ -120,7 +120,7 @@ export function createGameState(
 
   // Select and place wanderer tokens
   const wandererNodeIds = selectWandererNodes(boardDefinition, rng);
-  const wandererPool = generateWandererPool(rng);
+  const _wandererPool = generateWandererPool(rng);
 
   // Build the board state with starting keep ownership + wanderers
   const boardState = createInitialBoardState(boardDefinition, wandererNodeIds);

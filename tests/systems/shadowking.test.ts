@@ -2,7 +2,7 @@
  * Tests for the Shadowking Behavior System (F-008)
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { createGameState, startRound } from '../../src/engine/game-loop.js';
 import { SeededRandom } from '../../src/utils/seeded-random.js';
 import {
@@ -24,7 +24,6 @@ import {
   getWeakestPlayer,
   moveForceToward,
   placeMinion,
-  type ShadowkingAction,
   type AssaultAction,
 } from '../../src/systems/shadowking.js';
 
@@ -292,7 +291,7 @@ describe('moveForceToward()', () => {
     const state = makeState();
     clearForces(state);
 
-    const lt = makeLieutenant(state, 'lt-board-track', 'dark-fortress');
+    makeLieutenant(state, 'lt-board-track', 'dark-fortress');
 
     moveForceToward(state, 'lt-board-track', 's09', 1, false);
 
@@ -306,7 +305,7 @@ describe('moveForceToward()', () => {
     const state = makeState();
     clearForces(state);
 
-    const lt = makeLieutenant(state, 'lt-at-target', 's09');
+    makeLieutenant(state, 'lt-at-target', 's09');
     const newNode = moveForceToward(state, 'lt-at-target', 's09', 2, false);
     expect(newNode).toBe('s09');
   });

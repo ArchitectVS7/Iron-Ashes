@@ -150,7 +150,7 @@ export class StandingsPanel {
       }
     });
 
-    document.getElementById('btn-defeat')?.addEventListener('click', (e) => {
+    document.getElementById('btn-defeat')?.addEventListener('click', () => {
       this.atmosphere.explodeParticles(window.innerWidth / 2, window.innerHeight / 2, '#3b82f6');
       if (this.state.doomToll > 0) {
         this.updateState({ doomToll: this.state.doomToll - 1 });
@@ -186,7 +186,7 @@ export class StandingsPanel {
       ]);
     });
 
-    document.getElementById('btn-tooltip')?.addEventListener('click', (e) => {
+    document.getElementById('btn-tooltip')?.addEventListener('click', () => {
       this.tutorial.showDiscoveredTooltip(
         "First Rescue Performed",
         "You have rescued a Broken Court. Restoring their War Banners returns them to active status immediately. They owe you their loyalty.",
@@ -200,5 +200,5 @@ export class StandingsPanel {
 // Initialize Application UI
 window.addEventListener('DOMContentLoaded', () => {
   console.log("Initializing Iron Throne of Ashes UI Engine...");
-  const ui = new StandingsPanel('ui-layer');
+  const _ui = new StandingsPanel('ui-layer');
 });

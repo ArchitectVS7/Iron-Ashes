@@ -146,8 +146,8 @@ describe('SeededRandom', () => {
       const forked = rng.fork();
 
       // The forked RNG should produce different values than continuing the parent
-      const parentVal = rng.float();
-      const forkedVal = forked.float();
+      const _parentVal = rng.float();
+      const _forkedVal = forked.float();
       // They CAN be equal by chance, but the streams are independent
       expect(forked.seed).not.toBe(42); // Derived seed should differ
     });

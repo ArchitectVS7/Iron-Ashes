@@ -2,7 +2,7 @@
  * Tests for the Doom Toll System (F-005)
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { createGameState } from '../../src/engine/game-loop.js';
 import { SeededRandom } from '../../src/utils/seeded-random.js';
 import {

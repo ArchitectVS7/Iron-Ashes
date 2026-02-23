@@ -13,7 +13,6 @@ import {
   canInitiateCombatAgainstPlayer,
   advanceDoomToll,
   recedeDoomToll,
-  type CombatResult,
 } from '../../src/systems/combat.js';
 import { createGameState } from '../../src/engine/game-loop.js';
 import { createPlayer, Player } from '../../src/models/player.js';
@@ -22,7 +21,6 @@ import { createCharacter } from '../../src/models/characters.js';
 import { SeededRandom } from '../../src/utils/seeded-random.js';
 import {
   GameState,
-  AntagonistForce,
   DOOM_TOLL_MAX,
   DOOM_TOLL_MIN,
   DOOM_TOLL_FINAL_PHASE_THRESHOLD,
@@ -533,16 +531,16 @@ describe('canInitiateCombatAgainstPlayer()', () => {
   it('should return false when defender has diplomatic protection', () => {
     // Defender alone on their node with a diplomat → protected.
     const attacker = makePlayer('s01', 0);
-    const defender = makePlayer('s02', 1); // different node so defender is alone
+    const _defender = makePlayer('s02', 1); // different node so defender is alone
     attacker.actionsRemaining = 2;
     // Attacker and defender are on different nodes → not co-located, will fail node check first.
     // Let's put them on the same node but remove attacker from the player list to simulate protection:
     // Actually hasDiplomaticProtection checks: has diplomat AND no other player on same node.
     // If attacker is on s01 and defender is on s01, there IS another player → no protection.
     // To get diplomatic protection: defender must be alone. Let's use a third-player setup.
-    const defender2 = makePlayer('s03', 1);
-    defender2.actionsRemaining = 2;
-    const protectedDefender = makePlayer('s04', 2); // alone on s04 with diplomat
+    const _defender2 = makePlayer('s03', 1);
+    _defender2.actionsRemaining = 2;
+    const _protectedDefender = makePlayer('s04', 2); // alone on s04 with diplomat
     // Attacker is on different node → will fail same-node check.
     // Actually to test diplomatic protection blocking, we need attacker on same node as defender,
     // but defender must have no OTHER players on the same node.

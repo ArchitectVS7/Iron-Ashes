@@ -8,9 +8,9 @@
 
 import { GameState, GameEndReason } from '../models/game-state.js';
 import { SeededRandom } from '../utils/seeded-random.js';
-import { findNearest, getDistance } from '../utils/pathfinding.js';
+import { findNearest } from '../utils/pathfinding.js';
 import { getStandardNodes } from '../models/board.js';
-import { createGameState, advancePhase, startRound, advanceActionTurn } from './game-loop.js';
+import { createGameState, advancePhase, startRound } from './game-loop.js';
 import { spendBannersForMovement, spendBannersForClaim, canAffordMovement, canAffordClaim } from '../systems/resources.js';
 import { submitVote, resolveVotes, autoAbstainPlayers, canVote } from '../systems/voting.js';
 import { resolveBehaviorCard } from '../systems/shadowking.js';
@@ -52,7 +52,7 @@ export interface BatchResult {
 export function simulatePlayerAction(
   state: GameState,
   playerIndex: number,
-  rng: SeededRandom,
+  _rng: SeededRandom,
 ): void {
   const player = state.players[playerIndex];
   if (!player || player.actionsRemaining <= 0) return;

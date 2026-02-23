@@ -2,7 +2,7 @@
  * Tests for the Voting Phase System (F-006)
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { createGameState } from '../../src/engine/game-loop.js';
 import {
   GameState,
@@ -16,8 +16,6 @@ import {
   resolveVotes,
   getBehaviorCardEffect,
   autoAbstainPlayers,
-  type VoteResult,
-  type BehaviorCardEffect,
 } from '../../src/systems/voting.js';
 
 // ─── Test Helpers ─────────────────────────────────────────────────
@@ -45,7 +43,7 @@ function setCurrentCard(state: GameState, type: 'spawn' | 'move' | 'claim' | 'as
 }
 
 /** Set all votes on the state to the given choice. */
-function setAllVotes(state: GameState, choice: VoteChoice | null): void {
+function _setAllVotes(state: GameState, choice: VoteChoice | null): void {
   for (let i = 0; i < state.votes.length; i++) {
     state.votes[i] = choice;
   }

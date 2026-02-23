@@ -30,7 +30,7 @@ export class AtmosphereEngine {
 
     private initAudio() {
         if (!this.audioCtx) {
-            this.audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+            this.audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
         }
         if (this.audioCtx.state === 'suspended') {
             this.audioCtx.resume();

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   BANNER_PER_PRODUCER,
   BANNER_PER_PRODUCER_AT_FORGE,
@@ -19,7 +19,7 @@ import {
 import { createPlayer, Player } from '../../src/models/player.js';
 import { createStartingFellowship } from '../../src/models/characters.js';
 import { createCharacter } from '../../src/models/characters.js';
-import { KNOWN_LANDS, BoardDefinition } from '../../src/models/board.js';
+import { KNOWN_LANDS } from '../../src/models/board.js';
 
 /** Create a player at the given node with a starting Fellowship. */
 function makePlayer(nodeId: string, courtIndex: number = 0): Player {

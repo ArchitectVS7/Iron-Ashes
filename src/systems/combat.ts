@@ -174,7 +174,7 @@ export function resolvePlayerCombat(
 
   const margin = Math.abs(attackerTotal - defenderTotal);
   const loser = winner === 'attacker' ? defender : attacker;
-  const loserIsAttacker = winner === 'defender';
+  const _loserIsAttacker = winner === 'defender';
 
   // Apply penalty cards to loser.
   const wasAlreadyBroken = loser.isBroken;
