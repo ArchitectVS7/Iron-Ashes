@@ -69,3 +69,14 @@ export {
   type BehaviorCardEffect,
   type VoteResult,
 } from './voting.js';
+
+export {
+  checkBrokenStatus,
+  enterBrokenCourt,
+  isAllBroken,
+  canPerformAction,
+  canRescue,
+  performRescue,
+  hasBeenRescuedThisRound,
+  type PlayerAction,
+} from './broken-court.js';
