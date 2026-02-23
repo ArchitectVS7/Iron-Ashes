@@ -58,3 +58,14 @@ export {
   onUnanimousVoteWithCards,
   performBlightAutoSpread,
 } from './doom-toll.js';
+
+export {
+  allVotesSubmitted,
+  autoAbstainPlayers,
+  canVote,
+  getBehaviorCardEffect,
+  resolveVotes,
+  submitVote,
+  type BehaviorCardEffect,
+  type VoteResult,
+} from './voting.js';

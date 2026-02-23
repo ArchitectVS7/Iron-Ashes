@@ -144,4 +144,12 @@ export {
   onNonUnanimousVote,
   onUnanimousVoteWithCards,
   performBlightAutoSpread,
+  allVotesSubmitted,
+  autoAbstainPlayers,
+  canVote,
+  getBehaviorCardEffect,
+  resolveVotes,
+  submitVote,
+  type BehaviorCardEffect,
+  type VoteResult,
 } from './systems/index.js';
