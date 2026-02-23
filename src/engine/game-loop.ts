@@ -323,3 +323,65 @@ export function startCleanup(state: GameState): GameState {
   }
   return state;
 }
+
+// ─── Turn Indicator & Round Counter ──────────────────────────────
+
+/** Display-friendly phase labels for the turn indicator. */
+const PHASE_LABELS: Record<GamePhase, string> = {
+  shadowking: 'Shadowking Phase',
+  voting: 'Voting Phase',
+  action: 'Action Phase',
+  cleanup: 'Cleanup Phase',
+};
+
+/**
+ * Summary of the current turn state, suitable for driving a turn indicator UI.
+ */
+export interface TurnIndicator {
+  /** Current round number (1-based). */
+  readonly round: number;
+  /** Current phase of the round. */
+  readonly phase: GamePhase;
+  /** Human-readable phase label. */
+  readonly phaseLabel: string;
+  /** Index of the active player (only meaningful during 'action' phase). */
+  readonly activePlayerIndex: number;
+  /** Whether it is the action phase. */
+  readonly isActionPhase: boolean;
+  /** Whether it is the voting phase. */
+  readonly isVotingPhase: boolean;
+}
+
+/**
+ * Get the current turn indicator state.
+ *
+ * Provides all information needed to render a turn indicator and round counter:
+ *   - Current round number
+ *   - Current phase and human-readable label
+ *   - Active player index (during action phase)
+ *   - Convenience booleans for phase queries
+ */
+export function getTurnIndicator(state: GameState): TurnIndicator {
+  return {
+    round: state.round,
+    phase: state.phase,
+    phaseLabel: PHASE_LABELS[state.phase],
+    activePlayerIndex: state.activePlayerIndex,
+    isActionPhase: state.phase === 'action',
+    isVotingPhase: state.phase === 'voting',
+  };
+}
+
+/**
+ * Get the current round number.
+ */
+export function getRoundNumber(state: GameState): number {
+  return state.round;
+}
+
+/**
+ * Get the current phase label as a human-readable string.
+ */
+export function getPhaseLabel(state: GameState): string {
+  return PHASE_LABELS[state.phase];
+}

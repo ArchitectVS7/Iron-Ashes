@@ -1,6 +1,7 @@
 // src/ui/index.ts
 import { AtmosphereEngine } from './atmosphere.js';
 import { SummaryEngine } from './summary.js';
+import { TutorialEngine } from './tutorial.js';
 
 interface MockPlayerUI {
   id: string;
@@ -23,6 +24,7 @@ export class StandingsPanel {
   private state: MockGameStateUI;
   private atmosphere: AtmosphereEngine;
   private summary: SummaryEngine;
+  private tutorial: TutorialEngine;
 
   constructor(parentId: string) {
     const parent = document.getElementById(parentId);
@@ -34,6 +36,7 @@ export class StandingsPanel {
 
     this.atmosphere = new AtmosphereEngine('game-app');
     this.summary = new SummaryEngine();
+    this.tutorial = new TutorialEngine();
 
     // Default mock state
     this.state = {
@@ -124,6 +127,8 @@ export class StandingsPanel {
       <button id="btn-rescue">Test Rescue Sound</button>
       <button id="btn-defeat">Defeat Knight</button>
       <button id="btn-summary">Test Summary (Phase 18)</button>
+      <button id="btn-tutorial">Test Tutorial (Phase 14)</button>
+      <button id="btn-tooltip">Test Tooltip</button>
     `;
     document.body.appendChild(div);
 
@@ -169,6 +174,25 @@ export class StandingsPanel {
           13
         );
       });
+    });
+
+    document.getElementById('btn-tutorial')?.addEventListener('click', () => {
+      this.tutorial.startGuidedTutorial([
+        { title: "Turn 1 — March from Your Keep", content: "Learn basic movement, War Banner costs, and claiming your first Stronghold." },
+        { title: "Turn 2 — Send the Herald Ahead", content: "Learn how to use your Herald to safely recruit Unknown Wanderers using Diplomatic Protection." },
+        { title: "Turn 3 — Your First Battle", content: "Engage in War Field resolution. Learn how Fate Cards and Penalty Cards are applied." },
+        { title: "Turn 4 — The Toll Strikes", content: "The Doom Toll advances! Understand the Voting Phase and the devastating cost of abstaining." },
+        { title: "Turn 5 — Claim the Forge Keep", content: "Secure the production loop. Forge Keeps provide extreme strategic value by generating mass War Banners." }
+      ]);
+    });
+
+    document.getElementById('btn-tooltip')?.addEventListener('click', (e) => {
+      this.tutorial.showDiscoveredTooltip(
+        "First Rescue Performed",
+        "You have rescued a Broken Court. Restoring their War Banners returns them to active status immediately. They owe you their loyalty.",
+        window.innerWidth / 2 - 150,
+        window.innerHeight / 2
+      );
     });
   }
 }
