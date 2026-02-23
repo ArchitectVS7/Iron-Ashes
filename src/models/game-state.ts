@@ -124,6 +124,27 @@ export const DEFAULT_BEHAVIOR_DECK_COMPOSITION: Record<BehaviorCardType, number>
   escalate: 1, // Reduced from 2 to 1 (balance fix)
 };
 
+/**
+ * Harder Behavior Deck for Cooperative Mode.
+ *
+ * More aggressive: additional ESCALATE and ASSAULT cards replace
+ * SPAWN and CLAIM slots. Total remains 20 cards.
+ *
+ * Changes from default:
+ *   - ESCALATE 1→3 (more doom pressure without a traitor to drive it)
+ *   - ASSAULT 3→4 (more direct combat against players)
+ *   - SPAWN 6→5 (slight reduction)
+ *   - CLAIM 4→2 (fewer territory grabs — players aren't competing)
+ *   - MOVE 6→6 (unchanged)
+ */
+export const COOPERATIVE_BEHAVIOR_DECK_COMPOSITION: Record<BehaviorCardType, number> = {
+  spawn: 5,
+  move: 6,
+  claim: 2,
+  assault: 4,
+  escalate: 3,
+};
+
 /** Doom Toll constants. */
 export const DOOM_TOLL_MAX = 13;
 export const DOOM_TOLL_MIN = 0;

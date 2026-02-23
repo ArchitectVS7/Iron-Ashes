@@ -116,6 +116,7 @@ export {
   ACCUSATION_COST,
   assignBloodPact,
   canAccuse,
+  getCooperativeDeckComposition,
   getModeName,
   hasBloodPactCard,
   isPvPCombatAllowed,

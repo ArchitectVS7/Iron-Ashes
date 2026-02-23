@@ -15,6 +15,7 @@ import {
   BehaviorCardType,
   AntagonistForce,
   DEFAULT_BEHAVIOR_DECK_COMPOSITION,
+  COOPERATIVE_BEHAVIOR_DECK_COMPOSITION,
   DOOM_TOLL_FINAL_PHASE_THRESHOLD,
   ACTIONS_PER_TURN_NORMAL,
   ACTIONS_PER_TURN_BROKEN,
@@ -35,15 +36,22 @@ import { generateWandererPool } from '../systems/characters.js';
 // ─── Behavior Deck ────────────────────────────────────────────────
 
 /**
- * Create a shuffled Behavior Deck from the default composition.
+ * Create a shuffled Behavior Deck from a given composition.
  *
  * Each card type gets a sequential ID prefix (e.g. "spawn-1", "move-3").
- * Total: 20 cards (6 spawn, 6 move, 4 claim, 3 assault, 1 escalate).
+ * Default composition: 20 cards (6 spawn, 6 move, 4 claim, 3 assault, 1 escalate).
+ * Cooperative composition: 20 cards (5 spawn, 6 move, 2 claim, 4 assault, 3 escalate).
+ *
+ * @param rng         - Seeded random for shuffle determinism
+ * @param composition - Card type counts (defaults to DEFAULT_BEHAVIOR_DECK_COMPOSITION)
  */
-export function createBehaviorDeck(rng: SeededRandom): BehaviorCard[] {
+export function createBehaviorDeck(
+  rng: SeededRandom,
+  composition: Record<BehaviorCardType, number> = DEFAULT_BEHAVIOR_DECK_COMPOSITION,
+): BehaviorCard[] {
   const cards: BehaviorCard[] = [];
 
-  for (const [cardType, count] of Object.entries(DEFAULT_BEHAVIOR_DECK_COMPOSITION) as Array<
+  for (const [cardType, count] of Object.entries(composition) as Array<
     [BehaviorCardType, number]
   >) {
     for (let i = 1; i <= count; i++) {
@@ -134,8 +142,11 @@ export function createGameState(
   // Only the active player courts (0..playerCount-1) have their keeps pre-claimed
   // by createInitialBoardState, so unclaimed courts (playerCount..3) remain null.
 
-  // Create shuffled decks
-  const behaviorDeck = createBehaviorDeck(rng);
+  // Create shuffled decks — cooperative mode uses a harder composition
+  const deckComposition = mode === 'cooperative'
+    ? COOPERATIVE_BEHAVIOR_DECK_COMPOSITION
+    : DEFAULT_BEHAVIOR_DECK_COMPOSITION;
+  const behaviorDeck = createBehaviorDeck(rng, deckComposition);
   const fateDeck = createFateDeck(rng);
 
   // Place starting lieutenants at the antagonist base

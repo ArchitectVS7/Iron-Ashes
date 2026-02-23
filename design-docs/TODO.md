@@ -82,7 +82,7 @@
   3. Player Action Phases (2 actions per player, 1 if Broken Court)
 - [x] Implement action system: move, claim Stronghold, recruit, initiate combat, rescue
 - [x] Enforce phase ordering: Voting Phase resolves before any player action phase
-- [ ] Implement turn indicator and round counter
+- [x] Implement turn indicator and round counter
 - [x] Implement end-of-round cleanup (discard unspent War Banners, generate new Banners)
 
 ---
@@ -270,7 +270,7 @@
 
 ### Cooperative Mode (P1)
 - [x] All Arch-Regents win collectively by reclaiming Heartstone before Doom Toll completes
-- [ ] Harder Shadowking Behavior Deck (composition TBD in balance testing)
+- [x] Harder Shadowking Behavior Deck (composition TBD in balance testing)
 - [x] No PvP War Field (Fellowships may share nodes without combat)
 - [ ] UI: War Field initiation disabled between player Fellowships
 
@@ -295,26 +295,26 @@
 
 ## Phase 14: Tutorial — Into the Blighted Wastes (F-012, P0)
 
-- [ ] Implement 5-turn guided tutorial (non-skippable for first-time players):
-  - [ ] Turn 1 — March from Your Keep: movement, War Banner costs, claiming
-  - [ ] Turn 2 — Send the Herald Ahead: recruitment, Diplomatic Protection
-  - [ ] Turn 3 — Your First Battle: War Field resolution, Fate Cards, Penalty Cards
-  - [ ] Turn 4 — The Toll Strikes: Doom Toll, Voting Phase, cost of abstaining
-  - [ ] Turn 5 — Claim the Forge Keep: production loop, Forge Keep strategic value
-- [ ] Each turn introduces exactly one mechanic (never two)
-- [ ] Tutorial opposition is scripted (not AI) — deterministic for reproducibility
-- [ ] Tutorial does not track win/loss — ends after Turn 5
-- [ ] All tutorial dialogue skippable with single button press (no confirmation)
-- [ ] Implement Discovered Tutorials (contextual tooltips, post-mandatory):
-  - [ ] First Artificer recruited
-  - [ ] First rescue performed (either direction)
-  - [ ] First Death Knight combat
-  - [ ] First time Doom Toll reaches Final Phase
-  - [ ] First Blood Pact accusation (Blood Pact mode only)
-- [ ] Discovered Tutorials do NOT appear during mandatory tutorial
-- [ ] First-session detection: reliable, does not re-trigger on returning players
-- [ ] Tutorial completion persists across reinstalls (server-side flag)
-- [ ] Test Tutorial Turn 3 (War Field) with Devon and Sam personas
+- [x] Implement 5-turn guided tutorial (non-skippable for first-time players):
+  - [x] Turn 1 — March from Your Keep: movement, War Banner costs, claiming
+  - [x] Turn 2 — Send the Herald Ahead: recruitment, Diplomatic Protection
+  - [x] Turn 3 — Your First Battle: War Field resolution, Fate Cards, Penalty Cards
+  - [x] Turn 4 — The Toll Strikes: Doom Toll, Voting Phase, cost of abstaining
+  - [x] Turn 5 — Claim the Forge Keep: production loop, Forge Keep strategic value
+- [x] Each turn introduces exactly one mechanic (never two)
+- [x] Tutorial opposition is scripted (not AI) — deterministic for reproducibility
+- [x] Tutorial does not track win/loss — ends after Turn 5
+- [x] All tutorial dialogue skippable with single button press (no confirmation)
+- [x] Implement Discovered Tutorials (contextual tooltips, post-mandatory):
+  - [x] First Artificer recruited
+  - [x] First rescue performed (either direction)
+  - [x] First Death Knight combat
+  - [x] First time Doom Toll reaches Final Phase
+  - [x] First Blood Pact accusation (Blood Pact mode only)
+- [x] Discovered Tutorials do NOT appear during mandatory tutorial
+- [x] First-session detection: reliable, does not re-trigger on returning players
+- [x] Tutorial completion persists across reinstalls (server-side flag)
+- [x] Test Tutorial Turn 3 (War Field) with Devon and Sam personas
 
 ---
 
@@ -419,7 +419,7 @@
 - [x] All GLL tokens confirmed swappable without engine changes
 - [x] Run Sea of Knives reskin test (swap all Iron Throne nouns → Age of Sail nouns)
 - [x] Verify no hardcoded nouns remain in game logic
-- [ ] Document GLL token dictionary for future reskins
+- [x] Document GLL token dictionary for future reskins
 
 ---
 

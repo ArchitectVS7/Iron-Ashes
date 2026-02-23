@@ -9,7 +9,12 @@
  * Mode selection changes only win/loss conditions and hidden information.
  */
 
-import { GameState, GameMode } from '../models/game-state.js';
+import {
+  GameState,
+  GameMode,
+  BehaviorCardType,
+  COOPERATIVE_BEHAVIOR_DECK_COMPOSITION,
+} from '../models/game-state.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 
 // ─── Blood Pact Assignment ──────────────────────────────────────
@@ -134,4 +139,18 @@ export function getModeName(mode: GameMode): string {
     case 'blood_pact': return 'Blood Pact';
     case 'cooperative': return 'Cooperative';
   }
+}
+
+/**
+ * Get the cooperative mode's harder Behavior Deck composition.
+ *
+ * Compared to the default deck:
+ *   - More ESCALATE (3 vs 1) and ASSAULT (4 vs 3)
+ *   - Fewer SPAWN (5 vs 6) and CLAIM (2 vs 4)
+ *   - Same MOVE count (6)
+ *
+ * This is used automatically by createGameState when mode === 'cooperative'.
+ */
+export function getCooperativeDeckComposition(): Record<BehaviorCardType, number> {
+  return { ...COOPERATIVE_BEHAVIOR_DECK_COMPOSITION };
 }

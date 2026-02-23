@@ -12,8 +12,13 @@ import {
   isPvPCombatAllowed,
   hasBloodPactCard,
   getModeName,
+  getCooperativeDeckComposition,
   ACCUSATION_COST,
 } from '../../src/systems/game-modes.js';
+import {
+  DEFAULT_BEHAVIOR_DECK_COMPOSITION,
+  COOPERATIVE_BEHAVIOR_DECK_COMPOSITION,
+} from '../../src/models/game-state.js';
 
 describe('assignBloodPact', () => {
   it('should assign blood pact to a human player in blood_pact mode', () => {
@@ -172,5 +177,65 @@ describe('getModeName', () => {
     expect(getModeName('competitive')).toBe('Competitive');
     expect(getModeName('blood_pact')).toBe('Blood Pact');
     expect(getModeName('cooperative')).toBe('Cooperative');
+  });
+});
+
+// ─── Cooperative Mode Harder Deck ─────────────────────────────────
+
+describe('Cooperative Behavior Deck', () => {
+  it('should have the same total cards as the default deck (20)', () => {
+    const defaultTotal = Object.values(DEFAULT_BEHAVIOR_DECK_COMPOSITION).reduce((a, b) => a + b, 0);
+    const coopTotal = Object.values(COOPERATIVE_BEHAVIOR_DECK_COMPOSITION).reduce((a, b) => a + b, 0);
+    expect(defaultTotal).toBe(20);
+    expect(coopTotal).toBe(20);
+  });
+
+  it('should have more ESCALATE cards than the default deck', () => {
+    expect(COOPERATIVE_BEHAVIOR_DECK_COMPOSITION.escalate).toBeGreaterThan(
+      DEFAULT_BEHAVIOR_DECK_COMPOSITION.escalate,
+    );
+  });
+
+  it('should have more ASSAULT cards than the default deck', () => {
+    expect(COOPERATIVE_BEHAVIOR_DECK_COMPOSITION.assault).toBeGreaterThan(
+      DEFAULT_BEHAVIOR_DECK_COMPOSITION.assault,
+    );
+  });
+
+  it('should have fewer CLAIM cards than the default deck', () => {
+    expect(COOPERATIVE_BEHAVIOR_DECK_COMPOSITION.claim).toBeLessThan(
+      DEFAULT_BEHAVIOR_DECK_COMPOSITION.claim,
+    );
+  });
+
+  it('should use cooperative deck when creating a cooperative game', () => {
+    const state = createGameState(4, 'cooperative', 42);
+    // Cooperative deck: 5 spawn, 6 move, 2 claim, 4 assault, 3 escalate
+    const typeCounts: Record<string, number> = {};
+    for (const card of [...state.behaviorDeck, ...state.behaviorDiscard]) {
+      typeCounts[card.type] = (typeCounts[card.type] ?? 0) + 1;
+    }
+    expect(typeCounts['escalate']).toBe(COOPERATIVE_BEHAVIOR_DECK_COMPOSITION.escalate);
+    expect(typeCounts['assault']).toBe(COOPERATIVE_BEHAVIOR_DECK_COMPOSITION.assault);
+    expect(typeCounts['spawn']).toBe(COOPERATIVE_BEHAVIOR_DECK_COMPOSITION.spawn);
+    expect(typeCounts['claim']).toBe(COOPERATIVE_BEHAVIOR_DECK_COMPOSITION.claim);
+  });
+
+  it('should use default deck for competitive mode', () => {
+    const state = createGameState(4, 'competitive', 42);
+    const typeCounts: Record<string, number> = {};
+    for (const card of [...state.behaviorDeck, ...state.behaviorDiscard]) {
+      typeCounts[card.type] = (typeCounts[card.type] ?? 0) + 1;
+    }
+    expect(typeCounts['escalate']).toBe(DEFAULT_BEHAVIOR_DECK_COMPOSITION.escalate);
+    expect(typeCounts['assault']).toBe(DEFAULT_BEHAVIOR_DECK_COMPOSITION.assault);
+  });
+
+  it('getCooperativeDeckComposition returns a copy of the cooperative composition', () => {
+    const composition = getCooperativeDeckComposition();
+    expect(composition).toEqual(COOPERATIVE_BEHAVIOR_DECK_COMPOSITION);
+    // Should be a copy, not the same reference
+    composition.escalate = 99;
+    expect(COOPERATIVE_BEHAVIOR_DECK_COMPOSITION.escalate).not.toBe(99);
   });
 });

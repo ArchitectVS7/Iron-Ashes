@@ -11,6 +11,10 @@ export {
   isActionPhaseComplete,
   startRound,
   startCleanup,
+  getTurnIndicator,
+  getRoundNumber,
+  getPhaseLabel,
+  type TurnIndicator,
 } from './game-loop.js';
 
 export {

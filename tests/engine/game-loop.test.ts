@@ -15,6 +15,9 @@ import {
   isActionPhaseComplete,
   startRound,
   startCleanup,
+  getTurnIndicator,
+  getRoundNumber,
+  getPhaseLabel,
 } from '../../src/engine/game-loop.js';
 import { SeededRandom } from '../../src/utils/seeded-random.js';
 import {
@@ -768,5 +771,95 @@ describe('isFinalPhase', () => {
     state.doomToll = DOOM_TOLL_FINAL_PHASE_THRESHOLD;
     (state as GameState & { isFinalPhase: boolean }).isFinalPhase = true;
     expect(state.isFinalPhase).toBe(true);
+  });
+});
+
+// ─── Turn Indicator & Round Counter ──────────────────────────────
+
+describe('getTurnIndicator', () => {
+  it('returns correct state at game start', () => {
+    const state = createGameState(4, 'competitive', TEST_SEED);
+    const indicator = getTurnIndicator(state);
+    expect(indicator.round).toBe(1);
+    expect(indicator.phase).toBe('shadowking');
+    expect(indicator.phaseLabel).toBe('Shadowking Phase');
+    expect(indicator.activePlayerIndex).toBe(0);
+    expect(indicator.isActionPhase).toBe(false);
+    expect(indicator.isVotingPhase).toBe(false);
+  });
+
+  it('reflects voting phase correctly', () => {
+    const state = createGameState(4, 'competitive', TEST_SEED);
+    advancePhase(state); // → voting
+    const indicator = getTurnIndicator(state);
+    expect(indicator.phase).toBe('voting');
+    expect(indicator.phaseLabel).toBe('Voting Phase');
+    expect(indicator.isVotingPhase).toBe(true);
+    expect(indicator.isActionPhase).toBe(false);
+  });
+
+  it('reflects action phase with active player', () => {
+    const state = createGameState(4, 'competitive', TEST_SEED);
+    advancePhase(state); // → voting
+    advancePhase(state); // → action
+    const indicator = getTurnIndicator(state);
+    expect(indicator.phase).toBe('action');
+    expect(indicator.phaseLabel).toBe('Action Phase');
+    expect(indicator.isActionPhase).toBe(true);
+    expect(indicator.isVotingPhase).toBe(false);
+    expect(indicator.activePlayerIndex).toBe(0);
+  });
+
+  it('reflects cleanup phase', () => {
+    const state = createGameState(2, 'competitive', TEST_SEED);
+    advancePhase(state); // → voting
+    advancePhase(state); // → action
+    advancePhase(state); // → cleanup
+    const indicator = getTurnIndicator(state);
+    expect(indicator.phase).toBe('cleanup');
+    expect(indicator.phaseLabel).toBe('Cleanup Phase');
+  });
+
+  it('tracks round advancement', () => {
+    const state = createGameState(2, 'competitive', TEST_SEED);
+    expect(getTurnIndicator(state).round).toBe(1);
+    // Advance through full round
+    state.phase = 'cleanup';
+    advancePhase(state); // → shadowking (round 2)
+    expect(getTurnIndicator(state).round).toBe(2);
+  });
+
+  it('updates activePlayerIndex when action turn advances', () => {
+    const state = createGameState(3, 'competitive', TEST_SEED);
+    advancePhase(state); // → voting
+    advancePhase(state); // → action
+    expect(getTurnIndicator(state).activePlayerIndex).toBe(0);
+
+    state.players[0].actionsRemaining = 0;
+    advanceActionTurn(state);
+    expect(getTurnIndicator(state).activePlayerIndex).toBe(1);
+  });
+});
+
+describe('getRoundNumber', () => {
+  it('returns the current round', () => {
+    const state = createGameState(2, 'competitive', TEST_SEED);
+    expect(getRoundNumber(state)).toBe(1);
+    state.phase = 'cleanup';
+    advancePhase(state);
+    expect(getRoundNumber(state)).toBe(2);
+  });
+});
+
+describe('getPhaseLabel', () => {
+  it('returns correct label for each phase', () => {
+    const state = createGameState(2, 'competitive', TEST_SEED);
+    expect(getPhaseLabel(state)).toBe('Shadowking Phase');
+    advancePhase(state);
+    expect(getPhaseLabel(state)).toBe('Voting Phase');
+    advancePhase(state);
+    expect(getPhaseLabel(state)).toBe('Action Phase');
+    advancePhase(state);
+    expect(getPhaseLabel(state)).toBe('Cleanup Phase');
   });
 });
