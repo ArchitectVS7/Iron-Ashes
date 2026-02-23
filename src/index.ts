@@ -91,6 +91,12 @@ export {
   isActionPhaseComplete,
   startRound,
   startCleanup,
+  runSimulation,
+  runBatchSimulation,
+  simulateRound,
+  simulatePlayerAction,
+  type SimulationResult,
+  type BatchResult,
 } from './engine/index.js';
 
 // Game systems
