@@ -1,5 +1,6 @@
 // src/ui/index.ts
 import { AtmosphereEngine } from './atmosphere.js';
+import { SummaryEngine } from './summary.js';
 
 interface MockPlayerUI {
   id: string;
@@ -21,6 +22,7 @@ export class StandingsPanel {
   private container: HTMLElement;
   private state: MockGameStateUI;
   private atmosphere: AtmosphereEngine;
+  private summary: SummaryEngine;
 
   constructor(parentId: string) {
     const parent = document.getElementById(parentId);
@@ -31,6 +33,7 @@ export class StandingsPanel {
     parent.appendChild(this.container);
 
     this.atmosphere = new AtmosphereEngine('game-app');
+    this.summary = new SummaryEngine();
 
     // Default mock state
     this.state = {
@@ -120,6 +123,7 @@ export class StandingsPanel {
       <button id="btn-doom-recede">Recede Doom (-1)</button>
       <button id="btn-rescue">Test Rescue Sound</button>
       <button id="btn-defeat">Defeat Knight</button>
+      <button id="btn-summary">Test Summary (Phase 18)</button>
     `;
     document.body.appendChild(div);
 
@@ -146,6 +150,25 @@ export class StandingsPanel {
       if (this.state.doomToll > 0) {
         this.updateState({ doomToll: this.state.doomToll - 1 });
       }
+    });
+
+    document.getElementById('btn-summary')?.addEventListener('click', () => {
+      // Mock blood pact and game over logic
+      this.summary.showBloodPactReveal("House Frost", () => {
+        // Trigger summary after acknowledgment
+        const mockStats = [
+          { name: "Court of Ash", strongholds: 4, fellowships: 6, bannersSpent: 12, combats: "3W / 1L", timesBroken: 0, rescues: 1, votes: "5C / 1A" },
+          { name: "House Frost", strongholds: 3, fellowships: 4, bannersSpent: 6, combats: "1W / 4L", timesBroken: 3, rescues: 0, votes: "2C / 4A" },
+          { name: "The Iron Core", strongholds: 5, fellowships: 8, bannersSpent: 18, combats: "4W / 0L", timesBroken: 0, rescues: 2, votes: "6C / 0A" }
+        ];
+        this.summary.showPostGameSummary(
+          "SHADOWKING VICTORY",
+          "victory-shadowking",
+          "The Doom Toll Reached 13",
+          mockStats,
+          13
+        );
+      });
     });
   }
 }
