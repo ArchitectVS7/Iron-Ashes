@@ -2,12 +2,12 @@
 :root {
   --color-bg-dark: #0f1115;
   --color-panel-glass: rgba(22, 26, 33, 0.7);
-  --color-border-glass: rgba(255, 255, 255, 0.1);
-  --color-text-primary: #e2e8f0;
-  --color-text-secondary: #94a3b8;
-  --color-accent-gold: #d4af37;
-  --color-accent-red: #e11d48;
-  --color-broken: #7f1d1d;
+  --color-border-glass: rgba(255, 255, 255, 0.2);
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #cbd5e1;
+  --color-accent-gold: #fbbf24;
+  --color-accent-red: #ef4444;
+  --color-broken: #991b1b;
   
   --font-serif: 'Cinzel', serif;
   --font-sans: 'Inter', sans-serif;
@@ -60,13 +60,13 @@ body, html {
   position: absolute;
   top: 24px;
   right: 24px;
-  width: 320px;
-  background: var(--color-panel-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  width: 360px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--color-border-glass);
   border-radius: 16px;
-  padding: 20px;
+  padding: 24px;
   box-shadow: var(--shadow-glow);
   pointer-events: auto;
   transition: var(--transition-smooth);
@@ -213,13 +213,21 @@ body, html {
 
 .broken-icon {
   display: none;
-  color: #fff;
-  font-size: 0.70rem;
-  font-weight: 700;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 800;
   text-transform: uppercase;
   background: var(--color-accent-red);
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+}
+
+.broken-icon:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
 }
 
 .player-card.broken-court .broken-icon {

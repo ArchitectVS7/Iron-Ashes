@@ -178,10 +178,10 @@
 .pact-title {
     font-family: var(--font-serif);
     font-size: 4rem;
-    color: var(--color-accent-red);
+    color: #fecdd3;
     margin-bottom: 24px;
     letter-spacing: 8px;
-    text-shadow: 0 0 40px rgba(225, 29, 72, 0.8);
+    text-shadow: 0 0 30px #e11d48, 0 0 60px #e11d48;
 }
 
 .pact-traitor {

@@ -146,7 +146,7 @@ export class StandingsPanel {
         rd.update(p.resources);
 
         const cp = new CharacterPanel(parentCard);
-        cp.update(p.characterState);
+        cp.update({ ...p.characterState, isActiveTurn: p.isActiveTurn });
       }
     }
   }
@@ -156,7 +156,7 @@ export class StandingsPanel {
       <div id="player-card-${player.id}" class="player-card ${player.isActiveTurn ? 'active-turn' : ''} ${player.isBrokenCourt ? 'broken-court' : ''}">
         <div class="player-header">
           <div class="player-name">${player.name}</div>
-          <div class="broken-icon">BROKEN COURT</div>
+          <div class="broken-icon" onclick="document.dispatchEvent(new CustomEvent('rescue-click', {detail: '${player.name}'}))">BROKEN COURT</div>
         </div>
         <div class="player-stats">
           <div class="stat-item" title="Strongholds Required for Victory">
@@ -207,6 +207,11 @@ export class StandingsPanel {
       if (p[1].isBrokenCourt) {
         this.brokenCourtUI.showRescueMenu(p[1].name);
       }
+    });
+
+    document.addEventListener('rescue-click', (e: any) => {
+      this.atmosphere.playRescueSound();
+      this.brokenCourtUI.showRescueMenu(e.detail);
     });
 
     document.getElementById('btn-recovery')?.addEventListener('click', () => {

@@ -104,10 +104,10 @@
 }
 
 .overlord-title {
-    color: #e11d48;
+    color: #fecdd3;
     font-family: 'Cinzel', serif;
     font-size: 5rem;
-    text-shadow: 0 0 30px #e11d48;
+    text-shadow: 0 0 30px #e11d48, 0 0 60px #e11d48;
     letter-spacing: 12px;
     animation: slow-zoom 10s ease-out forwards;
 }
