@@ -25,6 +25,10 @@ import type {
   GameMode,
   VoteChoice,
 } from '../models/game-state.js';
+
+// Tutorial types
+import { TutorialState } from '../systems/tutorial-state.js';
+import { TutorialScriptedOpponent } from '../systems/tutorial-script.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 
 // Engine
@@ -71,6 +75,7 @@ import {
   isInFinalPhase,
   performBlightAutoSpread,
   getPlayerStrongholdCount,
+  getLeadingPlayer,
 } from '../systems/doom-toll.js';
 import {
   findShortestPath,
@@ -87,6 +92,9 @@ import { ShadowkingDisplay } from './shadowking-display.js';
 import { DoomTollDisplay } from './doom-toll-display.js';
 import { SummaryEngine } from './summary.js';
 import { AtmosphereEngine } from './atmosphere.js';
+import { StandingsPanel } from './standings-panel.js';
+import { TutorialEngine } from './tutorial.js';
+import { SettingsPanel } from './settings-panel.js';
 
 // ─── Options ──────────────────────────────────────────────────────
 
@@ -121,6 +129,12 @@ export class GameController {
   // Action-phase turn tracking: resolved by handleNodeClick / handleEndTurn
   private actionResolve: (() => void) | null = null;
 
+  // Tutorial mode
+  private isTutorialMode: boolean = false;
+  private tutorialState: TutorialState = new TutorialState();
+  private tutorialEngine: TutorialEngine | null = null;
+  private scriptedOpponent: TutorialScriptedOpponent = new TutorialScriptedOpponent();
+
   // UI components (null in headless/test environments)
   private boardRenderer: BoardRenderer | null = null;
   private votingPanel: VotingPanel | null = null;
@@ -128,8 +142,10 @@ export class GameController {
   private brokenCourtUI: BrokenCourtUI | null = null;
   private shadowkingDisplay: ShadowkingDisplay | null = null;
   private doomTollDisplay: DoomTollDisplay | null = null;
+  private standingsPanel: StandingsPanel | null = null;
   private summary: SummaryEngine | null = null;
   private atmosphere: AtmosphereEngine | null = null;
+  private settingsPanel: SettingsPanel | null = null;
   private hudEl: HTMLElement | null = null;
 
   constructor(container: HTMLElement, options: GameControllerOptions = {}) {
@@ -160,6 +176,10 @@ export class GameController {
     container.appendChild(hud);
     this.hudEl = hud;
 
+    const standingsContainer = document.createElement('div');
+    standingsContainer.id = 'gc-standings';
+    container.appendChild(standingsContainer);
+
     // Each component is optional. If the DOM environment is headless (tests),
     // constructors may fail silently — the controller keeps working.
     try { this.boardRenderer = new BoardRenderer(canvasId); } catch { /* headless */ }
@@ -168,8 +188,11 @@ export class GameController {
     try { this.brokenCourtUI = new BrokenCourtUI(uiId); } catch { /* headless */ }
     try { this.shadowkingDisplay = new ShadowkingDisplay(uiId); } catch { /* headless */ }
     try { this.doomTollDisplay = new DoomTollDisplay(uiId); } catch { /* headless */ }
+    try { this.standingsPanel = new StandingsPanel(standingsContainer); } catch { /* headless */ }
+    try { this.settingsPanel = new SettingsPanel(hud); } catch { /* headless */ }
     try { this.atmosphere = new AtmosphereEngine(uiId); } catch { /* headless */ }
     try { this.summary = new SummaryEngine(); } catch { /* headless */ }
+    try { this.tutorialEngine = new TutorialEngine(); } catch { /* headless */ }
 
     if (this.boardRenderer) {
       this.boardRenderer.onNodeClick = (nodeId) => this.handleNodeClick(nodeId);
@@ -193,11 +216,22 @@ export class GameController {
   /** Initialize and run until game ends or maxRounds. */
   public async start(
     playerCount: number,
-    mode: GameMode,
+    mode: GameMode | 'tutorial',
     seed: number = Date.now(),
     maxRounds: number = 50,
   ): Promise<void> {
-    this.init(playerCount, mode, seed);
+    if (mode === 'tutorial') {
+      this.isTutorialMode = true;
+      this.tutorialState.startMandatoryTutorial();
+      if (this.tutorialEngine) {
+        try {
+          this.tutorialEngine.startMandatoryTutorialFlow(this.tutorialState);
+        } catch { /* headless */ }
+      }
+      this.init(playerCount, 'competitive', seed);
+    } else {
+      this.init(playerCount, mode, seed);
+    }
     await this.runGame(maxRounds);
   }
 
@@ -270,6 +304,11 @@ export class GameController {
       }
 
       submitVote(this.state, player.index, choice);
+
+      // Tutorial Turn 4 (voting): after player 0 casts their vote, advance
+      if (this.isTutorialMode && player.index === 0 && this.tutorialState.currentTurnIndex === 3) {
+        this.advanceTutorialTurn();
+      }
     }
 
     const voteResult = resolveVotes(this.state);
@@ -303,7 +342,7 @@ export class GameController {
       this.state.activePlayerIndex = playerIndex;
       this.renderAll();
 
-      if (this.autoPlay) {
+      if (this.autoPlay || (this.isTutorialMode && playerIndex !== 0)) {
         this.autoResolveActions(playerIndex);
       } else {
         while (player.actionsRemaining > 0 && !isGameOver(this.state)) {
@@ -427,6 +466,22 @@ export class GameController {
         player.stats.strongholdsClaimed += 1;
         player.actionsRemaining -= 1;
 
+        // Tutorial Turn 1 (movement/claim): first successful claim advances tutorial
+        if (this.isTutorialMode && player.index === 0 && this.tutorialState.currentTurnIndex === 0) {
+          this.advanceTutorialTurn();
+        }
+
+        // Tutorial Turn 5 (forge_keep): claiming a forge node finalizes tutorial
+        const claimedNodeDef = this.state.boardDefinition.nodes[nodeId];
+        if (
+          this.isTutorialMode &&
+          player.index === 0 &&
+          this.tutorialState.currentTurnIndex === 4 &&
+          claimedNodeDef?.type === 'forge'
+        ) {
+          void this.tutorialState.finalizeMandatoryTutorial();
+        }
+
         this.renderAll();
         this.resolveAction();
         return;
@@ -464,6 +519,14 @@ export class GameController {
   private autoResolveActions(playerIndex: number): void {
     const player = this.state.players[playerIndex];
     if (!player || player.actionsRemaining <= 0) return;
+
+    // Tutorial mode: scripted opponent follows pre-defined paths
+    if (this.isTutorialMode && playerIndex !== 0) {
+      const turn = this.tutorialState.currentTurnIndex + 1;
+      const path = this.scriptedOpponent.getMovesForTurn(turn);
+      this.runScriptedOpponent(playerIndex, path);
+      return;
+    }
 
     const definition = this.state.boardDefinition;
     let currentNode = player.fellowship.currentNode;
@@ -530,6 +593,67 @@ export class GameController {
     player.actionsRemaining = 0;
   }
 
+  // ─── Tutorial Scripted Opponent ───────────────────────────────
+
+  /**
+   * Execute a scripted move path for a tutorial opponent.
+   * Traverses the path nodes in order, spending banners per hop.
+   * Triggers combat if the opponent lands on a player's node.
+   */
+  private runScriptedOpponent(playerIndex: number, path: readonly string[]): void {
+    const player = this.state.players[playerIndex];
+    if (!player || path.length < 2) {
+      if (player) player.actionsRemaining = 0;
+      return;
+    }
+
+    for (let i = 0; i < path.length - 1 && player.actionsRemaining > 0; i++) {
+      const from = path[i];
+      const to = path[i + 1];
+      if (player.fellowship.currentNode !== from) continue;
+      if (!canAffordMovement(player, 1) || !canPerformAction(player, 'move')) break;
+
+      spendBannersForMovement(player, 1);
+      player.fellowship.currentNode = to;
+      player.actionsRemaining -= 1;
+
+      // PvP combat if landing on another player
+      if (this.state.mode !== 'cooperative') {
+        for (const other of this.state.players) {
+          if (other.index === playerIndex) continue;
+          if (other.fellowship.currentNode !== to) continue;
+          if (!canPerformAction(player, 'combat')) break;
+
+          const result = resolvePlayerCombat(
+            this.state, playerIndex, other.index, 0, 0, this.rng,
+          );
+          if (this.combatOverlay) {
+            void this.combatOverlay.showCombatResult(
+              result, player, other, this.combatDelayMs,
+            );
+          }
+
+          // Turn 3 (index 2): combat with the player advances tutorial
+          if (this.isTutorialMode && this.tutorialState.currentTurnIndex === 2) {
+            this.advanceTutorialTurn();
+          }
+        }
+      }
+    }
+
+    player.actionsRemaining = 0;
+  }
+
+  /** Advance to the next tutorial turn and refresh the overlay. */
+  private advanceTutorialTurn(): void {
+    const hasMore = this.tutorialState.advanceTurn();
+    if (this.tutorialEngine && hasMore) {
+      try {
+        this.tutorialEngine.renderMandatoryStep(this.tutorialState);
+      } catch { /* headless */ }
+    }
+  }
+
   // ─── Rendering ────────────────────────────────────────────────
 
   private renderAll(): void {
@@ -541,6 +665,10 @@ export class GameController {
 
     if (this.doomTollDisplay) {
       this.doomTollDisplay.updateToll(this.state.doomToll);
+    }
+
+    if (this.standingsPanel) {
+      this.standingsPanel.update(this.state);
     }
   }
 

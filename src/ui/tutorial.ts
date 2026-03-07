@@ -69,7 +69,7 @@ export class TutorialEngine {
         this.renderMandatoryStep(tutorialState);
     }
 
-    private renderMandatoryStep(tutorialState: TutorialState) {
+    public renderMandatoryStep(tutorialState: TutorialState) {
         const step = tutorialState.getCurrentTurn();
         if (!step) {
             this.closeTutorial();

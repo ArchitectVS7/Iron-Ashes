@@ -112,6 +112,16 @@ globalThis.document = {
   dispatchEvent() { return true; },
 } as unknown as Document;
 
+const mockStorage: Record<string, string> = {};
+globalThis.localStorage = {
+  getItem: (key: string) => mockStorage[key] ?? null,
+  setItem: (key: string, value: string) => { mockStorage[key] = value; },
+  clear: () => { for (const k in mockStorage) delete mockStorage[k]; },
+  removeItem: (key: string) => { delete mockStorage[key]; },
+  length: 0,
+  key: () => null,
+} as unknown as Storage;
+
 globalThis.window = {
   addEventListener() {},
   removeEventListener() {},
@@ -145,6 +155,7 @@ import { GameController } from '../../src/ui/game-controller.js';
 import { isGameOver } from '../../src/systems/victory.js';
 import { checkBrokenStatus, enterBrokenCourt } from '../../src/systems/broken-court.js';
 import { advancePhase } from '../../src/engine/game-loop.js';
+import { TutorialScriptedOpponent } from '../../src/systems/tutorial-script.js';
 
 // ─── Tests ───────────────────────────────────────────────────────
 
@@ -357,5 +368,60 @@ describe('GameController E2E', () => {
     expect(['doom_complete', 'territory_victory', 'all_broken']).toContain(state.gameEndReason);
     // Round increments one past the last played round
     expect(state.round).toBeLessThanOrEqual(31);
+  });
+
+  // ─── Tutorial integration tests ────────────────────────────
+
+  it('tutorial mode: start() initializes state without crashing', async () => {
+    const ctrl = new GameController(container as unknown as HTMLElement, {
+      autoPlay: true,
+      combatDelayMs: 0,
+      shadowkingDelayMs: 0,
+    });
+    // Tutorial mode should initialize without errors
+    // (TutorialEngine constructor tries document.body.appendChild — covered by mock)
+    await ctrl.start(2, 'tutorial', 42, 1);
+    // Game ran at least one round without crashing
+    const state = ctrl.getState();
+    expect(state.round).toBeGreaterThanOrEqual(1);
+  });
+
+  it('TutorialScriptedOpponent returns correct path for each turn', () => {
+    const opponent = new TutorialScriptedOpponent();
+
+    // Turn 1: moves from keep-1 to s03
+    expect(opponent.getMovesForTurn(1)).toEqual(['keep-1', 's03']);
+
+    // Turn 3: moves into player's node to force combat
+    const turn3Path = opponent.getMovesForTurn(3);
+    expect(turn3Path[turn3Path.length - 1]).toBe('s01');
+
+    // Out of range: empty array
+    expect(opponent.getMovesForTurn(0)).toEqual([]);
+    expect(opponent.getMovesForTurn(6)).toEqual([]);
+  });
+
+  it('TutorialScriptedOpponent has exactly 5 scripted turns', () => {
+    const opponent = new TutorialScriptedOpponent();
+    expect(opponent.turnCount).toBe(5);
+  });
+
+  it('tutorial mode: opponent turn uses scripted path (no pathfinding crash)', async () => {
+    const ctrl = new GameController(container as unknown as HTMLElement, {
+      autoPlay: false, // player 0 is manual; we drive it manually
+      combatDelayMs: 0,
+      shadowkingDelayMs: 0,
+    });
+
+    // init with tutorial mode (start() handles initialization)
+    // Use autoPlay=true so the whole thing runs hands-free
+    const autoCtrl = new GameController(container as unknown as HTMLElement, {
+      autoPlay: true,
+      combatDelayMs: 0,
+      shadowkingDelayMs: 0,
+    });
+    await autoCtrl.start(2, 'tutorial', 99, 5);
+    // If scripted opponent ran without error, this succeeds
+    expect(autoCtrl.getState().round).toBeGreaterThanOrEqual(1);
   });
 });

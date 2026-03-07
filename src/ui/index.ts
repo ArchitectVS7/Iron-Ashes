@@ -8,6 +8,8 @@
 
 import { ModeSelectUI } from './mode-select.js';
 import { GameController } from './game-controller.js';
+import { SocialPressureOnboarding } from './social-pressure-onboarding.js';
+import type { GameMode } from '../models/game-state.js';
 
 // Re-export for any consumers that still import from index
 export { GameController } from './game-controller.js';
@@ -24,9 +26,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   gameLayer.id = 'game-layer';
   app.appendChild(gameLayer);
 
-  // Mode selection
+  // Mode selection — cast includes 'tutorial' for future ModeSelectUI expansion
   const modeSelect = new ModeSelectUI('mode-select-layer');
-  const mode = await modeSelect.showModeSelection();
+  const mode = await modeSelect.showModeSelection() as GameMode | 'tutorial';
+
+  // Social pressure onboarding — skip in tutorial mode (PRD F-006b)
+  if (mode !== 'tutorial') {
+    await new SocialPressureOnboarding().showIfFirstSession();
+  }
 
   // Launch the game
   const controller = new GameController(gameLayer);
