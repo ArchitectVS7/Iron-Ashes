@@ -66,6 +66,8 @@ export interface GameState {
   phase: GamePhase;
   /** Index of the player whose action turn it is (during 'action' phase). */
   activePlayerIndex: number;
+  /** Fixed turn order for Action Phases — player indices in session-assigned order (set at setup, never changes). */
+  readonly turnOrder: readonly number[];
 
   /** Doom track position (0-13). 13 = game over. */
   doomToll: number;
@@ -93,6 +95,9 @@ export interface GameState {
 
   /** Votes submitted this round (indexed by player). */
   votes: (VoteChoice | null)[];
+
+  /** Rounds remaining before any new accusation can be initiated (0 = available). */
+  accusationCooldownRounds: number;
 
   /** How the game ended, or null if still in progress. */
   gameEndReason: GameEndReason;
@@ -149,6 +154,10 @@ export const COOPERATIVE_BEHAVIOR_DECK_COMPOSITION: Record<BehaviorCardType, num
 export const DOOM_TOLL_MAX = 13;
 export const DOOM_TOLL_MIN = 0;
 export const DOOM_TOLL_FINAL_PHASE_THRESHOLD = 10;
+/** Starting Doom Toll for 3-player games — thinner voting coalition from turn one. */
+export const THREE_PLAYER_STARTING_DOOM_TOLL = 2;
+/** Minimum Doom Toll advance per Final Phase round (2 Behavior Cards × 1 each). Used for Estimated Rounds Remaining HUD display. */
+export const FINAL_PHASE_MIN_DOOM_ADVANCE = 2;
 
 /** Actions per turn. */
 export const ACTIONS_PER_TURN_NORMAL = 2;
@@ -157,6 +166,39 @@ export const ACTIONS_PER_TURN_BROKEN = 1;
 /** Fate Card cost per vote. */
 export const VOTE_COST_STANDARD = 1;
 export const VOTE_COST_FINAL_PHASE = 2;
+
+/** Fate Card hand management constants. */
+export const FATE_CARD_STARTING_HAND = 3;
+export const FATE_CARD_BASE_HAND_LIMIT = 3;
+export const FATE_CARD_MAX_HAND_LIMIT = 6;
+
+/** Fate Card deck warning thresholds for persistent HUD display. */
+export const FATE_DECK_AMBER_THRESHOLD = 10;
+export const FATE_DECK_RED_THRESHOLD = 5;
+
+/** Maximum possible Fate Card swing in a single combat (card range −1 to +4). */
+export const COMBAT_MAX_CARD_SWING = 5;
+/** Base strength margin at or above which Fate Cards cannot reverse the outcome. */
+export const COMBAT_DECIDED_THRESHOLD = 6;
+
+/** Penalty Card ratio thresholds for the VULNERABLE HUD indicator (no mechanical effect). */
+export const VULNERABLE_YELLOW_THRESHOLD = 0.5;   // penaltyCards / warBanners ≥ 50%
+export const VULNERABLE_RED_THRESHOLD = 0.75;     // penaltyCards / warBanners ≥ 75%
+
+/** Doom Toll reduction granted by the Herald Diplomatic Action (Fix D: was 1). */
+export const HERALD_DIPLOMATIC_DOOM_REDUCTION = 2;
+
+/** Blood Pact accusation constants. */
+export const ACCUSATION_PENALTY_CARDS = 3;     // Fate cards traitor loses on successful accusation
+export const ACCUSATION_ACCUSER_REFUND = 1;    // Cards refunded per accuser on success AND failure (symmetric net cost: 1)
+export const ACCUSATION_ACCUSED_GAIN = 1;      // Cards gained by wrongly accused player
+export const ACCUSATION_LOCKOUT_ROUNDS = 1;    // Rounds a player can't be re-accused after failed attempt
+export const ACCUSATION_COOLDOWN_ROUNDS = 2;   // Rounds before any new accusation can be initiated
+export const ACCUSATION_MIN_PLAYERS = 3;       // Min players for accusation (2-player: not available)
+export const DOOM_TOLL_ACCUSATION_RECEDE = 1;  // Doom Toll decrease on successful accusation
+
+/** Number of rounds shown in the Blood Pact Suspicion Log (no mechanical effect). */
+export const SUSPICION_LOG_ROUNDS = 5;
 
 /** Antagonist force constants. */
 export const LIEUTENANT_POWER = 10;

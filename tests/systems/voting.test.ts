@@ -607,3 +607,40 @@ describe('Broken Court state NEVER prevents Voting Phase participation', () => {
     // The broken player's counter still counted in the tally
   });
 });
+
+// ─── vote-round-record logging ────────────────────────────────────
+
+describe('resolveVotes() per-player vote logging', () => {
+  it('logs one vote-round-record entry per player', () => {
+    const state = makeState(3);
+    state.players[0].fateCards = [1, 2, 3];
+    state.players[1].fateCards = [1, 2, 3];
+    state.players[2].fateCards = [];
+    submitVote(state, 0, 'counter');
+    submitVote(state, 1, 'counter');
+    submitVote(state, 2, 'abstain');
+    const logBefore = state.actionLog.length;
+    resolveVotes(state);
+    const newEntries = state.actionLog.slice(logBefore);
+    const voteRecords = newEntries.filter(e => e.action === 'vote-round-record');
+    expect(voteRecords).toHaveLength(3);
+  });
+
+  it('records the correct vote choice per player', () => {
+    const state = makeState(3);
+    state.players[0].fateCards = [1, 2, 3];
+    state.players[1].fateCards = [1, 2, 3];
+    state.players[2].fateCards = [];
+    submitVote(state, 0, 'counter');
+    submitVote(state, 1, 'abstain');
+    submitVote(state, 2, 'abstain');
+    const logBefore = state.actionLog.length;
+    resolveVotes(state);
+    const records = state.actionLog.slice(logBefore).filter(e => e.action === 'vote-round-record');
+    const byPlayer: Record<number, string> = {};
+    for (const r of records) byPlayer[r.playerIndex!] = r.details;
+    expect(byPlayer[0]).toBe('counter');
+    expect(byPlayer[1]).toBe('abstain');
+    expect(byPlayer[2]).toBe('abstain');
+  });
+});

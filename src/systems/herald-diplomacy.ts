@@ -4,7 +4,7 @@
  * Governs the Herald's one-time diplomatic action at the Dark Fortress:
  * the Herald (diplomat character) may, while at the antagonist base and
  * with no enemy forces present, spend their once-per-game diplomatic
- * action to recede the Doom Toll by 1.
+ * action to recede the Doom Toll by 2.
  *
  * Design commitments:
  *   - The action is once-per-diplomat, per game (diplomaticActionUsed flag).
@@ -13,7 +13,7 @@
  *   - All state mutation is explicit; no hidden side-effects.
  */
 
-import { GameState } from '../models/game-state.js';
+import { GameState, HERALD_DIPLOMATIC_DOOM_REDUCTION } from '../models/game-state.js';
 import { Player } from '../models/player.js';
 import { Character } from '../models/characters.js';
 import { recedeDoomToll } from './combat.js';
@@ -113,7 +113,7 @@ export function canPerformDiplomaticAction(
  *   3. Verify the diplomat has not yet used their action
  *      (diplomaticActionUsed === false).
  *   4. Mark diplomat.diplomaticActionUsed = true.
- *   5. Recede the Doom Toll by 1 (via recedeDoomToll).
+ *   5. Recede the Doom Toll by HERALD_DIPLOMATIC_DOOM_REDUCTION (2) (via recedeDoomToll).
  *   6. Decrement player.actionsRemaining by 1.
  *   7. Append an entry to state.actionLog.
  *   8. Return true.
@@ -146,8 +146,8 @@ export function performDiplomaticAction(
   // 4. Mark the diplomat's action as spent (once per game per Herald)
   diplomat.diplomaticActionUsed = true;
 
-  // 5. Recede Doom Toll by 1
-  recedeDoomToll(state, 1);
+  // 5. Recede Doom Toll by HERALD_DIPLOMATIC_DOOM_REDUCTION (2)
+  recedeDoomToll(state, HERALD_DIPLOMATIC_DOOM_REDUCTION);
 
   // 6. Spend one action
   player.actionsRemaining -= 1;

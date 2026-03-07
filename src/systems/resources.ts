@@ -8,6 +8,8 @@
 
 import { Player } from '../models/player.js';
 import { BoardDefinition } from '../models/board.js';
+import { GameState, FATE_CARD_BASE_HAND_LIMIT, FATE_CARD_MAX_HAND_LIMIT } from '../models/game-state.js';
+import { drawFateCards } from './combat.js';
 
 // ─── Resource Constants ───────────────────────────────────────────
 
@@ -172,4 +174,39 @@ export function discardUnspentBanners(player: Player): number {
   const discarded = player.warBanners;
   player.warBanners = 0;
   return discarded;
+}
+
+// ─── Fate Card Hand Management ────────────────────────────────────
+
+/**
+ * Calculate the personal Fate Card hand limit for a player.
+ *
+ * Base limit is 3. Each Herald (diplomat) beyond the first adds 1,
+ * capped at 6. Starting fellowship has 1 Herald, so the base is always 3
+ * until a second Herald is recruited.
+ *
+ * Formula: min(3 + max(0, diplomatCount − 1), 6)
+ */
+export function calculateHandLimit(player: Player): number {
+  const diplomatCount = player.fellowship.characters.filter(c => c.role === 'diplomat').length;
+  const bonus = Math.max(0, diplomatCount - 1);
+  return Math.min(FATE_CARD_BASE_HAND_LIMIT + bonus, FATE_CARD_MAX_HAND_LIMIT);
+}
+
+/**
+ * Draw Fate Cards from the shared deck to bring a player's hand up to their limit.
+ *
+ * Called at game start (to deal the starting hand) and at end of each
+ * Cleanup Phase (Production). Does not discard surplus — if the player
+ * holds more cards than their current limit (e.g. a Herald was lost in
+ * combat), the surplus is held until spent.
+ *
+ * Mutates player.fateCards and state.fateDeck.
+ */
+export function replenishFateCards(player: Player, state: GameState): void {
+  const limit = calculateHandLimit(player);
+  const needed = Math.max(0, limit - player.fateCards.length);
+  if (needed === 0) return;
+  const drawn = drawFateCards(state, needed);
+  player.fateCards.push(...drawn);
 }

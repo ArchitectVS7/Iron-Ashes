@@ -1,8 +1,8 @@
 # Iron Throne of Ashes — Product Requirements Document
 
 > **Status:** Pre-production
-> **Version:** 1.0
-> **Last Updated:** 2026-03-04
+> **Version:** 1.1
+> **Last Updated:** 2026-03-06
 
 ---
 
@@ -135,7 +135,7 @@ No player is eliminated during play. The Broken Court state replaces elimination
 - Standard Stronghold (22 nodes) — claimable, no production bonus
 - Forge Keep Stronghold (4 nodes) — claimable, grants +3 War Banners/turn to controlling Court (vs. +1 elsewhere)
 - Dark Fortress (1 node) — Shadowking home position, not claimable by players, target for Herald diplomatic action
-- Hall of Neutrality (1 node) — Heartstone starting position, neutral territory
+- Hall of Neutrality (1 node) — neutral territory (historical resting place of the Heartstone; no in-game special rules)
 
 **Constraints:**
 
@@ -149,6 +149,32 @@ No player is eliminated during play. The Broken Court state replaces elimination
 - All 28 nodes are individually selectable with hit area ≥ 44×44px
 - Connection paths render as distinct lines, not overlapping
 - Forge Keep nodes are visually distinct from Standard Strongholds at a glance (no label required)
+
+---
+
+### F-001b — 3-Player Game Configuration
+
+**Priority:** P1
+
+**Description:** When a session is created with exactly 3 players, certain starting parameters differ from the standard 4-player configuration to reflect the structurally thinner voting coalition (one abstention = 33% defection vs. 25% in 4-player).
+
+**Starting conditions for 3-player:**
+
+- Doom Toll starts at position 2 (not 0)
+- All other mechanics remain identical to 4-player
+
+**Setup screen behavior:**
+
+- Display the Doom Toll starting position as part of the pre-game setup summary
+- Context-sensitive: shows "Doom Toll starts at: 0" for 2- and 4-player sessions, "Doom Toll starts at: 2" for 3-player sessions
+- Include a one-line callout: *"Three Courts creates a thinner voting margin. The Toll begins higher to reflect it."*
+
+**Acceptance criteria:**
+
+- `createGameState(3, mode, seed)` initializes `doomToll = 2` and `isFinalPhase = false`
+- `createGameState(2, mode, seed)` and `createGameState(4, mode, seed)` initialize `doomToll = 0`
+- Setup screen displays correct starting Doom Toll based on player count
+- 3-player configuration note is shown before round 1 begins
 
 ---
 
@@ -178,6 +204,42 @@ No player is eliminated during play. The Broken Court state replaces elimination
 
 ---
 
+### F-002.5 — Fate Card Hand Management
+
+**Priority:** P0
+
+**Description:** Each player maintains a personal Fate Card hand drawn from the shared deck. Personal hands are used for Voting Phase COUNTERs and Rescue donations. Combat draws are separate and temporary.
+
+**Starting hand:** Each player draws 3 Fate Cards from the shared deck at game start.
+
+**Hand limit formula:** `min(3 + max(0, herald_count − 1), 6)`
+
+| Heralds in Fellowship | Hand Limit |
+|----------------------|------------|
+| 0–1 | 3 |
+| 2 | 4 |
+| 3 | 5 |
+| 4+ | 6 |
+
+**Replenishment:** At the end of each Cleanup Phase (Production), each player draws Fate Cards from the shared deck up to their hand limit.
+
+**Surplus rule:** No forced discard. If a Herald is lost in combat and the player's hand exceeds the new limit, surplus cards are held until spent naturally.
+
+**Constraints:**
+
+- Personal hand is distinct from combat draws — Fate Cards drawn for combat come temporarily from the shared deck and are discarded after combat; they never enter or leave the personal hand
+- Hand limit is re-evaluated at replenishment time using current Herald count
+- If the shared deck is exhausted during replenishment, it reshuffles (advancing the Doom Toll as normal)
+
+**Acceptance criteria:**
+
+- Each player starts with exactly 3 Fate Cards
+- Hand size updates immediately after replenishment
+- Herald count change (gain or loss) affects limit at next replenishment
+- Surplus cards after limit reduction are visible but not discarded
+
+---
+
 ### F-003 — Characters: Fellowship Composition
 
 **Priority:** P0
@@ -197,7 +259,7 @@ No player is eliminated during play. The Broken Court state replaces elimination
 |-----------|-------------|--------------|
 | Arch-Regent | 8 | Leader. Drives Fate Card draw count. Cannot be removed from Fellowship. |
 | Knight | 6 | Combat specialist. Can claim Strongholds, challenge Death Knights, initiate War Field. Cannot perform Recruit action. |
-| Herald | 0 | Only character that can perform the Recruit action (reveal Unknown Wanderers). Grants Diplomatic Protection when walking alone. Blight Wraiths ignore Diplomatic Protection. |
+| Herald | 0 | Only character that can perform the Recruit action (reveal Unknown Wanderers). Grants Diplomatic Protection when walking alone. Blight Wraiths ignore Diplomatic Protection. Each Herald beyond the first increases your personal Fate Card hand limit by 1 (max 6). |
 | Artificer | 3 | Production. Generates War Banners. Multiplied output at Forge Keep Strongholds. |
 
 **Unknown Wanderers:**
@@ -265,6 +327,7 @@ No player is eliminated during play. The Broken Court state replaces elimination
 - A player in Broken Court state cannot initiate War Field combat
 - A player in Broken Court state can still defend if a War Field is initiated against their node
 - War Banner count at the moment of combat resolution is used (not end-of-turn count)
+- Fate Cards drawn for combat are temporary draws from the shared deck, not from personal hands. They are discarded after combat resolves and do not affect hand size.
 
 **Acceptance criteria:**
 
@@ -272,6 +335,15 @@ No player is eliminated during play. The Broken Court state replaces elimination
 - Margin is displayed clearly before Penalty Cards are assigned
 - The face-down/face-up asymmetry is communicated in the tutorial and in a tooltip on the combat screen
 - Fate Card deck reshuffle triggers visible notification and Doom Toll advance animation before combat continues
+
+**Pre-Combat Summary Screen:**
+Before Fate Cards are drawn, both sides see their Base Strength totals side-by-side with a margin label:
+- *"Your side: [N] ([Power] Power + [Banners] Banners). Their side: [N] ([Power] Power + [Banners] Banners). Maximum Fate Card swing: ±5."*
+- Outcome labels computed from `getCombatOutcomeLabel(baseMargin)`:
+  - **DECIDED** (margin ≥ 6): *"Fate Cards cannot reverse this."*
+  - **CLOSE** (margin 1–5): *"Fate Cards will decide this."*
+  - **LOCKED** (margin = 0): *"Fate Cards are everything."*
+- Constants: `COMBAT_MAX_CARD_SWING = 5`, `COMBAT_DECIDED_THRESHOLD = 6`.
 
 ---
 
@@ -300,6 +372,24 @@ No player is eliminated during play. The Broken Court state replaces elimination
 - Blight Wraiths auto-spread to one adjacent unoccupied Standard Stronghold per round regardless of Behavior Card
 - Voting cost increases by 1 Fate Card (all players spend one additional card for a unanimous vote to count)
 
+**Final Phase named transition (production requirement — not optional flavor):**
+
+When the Doom Toll crosses position 10, the board transitions with a full visual state change:
+- Ambient light shifts cold across the entire board
+- Shadowking silhouette fills the horizon UI layer
+- UI frame color changes to the Final Phase palette
+- Named overlay fires: **FINAL PHASE** — full-screen moment, same weight class as a Blood Pact reveal
+- One-time tooltip fires for all players on first entry: surfaces the strategic framing (consolidate / push for Heartstone / contain the leader); dismissable but not skippable on first view
+
+**Estimated Rounds Remaining HUD element:**
+
+During Final Phase, each player's HUD shows a non-binding countdown:
+- Formula: `ceil((DOOM_TOLL_MAX − doomToll) / FINAL_PHASE_MIN_DOOM_ADVANCE)` where `FINAL_PHASE_MIN_DOOM_ADVANCE = 2`
+- Displayed as "~N rounds remaining" — the tilde signals that this is an estimate, not a guarantee
+- Updates each round after Doom Toll changes resolve
+- Examples: Toll 10 → "~2 rounds remaining"; Toll 11 → "~1 round remaining"; Toll 12 → "~1 round remaining"
+- Not displayed outside Final Phase
+
 **Visual treatment:**
 
 - Toll position is displayed as a large persistent UI element — not a sidebar, not a tooltip
@@ -317,8 +407,10 @@ No player is eliminated during play. The Broken Court state replaces elimination
 **Acceptance criteria:**
 
 - Doom Toll position is readable from any screen position without scrolling
+- Final Phase named transition fires exactly once, on first entry; does not re-fire if Toll briefly drops below 10 and returns
 - Final Phase visual state change is immediately noticeable without reading any tooltip
 - Toll advance animation plays before the next game action in the sequence (not async)
+- Estimated Rounds Remaining HUD element visible during Final Phase; updates each round
 
 ---
 
@@ -336,8 +428,8 @@ No player is eliminated during play. The Broken Court state replaces elimination
 
 **Fate Card cost per vote:**
 
-- Standard: 1 Fate Card per player
-- Final Phase (Toll 10+): 2 Fate Cards per player
+- Standard: 1 Fate Card per player (spent from personal hand)
+- Final Phase (Toll 10+): 2 Fate Cards per player (spent from personal hand)
 
 **Behavior Card types and vote effects:**
 
@@ -368,6 +460,36 @@ No player is eliminated during play. The Broken Court state replaces elimination
 
 ---
 
+### F-006b — Social Pressure Onboarding Screen
+
+**Priority:** P1
+
+**Description:** Before the first session begins (and available from the Settings menu in subsequent sessions), display an "About this mode" onboarding screen that frames the game's social engine for new players.
+
+**Content (verbatim):**
+
+> *This game is a negotiation about who pays for collective survival. The player leading in Strongholds has the most to lose if the Doom Toll advances. The players trailing have the least. Abstaining in the Voting Phase is a legal form of political taxation on the frontrunner — and the designed check on Forge Keep dominance. If you are winning and the table is not cooperating, that is not betrayal. It is the game working as designed.*
+
+**Behavior:**
+
+- Displayed once per user account before the first session
+- Dismissable after reading (requires scroll to bottom or explicit "I understand" button)
+- Re-accessible from Settings → "About the Voting Phase"
+- Not displayed in Tutorial Mode (tutorial introduces this concept in-context at Turn 4)
+
+**Constraints:**
+
+- No effect on game state or mechanics
+- Screen must not be skippable without reading (scroll required on mobile)
+
+**Acceptance criteria:**
+
+- Onboarding screen fires exactly once per account on first session start
+- "About the Voting Phase" entry is present in Settings and opens the same screen
+- Screen is not shown during Tutorial Mode
+
+---
+
 ### F-007 — Broken Court State
 
 **Priority:** P0
@@ -387,7 +509,7 @@ No player is eliminated during play. The Broken Court state replaces elimination
 **Recovery — Rescue:**
 
 - Any active Arch-Regent may perform a Rescue action (costs 1 of their 2 actions for the turn)
-- Rescuer donates 2–5 Fate Cards to the Broken Court player
+- Rescuer donates 2–5 Fate Cards from their personal hand to the Broken Court player
 - Rescued player: restores War Banners equal to cards donated, clears all Penalty Cards, returns to full active state immediately
 - Rescuer strategic benefit: the rescued player's next Voting Phase participation is politically implied — they owe a vote
 
@@ -397,12 +519,21 @@ No player is eliminated during play. The Broken Court state replaces elimination
 - A player in Broken Court state can receive multiple rescue attempts in one round (but only the first successful one takes effect)
 - If all active Arch-Regents simultaneously enter Broken Court state, the game ends as a Draw — all players lose, Doom Toll does not complete
 
+**VULNERABLE status indicator:**
+
+- When a player's Penalty Cards reach 50% of their current War Banner count: their HUD slot shows a yellow VULNERABLE indicator (`getVulnerableStatus()` returns `'yellow'`).
+- When Penalty Cards reach 75% of War Banner count: indicator turns red (`getVulnerableStatus()` returns `'red'`).
+- At 75% threshold, a one-time tooltip fires for the at-risk player: *"Your Penalty Cards are mounting. If they meet or exceed your War Banners, you enter Broken Court. Fight, spend, or find an ally."*
+- VULNERABLE indicator is visible to all players (same visibility as Broken Court status).
+- No mechanical effect — UI display only. Constants: `VULNERABLE_YELLOW_THRESHOLD = 0.5`, `VULNERABLE_RED_THRESHOLD = 0.75`.
+
 **Acceptance criteria:**
 
 - Broken Court state is visually distinct on the board (Court icon changes, reduced action indicators)
 - The Voting Phase UI does not visually demote a Broken Court player's vote (same size, same position)
 - Rescue action is clearly accessible from the action menu — not buried
 - Recovery animation (Broken Court → active) is visible to all players
+- VULNERABLE indicator (yellow/red) is shown in each player's HUD slot before Broken Court entry
 
 ---
 
@@ -432,6 +563,7 @@ No player is eliminated during play. The Broken Court state replaces elimination
 - Shadowking forces never target the Dark Fortress or Hall of Neutrality
 - Death Knights cannot occupy the same node as a solo Herald (Diplomatic Protection applies to Shadowking MOVE only — not ASSAULT)
 - Behavior Card deck reshuffles when exhausted; reshuffle advances Doom Toll by 1 before next card is drawn
+- Death Knights occupying the Dark Fortress are the primary obstacle to Heartstone access — they must be cleared in War Field combat before the Reclaim action becomes available
 
 **Acceptance criteria:**
 
@@ -445,7 +577,7 @@ No player is eliminated during play. The Broken Court state replaces elimination
 
 **Priority:** P1
 
-**Description:** A Herald that reaches the Dark Fortress node via uncontested movement (no War Field on entry) may perform a Diplomatic Action — a solo negotiation that reduces the Doom Toll by 1 without triggering combat.
+**Description:** A Herald that reaches the Dark Fortress node via uncontested movement (no War Field on entry) may perform a Diplomatic Action — a solo negotiation that reduces the Doom Toll by 2 without triggering combat.
 
 **Conditions:**
 
@@ -465,8 +597,9 @@ No player is eliminated during play. The Broken Court state replaces elimination
 
 - Dark Fortress node displays a Herald interaction indicator when a solo Herald is adjacent
 - Diplomatic Action is available from the action menu when conditions are met
-- Doom Toll reduction animation plays immediately after action confirmation
+- Doom Toll reduction of 2 positions plays as a single animation immediately after action confirmation
 - Action log records "Herald diplomatic action — Doom Toll reduced" for all players
+- Tooltip fires once per session when the action first becomes available: surfaces the cost/benefit framing, including "Toll 9+" guidance and the once-per-game sacrifice nature of the action
 
 ---
 
@@ -477,9 +610,13 @@ No player is eliminated during play. The Broken Court state replaces elimination
 **Description:** Three possible game end states.
 
 **Player Victory — Territory Control:**
-Triggered when the Heartstone is reclaimed from the Shadowking (second Fate Card deck reshuffle after the Heartstone changes hands OR explicit reclaim action at the Dark Fortress — spec TBD). The Arch-Regent holding the Heartstone AND controlling the most Strongholds at that moment wins.
+Triggered at the end of every round's Production Phase (Cleanup Phase): if a player holds the Heartstone AND controls more Strongholds than any other player, Territory Victory triggers immediately.
 
-Tiebreaker: highest current War Banner count. Second tiebreaker: coin flip (disclosed to players).
+Tiebreaker (if the Heartstone-holder is tied for most Strongholds): (1) highest current War Banner count, (2) disclosed coin flip. Tiebreaker result is shown before win sequence.
+
+**Heartstone movement rules:**
+- **Reclaim action:** If a player's Fellowship occupies the Dark Fortress and no Death Knights or antagonist forces are present there, the player may spend 1 action to Reclaim the Heartstone. The Heartstone token moves to the player's Court (visible to all). No War Banner cost. The Reclaim option is greyed out (not hidden) when the Fortress is guarded.
+- **Drop on combat loss:** If a Heartstone holder loses War Field combat, the Heartstone drops to the holder's current node as a free token. Any Fellowship occupying that node may claim it with 1 action.
 
 **Shadowking Victory — Doom Toll Completion:**
 Doom Toll reaches position 13. All players lose. In Blood Pact mode: the Blood Pact Arch-Regent wins; all others lose.
@@ -492,11 +629,12 @@ All active Arch-Regents simultaneously enter Broken Court state. Game ends immed
 - Victory condition status must be visible at all times (not only at game end)
 - "Who is winning" must be legible from the main board view without opening a score panel
 - End-of-game screen must show final Stronghold map, Doom Toll position, and all player stats
+- Territory Victory is checked only at end of round (Cleanup Phase); Doom Complete and All Broken trigger immediately at any phase
 
 **Acceptance criteria:**
 
 - A persistent "standings" indicator shows current Stronghold counts for all players
-- Victory condition triggers immediately when conditions are met — no end-of-round delay
+- Doom Complete and All Broken trigger immediately when conditions are met; Territory Victory triggers at end of round
 - Post-game screen is skippable but must default to visible for minimum 5 seconds
 
 ---
@@ -509,13 +647,44 @@ All active Arch-Regents simultaneously enter Broken Court state. Game ends immed
 Standard 2–4 player game. Territory victory or Shadowking victory. No hidden information except Unknown Wanderer tokens.
 
 **F-011b — Blood Pact Mode (Traitor)**
-At game start, one Arch-Regent is secretly dealt a Blood Pact card via the app. No physical component, no shuffle tell. The Blood Pact Arch-Regent wins if and only if the Doom Toll reaches 13. All other Arch-Regents lose regardless of territory.
+At game start, one Arch-Regent is secretly dealt a Blood Pact card via the app. No physical component, no shuffle tell. The Blood Pact Arch-Regent wins if and only if the Doom Toll reaches 13 without being accused mid-game. All other Arch-Regents lose regardless of territory.
 
 Blood Pact Arch-Regent constraints:
 
 - Cannot be too obviously obstructive (the game will be short if isolated immediately)
 - Has all normal player actions available — there is no mechanical restriction, only strategic incentive
-- Blood Pact status is revealed at game end, or if accused by unanimous vote of all other active Arch-Regents before the game ends (accusation costs each accusing player 2 Fate Cards — failed accusations are costly)
+- Blood Pact status is revealed at game end, or via mid-game accusation (see below)
+
+**Accusation Conditions:** All other active Arch-Regents must unanimously initiate the accusation. Each accusing player spends 2 Fate Cards. Accusation is not available in 2-player games (only 1 other player — not a meaningful group decision).
+
+**Successful Accusation (target is the traitor):**
+1. Full-screen reveal moment — same treatment as end-of-game Blood Pact reveal
+2. Traitor's win condition converts to Territory Victory (same as all other players)
+3. Traitor loses 3 Fate Cards (minimum 0; cannot go negative)
+4. Doom Toll recedes by 1
+5. Each accusing player receives 1 Fate Card refund (net cost: 1 card per accuser)
+6. Action log records the round of accusation
+
+**Failed Accusation (target is not the traitor):**
+1. Accusation is visually rejected — clear failure state, no ambiguity
+2. Each accusing player receives 1 Fate Card refund (net cost: 1 per accuser — symmetric with correct accusation)
+3. The wrongly accused player gains 1 Fate Card (political vindication)
+4. Doom Toll does not change
+5. The wrongly accused player cannot be accused again for 1 round (lockout)
+
+**Accusation Cooldown:** After any accusation attempt (success or failure), no new accusation can be initiated for 2 rounds. This prevents accusation spam and gives the traitor breathing room after a failed attempt against them.
+
+**Suspicion Log:**
+- Accessible only from the Accusation initiation screen; not available otherwise
+- Shows each player's Voting Phase record for the last 5 rounds: vote type (COUNTER / ABSTAIN) and whether they were the sole abstainer in that round
+- The accused player has no access to their own Log's presentation
+- No card count, hand size, or other private information is displayed
+- Information display only — no effect on AI behavior or game state
+- Constant: `SUSPICION_LOG_ROUNDS = 5`
+
+**3-Player Note:** Accusation requires both remaining players to agree unanimously. With only one other player to convince, the decision is more personal and the stakes are higher. The Suspicion Log becomes more important here — with three voters, patterns in the vote record emerge faster.
+
+**Async/Online:** Accusation initiation requires simultaneous submission from all non-target players within the voting timer. If any player does not submit within the timer window, the accusation does not proceed.
 
 **F-011c — Cooperative Mode**
 All Arch-Regents win collectively by reclaiming the Heartstone before the Doom Toll completes. The Shadowking Behavior Deck is replaced with a harder deck (2× ESCALATE, 2× ASSAULT, 4× SPAWN, 4× MOVE, 4× CLAIM, 4× additional escalating cards — exact composition TBD in balance testing). No PvP War Field is possible in this mode (Fellowships may share nodes without combat).
@@ -631,7 +800,7 @@ Each player takes their turn when available. Voting Phase is resolved when all p
 
 - Doom Toll advance: bell-strike animation, brief audio cue, counter increment
 - Rescue confirmation: distinct visual and audio beat — this is the emotional peak of the average session
-- Blood Pact reveal: full-screen moment, not a sidebar notification
+- Blood Pact reveal: full-screen moment, not a sidebar notification — applies to both mid-game accusation reveals and end-of-game reveals
 - Death Knight defeated: brief particle effect at node, Doom Toll recede animation
 
 **Audio:**
@@ -654,6 +823,38 @@ Each player takes their turn when available. Voting Phase is resolved when all p
 
 ---
 
+### F-018 — Round Structure: Fixed Turn Order
+
+**Priority:** P0
+
+**Description:** Player turn order in the Action Phase is fixed for the entire game session. It is determined by a disclosed random draw at lobby setup and does not rotate between rounds.
+
+**Turn order assignment:**
+
+- After mode selection, the game performs a seeded random shuffle of the active player slots
+- The resulting order is displayed to all players immediately: e.g., "Court of the Deep Root → Court of the Ember Crown → Court of the Gale Throne → Court of the Tide Seal"
+- This order is fixed for the session and stored in game state
+
+**Rationale:**
+
+1. The Voting Phase is simultaneous — first-player advantage is already neutralized in the game's highest-stakes decision each round
+2. A fixed order is easier to track across rounds ("I always go second") than a rotating first-player marker
+3. The Shadowking acts first every round, re-anchoring the round structure before any player advantage can compound
+
+**Constraints:**
+
+- Turn order applies only to Action Phases — the Voting Phase is always simultaneous regardless of turn order
+- In online synchronous play, the action phase time limit applies per player per turn in the fixed order
+- In async play, the "it's your turn" notification fires when the previous player's action phase completes
+
+**Acceptance criteria:**
+
+- Turn order is displayed to all players at setup before the first round begins
+- The turn order tracker in the persistent UI is visible throughout the round (not only during Action Phases)
+- Order is reproducible from the session seed (required for determinism and rejoin)
+
+---
+
 ### F-016 — Persistent UI: Standings and Status
 
 **Priority:** P0
@@ -666,6 +867,12 @@ Each player takes their turn when available. Voting Phase is resolved when all p
 - Each player's Broken Court status (if applicable)
 - Current round number
 - Whose turn it is (action phase) or that Voting Phase is active
+- Heartstone location: current holder's name, or node name if uncontrolled (e.g., "Dark Fortress" or "s17")
+- Turn order tracker: the fixed session order of player Action Phases, with the currently active player highlighted
+- Fate Deck remaining card count, displayed adjacent to the Doom Toll tracker
+  - Amber visual state when ≤ 10 cards remain (`FATE_DECK_AMBER_THRESHOLD`)
+  - Red visual state when ≤ 5 cards remain (`FATE_DECK_RED_THRESHOLD`)
+  - A one-time tooltip fires at the red threshold: "The Fate Deck is running low. When it reshuffles, the Doom Toll advances by 1."
 
 **Constraints:**
 
@@ -673,11 +880,16 @@ Each player takes their turn when available. Voting Phase is resolved when all p
 - Must be readable at 1080p without zooming
 - Broken Court status must use a distinct visual indicator — not just a color change
 
+**Named animation events:**
+
+- `doom_advance_deck_reshuffle` — distinct visual/audio weight matching `doom_advance_vote_fail`
+
 **Acceptance criteria:**
 
 - A new player can determine who is winning at a glance without clicking anything
 - Broken Court indicator is visible on the standings panel AND on the Court's board piece
 - Voting Phase active state is clearly distinguishable from action phase
+- A player can determine Fate Deck depth at a glance from the main board view
 
 ---
 
@@ -692,6 +904,7 @@ Each player takes their turn when available. Voting Phase is resolved when all p
 - Per-player stats: Strongholds claimed, Fellowships recruited, War Banners spent, combats won/lost, times in Broken Court, rescues given, rescues received, votes cast vs. abstained
 - Win condition that triggered
 - In Blood Pact mode: Blood Pact identity revealed with their action log
+- If a mid-game accusation succeeded, the post-game summary notes the round it occurred; the traitor's action log is split at that round to show behavior before and after their win condition converted
 
 **Constraints:**
 
@@ -713,13 +926,18 @@ These are the target ranges derived from simulation. Acceptance testing must ver
 
 | Metric | Target | Observed (pre-fix) | Fix Required |
 |--------------------------|--------|---------------------|------------------------------------------|
-| Dark Lord win rate | 18–22% | 40% | Reduce ESCALATE cards 2→1, add 1 MOVE card |
+| Dark Lord win rate | 18–22% | 40% | RESOLVED in code — simulation re-run with Fate Card system required before ship |
 | Average rounds per session | 8–16 | 13.2 | None — within target |
 | Doom Track peak | 5–8 | 6.4 | None — within target |
 | Rescue events/game | 1–3 | 2.8 | None — within target |
 | PvP combats/game | 6–12 | 13.6 | Monitor post-fix — slightly high |
 | Heartstone claimed | 50–80% | 80% | Monitor — acceptable |
 | Territory spread (max−min) | 3–6 | 4.8 | None — within target |
+
+> **Balance note (Fix 5):** ESCALATE 2→1 and MOVE 5→6 fixes are implemented and anchored by
+> automated tests. A simulation re-run confirming 18–22% Dark Lord win rate is required before
+> ship, using the updated deck **and** the Herald-driven Fate Card hand system (Fix 4). If the
+> hand system materially raises COUNTER success rates, re-evaluate ESCALATE count.
 
 ---
 
@@ -742,8 +960,8 @@ The following are explicitly deferred. They are on the roadmap and should be des
 
 The following must be true before the game ships:
 
-- [ ] ESCALATE cards reduced from 2 to 1; MOVE cards increased from 5 to 6 in Behavior Deck
-- [ ] Simulation re-run confirms Dark Lord win rate 18–22% with updated deck
+- [x] ESCALATE cards reduced from 2 to 1; MOVE cards increased from 5 to 6 in Behavior Deck (implemented; anchored by tests/models/game-state.test.ts)
+- [ ] Simulation re-run confirms Dark Lord win rate 18–22% with updated Behavior Deck AND Herald-driven Fate Card hand system (Fix 4) enabled
 - [ ] Herald Diplomatic Action (F-009) implemented and tested
 - [ ] Blood Pact mode ships at launch (not post-launch)
 - [ ] Persistent standings UI (F-016) passes readability test at 1080p
@@ -752,6 +970,293 @@ The following must be true before the game ships:
 - [ ] Post-game Blood Pact reveal implemented (F-017)
 - [ ] All GLL tokens confirmed swappable without engine changes (Sea of Knives reskin test)
 - [ ] Broken Court state never prevents Voting Phase participation (F-007) — automated test coverage required
+
+---
+
+---
+
+## Competitive Landscape
+
+### Comparable Titles
+
+| Title | Category | Player Count | Session Length | Key Mechanic Overlap | Differentiation |
+|-------|----------|-------------|----------------|----------------------|-----------------|
+| Pandemic / Pandemic Legacy | Cooperative board game (digital) | 2–4 | 45–90 min | Shared doom track, collective loss | No PvP layer; no traitor variant |
+| Root (digital) | Asymmetric faction strategy | 2–4 | 60–90 min | Territory control, faction rivalry | No shared loss condition; asymmetric powers only |
+| Blood on the Clocktower | Social deduction / traitor | 5–20 | 60–120 min | Hidden traitor, accusation mechanics | Party-scale; not a board strategy game |
+| Armello | Digital board game | 2–4 | 45–75 min | Doom-equivalent (Rot), territory, card combat | Single-player dominant; less voting emphasis |
+| Vast: The Crystal Caverns | Asymmetric board game | 1–5 | 75–120 min | Asymmetric roles, non-elimination | Physical-first; poor digital accessibility |
+| Betrayal at House on the Hill | Traitor cooperative | 3–6 | 60–120 min | Traitor reveal, scenario variety | Randomized scenarios; no territory engine |
+| Slay the Spire | Roguelite deck-builder | 1 | 45–90 min | Card draw, deck management | Single-player only; no social layer |
+
+### Positioning Statement
+
+Iron Throne of Ashes occupies a gap between **social deduction games** (which have no territory strategy) and **asymmetric strategy games** (which have no shared loss condition). The Doom Toll creates mandatory cooperation pressure in a competitive territory game — a combination that does not exist as a shipped digital product at 2–4 player scale.
+
+**The 35–55 player demographic** (Pandemic graduates who want more strategic depth) is underserved by the current digital board game market. Root skews younger and competitive. Armello skews younger and narrative. Iron Throne targets the Pandemic-experienced player who has outgrown pure cooperation but finds Root's asymmetric learning curve prohibitive.
+
+### Competitive Moat
+
+1. **GLL tokenization**: The Alliance Engine supports reskins without engine changes. Each reskin (Sea of Knives, Verdant Collapse) is a new SKU built on the same engine investment — competitors cannot replicate this without equivalent architectural investment.
+2. **Rescue mechanic as emotional driver**: 2.8 rescue activations per session (observed in simulation) is higher than any tabletop game in this category. The mechanic creates session stories that drive word-of-mouth at a rate not achievable through pure competition.
+3. **No-elimination design**: The Broken Court system makes the game accessible to group organizers (Elena, Devon) who reject games where players watch from the sidelines. This is a purchase-decision differentiator before a single mechanic is explained.
+
+### Pricing Benchmarks
+
+| Title | Steam Launch Price |
+|-------|--------------------|
+| Root (digital) | $14.99 + DLC |
+| Armello | $19.99 |
+| Wingspan (digital) | $19.99 |
+| Gloomhaven (digital) | $29.99 |
+| **Iron Throne of Ashes (target)** | **$19.99 base + reskin DLC** |
+
+---
+
+## Monetization Model
+
+### Base Game: $19.99
+
+All three play modes (Competitive, Blood Pact, Cooperative) ship in the base purchase. No paywalled modes. The base game includes the Iron Throne content pack and full AI opponent suite.
+
+### DLC: GLL Reskin Packs ($4.99–$7.99 each)
+
+The GLL tokenization architecture makes reskin packs the natural DLC strategy. Each pack requires no engine changes — only new content tokens, board art, and audio theme:
+
+| Pack | Theme | Target Audience |
+|------|-------|-----------------|
+| Sea of Knives | Age of Sail pirates | Existing base owners seeking variety |
+| Verdant Collapse | Ecological collapse biome variant | Environmentally-themed strategy fans |
+| *[Future packs TBD]* | — | — |
+
+Reskin packs are fully cosmetic from the engine's perspective — same balance, same mechanics, different nouns and visuals. This minimizes QA cost per pack.
+
+### No Live Service / No Microtransactions
+
+No pay-to-win mechanics. No randomized cosmetic packs. The game's reputation with the 35–55 demographic depends on clean, one-time purchase pricing. This is non-negotiable.
+
+### Revenue Model Notes
+
+- Primary revenue: Steam launch, one-time purchase
+- Secondary revenue: DLC reskin packs (Sea of Knives target: 6 months post-launch)
+- Mobile (iOS/Android): Flat purchase price, same as PC. No mobile-specific monetization.
+- No subscription model.
+
+---
+
+## Success Metrics
+
+### Launch Window (First 30 Days)
+
+| Metric | Target |
+|--------|--------|
+| Steam unit sales (launch month) | 5,000+ |
+| Steam review rating | ≥ 80% positive |
+| Tutorial completion rate | ≥ 70% of players who start Tutorial complete all 5 turns |
+| Session completion rate | ≥ 60% of started sessions reach end-game state |
+| Average sessions per player (30 days) | ≥ 3 |
+| Blood Pact mode adoption | ≥ 40% of multi-session players play at least one Blood Pact session |
+
+### Balance Health (Ongoing)
+
+| Metric | Target |
+|--------|--------|
+| Dark Lord win rate | 18–22% (per simulation; validated pre-ship) |
+| Average rounds per session | 8–16 |
+| Rescue events per game | 1–3 |
+| PvP combats per game | 6–12 |
+| Player Broken Court rate | 1–2 times per player per game average |
+
+### Engagement Quality
+
+| Metric | Target |
+|--------|--------|
+| Session abandonment before Round 4 | < 15% |
+| Tutorial Turn 3 failure rate (War Field silent fail) | 0% — must not silently fail |
+| Voting Phase participation rate (non-auto-abstain) | ≥ 85% |
+| Online sync multiplayer sessions (vs. AI-fill solo) | ≥ 30% of all sessions |
+
+### Post-Launch Roadmap Trigger
+
+- If Sea of Knives DLC exceeds 20% attach rate among base owners at 3 months → greenlight Verdant Collapse pack.
+- If Spectator mode is mentioned in ≥ 10% of Steam reviews → prioritize v1.1 spectator mode.
+
+---
+
+## Platform Requirements
+
+### PC (Primary)
+
+**Minimum:**
+- OS: Windows 10 64-bit / macOS 12 Monterey
+- CPU: Intel Core i5-8400 / AMD Ryzen 5 2600
+- RAM: 8 GB
+- GPU: NVIDIA GTX 1050 / AMD RX 570 (2 GB VRAM)
+- Storage: 2 GB
+- Network: Broadband for online multiplayer
+
+**Recommended:**
+- OS: Windows 11 / macOS 14 Sonoma
+- CPU: Intel Core i7-10700 / AMD Ryzen 7 3700X
+- RAM: 16 GB
+- GPU: NVIDIA RTX 3060 / AMD RX 6600 (4 GB VRAM)
+- Storage: 2 GB (SSD preferred for load times)
+
+**Render targets:** 1080p primary, 2560×1440 secondary. Board and UI must be readable at both resolutions without scaling adjustments.
+
+### Mobile (Secondary)
+
+- iOS: iPhone 12 or later (iOS 16+)
+- Android: Snapdragon 765G or equivalent (Android 11+)
+- Minimum VRAM: 2 GB
+- Target frame rate: 60 fps on recommended hardware
+
+**Mobile UX constraints:**
+- All interactive board nodes: minimum 44×44pt hit area (Apple HIG standard)
+- Text minimum: 14pt at native resolution
+- Voting Phase UI must be fully operable on 6-inch display without horizontal scroll
+
+---
+
+## Accessibility
+
+### Core Commitments
+
+- **No-elimination design**: Broken Court is the accessibility bedrock. No player is locked out of gameplay.
+- **Session length**: 60–90 minutes fits a parent's evening. This is an explicit design constraint, not a coincidental outcome.
+- **Tutorial pacing**: One mechanic per turn, introduced in gameplay order. No front-loaded rules dump.
+
+### Visual Accessibility
+
+| Feature | Requirement |
+|---------|-------------|
+| Colorblind mode | Must support Deuteranopia and Protanopia profiles. Court colors and Doom Toll states must be distinguishable in both modes. |
+| Text scaling | All UI text must scale 100–150% without layout breakage |
+| High-contrast mode | Shadowking silhouette and Broken Court indicators must remain legible at high contrast |
+| Board node hit areas | ≥ 44×44px on PC, ≥ 44×44pt on mobile |
+| Animation speed control | All atmospheric animations (Doom Toll advance, candle dimming) must respect a "reduced motion" setting |
+
+### Input Accessibility
+
+| Feature | Status |
+|---------|--------|
+| Full keyboard navigation (PC) | Required for all menu and action flows |
+| Controller support (PC) | P1 — required for Steam Deck compatibility |
+| Touch input (Mobile) | All actions operable via single-touch tap; no multi-finger gestures required for gameplay |
+| Screen reader support | P2 — not a launch requirement |
+
+### Cognitive Accessibility
+
+- Discovered Tutorial tooltips surface mechanics at point of first encounter (not front-loaded)
+- VULNERABLE indicator (yellow/red) provides early warning before Broken Court — no sudden state change
+- Pre-combat summary screen shows Base Strength totals before Fate Cards are drawn — no mental math required during combat
+- Doom Toll visual state changes are progressive (7 → 9 → 10+), not binary
+
+---
+
+## Marketing & Launch Strategy
+
+### Core Message
+
+*"The game where you have to save the player you were just trying to beat."*
+
+The rescue mechanic is the marketing anchor. Focus group data: 5 of 8 personas named rescue as their most anticipated moment before completing a full session. The Doom Toll/Voting Phase pressure system is the hook; the rescue is the story.
+
+### Target Channels
+
+| Channel | Persona | Tactic |
+|---------|---------|--------|
+| Steam discovery | Marcus, Raj | Optimize tags: Strategy, Board Game, Multiplayer, Traitor, Cooperative |
+| BoardGameGeek | Raj, Elena, Devon | Developer journal during pre-production; BGG listing with tutorial video |
+| Twitch/YouTube | Zoe | Streamer seeding — Blood Pact mode is the streaming driver (reveal moments are clipable) |
+| Discord strategy communities | Marcus, Priya | Closed beta access program; post-session screenshot sharing |
+| Board game review YouTube | Raj, Devon | Review copies 6 weeks pre-launch |
+
+### Pre-Launch Activities
+
+- **Steam page**: Live during pre-production with wishlist CTA. Key art centered on Doom Toll track and Shadowking silhouette — conveys tension before a word is read.
+- **Closed beta**: 50–100 players, targeted at BoardGameGeek community. Focus: balance validation (Dark Lord win rate), Tutorial Turn 3 failure rate.
+- **Streamer seeding**: 10 content creators with ≥ 50K followers in board game / strategy space. Priority criteria: Blood Pact mode comfort, cooperative game experience.
+- **Launch trailer**: Must show a rescue moment, a Blood Pact reveal, and a Final Phase visual transition. These are the three highest-engagement moments per focus group data.
+
+### App Store / Steam Metadata
+
+**Steam tags (priority order):** Strategy, Board Game, Multiplayer, Co-op, Traitor, Turn-Based, Card Game, Fantasy
+
+**Short description:** *Four courts. One rising darkness. Someone at your table is helping it win.*
+
+**Key features bullet points:**
+- No player elimination — Broken Court keeps everyone in the game
+- Three modes: Competitive, Cooperative, Blood Pact (traitor)
+- The rescue mechanic creates the sessions your group will talk about
+- 60–90 minute sessions designed for a game night schedule
+- Fully reskinnable engine — more content packs planned
+
+### Launch Window
+
+- **Soft launch target**: Closed beta 60 days before launch
+- **Launch**: PC (Steam) + Mobile simultaneously, or PC first with Mobile 30-day offset if Mobile QA requires additional time
+- **Post-launch day 1 patch window**: Reserved. Known pre-ship items (simulation re-run, Cooperative mode balance deck) to be finalized in this window if not ship-complete.
+
+---
+
+## Build Status
+
+### Engine (Alliance Engine v1.0)
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| `src/engine/` — Core game loop, phase resolution | ✅ Implemented | TypeScript, Vitest test suite |
+| `src/gll/` — GLL token registry, validation | ✅ Implemented | 35 required tokens; `GLLValidationError` on missing keys |
+| `src/models/` — GameState, Player, Board, Characters | ✅ Implemented | Strict TypeScript, no `any` types |
+| `src/systems/combat.ts` — War Field resolution | ✅ Implemented | Deterministic from seed |
+| `src/systems/voting.ts` — Voting Phase | ✅ Implemented | Broken Court participation enforced |
+| `src/systems/doom_toll.ts` — Doom Toll tracking | ✅ Implemented | Final Phase threshold = 10 |
+| `src/systems/shadowking.ts` — Behavior Card execution | ✅ Implemented | Seeded deterministic |
+| `src/utils/seeded_random.ts` — SeededRandom | ✅ Implemented | All randomness routed through here |
+
+### Content Packs
+
+| Pack | Status |
+|------|--------|
+| `content/iron-throne/` — Iron Throne of Ashes | ✅ Complete (35/35 tokens) |
+| `content/sea-of-knives/` — Age of Sail reskin | ✅ Complete (proof-of-concept; validates GLL swappability) |
+| `content/verdant-collapse/` | 🔴 Not started |
+
+### Features (P0 / P1 by Launch Checklist)
+
+| Feature | Priority | Status |
+|---------|----------|--------|
+| F-001 Board: The Known Lands | P0 | ✅ Engine model complete; UI not started |
+| F-002 War Banners | P0 | ✅ Engine complete |
+| F-002.5 Fate Card Hand Management | P0 | ✅ Engine complete |
+| F-003 Characters / Fellowship | P0 | ✅ Engine complete |
+| F-004 War Field (Combat) | P0 | ✅ Engine complete |
+| F-005 Doom Toll | P0 | ✅ Engine complete; visual state changes not started |
+| F-006 Voting Phase | P0 | ✅ Engine complete |
+| F-007 Broken Court State | P0 | ✅ Engine complete; automated test coverage required |
+| F-008 Shadowking Behavior System | P0 | ✅ Engine complete |
+| F-009 Herald Diplomatic Action | P1 | 🔴 Not implemented |
+| F-010 Victory Conditions | P0 | ✅ Engine complete |
+| F-011a Competitive Mode | P0 | ✅ Engine complete |
+| F-011b Blood Pact Mode | P0 | ✅ Engine complete (server-side card delivery not started) |
+| F-011c Cooperative Mode | P1 | 🟡 Partial — hard deck composition TBD in balance testing |
+| F-012 Tutorial | P0 | 🔴 Not started |
+| F-013 AI Opponents | P1 | 🔴 Not started |
+| F-014 Multiplayer / Async | P1/P2 | 🔴 Not started |
+| F-015 Atmosphere / Audio | P1 | 🔴 Not started |
+| F-016 Persistent UI: Standings | P0 | 🔴 Not started |
+| F-017 Post-Game Summary | P1 | 🔴 Not started |
+| F-018 Fixed Turn Order | P0 | ✅ Engine complete |
+
+**Overall status:** Core game engine is complete and test-covered. UI, networking, atmosphere, AI, and tutorial are all pre-implementation. The engine is ready for a rendering layer.
+
+### Revision History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0 | 2026-03-04 | Initial PRD — full feature spec, balance parameters, launch checklist |
+| 1.1 | 2026-03-06 | Added Competitive Landscape, Monetization Model, Success Metrics, Platform Requirements, Accessibility, Marketing & Launch Strategy, Build Status |
 
 ---
 

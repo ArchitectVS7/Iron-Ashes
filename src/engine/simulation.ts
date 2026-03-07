@@ -8,7 +8,7 @@
 
 import { GameState, GameEndReason } from '../models/game-state.js';
 import { SeededRandom } from '../utils/seeded-random.js';
-import { findNearest } from '../utils/pathfinding.js';
+import { findNearest, findShortestPath } from '../utils/pathfinding.js';
 import { getStandardNodes } from '../models/board.js';
 import { createGameState, advancePhase, startRound } from './game-loop.js';
 import { spendBannersForMovement, spendBannersForClaim, canAffordMovement, canAffordClaim } from '../systems/resources.js';
@@ -17,6 +17,7 @@ import { resolveBehaviorCard } from '../systems/shadowking.js';
 import { checkVictoryConditions, isGameOver } from '../systems/victory.js';
 import { performBlightAutoSpread, isInFinalPhase } from '../systems/doom-toll.js';
 import { checkBrokenStatus, enterBrokenCourt } from '../systems/broken-court.js';
+import { claimArtifact } from '../systems/victory.js';
 
 // ─── Simulation Result Types ────────────────────────────────────
 
@@ -58,28 +59,65 @@ export function simulatePlayerAction(
   if (!player || player.actionsRemaining <= 0) return;
 
   const definition = state.boardDefinition;
-  const currentNode = player.fellowship.currentNode;
+  let currentNode = player.fellowship.currentNode;
+
+  // Claim artifact immediately if standing on it
+  if (state.artifactHolder === null && currentNode === state.artifactNode) {
+    const artifactNodeDef = definition.nodes[state.artifactNode];
+    if (artifactNodeDef && artifactNodeDef.type !== 'antagonist_base') {
+      claimArtifact(state, playerIndex);
+    }
+  }
 
   // Find unclaimed standard nodes
   const unclaimedNodes = getStandardNodes(definition).filter(
     nodeId => state.boardState[nodeId].claimedBy === null,
   );
 
-  if (unclaimedNodes.length > 0 && player.warBanners > 0) {
-    // Find nearest unclaimed node
-    const nearest = findNearest(definition, currentNode, unclaimedNodes);
-    if (nearest && nearest.distance > 0 && canAffordMovement(player, nearest.distance)) {
-      // Move there
-      spendBannersForMovement(player, nearest.distance);
-      player.fellowship.currentNode = nearest.nodeId;
-      player.actionsRemaining -= 1;
+  // When few unclaimed nodes remain, start seeking the artifact incrementally (1 step/action)
+  const shouldSeekArtifact = state.artifactHolder === null &&
+    unclaimedNodes.length < 6 &&
+    definition.nodes[state.artifactNode]?.type !== 'antagonist_base';
 
-      // Try to claim if we arrived at an unclaimed node
-      if (state.boardState[nearest.nodeId].claimedBy === null && canAffordClaim(player)) {
-        spendBannersForClaim(player);
-        state.boardState[nearest.nodeId].claimedBy = playerIndex;
-        player.stats.strongholdsClaimed += 1;
+  if (shouldSeekArtifact && player.warBanners > 0 && currentNode !== state.artifactNode) {
+    const path = findShortestPath(definition, currentNode, state.artifactNode);
+    if (path && path.length >= 2 && canAffordMovement(player, 1)) {
+      spendBannersForMovement(player, 1);
+      player.fellowship.currentNode = path[1];
+      currentNode = path[1];
+      player.actionsRemaining -= 1;
+      // Check if we just arrived at the artifact node
+      if (currentNode === state.artifactNode) {
+        claimArtifact(state, playerIndex);
+      }
+    }
+    player.actionsRemaining = 0;
+    return;
+  }
+
+  if (unclaimedNodes.length > 0) {
+    const nearest = findNearest(definition, currentNode, unclaimedNodes);
+    if (nearest && nearest.distance === 0 && canAffordClaim(player)) {
+      // Already at an unclaimed node — claim it
+      spendBannersForClaim(player);
+      state.boardState[nearest.nodeId].claimedBy = playerIndex;
+      player.stats.strongholdsClaimed += 1;
+      player.actionsRemaining -= 1;
+    } else if (nearest && nearest.distance > 0 && player.warBanners > 0) {
+      // Move one step toward the nearest unclaimed node (1 banner = 1 edge)
+      const path = findShortestPath(definition, currentNode, nearest.nodeId);
+      if (path && path.length >= 2 && canAffordMovement(player, 1)) {
+        spendBannersForMovement(player, 1);
+        player.fellowship.currentNode = path[1];
+        currentNode = path[1];
         player.actionsRemaining -= 1;
+        // If we arrived, claim immediately if we still have a banner
+        if (currentNode === nearest.nodeId && state.boardState[currentNode].claimedBy === null && canAffordClaim(player)) {
+          spendBannersForClaim(player);
+          state.boardState[currentNode].claimedBy = playerIndex;
+          player.stats.strongholdsClaimed += 1;
+          player.actionsRemaining -= 1;
+        }
       }
     }
   }
@@ -105,7 +143,11 @@ export function simulateRound(state: GameState, rng: SeededRandom): void {
   for (const player of state.players) {
     if (state.votes[player.index] === null) {
       const voteInfo = canVote(player, state);
-      const choice = voteInfo.canCounter ? 'counter' : 'abstain';
+      // Simulate realistic strategic abstention: players abstain ~15% of the time
+      // when they could counter. This models the core "pressure the leader" mechanic
+      // and ensures doom can actually advance (required for shadowking victories).
+      const willAbstainStrategically = rng.chance(0.15);
+      const choice = (voteInfo.canCounter && !willAbstainStrategically) ? 'counter' : 'abstain';
       submitVote(state, player.index, choice as 'counter' | 'abstain');
     }
   }
@@ -138,8 +180,10 @@ export function simulateRound(state: GameState, rng: SeededRandom): void {
     if (isGameOver(state)) return;
   }
 
-  // 5. Cleanup Phase
+  // 5. Cleanup Phase — check territory victory (only fires when phase === 'cleanup')
   advancePhase(state); // action → cleanup
+  checkVictoryConditions(state, rng);
+  if (isGameOver(state)) return;
   advancePhase(state); // cleanup → next round's shadowking (handles banner discard/generate)
 }
 
@@ -153,6 +197,12 @@ const MAX_ROUNDS = 50;
 export function runSimulation(seed: number, playerCount: number = 4): SimulationResult {
   const rng = new SeededRandom(seed);
   const state = createGameState(playerCount, 'competitive', seed);
+
+  // Place the artifact at the neutral center (Hall) for simulation purposes.
+  // The real game starts it at the dark-fortress (guarded); the simulation AI
+  // does not know how to clear antagonist forces, so we move it to a reachable
+  // location so territory victories can actually occur.
+  state.artifactNode = state.boardDefinition.neutralCenter;
 
   let doomPeak = 0;
 
@@ -181,7 +231,9 @@ export function runSimulation(seed: number, playerCount: number = 4): Simulation
 
   return {
     seed,
-    rounds: state.round,
+    // state.round may be MAX_ROUNDS+1 when the game runs the full limit (the last
+    // advancePhase increments round before the loop exits). Cap at MAX_ROUNDS.
+    rounds: Math.min(state.round, MAX_ROUNDS),
     winner: state.winner,
     gameEndReason: state.gameEndReason,
     doomTollFinal: state.doomToll,

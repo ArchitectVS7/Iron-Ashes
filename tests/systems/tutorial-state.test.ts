@@ -83,4 +83,68 @@ describe('Tutorial System Constraints (Phase 14)', () => {
         expect(showOther).toBe(true); // Different trigger allowed
     });
 
+    describe('5-turn sequence (F-012)', () => {
+
+        it('getCurrentTurn returns the first step on start', () => {
+            const state = new TutorialState();
+            state.startMandatoryTutorial();
+            const step = state.getCurrentTurn();
+            expect(step).not.toBeNull();
+            expect(step?.turn).toBe(1);
+            expect(step?.mechanic).toBe('movement');
+        });
+
+        it('advanceTurn returns true for turns 1–4', () => {
+            const state = new TutorialState();
+            state.startMandatoryTutorial();
+            for (let i = 0; i < 4; i++) {
+                expect(state.advanceTurn()).toBe(true);
+            }
+            expect(state.getCurrentTurn()?.turn).toBe(5);
+        });
+
+        it('advanceTurn returns false after turn 5 (triggers finalize)', async () => {
+            const markComplete = vi.fn().mockResolvedValue(undefined);
+            const mockServer: ServerSideTutorialStub = {
+                isFirstSession: vi.fn().mockResolvedValue(true),
+                markTutorialComplete: markComplete,
+            };
+            const state = new TutorialState(mockServer);
+            state.startMandatoryTutorial();
+
+            // Advance through all 5 turns
+            for (let i = 0; i < 4; i++) state.advanceTurn();
+            const result = state.advanceTurn(); // 5th advance triggers completion
+            expect(result).toBe(false);
+            expect(state.getCurrentTurn()).toBeNull();
+        });
+
+        it('getCurrentTurn returns null after all turns completed', () => {
+            const state = new TutorialState();
+            state.startMandatoryTutorial();
+            for (let i = 0; i < 5; i++) state.advanceTurn();
+            expect(state.getCurrentTurn()).toBeNull();
+        });
+
+        it('currentTurnIndex increments with each advanceTurn call', () => {
+            const state = new TutorialState();
+            state.startMandatoryTutorial();
+            expect(state.currentTurnIndex).toBe(0);
+            state.advanceTurn();
+            expect(state.currentTurnIndex).toBe(1);
+            state.advanceTurn();
+            expect(state.currentTurnIndex).toBe(2);
+        });
+
+        it('startMandatoryTutorial resets currentTurnIndex to 0', () => {
+            const state = new TutorialState();
+            state.startMandatoryTutorial();
+            state.advanceTurn();
+            state.advanceTurn();
+            expect(state.currentTurnIndex).toBe(2);
+            state.startMandatoryTutorial();
+            expect(state.currentTurnIndex).toBe(0);
+        });
+    });
+
 });

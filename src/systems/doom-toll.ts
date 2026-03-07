@@ -13,6 +13,7 @@ import {
   GameState,
   DOOM_TOLL_FINAL_PHASE_THRESHOLD,
   DOOM_TOLL_MAX,
+  FINAL_PHASE_MIN_DOOM_ADVANCE,
   MINION_MAX_COUNT,
   MINION_POWER,
   VOTE_COST_STANDARD,
@@ -54,7 +55,7 @@ export function onNonUnanimousVote(state: GameState): void {
  */
 export function onFateDeckReshuffle(state: GameState): void {
   advanceDoomToll(state, 1);
-  log(state, 'doom-advance', 'Fate Deck reshuffled — Doom Toll advanced by 1.');
+  log(state, 'doom_advance_deck_reshuffle', 'Fate Deck reshuffled — Doom Toll advanced by 1.');
 }
 
 /**
@@ -142,6 +143,32 @@ export function getBehaviorCardDrawCount(state: GameState): number {
  */
 export function getVoteCost(state: GameState): number {
   return isInFinalPhase(state) ? VOTE_COST_FINAL_PHASE : VOTE_COST_STANDARD;
+}
+
+// ─── Estimated Rounds Remaining (Final Phase HUD) ────────────────
+
+/**
+ * Return the estimated number of rounds remaining before the Doom Toll
+ * reaches DOOM_TOLL_MAX (13), assuming the minimum possible advance per
+ * Final Phase round (FINAL_PHASE_MIN_DOOM_ADVANCE = 2).
+ *
+ * Formula: ceil((DOOM_TOLL_MAX − doomToll) / FINAL_PHASE_MIN_DOOM_ADVANCE)
+ *
+ * This is a non-binding UI estimate shown in the HUD during Final Phase.
+ * No effect on game state or mechanics.
+ *
+ * Returns 0 when the Doom Toll has already reached or exceeded DOOM_TOLL_MAX.
+ *
+ * Examples (with DOOM_TOLL_MAX = 13, FINAL_PHASE_MIN_DOOM_ADVANCE = 2):
+ *   doomToll = 10 → ceil(3/2) = 2 rounds  ("~2 rounds remaining")
+ *   doomToll = 11 → ceil(2/2) = 1 round
+ *   doomToll = 12 → ceil(1/2) = 1 round
+ *   doomToll = 13 → 0 rounds (doom complete)
+ */
+export function getEstimatedRoundsRemaining(state: GameState): number {
+  const remaining = DOOM_TOLL_MAX - state.doomToll;
+  if (remaining <= 0) return 0;
+  return Math.ceil(remaining / FINAL_PHASE_MIN_DOOM_ADVANCE);
 }
 
 // ─── Game-Over Check ─────────────────────────────────────────────

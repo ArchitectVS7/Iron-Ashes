@@ -7,12 +7,18 @@ interface Point {
 
 export class BoardRenderer {
     private canvas: HTMLCanvasElement;
-    private ctx: CanvasRenderingContext2D;
+    /**
+     * Rendering context. Null in headless environments (e.g. jsdom tests)
+     * where canvas 2D is not supported. All draw methods guard on this.
+     */
+    private ctx: CanvasRenderingContext2D | null;
     private coordinates: Record<string, Point> = {};
     private hoveredNode: string | null = null;
     private selectedNode: string | null = null;
     private boardState: BoardState | null = null;
     private diplomaticNodes: string[] = [];
+    private reachableNodes: string[] = [];
+    private claimableNodes: string[] = [];
     private renderLoopId: number = 0;
     public onNodeClick?: (nodeId: string) => void;
 
@@ -20,7 +26,7 @@ export class BoardRenderer {
         const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
         if (!canvas) throw new Error(`Canvas #${canvasId} not found`);
         this.canvas = canvas;
-        this.ctx = canvas.getContext('2d')!;
+        this.ctx = canvas.getContext('2d');
 
         this.initCoordinates();
         this.resize();
@@ -49,6 +55,12 @@ export class BoardRenderer {
         } else {
             this.render();
         }
+    }
+
+    public setHighlightedNodes(reachable: string[], claimable: string[]): void {
+        this.reachableNodes = reachable;
+        this.claimableNodes = claimable;
+        this.render();
     }
 
     private initCoordinates() {
@@ -153,6 +165,9 @@ export class BoardRenderer {
     }
 
     public render() {
+        // Guard: headless environments (jsdom) return null from getContext('2d')
+        if (!this.ctx) return;
+
         const w = this.canvas.width;
         const h = this.canvas.height;
 
@@ -216,6 +231,7 @@ export class BoardRenderer {
     }
 
     private drawDecorations() {
+        if (!this.ctx) return;
         this.ctx.strokeStyle = '#1f2937';
         this.ctx.lineWidth = 2;
         this.ctx.beginPath();
@@ -230,6 +246,7 @@ export class BoardRenderer {
     }
 
     private drawNode(node: BoardNode) {
+        if (!this.ctx) return;
         const pos = this.coordinates[node.id];
         if (!pos) return;
 
@@ -295,13 +312,21 @@ export class BoardRenderer {
             this.ctx.stroke();
         }
 
-        // Selection / Hover
-        if (isSelected || isHovered) {
+        const isReachable = this.reachableNodes.includes(node.id);
+        const isClaimable = this.claimableNodes.includes(node.id);
+
+        // Selection / Hover / Highlight
+        if (isSelected || isHovered || isReachable || isClaimable) {
             this.ctx.beginPath();
             this.ctx.arc(0, 0, radius + 8, 0, Math.PI * 2);
-            this.ctx.strokeStyle = isSelected ? '#fcd34d' : '#fef3c7'; // yellow for selection
-            this.ctx.lineWidth = isSelected ? 3 : 1.5;
-            if (isSelected) {
+
+            if (isSelected) this.ctx.strokeStyle = '#fcd34d';
+            else if (isClaimable) this.ctx.strokeStyle = '#f59e0b';
+            else if (isReachable) this.ctx.strokeStyle = '#10b981';
+            else this.ctx.strokeStyle = '#fef3c7';
+
+            this.ctx.lineWidth = isSelected || isClaimable || isReachable ? 3 : 1.5;
+            if (isSelected || isClaimable) {
                 this.ctx.setLineDash([5, 5]);
             }
             this.ctx.stroke();

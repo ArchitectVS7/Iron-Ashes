@@ -15,11 +15,14 @@ import {
   spendBannersForClaim,
   spendBannersForCombat,
   discardUnspentBanners,
+  calculateHandLimit,
+  replenishFateCards,
 } from '../../src/systems/resources.js';
 import { createPlayer, Player } from '../../src/models/player.js';
 import { createStartingFellowship } from '../../src/models/characters.js';
 import { createCharacter } from '../../src/models/characters.js';
 import { KNOWN_LANDS } from '../../src/models/board.js';
+import { createGameState } from '../../src/engine/game-loop.js';
 
 /** Create a player at the given node with a starting Fellowship. */
 function makePlayer(nodeId: string, courtIndex: number = 0): Player {
@@ -424,5 +427,111 @@ describe('Full Round Resource Cycle', () => {
     // Hall of Neutrality (not a forge)
     const playerAtHall = makePlayer('hall');
     expect(calculateBannerProduction(playerAtHall, KNOWN_LANDS)).toBe(1);
+  });
+});
+
+// ─── Fate Card Hand Management ────────────────────────────────────
+
+/** Add extra diplomats to a player's fellowship. */
+function addDiplomats(player: Player, count: number): void {
+  for (let i = 0; i < count; i++) {
+    player.fellowship.characters.push(createCharacter(`extra-diplomat-${i}`, 'diplomat'));
+  }
+}
+
+describe('calculateHandLimit()', () => {
+  it('returns 3 with 0 diplomats', () => {
+    const player = makePlayer('keep-0');
+    player.fellowship.characters = player.fellowship.characters.filter(c => c.role !== 'diplomat');
+    expect(calculateHandLimit(player)).toBe(3);
+  });
+
+  it('returns 3 with 1 diplomat (starting fellowship, no bonus)', () => {
+    const player = makePlayer('keep-0');
+    // Starting fellowship has exactly 1 diplomat
+    expect(calculateHandLimit(player)).toBe(3);
+  });
+
+  it('returns 4 with 2 diplomats', () => {
+    const player = makePlayer('keep-0');
+    addDiplomats(player, 1); // now 2 total
+    expect(calculateHandLimit(player)).toBe(4);
+  });
+
+  it('returns 5 with 3 diplomats', () => {
+    const player = makePlayer('keep-0');
+    addDiplomats(player, 2); // now 3 total
+    expect(calculateHandLimit(player)).toBe(5);
+  });
+
+  it('returns 6 with 4 diplomats', () => {
+    const player = makePlayer('keep-0');
+    addDiplomats(player, 3); // now 4 total
+    expect(calculateHandLimit(player)).toBe(6);
+  });
+
+  it('caps at 6 with 5+ diplomats', () => {
+    const player = makePlayer('keep-0');
+    addDiplomats(player, 5); // now 6 total
+    expect(calculateHandLimit(player)).toBe(6);
+  });
+});
+
+describe('replenishFateCards()', () => {
+  it('fills an empty hand to the limit (3 with 1 diplomat)', () => {
+    const state = createGameState(2, 'competitive', 42);
+    const player = state.players[0];
+    player.fateCards = [];
+    const deckBefore = state.fateDeck.length;
+    replenishFateCards(player, state);
+    expect(player.fateCards).toHaveLength(3);
+    expect(state.fateDeck.length).toBe(deckBefore - 3);
+  });
+
+  it('is a no-op when hand is already at limit', () => {
+    const state = createGameState(2, 'competitive', 42);
+    const player = state.players[0];
+    player.fateCards = [1, 2, 3]; // exactly at limit of 3
+    const deckBefore = state.fateDeck.length;
+    replenishFateCards(player, state);
+    expect(player.fateCards).toHaveLength(3);
+    expect(state.fateDeck.length).toBe(deckBefore);
+  });
+
+  it('partially fills when hand has fewer cards than limit', () => {
+    const state = createGameState(2, 'competitive', 42);
+    const player = state.players[0];
+    player.fateCards = [5]; // 1 card, limit is 3
+    const deckBefore = state.fateDeck.length;
+    replenishFateCards(player, state);
+    expect(player.fateCards).toHaveLength(3);
+    expect(state.fateDeck.length).toBe(deckBefore - 2);
+  });
+
+  it('fills to limit 4 with 2 diplomats', () => {
+    const state = createGameState(2, 'competitive', 42);
+    const player = state.players[0];
+    addDiplomats(player, 1); // now 2 diplomats → limit 4
+    player.fateCards = [];
+    replenishFateCards(player, state);
+    expect(player.fateCards).toHaveLength(4);
+  });
+
+  it('preserves existing cards and appends drawn cards', () => {
+    const state = createGameState(2, 'competitive', 42);
+    const player = state.players[0];
+    player.fateCards = [99]; // sentinel value
+    replenishFateCards(player, state);
+    expect(player.fateCards[0]).toBe(99);
+    expect(player.fateCards).toHaveLength(3);
+  });
+
+  it('decreases state.fateDeck.length by the number drawn', () => {
+    const state = createGameState(2, 'competitive', 42);
+    const player = state.players[0];
+    player.fateCards = [];
+    const deckBefore = state.fateDeck.length;
+    replenishFateCards(player, state);
+    expect(state.fateDeck.length).toBe(deckBefore - 3);
   });
 });

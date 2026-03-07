@@ -35,7 +35,7 @@ export type NodeType =
   | 'standard'        // Standard Stronghold — claimable, +1 resource/turn
   | 'forge'           // Forge Keep — claimable, +3 resource/turn
   | 'antagonist_base' // Dark Fortress — not claimable, antagonist home
-  | 'neutral_center'; // Hall of Neutrality — artifact starting position
+  | 'neutral_center'; // Hall of Neutrality — neutral territory (historical resting place of the Heartstone)
 
 /** A single node on the board graph. */
 export interface BoardNode {
@@ -57,7 +57,7 @@ export interface BoardDefinition {
   readonly startingKeeps: readonly [string, string, string, string];
   /** The antagonist base node ID. */
   readonly antagonistBase: string;
-  /** The neutral center node ID (artifact starts here). */
+  /** The neutral center node ID (Hall of Neutrality — historical, not the artifact starting position). */
   readonly neutralCenter: string;
 }
 

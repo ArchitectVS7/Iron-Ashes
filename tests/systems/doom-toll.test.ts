@@ -10,6 +10,7 @@ import {
   AntagonistForce,
   DOOM_TOLL_FINAL_PHASE_THRESHOLD,
   DOOM_TOLL_MAX,
+  FINAL_PHASE_MIN_DOOM_ADVANCE,
   MINION_MAX_COUNT,
   MINION_POWER,
   VOTE_COST_STANDARD,
@@ -21,6 +22,7 @@ import {
   getBehaviorCardDrawCount,
   getVoteCost,
   isDoomComplete,
+  getEstimatedRoundsRemaining,
   onNonUnanimousVote,
   onFateDeckReshuffle,
   onBlightWraithClaimsForge,
@@ -228,7 +230,7 @@ describe('onFateDeckReshuffle()', () => {
     const logLengthBefore = state.actionLog.length;
     onFateDeckReshuffle(state);
     expect(state.actionLog.length).toBe(logLengthBefore + 1);
-    expect(state.actionLog[state.actionLog.length - 1].action).toBe('doom-advance');
+    expect(state.actionLog[state.actionLog.length - 1].action).toBe('doom_advance_deck_reshuffle');
   });
 });
 
@@ -646,3 +648,56 @@ describe('performBlightAutoSpread()', () => {
     expect(s01Neighbors).toContain(newForce!.currentNode);
   });
 });
+
+// ─── getEstimatedRoundsRemaining ──────────────────────────────────
+
+describe('getEstimatedRoundsRemaining()', () => {
+  it('returns ceil(3/2) = 2 at the Final Phase threshold (Toll 10)', () => {
+    const state = makeState();
+    setDoomToll(state, DOOM_TOLL_FINAL_PHASE_THRESHOLD); // 10
+    // (13 - 10) / 2 = 1.5 → ceil = 2
+    expect(getEstimatedRoundsRemaining(state)).toBe(2);
+  });
+
+  it('returns 1 when Toll is 11', () => {
+    const state = makeState();
+    setDoomToll(state, 11);
+    // (13 - 11) / 2 = 1.0 → ceil = 1
+    expect(getEstimatedRoundsRemaining(state)).toBe(1);
+  });
+
+  it('returns 1 when Toll is 12 (one advance remaining)', () => {
+    const state = makeState();
+    setDoomToll(state, 12);
+    // (13 - 12) / 2 = 0.5 → ceil = 1
+    expect(getEstimatedRoundsRemaining(state)).toBe(1);
+  });
+
+  it('returns 0 when Toll equals DOOM_TOLL_MAX (13) — doom complete', () => {
+    const state = makeState();
+    setDoomToll(state, DOOM_TOLL_MAX);
+    expect(getEstimatedRoundsRemaining(state)).toBe(0);
+  });
+
+  it('returns 0 when Toll exceeds DOOM_TOLL_MAX (defensive)', () => {
+    const state = makeState();
+    setDoomToll(state, DOOM_TOLL_MAX + 5);
+    expect(getEstimatedRoundsRemaining(state)).toBe(0);
+  });
+
+  it('uses FINAL_PHASE_MIN_DOOM_ADVANCE (2) as the divisor', () => {
+    // Verify the formula is consistent with the exported constant.
+    const state = makeState();
+    setDoomToll(state, 10);
+    const expected = Math.ceil((DOOM_TOLL_MAX - 10) / FINAL_PHASE_MIN_DOOM_ADVANCE);
+    expect(getEstimatedRoundsRemaining(state)).toBe(expected);
+  });
+
+  it('handles pre-Final-Phase toll (non-binding estimate still computes)', () => {
+    const state = makeState();
+    setDoomToll(state, 0);
+    // (13 - 0) / 2 = 6.5 → ceil = 7
+    expect(getEstimatedRoundsRemaining(state)).toBe(7);
+  });
+});
+

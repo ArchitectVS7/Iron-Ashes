@@ -38,6 +38,8 @@ export interface Player {
   hasBloodPact: boolean;
   /** Whether the Blood Pact has been revealed (accusation or game end). */
   bloodPactRevealed: boolean;
+  /** Rounds remaining before this player can be accused again (0 = accusable). */
+  accusationLockoutRounds: number;
 
   /** Number of actions remaining this turn (2 normal, 1 if Broken). */
   actionsRemaining: number;
@@ -94,6 +96,7 @@ export function createPlayer(
     isBroken: false,
     hasBloodPact: false,
     bloodPactRevealed: false,
+    accusationLockoutRounds: 0,
     actionsRemaining: 2,
     stats: createInitialStats(),
   };

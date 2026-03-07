@@ -16,7 +16,9 @@ import {
   AntagonistForce,
   DEFAULT_BEHAVIOR_DECK_COMPOSITION,
   COOPERATIVE_BEHAVIOR_DECK_COMPOSITION,
+  DOOM_TOLL_MIN,
   DOOM_TOLL_FINAL_PHASE_THRESHOLD,
+  THREE_PLAYER_STARTING_DOOM_TOLL,
   ACTIONS_PER_TURN_NORMAL,
   ACTIONS_PER_TURN_BROKEN,
   LIEUTENANT_POWER,
@@ -30,7 +32,7 @@ import {
 import { createPlayer } from '../models/player.js';
 import { createStartingFellowship } from '../models/characters.js';
 import { SeededRandom } from '../utils/seeded-random.js';
-import { generateBanners, discardUnspentBanners } from '../systems/resources.js';
+import { generateBanners, discardUnspentBanners, replenishFateCards } from '../systems/resources.js';
 import { generateWandererPool } from '../systems/characters.js';
 
 // ─── Behavior Deck ────────────────────────────────────────────────
@@ -149,6 +151,10 @@ export function createGameState(
   const behaviorDeck = createBehaviorDeck(rng, deckComposition);
   const fateDeck = createFateDeck(rng);
 
+  // Randomly assign a fixed turn order for the session's Action Phases.
+  // Done last so it does not affect prior RNG-dependent outputs (wanderers, decks).
+  const turnOrder = rng.shuffle(Array.from({ length: playerCount }, (_, i) => i));
+
   // Place starting lieutenants at the antagonist base
   const antagonistForces: AntagonistForce[] = [];
   for (let i = 1; i <= LIEUTENANT_START_COUNT; i++) {
@@ -165,7 +171,7 @@ export function createGameState(
   // ordering matches selectWandererNodes ordering and is used during recruit.
   // We log the mapping in actionLog for determinism audits (not needed here).
 
-  const doomToll = 0;
+  const doomToll = playerCount === 3 ? THREE_PLAYER_STARTING_DOOM_TOLL : DOOM_TOLL_MIN;
 
   const state: GameState = {
     boardDefinition,
@@ -183,9 +189,11 @@ export function createGameState(
     currentBehaviorCard: null,
     fateDeck,
     fateDiscard: [],
-    artifactNode: boardDefinition.neutralCenter,
+    artifactNode: boardDefinition.antagonistBase,
     artifactHolder: null,
+    turnOrder,
     votes: Array(playerCount).fill(null) as (null)[],
+    accusationCooldownRounds: 0,
     gameEndReason: null,
     winner: null,
     seed,
@@ -195,6 +203,11 @@ export function createGameState(
   // Generate starting banners for all players (round 1 production)
   for (const player of state.players) {
     generateBanners(player, boardDefinition);
+  }
+
+  // Deal starting Fate Card hands (3 cards per player)
+  for (const player of state.players) {
+    replenishFateCards(player, state);
   }
 
   return state;
@@ -234,7 +247,7 @@ export function advancePhase(state: GameState): GameState {
   if (nextPhase === 'voting') {
     state.votes = state.players.map(() => null);
   } else if (nextPhase === 'action') {
-    state.activePlayerIndex = 0;
+    state.activePlayerIndex = state.turnOrder[0];
     for (const player of state.players) {
       player.actionsRemaining = player.isBroken
         ? ACTIONS_PER_TURN_BROKEN
@@ -273,17 +286,18 @@ export function advanceActionTurn(state: GameState): GameState {
     return state;
   }
 
-  // Move to next player who still has actions remaining
-  const playerCount = state.players.length;
-  let next = (state.activePlayerIndex + 1) % playerCount;
-  // Skip players who have already used all their actions
+  // Walk through turnOrder to find the next player who still has actions remaining
+  const order = state.turnOrder;
+  const orderLen = order.length;
+  const currentPos = order.indexOf(state.activePlayerIndex);
+  let nextPos = (currentPos + 1) % orderLen;
   let checked = 0;
-  while (state.players[next].actionsRemaining <= 0 && checked < playerCount) {
-    next = (next + 1) % playerCount;
+  while (state.players[order[nextPos]].actionsRemaining <= 0 && checked < orderLen) {
+    nextPos = (nextPos + 1) % orderLen;
     checked++;
   }
 
-  state.activePlayerIndex = next;
+  state.activePlayerIndex = order[nextPos];
   return state;
 }
 
@@ -331,6 +345,7 @@ export function startCleanup(state: GameState): GameState {
   for (const player of state.players) {
     discardUnspentBanners(player);
     generateBanners(player, state.boardDefinition);
+    replenishFateCards(player, state);
   }
   return state;
 }

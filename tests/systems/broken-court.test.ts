@@ -13,6 +13,7 @@ import {
   canRescue,
   performRescue,
   hasBeenRescuedThisRound,
+  getVulnerableStatus,
 } from '../../src/systems/broken-court.js';
 import { canVote } from '../../src/systems/voting.js';
 
@@ -550,5 +551,66 @@ describe('Draw condition: isAllBroken', () => {
 
     enterBrokenCourt(state, 2);
     expect(isAllBroken(state)).toBe(true); // draw condition triggered
+  });
+});
+
+// ─── getVulnerableStatus ──────────────────────────────────────────
+
+describe('getVulnerableStatus()', () => {
+  it('returns safe when penaltyCards is 0 and warBanners is above 0', () => {
+    const state = makeState();
+    state.players[0].warBanners = 4;
+    state.players[0].penaltyCards = 0;
+    expect(getVulnerableStatus(state.players[0])).toBe('safe');
+  });
+
+  it('returns safe when warBanners is 0 (no ratio to compute)', () => {
+    const state = makeState();
+    state.players[0].warBanners = 0;
+    state.players[0].penaltyCards = 0;
+    expect(getVulnerableStatus(state.players[0])).toBe('safe');
+  });
+
+  it('returns safe when ratio is below 50%', () => {
+    const state = makeState();
+    state.players[0].warBanners = 4;
+    state.players[0].penaltyCards = 1; // 25% — below yellow threshold
+    expect(getVulnerableStatus(state.players[0])).toBe('safe');
+  });
+
+  it('returns yellow when penaltyCards exactly equals 50% of warBanners', () => {
+    const state = makeState();
+    state.players[0].warBanners = 4;
+    state.players[0].penaltyCards = 2; // exactly 50%
+    expect(getVulnerableStatus(state.players[0])).toBe('yellow');
+  });
+
+  it('returns yellow when ratio is between 50% and 75%', () => {
+    const state = makeState();
+    state.players[0].warBanners = 8;
+    state.players[0].penaltyCards = 5; // 62.5% — yellow, not yet red
+    expect(getVulnerableStatus(state.players[0])).toBe('yellow');
+  });
+
+  it('returns red when penaltyCards exactly equals 75% of warBanners', () => {
+    const state = makeState();
+    state.players[0].warBanners = 4;
+    state.players[0].penaltyCards = 3; // exactly 75%
+    expect(getVulnerableStatus(state.players[0])).toBe('red');
+  });
+
+  it('returns red when ratio is above 75% but below 100%', () => {
+    const state = makeState();
+    state.players[0].warBanners = 8;
+    state.players[0].penaltyCards = 7; // 87.5% — red, not yet broken
+    expect(getVulnerableStatus(state.players[0])).toBe('red');
+  });
+
+  it('returns safe when player is already Broken (warning not needed)', () => {
+    const state = makeState();
+    state.players[0].warBanners = 4;
+    state.players[0].penaltyCards = 5; // would be red, but isBroken takes priority
+    state.players[0].isBroken = true;
+    expect(getVulnerableStatus(state.players[0])).toBe('safe');
   });
 });

@@ -106,8 +106,9 @@ export function submitVote(
 
   if (choice === 'counter') {
     if (canCounter) {
-      // Deduct fate cards (remove 'cost' cards from the front of the array)
-      player.fateCards.splice(0, cost);
+      // Deduct fate cards and return them to the discard pile (not removed from game)
+      const spent = player.fateCards.splice(0, cost);
+      state.fateDiscard.push(...spent);
       player.stats.votesCast++;
     } else {
       // Cannot afford counter — force abstain
@@ -215,6 +216,18 @@ export function resolveVotes(state: GameState): VoteResult {
   const totalVoters = votes.length;
   const unanimous = counters === totalVoters && abstains === 0;
   const blocked = unanimous;
+
+  // Log each player's vote for the Suspicion Log (Blood Pact mode UI, no mechanical effect).
+  for (let i = 0; i < votes.length; i++) {
+    const vote = votes[i] ?? 'abstain';
+    state.actionLog.push({
+      round: state.round,
+      phase: state.phase,
+      playerIndex: i,
+      action: 'vote-round-record',
+      details: vote,
+    });
+  }
 
   // Determine doom toll side effects from vote outcome
   if (!unanimous) {

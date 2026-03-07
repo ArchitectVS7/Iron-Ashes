@@ -6,7 +6,8 @@
  *   2. Doom Complete — Doom Toll reaches 13
  *   3. All Broken — all players simultaneously in Broken Court
  *
- * Victory triggers immediately when conditions are met.
+ * Doom Complete and All Broken trigger immediately. Territory Victory triggers
+ * only at end-of-round Cleanup Phase.
  */
 
 import { GameState, GameEndReason } from '../models/game-state.js';
@@ -48,12 +49,37 @@ export function applyVictory(
 
 /**
  * Check if the artifact is unclaimed and a player's fellowship is at its node.
+ *
+ * If the artifact is at the Dark Fortress, the Fortress must be unguarded
+ * (no antagonist forces present) before the Reclaim action becomes available.
  */
 export function isArtifactAvailable(state: GameState): boolean {
   if (state.artifactHolder !== null) return false;
+  if (state.artifactNode === state.boardDefinition.antagonistBase) {
+    if (state.boardState[state.artifactNode].antagonistForces.length > 0) return false;
+  }
   return state.players.some(
     p => p.fellowship.currentNode === state.artifactNode,
   );
+}
+
+/**
+ * Drop the artifact at the holder's current node. Called when the artifact
+ * holder loses War Field combat — the Heartstone falls to their node.
+ */
+export function dropArtifact(state: GameState, playerIndex: number): void {
+  const player = state.players[playerIndex];
+  if (!player) return;
+  const dropNode = player.fellowship.currentNode;
+  state.artifactHolder = null;
+  state.artifactNode = dropNode;
+  state.actionLog.push({
+    round: state.round,
+    phase: state.phase,
+    playerIndex,
+    action: 'drop-artifact',
+    details: `Heartstone dropped at ${dropNode} after combat loss.`,
+  });
 }
 
 /**
@@ -153,7 +179,7 @@ export function checkVictoryConditions(
   if (isDoomComplete(state)) {
     let winner: number | null = null;
     if (state.mode === 'blood_pact') {
-      const bloodPactPlayer = state.players.find(p => p.hasBloodPact);
+      const bloodPactPlayer = state.players.find(p => p.hasBloodPact && !p.bloodPactRevealed);
       winner = bloodPactPlayer?.index ?? null;
     }
     applyVictory(state, 'doom_complete', winner);
@@ -166,11 +192,13 @@ export function checkVictoryConditions(
     return 'all_broken';
   }
 
-  // 3. Territory Victory
-  const territoryWinner = checkTerritoryVictory(state, rng);
-  if (territoryWinner !== null) {
-    applyVictory(state, 'territory_victory', territoryWinner);
-    return 'territory_victory';
+  // 3. Territory Victory — only checked at end of round (Cleanup Phase)
+  if (state.phase === 'cleanup') {
+    const territoryWinner = checkTerritoryVictory(state, rng);
+    if (territoryWinner !== null) {
+      applyVictory(state, 'territory_victory', territoryWinner);
+      return 'territory_victory';
+    }
   }
 
   return null;

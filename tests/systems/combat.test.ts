@@ -13,6 +13,7 @@ import {
   canInitiateCombatAgainstPlayer,
   advanceDoomToll,
   recedeDoomToll,
+  getCombatOutcomeLabel,
 } from '../../src/systems/combat.js';
 import { createGameState } from '../../src/engine/game-loop.js';
 import { createPlayer, Player } from '../../src/models/player.js';
@@ -26,6 +27,8 @@ import {
   DOOM_TOLL_FINAL_PHASE_THRESHOLD,
   LIEUTENANT_POWER,
   MINION_POWER,
+  COMBAT_MAX_CARD_SWING,
+  COMBAT_DECIDED_THRESHOLD,
 } from '../../src/models/game-state.js';
 
 // ─── Test Helpers ─────────────────────────────────────────────────
@@ -167,6 +170,17 @@ describe('drawFateCards()', () => {
     const drawn1 = drawFateCards(state1, 5);
     const drawn2 = drawFateCards(state2, 5);
     expect(drawn1).toEqual(drawn2);
+  });
+
+  it('should log action doom_advance_deck_reshuffle when reshuffle occurs', () => {
+    const state = makeState(42);
+    state.fateDiscard = [...state.fateDeck];
+    state.fateDeck = [];
+    const logLengthBefore = state.actionLog.length;
+    drawFateCards(state, 1);
+    const lastEntry = state.actionLog[state.actionLog.length - 1];
+    expect(state.actionLog.length).toBe(logLengthBefore + 1);
+    expect(lastEntry.action).toBe('doom_advance_deck_reshuffle');
   });
 
   it('should handle drawing 1 card from a 1-card deck', () => {
@@ -619,6 +633,26 @@ describe('advanceDoomToll()', () => {
     advanceDoomToll(state, DOOM_TOLL_FINAL_PHASE_THRESHOLD);
     expect(state.doomToll).toBe(DOOM_TOLL_FINAL_PHASE_THRESHOLD);
     expect(state.isFinalPhase).toBe(true);
+  });
+});
+
+// ─── getCombatOutcomeLabel ────────────────────────────────────────
+
+describe('getCombatOutcomeLabel()', () => {
+  it('returns LOCKED when margin is 0', () => {
+    expect(getCombatOutcomeLabel(0)).toBe('LOCKED');
+  });
+  it('returns CLOSE when margin is 1', () => {
+    expect(getCombatOutcomeLabel(1)).toBe('CLOSE');
+  });
+  it('returns CLOSE when margin equals COMBAT_MAX_CARD_SWING (5)', () => {
+    expect(getCombatOutcomeLabel(COMBAT_MAX_CARD_SWING)).toBe('CLOSE');
+  });
+  it('returns DECIDED when margin equals COMBAT_DECIDED_THRESHOLD (6)', () => {
+    expect(getCombatOutcomeLabel(COMBAT_DECIDED_THRESHOLD)).toBe('DECIDED');
+  });
+  it('returns DECIDED when margin is well above threshold', () => {
+    expect(getCombatOutcomeLabel(15)).toBe('DECIDED');
   });
 });
 

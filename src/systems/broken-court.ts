@@ -10,7 +10,7 @@
  * All game randomness goes through SeededRandom. No Math.random().
  */
 
-import { GameState, ACTIONS_PER_TURN_BROKEN } from '../models/game-state.js';
+import { GameState, ACTIONS_PER_TURN_BROKEN, VULNERABLE_YELLOW_THRESHOLD, VULNERABLE_RED_THRESHOLD } from '../models/game-state.js';
 import { Player } from '../models/player.js';
 import { advanceDoomToll } from './combat.js';
 
@@ -30,6 +30,28 @@ function log(
     action,
     details,
   });
+}
+
+// ─── Vulnerable Status ────────────────────────────────────────────
+
+/**
+ * Return the VULNERABLE HUD indicator status for a player.
+ *
+ * This is a UI-layer helper only — no mechanical effect.
+ *
+ * 'safe'   — Penalty Cards are below 50% of War Banners, or player is already
+ *             Broken (no warning needed) or has no banners (no ratio to compute).
+ * 'yellow' — Penalty Cards are ≥ 50% but < 75% of War Banners.
+ * 'red'    — Penalty Cards are ≥ 75% of War Banners (and not yet Broken).
+ *
+ * Visible to all players, same as Broken Court status.
+ */
+export function getVulnerableStatus(player: Player): 'safe' | 'yellow' | 'red' {
+  if (player.isBroken || player.warBanners === 0) return 'safe';
+  const ratio = player.penaltyCards / player.warBanners;
+  if (ratio >= VULNERABLE_RED_THRESHOLD) return 'red';
+  if (ratio >= VULNERABLE_YELLOW_THRESHOLD) return 'yellow';
+  return 'safe';
 }
 
 // ─── Broken Court State Checks ────────────────────────────────────

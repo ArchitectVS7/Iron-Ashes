@@ -1,3 +1,5 @@
+import { TUTORIAL_TURNS, TutorialTurnStep } from './tutorial-script.js';
+
 export interface ServerSideTutorialStub {
     isFirstSession(): Promise<boolean>;
     markTutorialComplete(): Promise<void>;
@@ -15,6 +17,9 @@ export class TutorialState {
     private serverStub: ServerSideTutorialStub;
     private isMandatoryTutorialActive: boolean = false;
     private discoveredTutorialsShown: Set<DiscoveredTutorialTrigger> = new Set();
+
+    /** Current tutorial turn index (0-based). */
+    public currentTurnIndex: number = 0;
 
     // In-memory cache of completion so we don't spam storage
     private isCompletedLocally: boolean;
@@ -39,6 +44,28 @@ export class TutorialState {
 
     public startMandatoryTutorial() {
         this.isMandatoryTutorialActive = true;
+        this.currentTurnIndex = 0;
+    }
+
+    /**
+     * Get the current tutorial turn step, or null if past the end.
+     */
+    public getCurrentTurn(): TutorialTurnStep | null {
+        if (this.currentTurnIndex >= TUTORIAL_TURNS.length) return null;
+        return TUTORIAL_TURNS[this.currentTurnIndex];
+    }
+
+    /**
+     * Advance to the next tutorial turn.
+     * Returns false when all turns are complete (caller should finalize).
+     */
+    public advanceTurn(): boolean {
+        this.currentTurnIndex++;
+        if (this.currentTurnIndex >= TUTORIAL_TURNS.length) {
+            this.finalizeMandatoryTutorial();
+            return false;
+        }
+        return true;
     }
 
     public async finalizeMandatoryTutorial() {

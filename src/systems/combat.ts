@@ -8,7 +8,7 @@
  * All randomness goes through SeededRandom. No Math.random().
  */
 
-import { GameState, DOOM_TOLL_MAX, DOOM_TOLL_MIN, DOOM_TOLL_FINAL_PHASE_THRESHOLD } from '../models/game-state.js';
+import { GameState, DOOM_TOLL_MAX, DOOM_TOLL_MIN, DOOM_TOLL_FINAL_PHASE_THRESHOLD, COMBAT_MAX_CARD_SWING } from '../models/game-state.js';
 import { Player } from '../models/player.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 import { getFellowshipPower, hasDiplomaticProtection } from './characters.js';
@@ -94,6 +94,13 @@ export function drawFateCards(state: GameState, count: number): number[] {
       state.fateDiscard = [];
       // Reshuffling advances the Doom Toll.
       advanceDoomToll(state, 1);
+      state.actionLog.push({
+        round: state.round,
+        phase: state.phase,
+        playerIndex: null,
+        action: 'doom_advance_deck_reshuffle',
+        details: 'Fate Deck reshuffled — Doom Toll advanced by 1.',
+      });
     }
 
     // Pop from end (top of deck). If still empty after reshuffle (edge case
@@ -103,6 +110,24 @@ export function drawFateCards(state: GameState, count: number): number[] {
   }
 
   return drawn;
+}
+
+// ─── Pre-Combat Outcome Label ─────────────────────────────────────
+
+/**
+ * Return the pre-combat outcome label based on base strength margin.
+ *
+ * LOCKED  — margin = 0: Fate Cards are everything.
+ * CLOSE   — margin 1–5: Fate Cards will decide this.
+ * DECIDED — margin ≥ 6: Fate Cards cannot reverse this.
+ *
+ * `margin` is the absolute difference in Base Strength between the two sides,
+ * computed before Fate Cards are drawn.
+ */
+export function getCombatOutcomeLabel(margin: number): 'DECIDED' | 'CLOSE' | 'LOCKED' {
+  if (margin === 0) return 'LOCKED';
+  if (margin <= COMBAT_MAX_CARD_SWING) return 'CLOSE';
+  return 'DECIDED';
 }
 
 // ─── Combat Result ────────────────────────────────────────────────

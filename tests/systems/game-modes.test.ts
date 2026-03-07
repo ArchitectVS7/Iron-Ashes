@@ -13,11 +13,18 @@ import {
   hasBloodPactCard,
   getModeName,
   getCooperativeDeckComposition,
+  advanceAccusationCooldowns,
+  getSuspicionLog,
   ACCUSATION_COST,
 } from '../../src/systems/game-modes.js';
 import {
   DEFAULT_BEHAVIOR_DECK_COMPOSITION,
   COOPERATIVE_BEHAVIOR_DECK_COMPOSITION,
+  ACCUSATION_COOLDOWN_ROUNDS,
+  ACCUSATION_LOCKOUT_ROUNDS,
+  ACCUSATION_PENALTY_CARDS,
+  DOOM_TOLL_ACCUSATION_RECEDE,
+  SUSPICION_LOG_ROUNDS,
 } from '../../src/models/game-state.js';
 
 describe('assignBloodPact', () => {
@@ -107,28 +114,30 @@ describe('performAccusation', () => {
     expect(state.players[2].bloodPactRevealed).toBe(true);
   });
 
-  it('should spend cards from all accusers on correct accusation', () => {
+  it('should spend cards from all accusers on correct accusation (net cost 1 after refund)', () => {
     const state = createGameState(4, 'blood_pact', 42);
     state.players[2].hasBloodPact = true;
     for (const p of state.players) p.fateCards = [1, 2, 3];
     performAccusation(state, 2);
-    // Accusers (0, 1, 3) each spent 2 cards
-    expect(state.players[0].fateCards.length).toBe(1);
-    expect(state.players[1].fateCards.length).toBe(1);
-    expect(state.players[3].fateCards.length).toBe(1);
-    // Target not charged
-    expect(state.players[2].fateCards.length).toBe(3);
+    // Accusers (0, 1, 3) each spent 2 cards then got 1 refunded → net 1 spent, 2 remaining
+    expect(state.players[0].fateCards.length).toBe(2);
+    expect(state.players[1].fateCards.length).toBe(2);
+    expect(state.players[3].fateCards.length).toBe(2);
+    // Target loses ACCUSATION_PENALTY_CARDS (3), started with 3 → 0 remaining
+    expect(state.players[2].fateCards.length).toBe(0);
   });
 
-  it('should return false for wrong target but still spend cards', () => {
+  it('should return false for wrong target but refund accusers (net cost 1)', () => {
     const state = createGameState(4, 'blood_pact', 42);
     state.players[2].hasBloodPact = true;
     for (const p of state.players) p.fateCards = [1, 2, 3];
     const result = performAccusation(state, 1); // Wrong target
     expect(result).toBe(false);
     expect(state.players[1].bloodPactRevealed).toBe(false);
-    // Cards still spent by accusers (0, 2, 3)
-    expect(state.players[0].fateCards.length).toBe(1);
+    // Accusers (0, 2, 3) spent 2 then got 1 back → net 1 spent, 2 remaining
+    expect(state.players[0].fateCards.length).toBe(2);
+    expect(state.players[2].fateCards.length).toBe(2);
+    expect(state.players[3].fateCards.length).toBe(2);
   });
 
   it('should log the accusation', () => {
@@ -237,5 +246,244 @@ describe('Cooperative Behavior Deck', () => {
     // Should be a copy, not the same reference
     composition.escalate = 99;
     expect(COOPERATIVE_BEHAVIOR_DECK_COMPOSITION.escalate).not.toBe(99);
+  });
+});
+
+// ─── Accusation Mid-Game Resolution (Fix 6) ───────────────────────
+
+describe('accusation mid-game resolution (Fix 6)', () => {
+  it('canAccuse returns null in 2-player blood_pact game', () => {
+    const state = createGameState(2, 'blood_pact', 42);
+    for (const p of state.players) p.fateCards = [1, 2, 3];
+    expect(canAccuse(state, 0)).toBeNull();
+    expect(canAccuse(state, 1)).toBeNull();
+  });
+
+  it('canAccuse returns null when accusationCooldownRounds > 0', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    for (const p of state.players) p.fateCards = [1, 2, 3];
+    state.accusationCooldownRounds = 1;
+    expect(canAccuse(state, 2)).toBeNull();
+  });
+
+  it('canAccuse returns null when target accusationLockoutRounds > 0', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    for (const p of state.players) p.fateCards = [1, 2, 3];
+    state.players[2].accusationLockoutRounds = 1;
+    expect(canAccuse(state, 2)).toBeNull();
+  });
+
+  it('successful accusation: traitor with 5 cards loses 3, leaving 2', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    state.players[2].hasBloodPact = true;
+    for (const p of state.players) p.fateCards = [1, 2, 3];
+    state.players[2].fateCards = [1, 2, 3, 4, 5];
+    performAccusation(state, 2);
+    expect(state.players[2].fateCards.length).toBe(2);
+  });
+
+  it('successful accusation: traitor with only 2 cards → 0 remaining (clamped at 0)', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    state.players[2].hasBloodPact = true;
+    for (const p of state.players) p.fateCards = [1, 2, 3];
+    state.players[2].fateCards = [1, 2];
+    performAccusation(state, 2);
+    expect(state.players[2].fateCards.length).toBe(0);
+  });
+
+  it('successful accusation: Doom Toll recedes by 1', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    state.players[2].hasBloodPact = true;
+    for (const p of state.players) p.fateCards = [1, 2, 3];
+    state.doomToll = 5;
+    performAccusation(state, 2);
+    expect(state.doomToll).toBe(5 - DOOM_TOLL_ACCUSATION_RECEDE);
+  });
+
+  it('successful accusation: each accuser nets 1 card spent (started 3, spent 2, refund 1 → hand size 2)', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    state.players[2].hasBloodPact = true;
+    for (const p of state.players) p.fateCards = [1, 2, 3];
+    performAccusation(state, 2);
+    expect(state.players[0].fateCards.length).toBe(2);
+    expect(state.players[1].fateCards.length).toBe(2);
+    expect(state.players[3].fateCards.length).toBe(2);
+  });
+
+  it('successful accusation: accusationCooldownRounds set to ACCUSATION_COOLDOWN_ROUNDS', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    state.players[2].hasBloodPact = true;
+    for (const p of state.players) p.fateCards = [1, 2, 3];
+    performAccusation(state, 2);
+    expect(state.accusationCooldownRounds).toBe(ACCUSATION_COOLDOWN_ROUNDS);
+  });
+
+  it('failed accusation: accused gains 1 Fate Card', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    state.players[2].hasBloodPact = true;
+    for (const p of state.players) p.fateCards = [1, 2, 3];
+    const beforeCount = state.players[1].fateCards.length;
+    performAccusation(state, 1); // Wrong target — player 2 has pact
+    expect(state.players[1].fateCards.length).toBe(beforeCount + 1);
+  });
+
+  it('failed accusation: accused accusationLockoutRounds set to ACCUSATION_LOCKOUT_ROUNDS', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    state.players[2].hasBloodPact = true;
+    for (const p of state.players) p.fateCards = [1, 2, 3];
+    performAccusation(state, 1); // Wrong target
+    expect(state.players[1].accusationLockoutRounds).toBe(ACCUSATION_LOCKOUT_ROUNDS);
+  });
+
+  it('failed accusation: accusationCooldownRounds set to ACCUSATION_COOLDOWN_ROUNDS', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    state.players[2].hasBloodPact = true;
+    for (const p of state.players) p.fateCards = [1, 2, 3];
+    performAccusation(state, 1); // Wrong target
+    expect(state.accusationCooldownRounds).toBe(ACCUSATION_COOLDOWN_ROUNDS);
+  });
+
+  it('advanceAccusationCooldowns: decrements global cooldown and player lockout, clamps at 0', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    state.accusationCooldownRounds = 2;
+    state.players[0].accusationLockoutRounds = 1;
+    state.players[1].accusationLockoutRounds = 0;
+    advanceAccusationCooldowns(state);
+    expect(state.accusationCooldownRounds).toBe(1);
+    expect(state.players[0].accusationLockoutRounds).toBe(0);
+    expect(state.players[1].accusationLockoutRounds).toBe(0); // clamped
+    advanceAccusationCooldowns(state);
+    expect(state.accusationCooldownRounds).toBe(0);
+    advanceAccusationCooldowns(state);
+    expect(state.accusationCooldownRounds).toBe(0); // stays at 0
+  });
+});
+
+// ─── getSuspicionLog ──────────────────────────────────────────────
+
+/** Push vote-round-record entries directly into the action log — simulates resolveVotes() output. */
+function recordVotes(
+  state: ReturnType<typeof createGameState>,
+  round: number,
+  votes: Array<{ playerIndex: number; vote: 'counter' | 'abstain' }>,
+): void {
+  for (const { playerIndex, vote } of votes) {
+    state.actionLog.push({
+      round,
+      phase: 'voting',
+      playerIndex,
+      action: 'vote-round-record',
+      details: vote,
+    });
+  }
+}
+
+describe('getSuspicionLog()', () => {
+  it('returns an empty array when no rounds have been played', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    expect(getSuspicionLog(state, 0)).toEqual([]);
+  });
+
+  it('returns one entry for a single round', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    recordVotes(state, 1, [
+      { playerIndex: 0, vote: 'counter' },
+      { playerIndex: 1, vote: 'abstain' },
+      { playerIndex: 2, vote: 'counter' },
+      { playerIndex: 3, vote: 'counter' },
+    ]);
+    const log = getSuspicionLog(state, 0);
+    expect(log).toHaveLength(1);
+    expect(log[0].round).toBe(1);
+    expect(log[0].vote).toBe('counter');
+    expect(log[0].wasSoleAbstainer).toBe(false);
+  });
+
+  it('correctly records a counter vote', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    recordVotes(state, 1, [
+      { playerIndex: 0, vote: 'counter' },
+      { playerIndex: 1, vote: 'counter' },
+      { playerIndex: 2, vote: 'counter' },
+      { playerIndex: 3, vote: 'counter' },
+    ]);
+    const log = getSuspicionLog(state, 2);
+    expect(log[0].vote).toBe('counter');
+    expect(log[0].wasSoleAbstainer).toBe(false);
+  });
+
+  it('correctly records an abstain vote', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    recordVotes(state, 1, [
+      { playerIndex: 0, vote: 'counter' },
+      { playerIndex: 1, vote: 'counter' },
+      { playerIndex: 2, vote: 'abstain' },
+      { playerIndex: 3, vote: 'counter' },
+    ]);
+    const log = getSuspicionLog(state, 2);
+    expect(log[0].vote).toBe('abstain');
+  });
+
+  it('marks wasSoleAbstainer true when the subject is the only abstainer', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    recordVotes(state, 1, [
+      { playerIndex: 0, vote: 'counter' },
+      { playerIndex: 1, vote: 'counter' },
+      { playerIndex: 2, vote: 'abstain' },  // sole abstainer
+      { playerIndex: 3, vote: 'counter' },
+    ]);
+    const log = getSuspicionLog(state, 2);
+    expect(log[0].wasSoleAbstainer).toBe(true);
+  });
+
+  it('marks wasSoleAbstainer false when multiple players abstained', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    recordVotes(state, 1, [
+      { playerIndex: 0, vote: 'abstain' },
+      { playerIndex: 1, vote: 'counter' },
+      { playerIndex: 2, vote: 'abstain' },  // two abstainers
+      { playerIndex: 3, vote: 'counter' },
+    ]);
+    const log = getSuspicionLog(state, 0);
+    expect(log[0].wasSoleAbstainer).toBe(false);
+  });
+
+  it('returns entries in ascending round order', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    recordVotes(state, 3, [{ playerIndex: 0, vote: 'counter' }, { playerIndex: 1, vote: 'counter' }]);
+    recordVotes(state, 1, [{ playerIndex: 0, vote: 'abstain' }, { playerIndex: 1, vote: 'counter' }]);
+    recordVotes(state, 2, [{ playerIndex: 0, vote: 'counter' }, { playerIndex: 1, vote: 'counter' }]);
+    const log = getSuspicionLog(state, 0);
+    expect(log.map(e => e.round)).toEqual([1, 2, 3]);
+  });
+
+  it(`returns at most ${SUSPICION_LOG_ROUNDS} entries when more rounds exist`, () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    for (let r = 1; r <= SUSPICION_LOG_ROUNDS + 3; r++) {
+      recordVotes(state, r, [
+        { playerIndex: 0, vote: 'counter' },
+        { playerIndex: 1, vote: 'counter' },
+      ]);
+    }
+    const log = getSuspicionLog(state, 0);
+    expect(log).toHaveLength(SUSPICION_LOG_ROUNDS);
+  });
+
+  it('returns the most recent rounds when trimmed', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    for (let r = 1; r <= SUSPICION_LOG_ROUNDS + 2; r++) {
+      recordVotes(state, r, [{ playerIndex: 0, vote: 'counter' }, { playerIndex: 1, vote: 'counter' }]);
+    }
+    const log = getSuspicionLog(state, 0);
+    const firstRound = log[0].round;
+    expect(firstRound).toBe(3); // rounds 1 and 2 should be dropped
+  });
+
+  it('defaults to abstain for a player with no record in a round', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    // Only log player 1's vote — player 0 has no entry
+    recordVotes(state, 1, [{ playerIndex: 1, vote: 'counter' }]);
+    const log = getSuspicionLog(state, 0);
+    expect(log[0].vote).toBe('abstain');
   });
 });

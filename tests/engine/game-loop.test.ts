@@ -27,6 +27,7 @@ import {
   LIEUTENANT_START_COUNT,
   LIEUTENANT_POWER,
   DOOM_TOLL_FINAL_PHASE_THRESHOLD,
+  THREE_PLAYER_STARTING_DOOM_TOLL,
 } from '../../src/models/game-state.js';
 import { KNOWN_LANDS } from '../../src/models/board.js';
 import type { GameState } from '../../src/models/game-state.js';
@@ -158,8 +159,8 @@ describe('createGameState', () => {
       expect(state.mode).toBe('competitive');
     });
 
-    it('sets artifactNode to neutral center', () => {
-      expect(state.artifactNode).toBe(KNOWN_LANDS.neutralCenter);
+    it('sets artifactNode to antagonist base (Dark Fortress)', () => {
+      expect(state.artifactNode).toBe(KNOWN_LANDS.antagonistBase);
     });
 
     it('sets artifactHolder to null', () => {
@@ -182,6 +183,17 @@ describe('createGameState', () => {
     it('initializes empty action log', () => {
       expect(state.actionLog).toHaveLength(0);
     });
+
+    it('deals 3 fate cards to each player', () => {
+      for (const player of state.players) {
+        expect(player.fateCards).toHaveLength(3);
+      }
+    });
+
+    it('reduces fateDeck by 3 per player after starting hand deal', () => {
+      // 50 card deck − (3 cards × 2 players) = 44
+      expect(state.fateDeck.length).toBe(50 - 3 * 2);
+    });
   });
 
   describe('for 3 players', () => {
@@ -193,6 +205,25 @@ describe('createGameState', () => {
     it('initializes votes array with 3 nulls', () => {
       const state = createGameState(3, 'competitive', TEST_SEED);
       expect(state.votes).toHaveLength(3);
+    });
+
+    it('deals 3 fate cards to each player and reduces deck by 9', () => {
+      const state = createGameState(3, 'competitive', TEST_SEED);
+      for (const player of state.players) {
+        expect(player.fateCards).toHaveLength(3);
+      }
+      expect(state.fateDeck.length).toBe(50 - 3 * 3);
+    });
+
+    it('sets doomToll to THREE_PLAYER_STARTING_DOOM_TOLL (2)', () => {
+      const state = createGameState(3, 'competitive', TEST_SEED);
+      expect(state.doomToll).toBe(THREE_PLAYER_STARTING_DOOM_TOLL);
+      expect(state.doomToll).toBe(2);
+    });
+
+    it('sets isFinalPhase to false (starting toll 2 is below threshold 10)', () => {
+      const state = createGameState(3, 'competitive', TEST_SEED);
+      expect(state.isFinalPhase).toBe(false);
     });
   });
 
@@ -206,6 +237,19 @@ describe('createGameState', () => {
       const state = createGameState(4, 'competitive', TEST_SEED);
       expect(state.votes).toHaveLength(4);
     });
+
+    it('deals 3 fate cards to each player and reduces deck by 12', () => {
+      const state = createGameState(4, 'competitive', TEST_SEED);
+      for (const player of state.players) {
+        expect(player.fateCards).toHaveLength(3);
+      }
+      expect(state.fateDeck.length).toBe(50 - 3 * 4);
+    });
+
+    it('sets doomToll to 0 (standard starting toll)', () => {
+      const state = createGameState(4, 'competitive', TEST_SEED);
+      expect(state.doomToll).toBe(0);
+    });
   });
 
   it('throws for fewer than 2 players', () => {
@@ -214,6 +258,40 @@ describe('createGameState', () => {
 
   it('throws for more than 4 players', () => {
     expect(() => createGameState(5, 'competitive', TEST_SEED)).toThrow();
+  });
+
+  describe('turnOrder', () => {
+    it('contains exactly one entry per player', () => {
+      const state = createGameState(4, 'competitive', TEST_SEED);
+      expect(state.turnOrder).toHaveLength(4);
+      const sorted = [...state.turnOrder].sort((a, b) => a - b);
+      expect(sorted).toEqual([0, 1, 2, 3]);
+    });
+
+    it('is a permutation of player indices for any player count', () => {
+      for (const count of [2, 3, 4]) {
+        const state = createGameState(count, 'competitive', TEST_SEED);
+        expect(state.turnOrder).toHaveLength(count);
+        const sorted = [...state.turnOrder].sort((a, b) => a - b);
+        expect(sorted).toEqual(Array.from({ length: count }, (_, i) => i));
+      }
+    });
+
+    it('is deterministic for the same seed', () => {
+      const s1 = createGameState(4, 'competitive', TEST_SEED);
+      const s2 = createGameState(4, 'competitive', TEST_SEED);
+      expect(s1.turnOrder).toEqual(s2.turnOrder);
+    });
+
+    it('differs between seeds', () => {
+      // Run enough seeds to confirm the order varies (not always [0,1,2,3])
+      const orders = new Set<string>();
+      for (let seed = 0; seed < 20; seed++) {
+        const state = createGameState(4, 'competitive', seed);
+        orders.add(JSON.stringify(state.turnOrder));
+      }
+      expect(orders.size).toBeGreaterThan(1);
+    });
   });
 
   describe('board initialization', () => {
@@ -333,9 +411,9 @@ describe('createGameState', () => {
   });
 
   describe('fate deck', () => {
-    it('fate deck has 50 cards at start', () => {
+    it('fate deck has 44 cards after dealing starting hands (2 players × 3 cards)', () => {
       const state = createGameState(2, 'competitive', TEST_SEED);
-      expect(state.fateDeck).toHaveLength(50);
+      expect(state.fateDeck).toHaveLength(44);
     });
 
     it('fate discard starts empty', () => {
@@ -343,12 +421,18 @@ describe('createGameState', () => {
       expect(state.fateDiscard).toHaveLength(0);
     });
 
-    it('fate deck has correct distribution', () => {
+    it('fate deck + player hands combined have correct distribution', () => {
       const state = createGameState(2, 'competitive', TEST_SEED);
       const counts: Record<number, number> = {};
-      for (const v of state.fateDeck) {
+      // Count remaining deck + all player hands (all 50 cards accounted for)
+      const allCards = [
+        ...state.fateDeck,
+        ...state.players.flatMap(p => p.fateCards),
+      ];
+      for (const v of allCards) {
         counts[v] = (counts[v] ?? 0) + 1;
       }
+      expect(allCards).toHaveLength(50);
       expect(counts[0]).toBe(29); // 25 blanks + 4 explicit zeros
       expect(counts[1]).toBe(6);
       expect(counts[2]).toBe(7);
@@ -485,13 +569,13 @@ describe('advancePhase', () => {
   });
 
   describe('action phase entry', () => {
-    it('sets activePlayerIndex to 0', () => {
+    it('sets activePlayerIndex to the first player in turnOrder', () => {
       const state = createGameState(3, 'competitive', TEST_SEED);
       state.phase = 'voting';
-      state.activePlayerIndex = 2;
+      state.activePlayerIndex = 99;
       advancePhase(state);
       expect(state.phase).toBe('action');
-      expect(state.activePlayerIndex).toBe(0);
+      expect(state.activePlayerIndex).toBe(state.turnOrder[0]);
     });
 
     it('sets actionsRemaining to ACTIONS_PER_TURN_NORMAL for non-broken players', () => {
@@ -594,13 +678,13 @@ describe('advanceActionTurn', () => {
     expect(state.activePlayerIndex).toBe(0);
   });
 
-  it('advances activePlayerIndex to the next player with actions', () => {
+  it('advances activePlayerIndex to the next player in turn order', () => {
     const state = createGameState(3, 'competitive', TEST_SEED);
     state.phase = 'action';
-    state.activePlayerIndex = 0;
+    state.activePlayerIndex = state.turnOrder[0];
     for (const p of state.players) p.actionsRemaining = 2;
     advanceActionTurn(state);
-    expect(state.activePlayerIndex).toBe(1);
+    expect(state.activePlayerIndex).toBe(state.turnOrder[1]);
   });
 
   it('skips players with no actions remaining', () => {
@@ -623,29 +707,27 @@ describe('advanceActionTurn', () => {
     expect(state.phase).toBe('cleanup');
   });
 
-  it('advances through all players and then to cleanup', () => {
+  it('advances through all players in turn order and then to cleanup', () => {
     const state = createGameState(3, 'competitive', TEST_SEED);
     state.phase = 'action';
-    state.activePlayerIndex = 0;
-    // Give each player exactly 1 action
+    state.activePlayerIndex = state.turnOrder[0];
     for (const p of state.players) p.actionsRemaining = 1;
 
-    // Player 0 uses action
-    state.players[0].actionsRemaining = 0;
+    // First player in turn order uses action
+    state.players[state.turnOrder[0]].actionsRemaining = 0;
     advanceActionTurn(state);
-    expect(state.activePlayerIndex).toBe(1);
+    expect(state.activePlayerIndex).toBe(state.turnOrder[1]);
     expect(state.phase).toBe('action');
 
-    // Player 1 uses action
-    state.players[1].actionsRemaining = 0;
+    // Second player in turn order uses action
+    state.players[state.turnOrder[1]].actionsRemaining = 0;
     advanceActionTurn(state);
-    expect(state.activePlayerIndex).toBe(2);
+    expect(state.activePlayerIndex).toBe(state.turnOrder[2]);
     expect(state.phase).toBe('action');
 
-    // Player 2 uses action
-    state.players[2].actionsRemaining = 0;
+    // Third player in turn order uses action
+    state.players[state.turnOrder[2]].actionsRemaining = 0;
     advanceActionTurn(state);
-    // All done — should advance to cleanup
     expect(state.phase).toBe('cleanup');
   });
 });
@@ -807,7 +889,7 @@ describe('getTurnIndicator', () => {
     expect(indicator.phaseLabel).toBe('Action Phase');
     expect(indicator.isActionPhase).toBe(true);
     expect(indicator.isVotingPhase).toBe(false);
-    expect(indicator.activePlayerIndex).toBe(0);
+    expect(indicator.activePlayerIndex).toBe(state.turnOrder[0]);
   });
 
   it('reflects cleanup phase', () => {
@@ -833,11 +915,11 @@ describe('getTurnIndicator', () => {
     const state = createGameState(3, 'competitive', TEST_SEED);
     advancePhase(state); // → voting
     advancePhase(state); // → action
-    expect(getTurnIndicator(state).activePlayerIndex).toBe(0);
+    expect(getTurnIndicator(state).activePlayerIndex).toBe(state.turnOrder[0]);
 
-    state.players[0].actionsRemaining = 0;
+    state.players[state.turnOrder[0]].actionsRemaining = 0;
     advanceActionTurn(state);
-    expect(getTurnIndicator(state).activePlayerIndex).toBe(1);
+    expect(getTurnIndicator(state).activePlayerIndex).toBe(state.turnOrder[1]);
   });
 });
 

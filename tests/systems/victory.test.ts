@@ -10,6 +10,7 @@ import {
   checkTerritoryVictory,
   applyVictory,
   claimArtifact,
+  dropArtifact,
   isArtifactAvailable,
   isGameOver,
 } from '../../src/systems/victory.js';
@@ -98,6 +99,53 @@ describe('isArtifactAvailable', () => {
     state.artifactHolder = 0;
     expect(isArtifactAvailable(state)).toBe(false);
   });
+
+  it('should return false when Dark Fortress is guarded by antagonist forces', () => {
+    const state = makeState();
+    // Artifact starts at dark-fortress; place a force there
+    state.boardState[state.boardDefinition.antagonistBase].antagonistForces = ['lieutenant-1'];
+    state.players[0].fellowship.currentNode = state.artifactNode;
+    expect(isArtifactAvailable(state)).toBe(false);
+  });
+
+  it('should return true when Dark Fortress is unguarded and player present', () => {
+    const state = makeState();
+    // Artifact at dark-fortress, no forces there, player present
+    state.boardState[state.boardDefinition.antagonistBase].antagonistForces = [];
+    state.players[0].fellowship.currentNode = state.artifactNode;
+    expect(isArtifactAvailable(state)).toBe(true);
+  });
+});
+
+describe('dropArtifact', () => {
+  it('should drop artifact to holder current node', () => {
+    const state = makeState();
+    state.artifactHolder = 0;
+    state.artifactNode = state.boardDefinition.antagonistBase;
+    state.players[0].fellowship.currentNode = 's09';
+    dropArtifact(state, 0);
+    expect(state.artifactHolder).toBeNull();
+    expect(state.artifactNode).toBe('s09');
+  });
+
+  it('should log the drop', () => {
+    const state = makeState();
+    state.artifactHolder = 2;
+    state.players[2].fellowship.currentNode = 'forge-ne';
+    const logBefore = state.actionLog.length;
+    dropArtifact(state, 2);
+    expect(state.actionLog.length).toBe(logBefore + 1);
+    expect(state.actionLog[state.actionLog.length - 1].action).toBe('drop-artifact');
+  });
+
+  it('should do nothing for invalid player index', () => {
+    const state = makeState();
+    state.artifactHolder = 0;
+    const nodeBefore = state.artifactNode;
+    dropArtifact(state, 99);
+    expect(state.artifactHolder).toBe(0);
+    expect(state.artifactNode).toBe(nodeBefore);
+  });
 });
 
 describe('checkTerritoryVictory', () => {
@@ -178,6 +226,17 @@ describe('checkVictoryConditions', () => {
     expect(state.winner).toBe(2);
   });
 
+  it('should not award win to Blood Pact holder if revealed mid-game (win condition converted)', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    state.players[0].hasBloodPact = true;
+    state.players[0].bloodPactRevealed = true; // convicted mid-game
+    state.doomToll = DOOM_TOLL_MAX;
+    const rng2 = new SeededRandom(1);
+    checkVictoryConditions(state, rng2);
+    expect(state.gameEndReason).toBe('doom_complete');
+    expect(state.winner).toBeNull();
+  });
+
   it('should detect all broken as draw', () => {
     const state = makeState();
     for (const p of state.players) {
@@ -188,14 +247,37 @@ describe('checkVictoryConditions', () => {
     expect(state.winner).toBeNull();
   });
 
-  it('should detect territory victory', () => {
+  it('should detect territory victory during cleanup phase', () => {
     const state = makeState();
+    state.phase = 'cleanup';
     state.artifactHolder = 1;
     state.boardState['s03'].claimedBy = 1;
     state.boardState['s04'].claimedBy = 1;
     const result = checkVictoryConditions(state, rng);
     expect(result).toBe('territory_victory');
     expect(state.winner).toBe(1);
+  });
+
+  it('should not trigger territory victory during action phase', () => {
+    const state = makeState();
+    state.phase = 'action';
+    state.artifactHolder = 1;
+    state.boardState['s03'].claimedBy = 1;
+    state.boardState['s04'].claimedBy = 1;
+    const result = checkVictoryConditions(state, rng);
+    expect(result).toBeNull();
+    expect(state.gameEndReason).toBeNull();
+  });
+
+  it('should not trigger territory victory during shadowking phase', () => {
+    const state = makeState();
+    // state.phase is 'shadowking' by default
+    state.artifactHolder = 0;
+    state.boardState['s01'].claimedBy = 0;
+    state.boardState['s02'].claimedBy = 0;
+    const result = checkVictoryConditions(state, rng);
+    expect(result).toBeNull();
+    expect(state.gameEndReason).toBeNull();
   });
 
   it('doom complete has higher priority than all broken', () => {

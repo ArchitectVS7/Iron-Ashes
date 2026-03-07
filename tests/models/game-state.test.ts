@@ -13,6 +13,9 @@ import {
   LIEUTENANT_START_COUNT,
   LIEUTENANT_MAX_COUNT,
   MINION_MAX_COUNT,
+  FATE_CARD_STARTING_HAND,
+  FATE_CARD_BASE_HAND_LIMIT,
+  FATE_CARD_MAX_HAND_LIMIT,
 } from '../../src/models/game-state.js';
 
 describe('Game State Constants', () => {
@@ -75,6 +78,20 @@ describe('Game State Constants', () => {
       expect(LIEUTENANT_START_COUNT).toBe(2);
       expect(LIEUTENANT_MAX_COUNT).toBe(4);
       expect(MINION_MAX_COUNT).toBe(9);
+    });
+  });
+
+  describe('Fate Card Hand Management Constants', () => {
+    it('starting hand is 3 cards', () => {
+      expect(FATE_CARD_STARTING_HAND).toBe(3);
+    });
+
+    it('base hand limit is 3', () => {
+      expect(FATE_CARD_BASE_HAND_LIMIT).toBe(3);
+    });
+
+    it('max hand limit is 6', () => {
+      expect(FATE_CARD_MAX_HAND_LIMIT).toBe(6);
     });
   });
 });

@@ -1,4 +1,6 @@
-export type GameMode = 'competitive' | 'blood_pact' | 'cooperative';
+import type { GameMode } from '../models/game-state.js';
+
+export type { GameMode };
 
 export interface BloodPactDeliveryStub {
     deliverToPlayer(playerId: string, isTraitor: boolean): Promise<void>;
