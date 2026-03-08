@@ -1251,12 +1251,46 @@ The rescue mechanic is the marketing anchor. Focus group data: 5 of 8 personas n
 
 **Overall status:** Core game engine is complete and test-covered. UI, networking, atmosphere, AI, and tutorial are all pre-implementation. The engine is ready for a rendering layer.
 
+### Security
+
+#### Data Collected
+
+Iron Throne of Ashes collects no persistent personal data in the default configuration. Sessions are ephemeral; game state lives only for the duration of a session. The only exception is optional async multiplayer (P2), which requires a server-side session store.
+
+#### Determinism as Cheat Prevention
+
+All game randomness routes through `SeededRandom` (the only legal RNG). The seed is fixed at session creation and shared authoritatively by the host for multiplayer sessions. This means:
+- Any client attempting to re-roll random outcomes will produce a mismatch with the authoritative host seed.
+- Balance simulations can reproduce any session exactly from its seed — enabling automated cheat audit post-session.
+
+#### Multiplayer Trust Model (P1/P2)
+
+When multiplayer is implemented, the server maintains the authoritative `GameState`. Clients submit actions; the server validates and applies them. Clients never mutate state directly. This prevents:
+- Action injection (submitting illegal moves)
+- State tampering (editing local game state to claim strongholds)
+- Action replay (submitting the same action twice)
+
+#### Content Pack Validation
+
+All content packs (GLL token registries) are validated at load time via `GLLValidationError`. Missing or malformed GLL keys cause a hard engine rejection before any game state is created — preventing corrupted or adversarially-crafted content packs from reaching the game loop.
+
+#### Blood Pact Card Delivery (P1)
+
+In Blood Pact mode, the traitor card must be delivered server-side to a single player without revealing the assignment to other players or the host UI. This requires an encrypted one-way channel to the traitor's client. Implementation uses a session-scoped server secret and individual player delivery — the server never sends the card identity to a broadcast channel.
+
+#### No Hardcoded Secrets
+
+The engine contains no API keys, database credentials, or seed phrases. Content packs are data files only. The GLL registry enforces token whitelisting, preventing injection of executable content through content packs.
+
+---
+
 ### Revision History
 
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2026-03-04 | Initial PRD — full feature spec, balance parameters, launch checklist |
 | 1.1 | 2026-03-06 | Added Competitive Landscape, Monetization Model, Success Metrics, Platform Requirements, Accessibility, Marketing & Launch Strategy, Build Status |
+| 1.2 | 2026-03-08 | Added Security section |
 
 ---
 
