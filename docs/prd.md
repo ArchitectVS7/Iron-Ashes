@@ -1200,6 +1200,44 @@ The rescue mechanic is the marketing anchor. Focus group data: 5 of 8 personas n
 
 ---
 
+## Security
+
+### Data Collected
+
+Iron Throne of Ashes collects no persistent personal data in the default configuration. Sessions are ephemeral; game state lives only for the duration of a session. The only exception is optional async multiplayer (planned for P2), which would require a server-side session store with appropriate data retention and deletion policies.
+
+There is no account system in v1.0. No email, no login, no profile. The game is purchased once and played locally.
+
+### Determinism as Cheat Prevention
+
+All game randomness routes exclusively through `SeededRandom` — the only legal RNG in the codebase. The seed is fixed at session creation and shared authoritatively by the host in multiplayer sessions. This means:
+
+- Any client attempting to re-roll random outcomes produces a mismatch with the host's authoritative seed, making manipulation detectable.
+- Balance simulations can reproduce any session exactly from its seed, enabling post-session automated cheat auditing.
+- `Math.random()` is banned from game logic (verified by grep — zero occurrences in `src/systems/`, `src/engine/`, `src/models/`).
+
+### Multiplayer Trust Model (P1/P2)
+
+When multiplayer is implemented, the server maintains the authoritative `GameState`. Clients submit actions; the server validates and applies them. Clients never mutate state directly. This architecture prevents:
+
+- **Action injection** — submitting illegal moves or out-of-phase actions
+- **State tampering** — editing local game state to claim strongholds or manipulate resources
+- **Action replay** — submitting the same valid action twice
+
+### Content Pack Validation
+
+All content packs (GLL token registries) are validated at load time via `GLLValidationError`. Missing or malformed GLL keys cause a hard engine rejection before any game state is created — preventing corrupted or adversarially-crafted content packs from reaching the game loop. Token whitelisting is enforced at the registry level.
+
+### Blood Pact Card Delivery (P1)
+
+In Blood Pact mode, the traitor card must be delivered to a single player without revealing the assignment to other players or the host UI. This requires an encrypted one-way channel to the traitor's client. Implementation will use a session-scoped server secret and per-player delivery — the server never sends the traitor's identity to a broadcast channel.
+
+### No Hardcoded Secrets
+
+The engine contains no API keys, database credentials, or seed phrases. Content packs are data files only. No executable content can be injected through the GLL content pack system.
+
+---
+
 ## Build Status
 
 ### Engine (Alliance Engine v1.0)
