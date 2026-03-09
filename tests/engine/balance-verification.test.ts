@@ -3,26 +3,27 @@ import { runBatchSimulation } from '../../src/engine/simulation.js';
 
 describe('Balance Testing Verification (Phase 19)', () => {
 
-    // Run 200 simulations for statistical stability.
-    // Target Dark Lord win rate: 18–22% (PRD). CI tolerance is wider (10–35%) to
-    // avoid flakiness from simulation variance with the current AI stubs.
+    // Run 1000 simulations for statistical stability.
+    // PRD mandates Dark Lord win rate 18–22% with updated Behaviour Deck
+    // (ESCALATE=1, MOVE=6) AND Herald-driven hand system.
+    // CI tolerance [0.14, 0.28] accounts for simulation variance while
+    // still catching gross imbalance. The exact PRD range [0.18, 0.22]
+    // is verified in the recorded balance report (docs/balance-report.md).
     it('Verifies Dark Lord win rate is within acceptable bounds', () => {
-        const stats = runBatchSimulation(200, 1000);
+        const stats = runBatchSimulation(1000, 5000);
 
         console.log(`Dark Lord win rate: ${(stats.shadowkingWinRate * 100).toFixed(1)}%`);
         console.log(`Avg rounds: ${stats.avgRounds.toFixed(1)}`);
         console.log(`Heartstone claimed rate: ${(stats.heartstoneClaimedRate * 100).toFixed(1)}%`);
 
-        // Dark Lord win rate: PRD human-play target 18-22%.
-        // The simulation AI is simple (no alliance play, no strategic positioning),
-        // so "doom_complete" includes both genuine doom wins AND timeout games.
-        // Tolerance: 5-90% — validates that neither outcome dominates completely.
-        expect(stats.shadowkingWinRate).toBeGreaterThanOrEqual(0.05);
-        expect(stats.shadowkingWinRate).toBeLessThanOrEqual(0.90);
+        // Dark Lord win rate: PRD target 18-22%.
+        // CI tolerance for 1000 sims: ±4% to avoid flaky CI while
+        // catching any regression that pushes the rate outside the band.
+        expect(stats.shadowkingWinRate).toBeGreaterThanOrEqual(0.14);
+        expect(stats.shadowkingWinRate).toBeLessThanOrEqual(0.28);
 
         // Avg rounds: PRD target 8-16 for human play.
-        // Simple AI produces longer games (claiming is 1 banner per step).
-        // Tolerance: 5-50 rounds — validates the game terminates within the cap.
+        // Simulation AI produces slightly longer games.
         expect(stats.avgRounds).toBeGreaterThanOrEqual(5);
         expect(stats.avgRounds).toBeLessThanOrEqual(50);
 
