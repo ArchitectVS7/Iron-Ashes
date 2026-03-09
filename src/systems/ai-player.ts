@@ -1,4 +1,4 @@
-import { GameState, BehaviorCardType, DOOM_TOLL_FINAL_PHASE_THRESHOLD, DOOM_TOLL_MAX } from '../models/game-state.js';
+import { GameState, BehaviorCardType, DOOM_TOLL_FINAL_PHASE_THRESHOLD } from '../models/game-state.js';
 import { Player, AIDifficulty } from '../models/player.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 import { findShortestPath, findNearest } from '../utils/pathfinding.js';
@@ -104,9 +104,7 @@ export class AIPlayer {
                     const path2 = findShortestPath(board, currentNode, allyNode);
                     if (path2 && path2.length >= 2 && bannersLeft >= 1) {
                         actions.push({ type: 'MOVE', payload: { path: [currentNode, path2[1]] } });
-                        bannersLeft--;
                         actionsLeft--;
-                        currentNode = path2[1];
                     }
                 }
                 // Fill remaining with PASS if rescue consumed all actions

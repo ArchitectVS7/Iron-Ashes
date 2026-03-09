@@ -2,7 +2,7 @@
  * Tests for Territory System — Stronghold Claiming (F-003)
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { createGameState } from '../../src/engine/game-loop.js';
 import {
   canClaimNode,
