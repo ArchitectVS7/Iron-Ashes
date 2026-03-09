@@ -21,10 +21,8 @@
  */
 
 import type { VoteChoice } from '../models/game-state.js';
-import { GameState, GameMode, ActionLogEntry, DOOM_TOLL_MAX } from '../models/game-state.js';
+import { GameState, GameMode } from '../models/game-state.js';
 import { TutorialState } from '../systems/tutorial-state.js';
-import { BoardNode } from '../models/board.js';
-import { Player } from '../models/player.js';
 import { getFellowshipPower } from '../systems/characters.js';
 import type { AIDifficulty } from '../models/player.js';
 import { TutorialScriptedOpponent } from '../systems/tutorial-script.js';
@@ -285,7 +283,7 @@ export class GameController {
         const aiCount = aiDifficulties.length;
         this.localPlayerId = '0';
         const sessionId = await this.multiplayerSession.hostSession({
-          mode: mode as any,
+          mode: mode as GameMode,
           playerCount,
           aiCount,
           seed: seed.toString()

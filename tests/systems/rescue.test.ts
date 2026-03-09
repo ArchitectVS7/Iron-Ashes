@@ -5,7 +5,7 @@
  * stat tracking, self-rescue in Cooperative mode, and query helpers.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   calculateRescueCost,
   canRescue,

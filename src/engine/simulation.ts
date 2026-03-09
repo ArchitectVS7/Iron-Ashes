@@ -15,7 +15,7 @@ import { spendBannersForMovement, spendBannersForClaim, canAffordMovement, canAf
 import { submitVote, resolveVotes, autoAbstainPlayers, canVote } from '../systems/voting.js';
 import { resolveBehaviorCard } from '../systems/shadowking.js';
 import { checkVictoryConditions, isGameOver } from '../systems/victory.js';
-import { performBlightAutoSpread, isInFinalPhase, getLeadingPlayer } from '../systems/doom-toll.js';
+import { performBlightAutoSpread, isInFinalPhase } from '../systems/doom-toll.js';
 import { checkBrokenStatus, enterBrokenCourt } from '../systems/broken-court.js';
 import { claimArtifact } from '../systems/victory.js';
 import { getEligibleDiplomats, isDarkFortressClear, performDiplomaticAction } from '../systems/herald-diplomacy.js';
