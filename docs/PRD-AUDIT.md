@@ -1,369 +1,284 @@
 # PRD Implementation Audit — Iron Throne of Ashes
 
-**Date:** 2026-03-04
-**Status:** All 816 tests passing ✓
-**Coverage:** 22 core PRD features
+**Date:** 2026-03-09
+**Auditor:** Full codebase scan (all src/, tests/, docs/)
+**Prior Audit:** 2026-03-04 (superseded by this document)
 
 ---
 
 ## Executive Summary
 
-This audit verifies that the codebase implements all **critical game mechanics** from the PRD. All core systems are **production-ready** and covered by automated tests. The game loop, combat, voting, doom toll, and victory conditions are fully implemented and deterministic.
+The Alliance Engine core is **substantially complete** (~90% of PRD mechanics implemented and tested). All five non-negotiable design commitments are enforced. However, four launch-blocking gaps remain, a stale PRD launch-checklist entry incorrectly marks F-009 as incomplete, and a naming mismatch between PRD terminology and code identifiers creates ongoing maintenance risk.
 
-**Key Finding:** The architecture adheres to all five design commitments (GLL tokenization, Broken Court voting rights, deterministic execution, phase ordering, seeded RNG).
-
----
-
-## Implementation Status by Feature
-
-### ✅ FULLY IMPLEMENTED (17 features)
-
-#### Core Game Systems
-
-**F-001: Board System (28-node graph, 4 node types)**
-- ✅ 28 nodes with exact type distribution (22 standard, 4 forge, 1 antagonist base, 1 neutral center)
-- ✅ Four-fold symmetric layout with bidirectional edges
-- ✅ Constraint validation: forge keeps at equal distance from courts, dark fortress isolated
-- ✅ **File:** `src/models/board.ts`
-- ✅ **Tests:** 43 tests in `tests/models/board.test.ts`
-
-**F-002: War Banner Resource System**
-- ✅ Unified resource for movement (1 per edge), claiming (1 per stronghold), combat (additive strength)
-- ✅ Production: 1 per artificer at standard nodes, 3 per artificer at forge keeps
-- ✅ Discard unspent at round end, replenish only via production
-- ✅ **File:** `src/systems/resources.ts`
-- ✅ **Tests:** 56 tests verify banner generation, spending, combat allocation
-
-**F-002.5: Fate Card Hand Management (Herald-driven limits)**
-- ✅ Hand limit formula: `3 + max(0, herald_count - 1)`, capped at 6
-- ✅ Replenishment at cleanup phase (end of round)
-- ✅ Surplus cards persist without forced discard
-- ✅ Deck reshuffle triggers doom advance (+1)
-- ✅ **File:** `src/systems/resources.ts` (calculateHandLimit, replenishFateCards)
-
-**F-003: Fellowship Composition & Unknown Wanderers**
-- ✅ Starting fellowship: Leader (power 8) + Warrior (6) + Diplomat (0) + Producer (3)
-- ✅ Wanderer pool: 20 tokens distributed face-down (40% warriors, 30% diplomats, 30% producers)
-- ✅ Recruit action via diplomat (1 action = 1 adjacent wanderer revealed and joined)
-- ✅ Diplomatic protection: active when diplomat present + no other player on same node
-- ✅ Maximum fellowship size: 8 (including leader, cannot exceed)
-- ✅ **File:** `src/systems/characters.ts`
-- ✅ **Tests:** 52 character tests + 8 model tests
-
-**F-004: Combat System (War Field, Fate Cards, Penalty Cards)**
-- ✅ Player vs Player: attacker draws 2 cards (min based on leader power), defender draws 1
-- ✅ Both sides reveal simultaneously; higher total strength wins (ties favor defender)
-- ✅ Penalty cards = strength margin (persist until rescue)
-- ✅ Fate Card distribution: 50 cards (25 blanks, 4 zeros, 6 ones, 7 twos, 5 threes, 2 fours, 1 negative)
-- ✅ Deck reshuffle advances doom toll (+1)
-- ✅ Pre-combat summary shows outcome likelihood (DECIDED/CLOSE/LOCKED)
-- ✅ **File:** `src/systems/combat.ts`
-- ✅ **Tests:** 68 combat resolution tests
-
-**F-005: Doom Toll System (13-space track, Final Phase, triggers)**
-- ✅ 13-space track (0–13), Final Phase begins at 10
-- ✅ Advance triggers (+1 each): non-unanimous vote, deck reshuffle, blight claims forge, player enters broken
-- ✅ Recede triggers (−1 each): Death Knight defeated, forge reclaimed, unanimous vote with spending; (−2): Herald diplomatic action
-- ✅ Final Phase: doubles behavior cards drawn (1→2), increases vote cost (1→2 fate cards), enables blight auto-spread
-- ✅ Estimated rounds remaining HUD: `ceil((13 - toll) / 2)` displayed during Final Phase
-- ✅ Visual escalation: doom 7-9 (vignette dimming), doom 10-12 (cold lighting shift, shadowking silhouette)
-- ✅ **File:** `src/systems/doom-toll.ts`
-- ✅ **Tests:** 88 doom toll and phase transition tests
-
-**F-006: Voting Phase (Behavior card blocking, simultaneous voting)**
-- ✅ Simultaneous voting with choice reveal (COUNTER or ABSTAIN)
-- ✅ Cost: 1 fate card standard, 2 fate cards in Final Phase
-- ✅ Unanimous COUNTER = behavior blocked (doom effect reduced or eliminated)
-- ✅ Non-unanimous = behavior resolves at full effect (doom +1)
-- ✅ ESCALATE: partially blockable (blocked = +1 doom, unblocked = +2 doom)
-- ✅ Broken Court players retain full voting rights (critical design commitment)
-- ✅ Auto-abstain for players without sufficient cards
-- ✅ **File:** `src/systems/voting.ts`
-- ✅ **Tests:** 52 voting phase tests, including broken-player voting verification
-
-**F-007: Broken Court State & Rescue System**
-- ✅ Entry trigger: `penaltyCards >= warBanners` (while `penaltyCards > 0`)
-- ✅ Restrictions: cannot claim, recruit, or initiate combat; move and defend allowed
-- ✅ Action cap: 1 action/turn (vs 2 normal)
-- ✅ Rescue: non-broken player donates 2–5 fate cards → restores target (banners = donation, penalties = 0)
-- ✅ One rescue per target per round (only first successful counts)
-- ✅ VULNERABLE indicator: yellow at 50% threshold, red at 75% threshold (UI only)
-- ✅ All Broken trigger: all players simultaneously broken = draw (game over, all lose)
-- ✅ **File:** `src/systems/broken-court.ts`
-- ✅ **Tests:** 70 broken court tests (including design commitment verification)
-
-**F-008: Shadowking System (Death Knights, Blight Wraiths, Behavior resolution)**
-- ✅ Death Knights (lieutenants): 2 starting, power 10 each, located at dark fortress
-- ✅ Blight Wraiths (minions): spawned via SPAWN card, max 9, power 6, auto-spread in Final Phase
-- ✅ Behavior cards: SPAWN (place 2 near fortress), MOVE (advance toward leader), CLAIM (occupy stronghold), ASSAULT (combat vs weakest), ESCALATE (doom +2, or +1 if blocked)
-- ✅ Leading player definition: most strongholds, ties broken by highest war banners
-- ✅ Forces do NOT draw fate cards (fixed strength)
-- ✅ Defeating Death Knight recedes doom (−1)
-- ✅ **File:** `src/systems/shadowking.ts`
-- ✅ **Tests:** 59 shadowking behavior tests
-
-**F-009: Herald Diplomatic Action (Doom Relief Valve)**
-- ✅ Diplomat reaching dark fortress (uncontested entry, fortress clear) may perform diplomatic action
-- ✅ Cost: 1 action, results in doom recede (−2)
-- ✅ Usable once per diplomat (tracked via `diplomaticActionUsed` flag)
-- ✅ Preconditions: diplomat alone, fortress unoccupied, not in broken court
-- ✅ Does NOT prevent shadowking behavior card draw that round
-- ✅ **File:** `src/systems/herald-diplomacy.ts`
-- ✅ **Tests:** 25 herald diplomacy tests
-
-**F-010: Victory Conditions (Territory Control, Doom Complete, All Broken)**
-- ✅ Territory Victory: artifact holder with most strongholds at cleanup phase (tiebreak: most war banners, then holder wins)
-- ✅ Doom Complete: doom toll reaches 13 (in blood pact, traitor wins; others lose)
-- ✅ All Broken: all players simultaneously in broken state = draw (all lose)
-- ✅ Heartstone movement: Reclaim action (1 action, no cost) at dark fortress; drop on combat loss
-- ✅ Territory victory checked only at round cleanup (deterministic timing)
-- ✅ **File:** `src/systems/victory.ts`
-- ✅ **Tests:** 33 victory condition tests
-
-#### Game Modes
-
-**F-011: Three Game Modes (Competitive, Blood Pact, Cooperative)**
-- ✅ Competitive: standard territory control victory
-- ✅ Blood Pact (Traitor): one human player secretly wants doom to reach 13, accusation system available
-- ✅ Cooperative: all players win collectively by reclaiming heartstone before doom reaches 13 (or lose together if doom completes)
-- ✅ Cooperative deck harder: 5 spawn, 6 move, 2 claim, 4 assault, 3 escalate (vs default 6/6/4/3/1)
-- ✅ **File:** `src/systems/game-modes.ts`
-- ✅ **Tests:** 49 game mode tests
-
-**F-011b: Blood Pact Accusation System**
-- ✅ Requires 3+ players (2-player: accusation unavailable)
-- ✅ Unanimous accusation: all other active players spend 2 fate cards each
-- ✅ Success: traitor loses 3 cards, accusers refunded 1 each (net cost: 1 per accuser), doom recedes (−1)
-- ✅ Failure: accusers refunded 1 each (net cost: 1 per accuser), wrongly accused gains 1 card
-- ✅ Accusation cooldown: 2 rounds before next accusation possible
-- ✅ Accused player lockout: 1 round before same player can be targeted again
-- ✅ Suspicion log: read-only tracking of each player's voting history (last 5 rounds), no mechanical effect
-- ✅ **File:** `src/systems/game-modes.ts`
-- ✅ **Tests:** Integrated in game-modes tests
-
-**F-001b: 3-Player Configuration**
-- ✅ Game supports 2–4 players
-- ✅ 3-player starting doom toll: 2 (vs 0 for 2-player and 4-player)
-- ✅ Context message displayed: "Three Courts creates a thinner voting margin. The Toll begins higher to reflect it."
-- ✅ **File:** `src/engine/game-loop.ts` (lines 174–175)
-- ✅ **Tests:** Multiple 3-player test scenarios in game-loop.test.ts
-
-**F-018: Fixed Turn Order (Session-long Action Phase sequence)**
-- ✅ Turn order shuffled once at game initialization via seeded RNG
-- ✅ Turn order immutable throughout session (readonly turnOrder array)
-- ✅ Applied during action phase; voting phase simultaneous regardless
-- ✅ Disclosed to all players at game start
-- ✅ Reproducible from session seed (deterministic shuffle)
-- ✅ **File:** `src/engine/game-loop.ts` (line 156)
-- ✅ **Tests:** Turn order advancement verified in 104 game-loop tests
-
-#### UI, Presentation & Atmosphere
-
-**F-015: Atmosphere and Audio Effects**
-- ✅ Bell strike audio on doom advance: 110 Hz triangle wave + 220 Hz sine, 3.5s decay
-- ✅ Rescue sound: 440→880 Hz sweep, 1.5s rising tone
-- ✅ Particle explosion: 20 particles with random direction/speed on death knight defeated
-- ✅ Visual progression by doom position:
-  - Doom 1–6: default board
-  - Doom 7–9: candles dim (10% per position), shadowking silhouette appears (low opacity)
-  - Doom 10–12: cold lighting shift, shadowking at 80% opacity, prominent wraith spread animations
-  - Doom 13: game-over cutscene
-- ✅ Flash animation on bell strike
-- ✅ **File:** `src/ui/atmosphere.ts`
-- ✅ **All effects** driven by game state (not timers)
-
-**F-017: Post-Game Summary with Blood Pact Reveal**
-- ✅ Blood Pact reveal screen: full-screen modal with traitor name, acknowledgment button
-- ✅ Post-game summary displays:
-  - Final board state (stronghold map)
-  - Per-player stats: strongholds claimed, fellowships recruited, war banners spent, combats (W/L), times in broken court, rescues given/received, votes cast vs abstained
-  - Win condition and final doom toll position
-  - In blood pact mode: traitor identity with action log split (before/after accusation if applicable)
-- ✅ Buttons: Play Again, Return to Lobby (clickable after 5s)
-- ✅ **File:** `src/ui/summary.ts`
+**Correction to prior audit (2026-03-04):**
+- F-006b Social Pressure Onboarding is **implemented** (`src/ui/social-pressure-onboarding.ts`), not missing.
+- `Math.random()` is present in `src/ui/atmosphere.ts` — not zero violations as previously stated.
 
 ---
 
-### ⚠️ PARTIALLY IMPLEMENTED (3 features)
+## Prioritized Gap Register
 
-**F-012: 5-Turn Mandatory Tutorial ("Into the Blighted Wastes")**
-- ✅ Tutorial state management with localStorage persistence (first-session detection)
-- ✅ TutorialEngine scaffold with step-by-step dialogue system (skip/continue buttons)
-- ✅ Discovered tutorial framework for contextual mechanics (FIRST_ARTIFICER_RECRUIT, FIRST_RESCUE, FIRST_DEATH_KNIGHT, FINAL_PHASE_ENTRY, BLOOD_PACT_ACCUSATION)
-- ⚠️ **Missing:** Exact 5-turn hardcoded sequence with turn-by-turn objectives
-- ⚠️ **Missing:** Scripted opponent behavior for tutorial matches
-- ⚠️ **Missing:** Per-turn mechanic introduction sequence (movement → recruitment → combat → voting → forge keep)
-- **File:** `src/systems/tutorial-state.ts`, `src/ui/tutorial.ts`
-- **Status:** Framework complete, mechanics incomplete
-
-**F-013: AI Opponent (3 Difficulty Levels)**
-- ✅ Voting AI: Apprentice (10% abstain), Knight-Commander (12% abstain), Arch-Regent (5% abstain + leader targeting)
-- ✅ Difficulty enum and decision logic for vote selection
-- ⚠️ **Missing:** Action AI — `getActions()` returns placeholder MOVE actions only
-- ⚠️ **Missing:** Real move/claim/combat decision logic
-- ⚠️ **Missing:** Strategy trees for resource management, forge keep targeting, rescue timing
-- **File:** `src/systems/ai-player.ts`
-- **Tests:** 3 basic tests (vote logic only)
-- **Status:** Voting complete, action decision-making stubbed
-
-**F-016: Persistent UI — Standings and Status**
-- ✅ Doom toll position always visible (persistent UI element with visual escalation)
-- ✅ Player resource display: war banners, fate cards per player
-- ✅ Broken court status indicator (visual distinction on board pieces)
-- ✅ Turn order tracker (action phase sequence with active player highlight)
-- ✅ Fate deck card count with amber/red thresholds
-- ✅ VULNERABLE indicator (yellow 50%, red 75% thresholds)
-- ⚠️ **Missing:** Persistent standings table showing all players' stronghold counts at glance
-- ⚠️ **Missing:** Heartstone location display (current holder or node name)
-- **File:** `src/ui/doom-toll-display.ts`, `src/ui/resource-display.ts`
-- **Status:** Individual metrics tracked; no unified standings panel
+Gaps are ordered by launch impact. Each entry includes PRD source, code location, and a concrete remediation action.
 
 ---
 
-### ❌ NOT IMPLEMENTED (2 features)
+### P0 — Launch Blockers
 
-**F-006b: Social Pressure Onboarding Screen**
-- ❌ No dedicated UI found for this feature
-- ❌ Required content: *"This game is a negotiation about who pays for collective survival..."* (verbatim)
-- ❌ Should appear once per user account before first session, dismissable after reading
-- ❌ Re-accessible from Settings → "About the Voting Phase"
-- **File:** None
-- **Status:** Not in codebase
-
-**F-014: Async & Multiplayer Support**
-- ✅ `MultiplayerSessionStub` interface defined (hostSession, joinSession, submitVote, submitAction, onStateUpdate, onPlayerDisconnected)
-- ✅ `MockMultiplayerSession` provides test-friendly implementation
-- ❌ **No real networking backend** (no server, no message broker, no session persistence)
-- ❌ **No async pass-and-play mechanics** (no turn notifications, no session state recovery)
-- ❌ **No disconnection handling** (no 90-second reconnect window, no AI fill)
-- **File:** `src/systems/multiplayer.ts`
-- **Tests:** 2 mock tests
-- **Status:** Interface only; mock implementation for testing
+These gaps prevent ship or violate an explicit "must-complete before ship" PRD requirement.
 
 ---
 
-## Design Commitments — Verification
+#### GAP-01 · Tutorial: 5-Turn Scripted Sequence Not Built
 
-All five non-negotiable design commitments are **IMPLEMENTED AND TESTED**:
+**PRD:** F-012 — *"A 5-turn scripted tutorial … one mechanic introduced per turn in the order a real game requires them. Turn 3 (War Field combat) is the make-or-break moment and must not silently fail."*
+**Launch checklist line:** *"Tutorial Turn 3 (War Field) tested with Devon and Sam personas."*
 
-### ✅ 1. No Hardcoded Nouns
-- All in-world roles referenced via GLLKey tokens
-- Character roles: LEADER, WARRIOR, DIPLOMAT, PRODUCER (not hardcoded names)
-- Board node types: STANDARD_STRONGHOLD, FORGE_KEEP, ANTAGONIST_BASE, NEUTRAL_CENTER
-- Force types: LIEUTENANT, MINION (not "Death Knight", "Blight Wraith" in logic)
-- **Evidence:** `src/gll/registry.ts`, `src/models/characters.ts`, all systems use role enums
-- **Reskin Test:** `tests/gll/reskin.test.ts` — Sea of Knives token swaps verified
+**Status:** Framework complete; content missing.
 
-### ✅ 2. Broken Court Never Prevents Voting Phase Participation
-- `canVote(player)` returns `true` regardless of `isBroken` flag
-- Voting cost and choice mechanism independent of broken state
-- Design commitment explicitly documented in code comments
-- **Evidence:** `src/systems/voting.ts` (canVote), `src/systems/broken-court.ts` (no vote restrictions)
-- **Test Coverage:** `broken-court.test.ts` includes "voting while broken" tests
-- **Test 70–78 in broken-court.test.ts:** "Broken player can vote in all scenarios"
+| Component | Status |
+|---|---|
+| Tutorial state / localStorage first-session detection | ✅ Done (`src/systems/tutorial-state.ts`) |
+| Contextual hint triggers (FIRST_RESCUE, FINAL_PHASE_ENTRY, etc.) | ✅ Done (`src/ui/tutorial.ts`) |
+| 5-turn hardcoded sequence with per-turn objectives | ❌ Missing |
+| Scripted opponent AI for tutorial match | ❌ Missing (`src/systems/tutorial-script.ts` scaffold only) |
+| Turn 3 War Field forced combat + failure detection | ❌ Missing |
 
-### ✅ 3. Behavior Card Execution Fully Deterministic from Given Seed
-- All randomness flows through `SeededRandom` class
-- Behavior card draw order reproducible from seed
-- Shadowking behavior (leader identification, targeting) deterministic
-- Wanderer placement reproducible
-- **Evidence:** `src/utils/seeded-random.ts`, all systems use injected RNG parameter
-- **Verification:** `src/engine/simulation.ts` runs identical seed → identical outcome
-
-### ✅ 4. Voting Phase Resolves Before Any Player Action Phase
-- Phase sequence hard-coded: `shadowking → voting → action → cleanup`
-- Cannot skip voting or reorder phases
-- **File:** `src/engine/game-loop.ts` (phase progression logic)
-- **Evidence:** `advancePhase()` function enforces strict sequence
-
-### ✅ 5. All Game Randomness Goes Through SeededRandom
-- **No `Math.random()` calls** found in game logic (scanned `src/systems`, `src/engine`, `src/models`)
-- Verified by grep: 0 matches for `Math\.random()` in game code
-- AI player uses `SeededRandom` for vote/action decisions
-- Board setup uses seeded shuffle
-- **Evidence:** All systems accept `rng: SeededRandom` parameter
+**Remediation:**
+1. In `src/systems/tutorial-script.ts`, implement `TUTORIAL_TURNS[5]` — each entry specifying the expected player action, locked board state, and scripted opponent response.
+2. Add a `TutorialValidator` that asserts Turn 3 combat resolves visibly (no silent skip).
+3. Add tests in `tests/systems/tutorial-script.test.ts` covering all 5 turns end-to-end with the Devon and Sam persona seeds.
 
 ---
 
-## Test Coverage Summary
+#### GAP-02 · AI Action Decision Logic Is a Stub
 
-**Total Tests:** 816 (all passing ✓)
+**PRD:** F-013 — *"Three AI difficulty levels: Apprentice, Knight-Commander, Arch-Regent. Each must exhibit distinct strategic behaviour (movement, claiming, combat initiation, rescue timing)."*
 
-| Category | Count | Status |
-|----------|-------|--------|
-| Systems | 426 | ✓ Passing |
-| Models | 64 | ✓ Passing |
-| Engine | 121 | ✓ Passing |
-| Utils | 45 | ✓ Passing |
-| GLL | 23 | ✓ Passing |
-| Integration | 137 | ✓ Passing |
+**Status:** Voting AI complete; action AI returns placeholder MOVE for all decisions.
 
-**Critical Design Commitment Tests:**
-- Broken court voting: 9 dedicated tests
-- Deterministic seed: 17 simulation tests
-- Phase ordering: 104 game-loop tests
-- Shadowking behavior: 59 tests
-- GLL swappability: 13 reskin tests
+| Component | Status |
+|---|---|
+| Voting AI (all 3 levels) | ✅ Done (`src/systems/ai-player.ts`) |
+| Action selection — movement | ⚠️ Stub (always MOVE, no pathing logic) |
+| Action selection — claiming strongholds | ❌ Missing |
+| Action selection — combat initiation | ❌ Missing |
+| Action selection — rescue timing | ❌ Missing |
+| Strategy trees (resource management, forge keep priority) | ❌ Missing |
+| Test coverage for action logic | 3 tests (voting only) |
 
----
-
-## Launch Readiness Checklist
-
-### Must-Complete Before Ship (from PRD Section 15)
-
-- [x] ESCALATE cards reduced from 2 to 1; MOVE cards increased from 5 to 6 (implemented, tested, committed)
-- [ ] ⚠️ **Simulation re-run** confirms Dark Lord win rate 18–22% with updated Behavior Deck AND Herald-driven hand system
-- [x] Herald Diplomatic Action (F-009) implemented and tested
-- [x] Blood Pact mode ships at launch (implemented)
-- [ ] ⚠️ Persistent standings UI (F-016) passes readability test at 1080p (standings table not yet built)
-- [x] Rescue event has distinct audio + visual signature (implemented in atmosphere.ts)
-- [ ] ⚠️ Tutorial Turn 3 (War Field) tested with Devon and Sam personas (tutorial mechanics incomplete)
-- [x] Post-game Blood Pact reveal implemented (implemented in summary.ts)
-- [x] All GLL tokens confirmed swappable without engine changes (reskin test passing)
-- [x] **Broken Court state never prevents Voting Phase participation (F-007) — automated test coverage required** — ✅ **VERIFIED**
-
-### Blockers for Launch
-
-1. **Standings UI (F-016)** — Needs persistent leaderboard table implementation
-2. **Tutorial Mechanics (F-012)** — Needs 5-turn scripted sequence with objectives
-3. **Simulation Balance (PRD Launch Checklist)** — Needs re-run with current Behavior Deck
-4. **Social Pressure Onboarding (F-006b)** — Needs dedicated UI screen
-
-### Nice-to-Have (Not Launch Blockers)
-
-- Full AI action logic (F-013)
-- Async/multiplayer networking (F-014)
+**Remediation:**
+1. Implement `getActions(state, player, rng)` per difficulty tier in `src/systems/ai-player.ts`. Apprentice: greedy movement; Knight-Commander: forge keep priority + opportunistic combat; Arch-Regent: rescue timing + threat modelling.
+2. Add tests covering each difficulty's action decisions across the key game states (normal, Final Phase, Broken).
 
 ---
 
-## Codebase Quality Assessment
+#### GAP-03 · Persistent Standings Panel Incomplete
 
-### Strengths
-- ✅ Strict TypeScript with no `any` types (except intentional stubs)
-- ✅ Immutable data patterns (readonly fields, frozen arrays)
-- ✅ Well-structured systems (one system per file, clear responsibilities)
-- ✅ Deterministic by design (seed-based, no side effects)
-- ✅ Comprehensive test coverage (816 tests, all passing)
-- ✅ Design commitments enforced in code (not optional)
+**PRD:** F-016 — *"A persistent standings table showing all players' stronghold counts must be readable at 1080p at all times."*
+**Launch checklist line:** *"Persistent standings UI (F-016) passes readability test at 1080p."*
 
-### Areas for Completion
-- Complete AI action decision logic (stub in `ai-player.ts`)
-- Build standings UI component
-- Implement tutorial turn sequence
-- Add social pressure onboarding screen
-- Connect multiplayer mock to real backend (when ready)
+**Status:** Individual resource metrics exist; the unified standings table does not.
 
----
+| Component | Status |
+|---|---|
+| Doom toll display | ✅ Done (`src/ui/doom-toll-display.ts`) |
+| Per-player war banner / fate card counts | ✅ Done (`src/ui/resource-display.ts`) |
+| Broken Court / VULNERABLE indicator | ✅ Done |
+| Turn order tracker | ✅ Done |
+| **Unified standings table (stronghold count per player)** | ❌ Missing |
+| **Heartstone location display** | ❌ Missing |
+| 1080p readability automated test | ❌ Missing |
 
-## Conclusion
-
-The **Iron Throne of Ashes** engine is **production-ready for core gameplay**. All critical systems (combat, voting, doom toll, victory, game modes) are fully implemented, tested, and verified against the PRD.
-
-The remaining work is primarily **UI and advanced features** (tutorial, standings display, AI actions) which can be completed post-launch or in parallel without affecting core game balance or mechanics.
-
-**Status for Ship:** Core engine ✅ | UI & Advanced Features ⚠️
+**Remediation:**
+1. Create `src/ui/standings-panel.ts` — a single persistent component rendering `[player, strongholds, heartstone?]` per row, sourced directly from `GameState`.
+2. Add a rendering test asserting the component mounts and renders all player rows.
+3. Add to `src/ui/game-controller.ts` mount sequence.
 
 ---
 
-*Generated by PRD Audit Script — 2026-03-04*
-*All 816 tests passing | All design commitments verified*
+#### GAP-04 · Balance Simulation Re-Run Not Completed
+
+**PRD launch checklist:** *"Simulation re-run confirms Dark Lord win rate 18–22% with updated Behaviour Deck (ESCALATE 1, MOVE 6) AND Herald-driven hand system."*
+
+**Status:** Simulation engine exists and is tested; the mandated verification run is not recorded anywhere in the repo.
+
+| Component | Status |
+|---|---|
+| `src/engine/simulation.ts` + tests | ✅ Done |
+| Behaviour Deck constants (ESCALATE=1, MOVE=6) | ✅ Done (`src/models/game-state.ts:126-130`) |
+| Cooperative deck harder constants | ✅ Done (`src/models/game-state.ts:150`) |
+| **Recorded simulation output confirming 18–22% win rate** | ❌ Missing |
+
+**Remediation:**
+1. Run `src/engine/simulation.ts` for ≥10,000 games across all player counts and modes.
+2. Assert Dark Lord win rate falls in `[0.18, 0.22]`.
+3. Commit the result — either as a test in `tests/engine/simulation.test.ts` or as a recorded output artefact in `docs/balance-report.md`.
+
+---
+
+### P1 — High Priority (Correctness / Design Integrity)
+
+These gaps do not block ship but violate a design commitment or create material maintenance risk.
+
+---
+
+#### GAP-05 · `Math.random()` Calls in `src/ui/atmosphere.ts`
+
+**PRD / Design Commitment #5:** *"All game randomness goes through `SeededRandom`. Never use `Math.random()`."*
+
+**Status:** Three `Math.random()` calls exist in `src/ui/atmosphere.ts` (approx. lines 42–48) for particle direction, size, and distance. The prior audit reported zero violations — this was incorrect (it only scanned `src/systems`, `src/engine`, and `src/models`).
+
+**Impact:** Particles are non-deterministic; session replays and video captures will differ. Low risk to game balance, but violates a stated design commitment.
+
+**Remediation (two acceptable options):**
+- **Option A (preferred):** Thread `SeededRandom` into `AtmosphereSystem` constructor so particle effects are reproducible from session seed.
+- **Option B (acceptable if visual flavour only):** Add a code comment explicitly noting the exception and update the design commitment doc to carve out UI-only non-game-state effects.
+
+---
+
+#### GAP-06 · PRD Launch Checklist Incorrectly Marks F-009 as Incomplete
+
+**PRD launch checklist (approx. line 967):** `[ ] Herald Diplomatic Action (F-009) implemented and tested`
+
+**Status:** F-009 is **fully implemented and tested**.
+
+| Component | Status |
+|---|---|
+| `isDarkFortressClear()` | ✅ Done |
+| `getEligibleDiplomats()` | ✅ Done |
+| `canPerformDiplomaticAction()` | ✅ Done |
+| `performDiplomaticAction()` (doom −2, action deduct, log) | ✅ Done |
+| Once-per-diplomat enforcement (`diplomaticActionUsed` flag) | ✅ Done |
+| 25 herald diplomacy tests passing | ✅ Done |
+| **PRD checklist reflects this** | ❌ Stale — still marked incomplete |
+
+**Remediation:** Update `docs/prd.md` launch checklist line to `[x]`. No code change needed.
+
+---
+
+#### GAP-07 · Character Role Naming Mismatch (PRD vs. Code)
+
+**PRD terminology throughout:** Arch-Regent, Knight, Herald, Artificer
+**Code identifiers:** `leader`, `warrior`, `diplomat`, `producer`
+
+This mismatch appears in `src/models/characters.ts`, `src/systems/characters.ts`, `src/systems/ai-player.ts`, and all test files. No mechanical bugs exist, but every cross-reference between PRD and code requires mental translation.
+
+**Remediation:**
+- Choose one naming convention and apply it consistently. The GLL tokenization system already maps display names via the registry, so aligning code identifiers with PRD terms (or vice versa) is a safe refactor.
+- Suggested approach: rename code enums (`LEADER → ARCH_REGENT`, `WARRIOR → KNIGHT`, `DIPLOMAT → HERALD`, `PRODUCER → ARTIFICER`) and update all references. The GLL layer handles display strings independently.
+- Add a mapping comment in `src/models/characters.ts` as a stop-gap until the rename is complete.
+
+---
+
+### P2 — Deferrable (Post-Launch or v1.1)
+
+These are acknowledged gaps that the PRD itself marks as deferrable.
+
+---
+
+#### GAP-08 · Multiplayer / Async Backend Not Implemented
+
+**PRD:** F-014 — Real-time and async multiplayer with 90-second reconnect window, session persistence, and Blood Pact server-side card delivery.
+
+**Status:** `MultiplayerSessionStub` interface and `MockMultiplayerSession` exist for testing. No real server exists.
+
+| Component | Status |
+|---|---|
+| Interface + mock (test scaffolding) | ✅ Done (`src/systems/multiplayer.ts`) |
+| Real-time WebSocket server | ❌ Missing |
+| Server-side GameState persistence | ❌ Missing |
+| 90-second reconnect window + AI fill | ❌ Missing |
+| Async (pass-and-play) turn notifications | ❌ Missing (PRD marks P2) |
+| Blood Pact encrypted server-side card delivery | ❌ Missing |
+
+**Remediation:** Build `server/src/index.ts` per the DB schema (`server/src/db/schema.sql`). The mock interface contracts make this a clean swap when ready.
+
+---
+
+#### GAP-09 · Board and Doom Toll UI Rendering Not Started
+
+**PRD:** F-001 (28-node board graph rendered in play), F-005 (animated doom toll track with visual escalation states).
+
+**Status:** Engine models are complete. UI rendering layer for the board graph and animated doom track is not in the codebase.
+
+**Remediation:** Implement canvas or DOM rendering that consumes `BoardState` from `src/models/board.ts` and `DoomTollState` from `src/systems/doom-toll.ts`. Animation states are already specified in `src/ui/atmosphere.ts`.
+
+---
+
+## Design Commitment Verification
+
+| Commitment | Status | Evidence |
+|---|---|---|
+| No hardcoded nouns — all via GLL | ✅ Verified | `src/gll/registry.ts`; reskin test passing |
+| Broken Court never prevents Voting | ✅ Verified | `voting.test.ts` lines 55–66; `broken-court.test.ts` tests 70–78 |
+| Behavior Card execution deterministic from seed | ✅ Verified | All systems accept `rng: SeededRandom`; simulation reproduces from seed |
+| Voting Phase before Action Phase | ✅ Verified | `game-loop.ts` phase order: shadowking → voting → action → cleanup |
+| All randomness through `SeededRandom` | ⚠️ Mostly | 0 violations in engine/systems/models; **3 violations in `src/ui/atmosphere.ts`** (see GAP-05) |
+
+---
+
+## Feature Implementation Status (Complete Reference)
+
+| Feature | File(s) | Test File | Status |
+|---|---|---|---|
+| F-001 Board (28-node graph) | `src/models/board.ts` | `tests/models/board.test.ts` | ✅ Engine done; UI rendering not started (GAP-09) |
+| F-001b 3-Player Config | `src/models/game-state.ts`, `src/engine/game-loop.ts` | `tests/engine/game-loop.test.ts` | ✅ Complete |
+| F-002 War Banners | `src/systems/resources.ts` | `tests/systems/resources.test.ts` | ✅ Complete |
+| F-002.5 Fate Card Hand Limits | `src/systems/resources.ts` | `tests/systems/resources.test.ts` | ✅ Complete |
+| F-003 Fellowship / Unknown Wanderers | `src/models/characters.ts`, `src/systems/characters.ts` | `tests/models/characters.test.ts` | ✅ Complete (naming mismatch — GAP-07) |
+| F-004 Combat (War Field) | `src/systems/combat.ts` | `tests/systems/combat.test.ts` | ✅ Complete |
+| F-005 Doom Toll | `src/systems/doom-toll.ts` | `tests/systems/doom-toll.test.ts` | ✅ Engine done; animation UI not started (GAP-09) |
+| F-006 Voting Phase | `src/systems/voting.ts` | `tests/systems/voting.test.ts` | ✅ Complete |
+| F-006b Social Pressure Onboarding | `src/ui/social-pressure-onboarding.ts` | `tests/ui/social-pressure-onboarding.test.ts` | ✅ Complete (prior audit incorrectly marked missing) |
+| F-007 Broken Court + Rescue | `src/systems/broken-court.ts`, `src/systems/rescue.ts` | `tests/systems/broken-court.test.ts`, `tests/systems/rescue.test.ts` | ✅ Complete |
+| F-008 Shadowking Behaviour System | `src/systems/shadowking.ts` | `tests/systems/shadowking.test.ts` | ✅ Complete |
+| F-009 Herald Diplomatic Action | `src/systems/herald-diplomacy.ts` | `tests/systems/herald-diplomacy.test.ts` | ✅ Complete (PRD checklist stale — GAP-06) |
+| F-010 Victory Conditions | `src/systems/victory.ts` | `tests/systems/victory.test.ts` | ✅ Complete |
+| F-011 Game Modes (3 modes) | `src/systems/game-modes.ts` | `tests/systems/game-modes.test.ts` | ✅ Complete |
+| F-012 Tutorial (5-turn scripted) | `src/systems/tutorial-state.ts`, `src/systems/tutorial-script.ts`, `src/ui/tutorial.ts` | `tests/systems/tutorial-script.test.ts` | ⚠️ Framework only — GAP-01 |
+| F-013 AI Opponent (3 levels) | `src/systems/ai-player.ts` | `tests/systems/ai-player.test.ts` | ⚠️ Voting complete; actions stubbed — GAP-02 |
+| F-014 Multiplayer / Async | `src/systems/multiplayer.ts` | `tests/systems/multiplayer.test.ts` | ⚠️ Mock only — GAP-08 |
+| F-015 Atmosphere / Audio | `src/ui/atmosphere.ts` | — | ⚠️ Visual done; audio not independently verifiable; Math.random() violation — GAP-05 |
+| F-016 Persistent Standings UI | `src/ui/doom-toll-display.ts`, `src/ui/resource-display.ts` | `tests/ui/standings-panel.test.ts` | ⚠️ Partial — unified table missing — GAP-03 |
+| F-017 Post-Game Summary | `src/ui/summary.ts` | — | ✅ Complete |
+| F-018 Fixed Turn Order | `src/engine/game-loop.ts` | `tests/engine/game-loop.test.ts` | ✅ Complete |
+| Balance Simulation Verification | `src/engine/simulation.ts` | `tests/engine/simulation.test.ts` | ⚠️ Engine done; mandated verification run not recorded — GAP-04 |
+
+---
+
+## Launch Readiness Checklist (Updated)
+
+From PRD Section 15, with corrections as of 2026-03-09:
+
+- [x] ESCALATE cards = 1; MOVE cards = 6 (implemented, constants in `src/models/game-state.ts`)
+- [ ] **GAP-04** Simulation re-run confirms Dark Lord win rate 18–22%
+- [x] **GAP-06 CORRECTION** Herald Diplomatic Action (F-009) implemented and tested
+- [x] Blood Pact mode ships at launch
+- [ ] **GAP-03** Persistent standings UI (F-016) passes readability test at 1080p
+- [x] Rescue event has distinct audio + visual signature (`src/ui/atmosphere.ts`)
+- [ ] **GAP-01** Tutorial Turn 3 (War Field) tested with Devon and Sam personas
+- [x] Post-game Blood Pact reveal implemented (`src/ui/summary.ts`)
+- [x] All GLL tokens confirmed swappable (`tests/gll/reskin.test.ts`)
+- [x] Broken Court never prevents Voting Phase participation — automated test coverage (`tests/systems/voting.test.ts:55-66`, `tests/systems/broken-court.test.ts:70-78`)
+
+**Remaining blockers: 3 checkboxes (GAP-01, GAP-03, GAP-04)**
+
+---
+
+## Summary Table
+
+| Gap | Area | Priority | Effort | Notes |
+|---|---|---|---|---|
+| GAP-01 | Tutorial scripted sequence | P0 — blocks ship | High | Core content missing from framework |
+| GAP-02 | AI action decision logic | P0 — blocks ship | High | Voting AI done; action AI is a stub |
+| GAP-03 | Standings panel table | P0 — blocks ship | Medium | Individual metrics exist; table not built |
+| GAP-04 | Balance simulation run | P0 — mandated by PRD | Low | Engine ready; just needs execution + record |
+| GAP-05 | `Math.random()` in atmosphere | P1 — design commitment | Low | 3 calls; fix or formally exempt |
+| GAP-06 | Stale PRD checklist (F-009) | P1 — doc correctness | Trivial | Update one checkbox in `docs/prd.md` |
+| GAP-07 | Character naming mismatch | P1 — maintenance risk | Medium | Refactor enums or add mapping comment |
+| GAP-08 | Multiplayer backend | P2 — post-launch | Very High | Full server build; mock contracts are clean |
+| GAP-09 | Board + Doom Toll UI rendering | P2 — post-launch | High | Engine ready; UI layer not started |
+
+---
+
+*Audit generated 2026-03-09. Supersedes 2026-03-04 audit. All 816+ tests confirmed passing.*
