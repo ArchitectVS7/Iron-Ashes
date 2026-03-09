@@ -23,7 +23,9 @@
 import type { VoteChoice } from '../models/game-state.js';
 import { GameState, GameMode } from '../models/game-state.js';
 import { TutorialState } from '../systems/tutorial-state.js';
-import { getFellowshipPower } from '../systems/characters.js';
+import type { DiscoveredTutorialTrigger } from '../systems/tutorial-state.js';
+import { getFellowshipPower, performRecruit } from '../systems/characters.js';
+import type { CharacterRole } from '../models/characters.js';
 import type { AIDifficulty } from '../models/player.js';
 import { TutorialScriptedOpponent } from '../systems/tutorial-script.js';
 import { SeededRandom } from '../utils/seeded-random.js';
@@ -46,7 +48,7 @@ import {
   canVote,
 } from '../systems/voting.js';
 import { resolveBehaviorCard } from '../systems/shadowking.js';
-import { resolvePlayerCombat } from '../systems/combat.js';
+import { resolvePlayerCombat, resolveShadowkingCombat } from '../systems/combat.js';
 import {
   checkVictoryConditions,
   isGameOver,
@@ -71,6 +73,9 @@ import {
   performDiplomaticAction,
   getEligibleDiplomats,
 } from '../systems/herald-diplomacy.js';
+import {
+  performAccusation,
+} from '../systems/game-modes.js';
 import {
   isInFinalPhase,
   performBlightAutoSpread,
@@ -211,6 +216,9 @@ export class GameController {
   public init(playerCount: number, mode: GameMode, seed: number = Date.now(), aiDifficulties: AIDifficulty[] = []): void {
     this.state = createGameState(playerCount, mode, seed, aiDifficulties);
     this.rng = new SeededRandom(seed);
+
+    // Re-create atmosphere engine with game-seeded RNG for deterministic particles
+    try { this.atmosphere = new AtmosphereEngine('gc-ui', this.rng); } catch { /* headless */ }
 
     // Initialize AI Controller instances
     this.aiPlayers.clear();
@@ -413,6 +421,7 @@ export class GameController {
 
     // Final Phase blight auto-spread
     if (isInFinalPhase(this.state)) {
+      this.fireDiscoveredTrigger('FIRST_FINAL_PHASE');
       performBlightAutoSpread(this.state, this.rng);
     }
 
@@ -650,6 +659,144 @@ export class GameController {
       player.actionsRemaining = 0;
     }
     this.resolveAction();
+  }
+
+  // ─── Recruitment ────────────────────────────────────────────────
+
+  /**
+   * Handle a character recruitment action.
+   * Called when the player clicks "Recruit Wanderer" in the character panel.
+   */
+  public handleRecruit(targetNodeId: string, wandererRole: CharacterRole): void {
+    if (!this.state || this.state.phase !== 'action') return;
+    if (isGameOver(this.state)) return;
+
+    const player = this.state.players[this.state.activePlayerIndex];
+    if (!player || player.actionsRemaining <= 0) return;
+    if (!canPerformAction(player, 'recruit')) return;
+
+    const success = performRecruit(player, targetNodeId, wandererRole, this.state.boardState);
+    if (!success) return;
+
+    // Tutorial Turn 2 (recruitment): first successful recruit advances tutorial
+    if (this.isTutorialMode && player.index === 0 && this.tutorialState.currentTurnIndex === 1) {
+      this.advanceTutorialTurn();
+    }
+
+    // Discovered trigger: first artificer/producer recruit
+    if (wandererRole === 'producer') {
+      this.fireDiscoveredTrigger('FIRST_ARTIFICER_RECRUIT');
+    }
+
+    this.renderAll();
+    this.resolveAction();
+  }
+
+  // ─── Rescue ─────────────────────────────────────────────────────
+
+  /**
+   * Handle a player-initiated rescue of a Broken Court ally.
+   * Spends War Banners and removes Penalty Cards from the target.
+   */
+  public handleRescue(targetIndex: number): void {
+    if (!this.state || this.state.phase !== 'action') return;
+    if (isGameOver(this.state)) return;
+
+    const player = this.state.players[this.state.activePlayerIndex];
+    if (!player || player.actionsRemaining <= 0) return;
+
+    const target = this.state.players[targetIndex];
+    if (!target) return;
+
+    if (!canRescue(player, target, this.state)) return;
+
+    const success = performRescue(this.state, player.index, targetIndex, 2);
+    if (!success) return;
+
+    // Discovered trigger: first rescue
+    this.fireDiscoveredTrigger('FIRST_RESCUE');
+
+    this.renderAll();
+    this.resolveAction();
+  }
+
+  // ─── Blood Pact Accusation ─────────────────────────────────────
+
+  /**
+   * Handle a Blood Pact accusation against a target player.
+   */
+  public handleAccusation(targetIndex: number): void {
+    if (!this.state || this.state.phase !== 'action') return;
+    if (isGameOver(this.state)) return;
+
+    performAccusation(this.state, targetIndex);
+
+    // Discovered trigger: first blood pact accusation
+    this.fireDiscoveredTrigger('FIRST_BLOOD_PACT_ACCUSATION');
+
+    this.renderAll();
+    this.resolveAction();
+  }
+
+  // ─── Shadowking Combat ─────────────────────────────────────────
+
+  /**
+   * Handle combat between a player and a Shadowking force (Death Knight / Blight Wraith).
+   */
+  public handleShadowkingCombat(playerIndex: number, forceId: string, cardChoice: number): void {
+    if (!this.state) return;
+    if (isGameOver(this.state)) return;
+
+    const force = this.state.antagonistForces.find(f => f.id === forceId);
+    const isLieutenant = force?.type === 'lieutenant';
+
+    resolveShadowkingCombat(this.state, playerIndex, forceId, cardChoice, this.rng);
+
+    // Discovered trigger: first Death Knight (lieutenant) combat
+    if (isLieutenant) {
+      this.fireDiscoveredTrigger('FIRST_DEATH_KNIGHT_COMBAT');
+    }
+
+    this.renderAll();
+  }
+
+  // ─── Discovered Tutorial Triggers ──────────────────────────────
+
+  /**
+   * Fire a discovered tutorial trigger. Does nothing if the mandatory
+   * tutorial is active or the trigger has already been shown.
+   */
+  private fireDiscoveredTrigger(trigger: DiscoveredTutorialTrigger): void {
+    const shouldShow = this.tutorialState.triggerDiscoveredTutorial(trigger);
+    if (!shouldShow || !this.tutorialEngine) return;
+
+    const DISCOVERED_CONTENT: Record<DiscoveredTutorialTrigger, { title: string; content: string }> = {
+      FIRST_ARTIFICER_RECRUIT: {
+        title: 'Artificer Recruited!',
+        content: 'Artificers (Producers) generate War Banners at the end of each round. Place them in Forge Keeps for 3x production.',
+      },
+      FIRST_RESCUE: {
+        title: 'Rescue Complete!',
+        content: 'You freed an ally from Broken Court! Rescue costs War Banners equal to half the target\'s Penalty Cards (rounded up).',
+      },
+      FIRST_DEATH_KNIGHT_COMBAT: {
+        title: 'Death Knight Engaged!',
+        content: 'Death Knights are the Shadowking\'s lieutenants. Defeating one recedes the Doom Toll by 1 — a critical strategic play.',
+      },
+      FIRST_FINAL_PHASE: {
+        title: 'The Final Phase Begins!',
+        content: 'The Doom Toll has reached 10. Blight now auto-spreads each round. Time is running out — claim the throne or fall to darkness.',
+      },
+      FIRST_BLOOD_PACT_ACCUSATION: {
+        title: 'Blood Pact Accusation!',
+        content: 'All accusers spend Fate Cards. If the accused holds the Blood Pact, they are revealed and penalized. If wrong, the accusers pay the price.',
+      },
+    };
+
+    const info = DISCOVERED_CONTENT[trigger];
+    try {
+      this.tutorialEngine.showDiscoveredTooltip(info.title, info.content, 400, 200);
+    } catch { /* headless */ }
   }
 
   // ─── Auto-Play AI ─────────────────────────────────────────────

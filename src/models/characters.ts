@@ -5,6 +5,9 @@
  * A Fellowship is a player's collection of characters on the board.
  */
 
+// PRD display names → code identifiers:
+// Arch-Regent → leader, Knight → warrior, Herald → diplomat, Artificer → producer
+// Display names are resolved through the GLL registry, not these identifiers.
 /** Character roles map to GLL token keys. */
 export type CharacterRole = 'leader' | 'warrior' | 'diplomat' | 'producer';
 

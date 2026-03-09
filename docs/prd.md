@@ -964,7 +964,7 @@ The following must be true before the game ships:
 
 - [x] ESCALATE cards reduced from 2 to 1; MOVE cards increased from 5 to 6 in Behavior Deck (implemented; anchored by tests/models/game-state.test.ts)
 - [ ] Simulation re-run confirms Dark Lord win rate 18–22% with updated Behavior Deck AND Herald-driven Fate Card hand system (Fix 4) enabled
-- [ ] Herald Diplomatic Action (F-009) implemented and tested
+- [x] Herald Diplomatic Action (F-009) implemented and tested
 - [ ] Blood Pact mode ships at launch (not post-launch)
 - [ ] Persistent standings UI (F-016) passes readability test at 1080p
 - [ ] Rescue event has distinct audio + visual signature (F-015)
@@ -1276,7 +1276,7 @@ The engine contains no API keys, database credentials, or seed phrases. Content 
 | F-006 Voting Phase | P0 | ✅ Engine complete |
 | F-007 Broken Court State | P0 | ✅ Engine complete; automated test coverage required |
 | F-008 Shadowking Behavior System | P0 | ✅ Engine complete |
-| F-009 Herald Diplomatic Action | P1 | 🔴 Not implemented |
+| F-009 Herald Diplomatic Action | P1 | ✅ Implemented and tested |
 | F-010 Victory Conditions | P0 | ✅ Engine complete |
 | F-011a Competitive Mode | P0 | ✅ Engine complete |
 | F-011b Blood Pact Mode | P0 | ✅ Engine complete (server-side card delivery not started) |

@@ -1,12 +1,16 @@
 // src/ui/atmosphere.ts
+import { SeededRandom } from '../utils/seeded-random.js';
+
 export class AtmosphereEngine {
     private layer: HTMLElement;
     private silhouette: HTMLElement;
     private lighting: HTMLElement;
     private audioCtx: AudioContext | null = null;
     private particles: HTMLElement;
+    private readonly rng: SeededRandom;
 
-    constructor(parentId: string) {
+    constructor(parentId: string, rng?: SeededRandom) {
+        this.rng = rng ?? new SeededRandom(Date.now());
         const parent = document.getElementById(parentId);
         if (!parent) throw new Error("Parent not found");
 
@@ -96,14 +100,14 @@ export class AtmosphereEngine {
             const p = document.createElement('div');
             p.className = 'particle';
             p.style.backgroundColor = color;
-            const size = Math.random() * 6 + 2;
+            const size = this.rng.float() * 6 + 2;
             p.style.width = size + 'px';
             p.style.height = size + 'px';
             p.style.left = x + 'px';
             p.style.top = y + 'px';
 
-            const angle = Math.random() * Math.PI * 2;
-            const dist = Math.random() * 150 + 50;
+            const angle = this.rng.float() * Math.PI * 2;
+            const dist = this.rng.float() * 150 + 50;
             const destX = Math.cos(angle) * dist;
             const destY = Math.sin(angle) * dist;
 
@@ -113,7 +117,7 @@ export class AtmosphereEngine {
                 { transform: 'translate(0, 0) scale(1)', opacity: 1 },
                 { transform: `translate(${destX}px, ${destY}px) scale(0)`, opacity: 0 }
             ], {
-                duration: 1000 + Math.random() * 500,
+                duration: 1000 + this.rng.float() * 500,
                 easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)'
             }).onfinish = () => p.remove();
         }

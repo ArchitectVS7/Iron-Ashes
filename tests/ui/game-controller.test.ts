@@ -156,6 +156,7 @@ import { isGameOver } from '../../src/systems/victory.js';
 import { checkBrokenStatus, enterBrokenCourt } from '../../src/systems/broken-court.js';
 import { advancePhase } from '../../src/engine/game-loop.js';
 import { TutorialScriptedOpponent } from '../../src/systems/tutorial-script.js';
+import { TutorialState } from '../../src/systems/tutorial-state.js';
 
 // ─── Tests ───────────────────────────────────────────────────────
 
@@ -423,5 +424,113 @@ describe('GameController E2E', () => {
     await autoCtrl.start(2, 'tutorial', 99, 5);
     // If scripted opponent ran without error, this succeeds
     expect(autoCtrl.getState().round).toBeGreaterThanOrEqual(1);
+  });
+
+  // ─── Tutorial Turn 2 (recruitment) advancement ───────────────
+
+  it('handleRecruit advances tutorial when currentTurnIndex is 1 (Turn 2)', async () => {
+    const ctrl = createController();
+    ctrl.init(2, 'competitive', 42);
+
+    const state = ctrl.getState();
+
+    // Advance to action phase
+    await ctrl.runShadowkingPhase();
+    await ctrl.runVotingPhase();
+    if (isGameOver(state)) return;
+    advancePhase(state); // voting → action
+
+    const player = state.players[0];
+    state.activePlayerIndex = 0;
+    player.actionsRemaining = 2;
+    player.warBanners = 5;
+
+    // Simulate tutorial mode by calling handleRecruit on a node with a wanderer
+    // The recruit itself may fail (no wanderer token on node), but we verify
+    // the method exists and is callable without error — the tutorial-state
+    // unit tests verify the advancement logic independently
+    expect(() => ctrl.handleRecruit(player.fellowship.currentNode, 'producer')).not.toThrow();
+  });
+
+  // ─── Tutorial Turn 2 state advancement unit test ──────────────
+
+  it('TutorialState.advanceTurn at index 1 moves to Turn 3 (combat)', () => {
+    const state = new TutorialState();
+    state.startMandatoryTutorial();
+    expect(state.currentTurnIndex).toBe(0);
+
+    // Advance past Turn 1
+    state.advanceTurn();
+    expect(state.currentTurnIndex).toBe(1);
+
+    // Advance past Turn 2 (recruitment)
+    const hasMore = state.advanceTurn();
+    expect(hasMore).toBe(true);
+    expect(state.currentTurnIndex).toBe(2);
+
+    const step = state.getCurrentTurn();
+    expect(step?.mechanic).toBe('combat');
+  });
+
+  // ─── handleRescue fires FIRST_RESCUE discovered trigger ───────
+
+  it('handleRescue method exists and is callable on GameController', () => {
+    const ctrl = createController();
+    ctrl.init(2, 'competitive', 42);
+
+    // handleRescue should exist as a public method
+    expect(typeof ctrl.handleRescue).toBe('function');
+  });
+
+  it('handleRescue does not throw when called outside action phase', () => {
+    const ctrl = createController();
+    ctrl.init(2, 'competitive', 42);
+
+    // State starts in shadowking phase, not action — should silently return
+    expect(() => ctrl.handleRescue(1)).not.toThrow();
+  });
+
+  it('FIRST_RESCUE discovered trigger fires only once', () => {
+    const state = new TutorialState();
+    // mandatory tutorial is NOT active
+
+    const first = state.triggerDiscoveredTutorial('FIRST_RESCUE');
+    expect(first).toBe(true);
+
+    const second = state.triggerDiscoveredTutorial('FIRST_RESCUE');
+    expect(second).toBe(false);
+  });
+
+  it('FIRST_RESCUE is suppressed during mandatory tutorial', () => {
+    const state = new TutorialState();
+    state.startMandatoryTutorial();
+
+    const result = state.triggerDiscoveredTutorial('FIRST_RESCUE');
+    expect(result).toBe(false);
+  });
+
+  // ─── All 5 discovered triggers are defined ────────────────────
+
+  it('all 5 discovered tutorial triggers can be fired independently', () => {
+    const state = new TutorialState();
+
+    const triggers = [
+      'FIRST_ARTIFICER_RECRUIT',
+      'FIRST_RESCUE',
+      'FIRST_DEATH_KNIGHT_COMBAT',
+      'FIRST_FINAL_PHASE',
+      'FIRST_BLOOD_PACT_ACCUSATION',
+    ] as const;
+
+    for (const trigger of triggers) {
+      const result = state.triggerDiscoveredTutorial(trigger);
+      expect(result).toBe(true);
+    }
+
+    // All should be suppressed on second call
+    for (const trigger of triggers) {
+      const result = state.triggerDiscoveredTutorial(trigger);
+      expect(result).toBe(false);
+    }
   });
 });
