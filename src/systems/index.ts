@@ -122,3 +122,11 @@ export {
   isPvPCombatAllowed,
   performAccusation,
 } from './game-modes.js';
+
+export {
+  canClaimNode,
+  claimNode,
+  getClaimedNodes,
+  getNodeOwner,
+  isClaimableNodeType,
+} from './territory.js';
