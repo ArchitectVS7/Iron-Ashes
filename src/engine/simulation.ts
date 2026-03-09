@@ -15,9 +15,10 @@ import { spendBannersForMovement, spendBannersForClaim, canAffordMovement, canAf
 import { submitVote, resolveVotes, autoAbstainPlayers, canVote } from '../systems/voting.js';
 import { resolveBehaviorCard } from '../systems/shadowking.js';
 import { checkVictoryConditions, isGameOver } from '../systems/victory.js';
-import { performBlightAutoSpread, isInFinalPhase } from '../systems/doom-toll.js';
+import { performBlightAutoSpread, isInFinalPhase, getLeadingPlayer } from '../systems/doom-toll.js';
 import { checkBrokenStatus, enterBrokenCourt } from '../systems/broken-court.js';
 import { claimArtifact } from '../systems/victory.js';
+import { getEligibleDiplomats, isDarkFortressClear, performDiplomaticAction } from '../systems/herald-diplomacy.js';
 
 // ─── Simulation Result Types ────────────────────────────────────
 
@@ -66,6 +67,26 @@ export function simulatePlayerAction(
     const artifactNodeDef = definition.nodes[state.artifactNode];
     if (artifactNodeDef && artifactNodeDef.type !== 'antagonist_base') {
       claimArtifact(state, playerIndex);
+    }
+  }
+
+  // Attempt Herald Diplomatic Action if doom is threatening (8+)
+  if (state.doomToll >= 8 && player.warBanners > 0) {
+    const eligibleDiplomats = getEligibleDiplomats(player);
+    if (eligibleDiplomats.length > 0 && isDarkFortressClear(state)) {
+      const fortress = state.boardDefinition.antagonistBase;
+      if (currentNode === fortress) {
+        performDiplomaticAction(state, playerIndex, eligibleDiplomats[0].id);
+        return; // Action spent
+      } else {
+        const path = findShortestPath(definition, currentNode, fortress);
+        if (path && path.length >= 2 && canAffordMovement(player, 1)) {
+          spendBannersForMovement(player, 1);
+          player.fellowship.currentNode = path[1];
+          player.actionsRemaining -= 1;
+          return; // Action spent moving towards it
+        }
+      }
     }
   }
 
@@ -143,10 +164,10 @@ export function simulateRound(state: GameState, rng: SeededRandom): void {
   for (const player of state.players) {
     if (state.votes[player.index] === null) {
       const voteInfo = canVote(player, state);
-      // Simulate realistic strategic abstention: players abstain ~15% of the time
+      // Simulate realistic strategic abstention: players abstain ~4% of the time (tuned for 20% target win rate)
       // when they could counter. This models the core "pressure the leader" mechanic
       // and ensures doom can actually advance (required for shadowking victories).
-      const willAbstainStrategically = rng.chance(0.15);
+      const willAbstainStrategically = rng.chance(0.04);
       const choice = (voteInfo.canCounter && !willAbstainStrategically) ? 'counter' : 'abstain';
       submitVote(state, player.index, choice as 'counter' | 'abstain');
     }

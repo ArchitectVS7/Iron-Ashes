@@ -69,13 +69,13 @@ function makeMockEl(): MockEl {
     appendChild(child: MockEl) { el.children.push(child); child.parentElement = el; return child; },
     removeChild(child: MockEl) { const i = el.children.indexOf(child); if (i >= 0) el.children.splice(i, 1); return child; },
     insertBefore(newChild: MockEl, _ref: MockEl | null) { el.children.unshift(newChild); newChild.parentElement = el; return newChild; },
-    remove() {},
-    setAttribute() {},
+    remove() { },
+    setAttribute() { },
     getAttribute() { return null; },
     querySelector() { return null; },
     querySelectorAll() { return []; },
-    addEventListener() {},
-    removeEventListener() {},
+    addEventListener() { },
+    removeEventListener() { },
     getBoundingClientRect() { return { left: 0, top: 0, width: 0, height: 0 }; },
     getContext() { return null; },
     animate() { return { onfinish: null }; },
@@ -107,8 +107,8 @@ globalThis.document = {
   },
   body: mockBody,
   querySelectorAll() { return []; },
-  addEventListener() {},
-  removeEventListener() {},
+  addEventListener() { },
+  removeEventListener() { },
   dispatchEvent() { return true; },
 } as unknown as Document;
 
@@ -123,30 +123,30 @@ globalThis.localStorage = {
 } as unknown as Storage;
 
 globalThis.window = {
-  addEventListener() {},
-  removeEventListener() {},
+  addEventListener() { },
+  removeEventListener() { },
   AudioContext: class {
     state = 'running';
     currentTime = 0;
     destination = {};
-    resume() {}
+    resume() { }
     createOscillator() {
       return {
-        type: '', frequency: { setValueAtTime() {}, exponentialRampToValueAtTime() {} },
-        connect() {}, start() {}, stop() {},
+        type: '', frequency: { setValueAtTime() { }, exponentialRampToValueAtTime() { } },
+        connect() { }, start() { }, stop() { },
       };
     }
     createGain() {
       return {
-        gain: { setValueAtTime() {}, linearRampToValueAtTime() {}, exponentialRampToValueAtTime() {} },
-        connect() {},
+        gain: { setValueAtTime() { }, linearRampToValueAtTime() { }, exponentialRampToValueAtTime() { } },
+        connect() { },
       };
     }
   },
   requestAnimationFrame() { return 0; },
   innerWidth: 1920,
   innerHeight: 1080,
-  location: { reload() {} },
+  location: { reload() { } },
 } as unknown as Window & typeof globalThis;
 
 // ─── Imports (after mock is wired) ───────────────────────────────
@@ -407,7 +407,7 @@ describe('GameController E2E', () => {
   });
 
   it('tutorial mode: opponent turn uses scripted path (no pathfinding crash)', async () => {
-    const ctrl = new GameController(container as unknown as HTMLElement, {
+    const _ctrl = new GameController(container as unknown as HTMLElement, {
       autoPlay: false, // player 0 is manual; we drive it manually
       combatDelayMs: 0,
       shadowkingDelayMs: 0,

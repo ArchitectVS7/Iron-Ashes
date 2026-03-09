@@ -20,16 +20,16 @@
  *  12. advancePhase         → cleanup → shadowking (increments round)
  */
 
-import type {
-  GameState,
-  GameMode,
-  VoteChoice,
-} from '../models/game-state.js';
-
-// Tutorial types
+import type { VoteChoice } from '../models/game-state.js';
+import { GameState, GameMode, ActionLogEntry, DOOM_TOLL_MAX } from '../models/game-state.js';
 import { TutorialState } from '../systems/tutorial-state.js';
+import { BoardNode } from '../models/board.js';
+import { Player } from '../models/player.js';
+import { getFellowshipPower } from '../systems/characters.js';
+import type { AIDifficulty } from '../models/player.js';
 import { TutorialScriptedOpponent } from '../systems/tutorial-script.js';
 import { SeededRandom } from '../utils/seeded-random.js';
+import { AIPlayer } from '../systems/ai-player.js';
 
 // Engine
 import {
@@ -37,6 +37,8 @@ import {
   advancePhase,
   startRound,
 } from '../engine/game-loop.js';
+
+import { WebSocketMultiplayerSession } from '../systems/multiplayer.js';
 
 // Systems
 import {
@@ -75,7 +77,6 @@ import {
   isInFinalPhase,
   performBlightAutoSpread,
   getPlayerStrongholdCount,
-  getLeadingPlayer,
 } from '../systems/doom-toll.js';
 import {
   findShortestPath,
@@ -148,6 +149,13 @@ export class GameController {
   private settingsPanel: SettingsPanel | null = null;
   private hudEl: HTMLElement | null = null;
 
+  // Multiplayer properties
+  private multiplayerSession: WebSocketMultiplayerSession | null = null;
+  private localPlayerId: string = '0'; // Defaults to 0 (Host / Player 1)
+
+  // AI mappings
+  private aiPlayers: Map<number, AIPlayer> = new Map();
+
   constructor(container: HTMLElement, options: GameControllerOptions = {}) {
     this.autoPlay = options.autoPlay ?? false;
     this.combatDelayMs = options.combatDelayMs ?? 2000;
@@ -202,9 +210,21 @@ export class GameController {
   // ─── Public API ───────────────────────────────────────────────
 
   /** Create the initial game state without starting the loop. */
-  public init(playerCount: number, mode: GameMode, seed: number = Date.now()): void {
-    this.state = createGameState(playerCount, mode, seed);
+  public init(playerCount: number, mode: GameMode, seed: number = Date.now(), aiDifficulties: AIDifficulty[] = []): void {
+    this.state = createGameState(playerCount, mode, seed, aiDifficulties);
     this.rng = new SeededRandom(seed);
+
+    // Initialize AI Controller instances
+    this.aiPlayers.clear();
+    for (const player of this.state.players) {
+      if (player.type === 'ai' && player.aiDifficulty) {
+        // Give each AI a distinct deterministic seed based on game seed + their index
+        // We use explicit import of AIPlayer at top
+        const aiSeed = seed ^ (player.index * 0x8a9b1c2d);
+        this.aiPlayers.set(player.index, new AIPlayer(player.aiDifficulty, aiSeed));
+      }
+    }
+
     this.renderAll();
   }
 
@@ -219,7 +239,11 @@ export class GameController {
     mode: GameMode | 'tutorial',
     seed: number = Date.now(),
     maxRounds: number = 50,
+    aiDifficulties: AIDifficulty[] = [],
+    networkParams?: { type: 'local' | 'host' | 'join', joinSessionId?: string, joinPlayerId?: string }
   ): Promise<void> {
+
+    // Tutorial overrides
     if (mode === 'tutorial') {
       this.isTutorialMode = true;
       this.tutorialState.startMandatoryTutorial();
@@ -228,11 +252,63 @@ export class GameController {
           this.tutorialEngine.startMandatoryTutorialFlow(this.tutorialState);
         } catch { /* headless */ }
       }
-      this.init(playerCount, 'competitive', seed);
-    } else {
-      this.init(playerCount, mode, seed);
+      this.init(playerCount, 'competitive', seed, aiDifficulties);
+      await this.runGame(maxRounds);
+      return;
     }
-    await this.runGame(maxRounds);
+
+    if (networkParams && networkParams.type !== 'local') {
+      this.multiplayerSession = new WebSocketMultiplayerSession();
+
+      this.multiplayerSession.onStateUpdate((state) => {
+        if (!this.state) {
+          // Initial init logic for missing UI stuff
+          this.state = state;
+          this.rng = new SeededRandom(seed);
+        } else {
+          this.state = state;
+        }
+
+        // Sync AI mapping if ai players changed (e.g. Knight fallback)
+        for (const p of state.players) {
+          if (p.type === 'ai' && p.aiDifficulty && !this.aiPlayers.has(p.index)) {
+            const aiSeed = state.seed ^ (p.index * 0x8a9b1c2d);
+            this.aiPlayers.set(p.index, new AIPlayer(p.aiDifficulty, aiSeed));
+          }
+        }
+
+        // Re-render UI upon ANY state change from server!
+        this.renderAll();
+      });
+
+      if (networkParams.type === 'host') {
+        const aiCount = aiDifficulties.length;
+        this.localPlayerId = '0';
+        const sessionId = await this.multiplayerSession.hostSession({
+          mode: mode as any,
+          playerCount,
+          aiCount,
+          seed: seed.toString()
+        });
+        console.log("Hosted Session ID:", sessionId);
+        // Show session ID to user in a basic way for now
+        alert("Hosted Multiplayer Session. Share this ID with friends: " + sessionId);
+        await this.multiplayerSession.joinSession(sessionId, this.localPlayerId);
+      } else if (networkParams.type === 'join') {
+        this.localPlayerId = networkParams.joinPlayerId || '0';
+        const sessionId = networkParams.joinSessionId || '';
+        const success = await this.multiplayerSession.joinSession(sessionId, this.localPlayerId);
+        if (!success) {
+          alert("Failed to join session " + sessionId);
+          return;
+        }
+      }
+
+      // Wait indefinitely, DO NOT run this.runGame() loop!
+    } else {
+      this.init(playerCount, mode, seed, aiDifficulties);
+      await this.runGame(maxRounds);
+    }
   }
 
   /** Run the full game loop until termination. */
@@ -297,10 +373,29 @@ export class GameController {
         const { canCounter } = canVote(player, this.state);
         const willAbstainStrategically = this.rng.chance(0.15);
         choice = (canCounter && !willAbstainStrategically) ? 'counter' : 'abstain';
+      } else if (player.type === 'ai') {
+        const aiController = this.aiPlayers.get(player.index);
+        if (aiController && this.state.currentBehaviorCard) {
+          const aiChoice = await aiController.getVote(this.state, player, this.state.currentBehaviorCard.type);
+          choice = aiChoice === 'COUNTER' ? 'counter' : 'abstain';
+        } else {
+          choice = 'abstain';
+        }
       } else if (this.votingPanel) {
-        choice = await this.votingPanel.waitForVote(player, this.state);
+        if (this.multiplayerSession && player.index.toString() !== this.localPlayerId) {
+          // Waiting for a remote player's vote...
+          continue;
+        } else {
+          choice = await this.votingPanel.waitForVote(player, this.state);
+        }
       } else {
         choice = 'abstain';
+      }
+
+      if (this.multiplayerSession) {
+        // Send to server instead of resolving locally
+        await this.multiplayerSession.submitVote(choice === 'counter' ? 'COUNTER' : 'ABSTAIN');
+        return; // The server will push STATE_UPDATE later
       }
 
       submitVote(this.state, player.index, choice);
@@ -344,7 +439,26 @@ export class GameController {
 
       if (this.autoPlay || (this.isTutorialMode && playerIndex !== 0)) {
         this.autoResolveActions(playerIndex);
+      } else if (player.type === 'ai') {
+        this.updateHUD(playerIndex);
+
+        // Let runAITurn execute async while the main loop awaits actionResolve.
+        // It will call this.resolveAction() when done.
+        void this.runAITurn(playerIndex);
+
+        while (player.actionsRemaining > 0 && !isGameOver(this.state)) {
+          this.updateHighlights(playerIndex);
+
+          await new Promise<void>((resolve) => {
+            this.actionResolve = resolve;
+          });
+        }
       } else {
+        if (this.multiplayerSession && playerIndex.toString() !== this.localPlayerId) {
+          // Wait for remote human player to submit action
+          return;
+        }
+
         while (player.actionsRemaining > 0 && !isGameOver(this.state)) {
           this.updateHighlights(playerIndex);
           this.updateHUD(playerIndex);
@@ -390,7 +504,7 @@ export class GameController {
    * Handle a board node click during the action phase.
    * Routes to movement, claiming, or combat based on game rules.
    */
-  public handleNodeClick(nodeId: string): void {
+  public async handleNodeClick(nodeId: string): Promise<void> {
     if (!this.state || this.state.phase !== 'action') return;
     if (isGameOver(this.state)) return;
 
@@ -407,6 +521,11 @@ export class GameController {
       const nodeInfo = definition.nodes[currentNode];
       if (!nodeInfo || !nodeInfo.connections.includes(nodeId)) return;
       if (!canAffordMovement(player, 1)) return;
+
+      if (this.multiplayerSession) {
+        void this.multiplayerSession.submitAction({ type: 'MOVE', payload: { path: [currentNode, nodeId] } });
+        return; // Server will reply with STATE_UPDATE
+      }
 
       spendBannersForMovement(player, 1);
       player.fellowship.currentNode = nodeId;
@@ -426,12 +545,28 @@ export class GameController {
           if (other.fellowship.currentNode !== nodeId) continue;
           if (!canPerformAction(player, 'combat')) break;
 
+          if (this.combatOverlay) {
+            const preCombatState = {
+              attackerId: `Player ${player.index + 1}`,
+              defenderId: `Player ${other.index + 1}`,
+              baseStrengthAttacker: getFellowshipPower(player.fellowship) + player.warBanners,
+              baseStrengthDefender: getFellowshipPower(other.fellowship) + other.warBanners,
+              attackerCardIndex: null,
+              defenderCardIndex: null,
+              attackerFaceDown: true,
+              defenderFaceUp: false,
+              margin: null,
+              reshuffleOccurred: false
+            };
+            await this.combatOverlay.showCombat(preCombatState);
+          }
+
           const result = resolvePlayerCombat(
             this.state, player.index, other.index,
             0, 0, this.rng,
           );
           if (this.combatOverlay) {
-            void this.combatOverlay.showCombatResult(
+            await this.combatOverlay.showCombatResult(
               result, player, other, this.combatDelayMs,
             );
           }
@@ -461,6 +596,11 @@ export class GameController {
         canPerformAction(player, 'claim') &&
         canAffordClaim(player)
       ) {
+        if (this.multiplayerSession) {
+          void this.multiplayerSession.submitAction({ type: 'CLAIM', payload: { nodeId } });
+          return; // Server will reply with STATE_UPDATE
+        }
+
         spendBannersForClaim(player);
         nodeState.claimedBy = player.index;
         player.stats.strongholdsClaimed += 1;
@@ -505,6 +645,10 @@ export class GameController {
     if (!this.state || this.state.phase !== 'action') return;
     const player = this.state.players[this.state.activePlayerIndex];
     if (player) {
+      if (this.multiplayerSession) {
+        void this.multiplayerSession.submitAction({ type: 'PASS', payload: {} });
+        return; // Server will reply with STATE_UPDATE
+      }
       player.actionsRemaining = 0;
     }
     this.resolveAction();
@@ -591,6 +735,79 @@ export class GameController {
     }
 
     player.actionsRemaining = 0;
+  }
+
+  // ─── AI Real-Time Play ────────────────────────────────────────
+
+  /** Executes an AI player's turn visually using their logic controller. */
+  private async runAITurn(playerIndex: number): Promise<void> {
+    const ai = this.aiPlayers.get(playerIndex);
+    const player = this.state.players[playerIndex];
+    if (!ai || !player || player.actionsRemaining <= 0) {
+      if (player) player.actionsRemaining = 0;
+      return;
+    }
+
+    const actions = await ai.getActions(this.state, player);
+
+    for (const action of actions) {
+      if (isGameOver(this.state) || player.actionsRemaining <= 0) break;
+
+      // Small delay so user can see what's happening
+      await this.sleep(750);
+
+      switch (action.type) {
+        case 'MOVE': {
+          const path = action.payload.path;
+          if (path.length >= 2 && canPerformAction(player, 'move') && canAffordMovement(player, 1)) {
+            const nextNode = path[1];
+            spendBannersForMovement(player, 1);
+            player.fellowship.currentNode = nextNode;
+            player.actionsRemaining -= 1;
+
+            // Artifact pickup
+            if (this.state.artifactHolder === null && nextNode === this.state.artifactNode) {
+              if (isArtifactAvailable(this.state)) claimArtifact(this.state, player.index);
+            }
+
+            // PvP Combat resolution
+            if (this.state.mode !== 'cooperative') {
+              for (const other of this.state.players) {
+                if (other.index === player.index) continue;
+                if (other.fellowship.currentNode !== nextNode) continue;
+                if (!canPerformAction(player, 'combat')) break;
+
+                const result = resolvePlayerCombat(this.state, player.index, other.index, 0, 0, this.rng);
+                if (this.combatOverlay) {
+                  await this.combatOverlay.showCombatResult(result, player, other, this.combatDelayMs);
+                }
+              }
+            }
+          }
+          break;
+        }
+        case 'CLAIM': {
+          const nodeId = action.payload.nodeId;
+          const nodeState = this.state.boardState[nodeId];
+          if (nodeState && nodeState.claimedBy === null && canPerformAction(player, 'claim') && canAffordClaim(player)) {
+            spendBannersForClaim(player);
+            nodeState.claimedBy = player.index;
+            player.stats.strongholdsClaimed += 1;
+            player.actionsRemaining -= 1;
+          }
+          break;
+        }
+        case 'PASS': {
+          player.actionsRemaining -= 1;
+          break;
+        }
+      }
+
+      this.renderAll();
+    }
+
+    player.actionsRemaining = 0;
+    this.resolveAction();
   }
 
   // ─── Tutorial Scripted Opponent ───────────────────────────────

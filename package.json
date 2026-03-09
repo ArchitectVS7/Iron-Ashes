@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc",
+    "start:server": "cd server && npm start",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint src/ tests/",

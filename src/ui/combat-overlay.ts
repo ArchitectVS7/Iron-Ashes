@@ -27,11 +27,12 @@ export class CombatOverlay {
       parent.appendChild(this.container);
    }
 
-   public showCombat(state: CombatState) {
-      this.container.style.display = 'flex';
+   public showCombat(state: CombatState): Promise<void> {
+      return new Promise<void>((resolve) => {
+         this.container.style.display = 'flex';
 
-      // Simulate simultaneous reveal structure
-      this.container.innerHTML = `
+         // Simulate simultaneous reveal structure
+         this.container.innerHTML = `
       <div class="combat-modal">
         <h2 class="combat-title">THE WAR FIELD</h2>
         
@@ -70,9 +71,17 @@ export class CombatOverlay {
           ℹ️ Defender sees Attacker's base strength and plays face-up. Attacker plays face-down but leads.
         </div>
         
-        <button class="combat-close-btn" onclick="this.closest('.combat-overlay').style.display='none'">Resolve</button>
+        <button class="combat-close-btn" id="combat-resolve-btn">Resolve</button>
       </div>
     `;
+
+         const btn = this.container.querySelector('#combat-resolve-btn');
+         if (btn) {
+            btn.addEventListener('click', () => {
+               resolve();
+            });
+         }
+      });
    }
 
    /**

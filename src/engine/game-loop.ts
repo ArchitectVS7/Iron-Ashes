@@ -29,7 +29,7 @@ import {
   createInitialBoardState,
   selectWandererNodes,
 } from '../models/board.js';
-import { createPlayer } from '../models/player.js';
+import { createPlayer, AIDifficulty } from '../models/player.js';
 import { createStartingFellowship } from '../models/characters.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 import { generateBanners, discardUnspentBanners, replenishFateCards } from '../systems/resources.js';
@@ -112,6 +112,7 @@ export function createGameState(
   playerCount: number,
   mode: GameMode,
   seed: number,
+  aiPlayers: AIDifficulty[] = [],
 ): GameState {
   if (playerCount < 2 || playerCount > 4) {
     throw new Error(`playerCount must be 2-4, got ${playerCount}`);
@@ -129,11 +130,17 @@ export function createGameState(
 
   // Create players — only create for the number of players actually playing.
   // Courts are assigned 0..playerCount-1; unused courts have no player.
+  // Humans are mapped first, then AI players.
   const players = [];
+  const humanCount = Math.max(0, playerCount - aiPlayers.length);
   for (let i = 0; i < playerCount; i++) {
+    const isHuman = i < humanCount;
+    const type = isHuman ? 'human' : 'ai';
+    const aiDifficulty = isHuman ? null : aiPlayers[i - humanCount];
+
     const keepId = boardDefinition.startingKeeps[i];
     const fellowship = createStartingFellowship(i, keepId, `court-${i}`);
-    const player = createPlayer(i, 'human', fellowship);
+    const player = createPlayer(i, type, fellowship, aiDifficulty);
     // Set initial actionsRemaining based on (non-)broken status
     player.actionsRemaining = ACTIONS_PER_TURN_NORMAL;
     players.push(player);

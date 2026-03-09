@@ -1,12 +1,12 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 // Mock localStorage
 const mockStorage: Record<string, string> = {};
 global.localStorage = {
     getItem: (key: string) => mockStorage[key] ?? null,
-    setItem: (key: string, value: string) => { mockStorage[key] = value; },
+    setItem: (_key: string, value: string) => { mockStorage[_key] = value; },
     clear: () => { for (const k in mockStorage) delete mockStorage[k]; },
-    removeItem: (key: string) => { delete mockStorage[k]; },
+    removeItem: (_key: string) => { delete mockStorage[_key]; },
     length: 0,
     key: () => null,
 } as unknown as Storage;
@@ -23,10 +23,10 @@ class MockElement {
     public children: MockElement[] = [];
     public style: Record<string, string> = {};
 
-    setAttribute(_k: string, _v: string) {}
+    setAttribute(_k: string, _v: string) { }
     getAttribute(_k: string): string | null { return null; }
     appendChild(child: MockElement) { this.children.push(child); return child; }
-    remove() {}
+    remove() { }
     querySelector(selector: string): MockElement | null {
         // Minimal: find first child matching class
         const cls = selector.replace('.', '');

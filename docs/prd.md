@@ -95,6 +95,8 @@ No player is eliminated during play. The Broken Court state replaces elimination
 
 - **As a** narrative gamer, **I want** each Court to have distinct visual identity and lore, **so that** the game world feels inhabited and the Herald walking alone through enemy territory tells a story.
 - **As a** narrative gamer, **I want** rescue events, territory spread, and Doom Toll pressure to combine into emergent stories, **so that** no two sessions feel the same.
+- **As a** narrative gamer, **I want** the Final Phase visual and audio state change to feel like a story beat — not just a UI shift — **so that** every player at the table understands the world is ending and the pressure becomes visceral, not abstract.
+- **As a** narrative gamer, **I want** the Doom Toll pressure to combine with Blood Pact suspicion and rescue debt into emergent political stories, **so that** I can describe a session to a friend as "Priya saved me even though she suspected me, and then I sold her out in the Voting Phase" — a story that could only happen in this game.
 
 ### Mobile / Newcomer (Sam, 23)
 
@@ -1322,6 +1324,581 @@ The engine contains no API keys, database credentials, or seed phrases. Content 
 
 ---
 
+---
+
+## Technical Architecture
+
+### Rendering Pipeline
+
+The game is built in TypeScript with a rendering layer that is deliberately decoupled from the game engine. The engine (`src/engine/`, `src/systems/`) operates on plain `GameState` objects with no rendering dependencies. The UI layer consumes `GameState` and derives all visual output from it.
+
+**Rendering model:** Component-based reactive UI. The game state is the single source of truth; the UI re-renders on state change. No shared mutable state between the engine and UI layers.
+
+**PC (Steam/Electron or web build):** Canvas-based board rendering for the 28-node graph with SVG overlays for interactive hit areas. Board nodes render at native resolution; the camera does not pan or zoom (fixed layout). Atmospheric overlays (Doom Toll visual states, Shadowking silhouette) are composited as separate canvas layers above the board layer to avoid repainting the board on every atmospheric tick.
+
+**Canvas layer stack (top to bottom):**
+1. UI chrome layer — persistent HUD, standings, turn order tracker
+2. Overlay layer — Blood Pact reveal, Final Phase transition, discovered tutorial tooltips
+3. Animation layer — movement paths, combat Fate Card reveals, rescue confirmation
+4. Atmosphere layer — candle dimming, Shadowking silhouette, ambient light shift
+5. Board layer — 28 nodes, connections, Fellowship pieces, Blight Wraith/Death Knight tokens (repaints on state change only)
+
+**Frame rate target:** 60 fps on recommended hardware; 30 fps acceptable on minimum. Atmosphere animations are driven by `requestAnimationFrame` with a delta-time accumulator — they do not block game state updates. Board repaints are debounced to game state change events; they never occur on every animation frame.
+
+### Networking Model
+
+**Architecture: Server-authoritative with client action submission.**
+
+Clients submit `PlayerAction` objects to the server. The server validates each action against the authoritative `GameState`, applies it, and broadcasts the new `GameState` to all connected clients. Clients never mutate state directly.
+
+```typescript
+// Conceptual action submission flow
+interface ActionSubmission {
+  sessionId: string;
+  playerId: string;
+  roundNumber: number;   // used to reject stale submissions
+  action: PlayerAction;
+}
+
+// Server validates, applies, and broadcasts
+async function handleActionSubmission(
+  submission: ActionSubmission,
+  session: ServerSession,
+): Promise<void> {
+  if (submission.roundNumber !== session.state.round) {
+    throw new StaleActionError(submission.roundNumber, session.state.round);
+  }
+  const validated = validateAction(session.state, submission.playerId, submission.action);
+  if (!validated.ok) {
+    throw new IllegalActionError(validated.reason);
+  }
+  session.state = applyAction(session.state, submission.action);
+  await broadcastState(session);
+}
+```
+
+**Transport:** WebSocket (persistent connection). Each session maintains one WebSocket connection per client. The server sends full `GameState` diffs on each state change (not full state) — the delta is typically a single phase transition plus updated player/board fields.
+
+**Latency tolerance:** The game is turn-based with a 60-second vote timer. There is no real-time reaction requirement. Actions are validated server-side; the round does not advance until all required inputs are received. Latency up to 2,000ms per action is acceptable without degrading gameplay experience. UI shows "waiting for server..." state for delays > 500ms.
+
+**Reconnection handling:**
+
+```typescript
+// Reconnection sequence
+async function reconnect(sessionId: string, playerId: string): Promise<GameState> {
+  // 1. Re-establish WebSocket connection
+  // 2. Send reconnect handshake with sessionId + playerId
+  // 3. Server validates player belongs to session
+  // 4. Server sends full current GameState (not diff — client may have missed multiple events)
+  // 5. Client rebuilds UI from full state
+  // 6. If it is this player's action phase, prompt for pending action
+  const state = await serverApi.rejoinSession(sessionId, playerId);
+  return state; // Full GameState, fully serialized
+}
+```
+
+The reconnect window is 90 seconds. After 90 seconds without reconnection, an AI opponent at Knight-Commander difficulty fills the disconnected player's slot. If the player rejoins after AI fill, they resume control at the next round boundary.
+
+**Session persistence:** The full `GameState` is persisted server-side on every state transition. Sessions survive server restarts. In async mode, sessions are persisted indefinitely until all players have submitted their actions for the final round or the session is explicitly closed.
+
+### Save & State Management
+
+**Sync play:** No local save files. The server is the authoritative state store. On reconnect, the client fetches the full current `GameState` from the server.
+
+**Async play:** The server persists the session between turns. Each player's client stores only a `sessionId` and `playerId` token in local storage — not the game state. State is always fetched from the server on session resume.
+
+**Local (vs. AI) play:** Game state lives in memory for the session duration. On mobile, the system may background-kill the app; local sessions do not survive this and must be restarted. A "resume" feature for local sessions is a P2 item — the session seed and round number would be serialized to local storage, allowing deterministic replay to the interrupted point.
+
+```typescript
+// Local session state shape stored in localStorage for resume (P2)
+interface LocalSessionCheckpoint {
+  seed: number;
+  roundNumber: number;
+  mode: GameMode;
+  playerCount: number;
+  aiDifficulties: AIDifficulty[];
+  // Full GameState is NOT stored — it is replayed from seed
+}
+```
+
+### Shadowking AI — Behavior Tree Implementation
+
+The Shadowking is not a general AI — it has no goals, no planning, and no adaptation. It is a **deterministic state machine driven by Behavior Card draw**. Each card type maps to a fixed resolution function with no branching based on game history or opponent modeling.
+
+```typescript
+// src/systems/shadowking.ts — resolution dispatch
+export async function resolveBehaviorCard(
+  state: GameState,
+  card: BehaviorCard,
+  rng: SeededRandom,
+  voteBlocked: boolean,
+): Promise<ShadowkingAction> {
+  switch (card.type) {
+    case 'spawn':  return resolveSpawn(state, rng, voteBlocked);
+    case 'move':   return resolveMove(state, rng, voteBlocked);
+    case 'claim':  return resolveClaim(state, rng, voteBlocked);
+    case 'assault': return resolveAssault(state, rng, voteBlocked);
+    case 'escalate': return resolveEscalate(state, voteBlocked);
+  }
+}
+```
+
+**Behavior tree structure (MOVE card, as representative example):**
+
+```
+MOVE card drawn
+└── voteBlocked?
+    ├── YES → ShadowkingAction { blocked: true, description: "Death Knight held" }
+    └── NO
+        └── getLieutenants(state)
+            └── find lieutenant closest to leadingPlayer (by node distance)
+                └── findShortestPath(board, lieutenant.node, leadingPlayer.node)
+                    └── move lieutenant 2 nodes along path
+                        └── hasDiplomaticProtection(targetNode)?
+                            ├── YES → skip that node; move to next valid node
+                            └── NO → complete move
+                                └── return ShadowkingAction { description: "Death Knight moved to [node]" }
+```
+
+All path calculations use BFS (`findShortestPath` in `src/utils/pathfinding.ts`). The Shadowking never uses A* or heuristic search — determinism from a seed and reproducibility for balance simulation require BFS with a fixed node ordering.
+
+**"Leading Arch-Regent" is computed once per Behavior Card resolution, not per step** — this prevents the Shadowking from reacting to mid-resolution state changes that could produce non-deterministic behavior.
+
+### AI Opponent — Heuristic Planner
+
+The `AIPlayer` class (`src/systems/ai-player.ts`) implements a single-step greedy heuristic, not a game-tree search. This is intentional — multi-step lookahead would require full game simulation per decision, which adds latency incompatible with the target of < 200ms AI response time on minimum hardware.
+
+```typescript
+// AI decision pipeline — single action selection pass
+// src/systems/ai-player.ts (simplified)
+export class AIPlayer {
+  public async getActions(state: GameState, player: Player): Promise<PlayerAction[]> {
+    const target = this.selectTarget(state, player, player.fellowship.currentNode);
+    // selectTarget heuristic:
+    //   Apprentice     → nearest unclaimed Stronghold
+    //   Knight-Commander → nearest Forge Keep if no Forge Keep held; else nearest Stronghold
+    //   Arch-Regent    → Forge Keep if uncontrolled + adjacent Death Knight not blocking;
+    //                     else weakest opponent's held Stronghold; else nearest unclaimed
+
+    return this.buildMoveSequence(state, player, target);
+  }
+
+  public async getVote(
+    state: GameState,
+    player: Player,
+    card: BehaviorCardType,
+  ): Promise<'COUNTER' | 'ABSTAIN'> {
+    // Arch-Regent difficulty abstains if the card targets the leader
+    // and the player is NOT the leader (exploiting leader pressure).
+    // Knight-Commander abstains ~12% of votes on ESCALATE.
+    // Apprentice almost never abstains (ignores strategic voting).
+  }
+}
+```
+
+AI processing is synchronous from the game loop's perspective — `getActions()` and `getVote()` return in < 5ms in benchmarks on minimum hardware. The `async` signature exists for future network-delegated AI (spectator AI running server-side).
+
+---
+
+## Post-Launch Content Roadmap
+
+### v1.1 — First Content Update (Target: 3 months post-launch)
+
+**Trigger conditions:** v1.1 begins active development when:
+- Steam launch week sales ≥ 2,000 units, OR
+- Sea of Knives DLC attach rate among base owners ≥ 10% at 30 days, OR
+- Spectator mode mentioned in ≥ 10% of Steam reviews
+
+**Scope and resource allocation:** v1.1 is a 6–8 week development cycle. Estimated scope: 1 developer (VS7) full-time.
+
+| Feature | PRD Reference | Rationale |
+|---------|--------------|-----------|
+| Asymmetric faction powers (4 Courts) | Non-Goal v1.0 → v1.1 | Highest-demand feature in Marcus persona. Requires independent balance testing (2-week simulation run). |
+| Spectator mode | Non-Goal v1.0 → v1.1 | Required for Zoe persona streaming channel. Enables Twitch acquisition flywheel. |
+| Cross-platform save sync | Non-Goal v1.0 → v1.1 | Enables Mobile → PC session handoff. Required for mobile retention among PC-primary players. |
+| Sea of Knives DLC pack | New content | Age of Sail GLL reskin. Full content pack: 35 new GLL tokens, board art, audio theme. No engine changes required. |
+
+**Asymmetric faction power design constraints for v1.1:**
+- Each Court ability must be wrappable in a GLL token — no hardcoded faction names in game logic
+- Abilities must not break the Doom Toll / Voting Phase symmetry (abilities cannot reduce voting cost or bypass Broken Court rules)
+- Balance simulation must confirm Dark Lord win rate remains 18–22% with all four asymmetric configurations
+
+### v1.2 — Second Content Update (Target: 6 months post-launch)
+
+**Trigger conditions:** v1.2 begins active development when v1.1 ships and DLC attach rate ≥ 20%.
+
+| Feature | PRD Reference | Rationale |
+|---------|--------------|-----------|
+| Steam Workshop (custom GLL packs) | Non-Goal v1.0 → v1.2 | Opens community content creation; extends game longevity without internal content investment. Requires GLL pack validation and sandboxing (no executable injection). |
+| Verdant Collapse DLC pack | New content | Ecological collapse reskin. Second GLL content pack. Targets environmentally-themed strategy audience. |
+| Async play improvements | P2 feature | Push notifications for async turns; session history browser; "replay last round" feature. |
+
+### v2.0 — Major Version (Target: 12+ months post-launch)
+
+**Trigger conditions:** v2.0 requires sustained revenue justifying 3–4 month development cycle. Trigger: 10,000 cumulative Steam units sold.
+
+| Feature | PRD Reference | Rationale |
+|---------|--------------|-----------|
+| Tournament / ranked matchmaking | Non-Goal v1.0 → v2.0 | Requires sufficient playerbase for queue times. Requires ELO system, leaderboard infrastructure. |
+| Biome Affinity system (Verdant Collapse) | Non-Goal v1.0 → v2.0 | Ecological reskin variant mechanic — territory bonuses based on biome adjacency. New engine system, not a GLL-only change. |
+| Season pass model | Monetization extension | Annual content pass covering 2 DLC packs + cosmetic drops. Only viable at scale; requires marketing and storefront infrastructure. |
+
+### DLC Pricing & Revenue Share
+
+| Product | Price | Platform | Revenue Share |
+|---------|-------|----------|--------------|
+| Iron Throne of Ashes base | $19.99 | Steam | 70% to developer (30% Steam) |
+| Sea of Knives pack | $5.99 | Steam | 70% to developer |
+| Verdant Collapse pack | $5.99 | Steam | 70% to developer |
+| Base game (Mobile) | $9.99 | iOS/Android | 70% to developer |
+| DLC packs (Mobile) | $2.99 | iOS/Android | 70% to developer |
+
+Mobile pricing is lower to reflect platform purchasing norms. DLC on mobile is priced identically across iOS and Android. No exclusive platform content.
+
+---
+
+## Accessibility Requirements (Expanded)
+
+### Colorblind Support
+
+All Court colors, Doom Toll state changes, and Broken Court indicators must be distinguishable by players with Deuteranopia (red-green), Protanopia (red-blind), and Tritanopia (blue-yellow) color vision deficiencies.
+
+**Colorblind mode:** A toggleable accessibility mode (Settings → Accessibility → Color Vision) applies the following substitutions across all game UI:
+
+| Element | Default | Deuteranopia/Protanopia | Tritanopia |
+|---------|---------|------------------------|------------|
+| Court palette colors | 4 distinct hues | Shape + pattern added to all Court icons | Alternate hue palette avoiding blue-yellow conflict |
+| Doom Toll track (1–6 green, 7–9 amber, 10–12 red) | Color | Color + icon (shield, warning triangle, skull) per zone | Same icons; alternate hue palette |
+| Broken Court indicator | Red icon | Red icon + distinct broken shield symbol | Alternate hue + broken shield symbol |
+| VULNERABLE — yellow threshold | Yellow HUD | Yellow HUD + "!" label | Alternate hue + "!" label |
+| VULNERABLE — red threshold | Red HUD | Red HUD + "!!" label | Alternate hue + "!!" label |
+| War Field — win/loss margin | Green/red text | Bold text + W/L prefix | Alternate hue text |
+| Blight Wraith tokens | Distinct color from Court tokens | Wraith tokens use cross-hatch pattern in addition to color | Same |
+| Death Knight tokens | Distinct color from Wraiths | Death Knight tokens use solid fill + skull icon | Same |
+
+Court colors in all modes: no two Courts may share the same hue family. Pattern + symbol differentiation is required in Colorblind Mode, so color is never the sole distinguishing feature.
+
+### Input Remapping (PC)
+
+All keyboard shortcuts and action bindings are remappable via Settings → Controls → Keyboard on PC. Default bindings:
+
+| Action | Default Key | Remappable? |
+|--------|------------|------------|
+| Confirm action | Enter | Yes |
+| Cancel / deselect | Escape | Yes |
+| Cycle board nodes | Tab / Shift+Tab | Yes |
+| Open action menu | Space | Yes |
+| Vote COUNTER | C | Yes |
+| Vote ABSTAIN | A | Yes |
+| Toggle standings panel | S | Yes |
+| Toggle action log | L | Yes |
+| Open settings | F10 | Yes |
+
+Controller support (Steam Deck / gamepad) is a P1 requirement. All gameplay actions must be reachable via a standard gamepad d-pad + 4 face buttons + 2 triggers. No gyro or motion control required.
+
+### Difficulty Settings
+
+The game does not have a traditional difficulty slider — session complexity is managed through player count and mode selection. However, the following difficulty-adjacent accommodations apply:
+
+| Setting | Options | Default | Notes |
+|---------|---------|---------|-------|
+| AI opponent difficulty | Apprentice / Knight-Commander / Arch-Regent | Knight-Commander | Configured per slot in lobby setup |
+| Tutorial skip | Yes / No | No (first session) | Skippable from second session onward |
+| Discovered Tutorial tooltips | On / Off | On | Can be disabled for experienced players |
+| Doom Toll estimated rounds HUD | On / Off | On | Some players find it anxiety-inducing; can be hidden |
+| Auto-abstain warning | On / Off | On | Warns player before auto-abstain fires (0 Fate Cards) |
+| Pre-combat summary screen | On / Off | On | Shows base strength before Fate Cards are drawn |
+
+No "easy mode" that modifies game rules is planned — the Apprentice AI already provides a low-pressure entry point for new players, and the No-Elimination design ensures no player is locked out.
+
+### Localization Scope
+
+**v1.0 launch: English only.**
+
+The GLL token system stores all in-world nouns as swappable string tokens, which simplifies localization — UI strings are the remaining effort. The architecture supports localization, but translation resources are not allocated for launch.
+
+**Post-launch localization priority (based on Steam regional demand data):**
+
+| Language | Priority | Target Version |
+|----------|---------|---------------|
+| Simplified Chinese | High | v1.1 |
+| German | High | v1.1 |
+| French | Medium | v1.1 |
+| Spanish (LatAm) | Medium | v1.2 |
+| Japanese | Low | v2.0 |
+
+All UI strings are externalized to a translation key map at launch (no hardcoded English strings in UI code), so translation can be applied without structural code changes.
+
+### Reduced Motion
+
+All atmospheric animations (candle dimming, Shadowking silhouette growth, Doom Toll advance bell animation, rescue confirmation effect) must respect the OS-level `prefers-reduced-motion` media query on all platforms. When active:
+
+- Doom Toll advance: counter increments immediately, no bell-strike animation
+- Rescue confirmation: static icon change, no particle effect
+- Blood Pact reveal: full-screen overlay appears instantly (no fade/slide)
+- Final Phase transition: board switches to Final Phase state immediately (no ambient light shift animation)
+- Candle dimming: board shows reduced-opacity state without gradual dimming animation
+
+Reduced motion is also available as an explicit toggle in Settings → Accessibility, independent of OS preference. This setting is exposed prominently — not buried — because atmospheric animations are intense and players with vestibular disorders should not need to navigate three menus to find it.
+
+---
+
+## Analytics Instrumentation Plan
+
+Analytics are **opt-in** and collect no personally identifiable information. Players are prompted once on first session with a binary choice: "Help improve the game (anonymous data)" or "No thanks." The choice is stored locally and can be changed in Settings → Privacy.
+
+When opted in, the following events are instrumented:
+
+### Session Events
+
+| Event | Properties | Purpose |
+|-------|-----------|---------|
+| `session_started` | `mode`, `playerCount`, `aiCount`, `seed` (hashed) | Understand mode popularity |
+| `session_completed` | `endReason`, `rounds`, `doomTollFinal`, `winnerIndex` (null if all-broken), `duration_s` | Win rate validation, session length, game end distribution |
+| `session_abandoned` | `round`, `phase`, `reason` | Identify drop-off points |
+| `tutorial_started` | — | Tutorial funnel entry |
+| `tutorial_turn_completed` | `turnNumber` | Per-turn drop-off in tutorial (Turn 3 is critical) |
+| `tutorial_completed` | — | Tutorial funnel completion |
+
+### Gameplay Events
+
+| Event | Properties | Purpose |
+|-------|-----------|---------|
+| `voting_phase_resolved` | `round`, `result` (`unanimous`/`partial`/`none`), `doomTollAfter` | Voting participation rate |
+| `rescue_performed` | `round`, `cardsGiven` | Rescue event frequency (target: 1–3/game) |
+| `broken_court_entered` | `round`, `playerIndex` | Broken Court frequency |
+| `final_phase_entered` | `round`, `doomToll` | When Final Phase triggers |
+| `accusation_initiated` | `round`, `success` | Blood Pact mode health |
+| `heartstone_reclaimed` | `round`, `playerIndex` | Victory path distribution |
+| `mode_selected` | `mode` | Mode adoption rates |
+
+### Retention Curve Targets
+
+| Retention Point | Target | Measurement |
+|----------------|--------|------------|
+| Tutorial completion | ≥ 70% of starters | `tutorial_completed` / `tutorial_started` |
+| Tutorial → first full session | ≥ 55% | `session_completed` after `tutorial_completed` |
+| Session 1 → Session 2 (Day 1 retention) | ≥ 35% | Opt-in session count per device |
+| Session 2 → Session 5 (Day 7 retention) | ≥ 20% | Same |
+| Blood Pact mode adoption (by session 3) | ≥ 40% of multi-session players | `mode_selected` event |
+
+### Tutorial Drop-Off Tracking
+
+Tutorial Turn 3 (War Field) is the highest-risk drop-off point (per Devon and Sam personas). The `tutorial_turn_completed` event fires at the end of each turn. If Turn 3 completion rate falls below 80% of Turn 2 completions, this triggers a UI review for the War Field introduction — the most likely cause is a silent failure in the Fate Card reveal flow.
+
+### Mode Popularity Targets
+
+| Mode | Target (% of sessions) |
+|------|----------------------|
+| Competitive | 50–60% |
+| Blood Pact | 25–35% |
+| Cooperative | 10–20% |
+
+If Blood Pact adoption is below 25% after 30 days, investigate whether the mode explanation in the lobby is insufficient or whether the streaming-channel acquisition strategy has not reached the Zoe persona. If Cooperative adoption exceeds 30%, consider prioritizing Cooperative mode balance deck finalization for v1.1.
+
+### Session Completion Rate Target
+
+≥ 60% of started sessions (post-tutorial) reach an end-game state (Territory Victory, Doom Complete, or All Broken). Sessions abandoned before Round 4 are flagged as "early abandonment" and tracked separately — early abandonment is the strongest signal of a fundamental onboarding failure, not a content preference.
+
+---
+
+## Mobile Platform Constraints & UI Adaptations
+
+### Target Devices
+
+| Tier | Example Devices | Requirements |
+|------|----------------|-------------|
+| Recommended | iPhone 15, Samsung Galaxy S23, Pixel 7 | 60 fps sustained, full atmosphere |
+| Minimum | iPhone 12, Samsung Galaxy A53 (Android 11+) | 30 fps, reduced particle density |
+| Unsupported | Devices below iPhone 12 / Snapdragon 765G | Not supported at launch |
+
+### Touch Input Design
+
+All gameplay actions must be operable via **single-tap only**. No double-tap, long-press, or multi-finger gesture is required for any P0 game action.
+
+| Action | Touch Gesture | Notes |
+|--------|-------------|-------|
+| Select board node | Tap | Hit area ≥ 44×44pt (Apple HIG standard) |
+| Select action from menu | Tap | Action menu appears as bottom sheet on mobile |
+| Vote COUNTER / ABSTAIN | Tap large button | Buttons span full screen width; error margin high |
+| Confirm action | Tap confirm button | Always visible; no hidden confirmation |
+| Scroll action log | Swipe up/down within log panel | Log panel is a scrollable overlay, not inline |
+| Dismiss tooltip | Tap anywhere outside tooltip | Or explicit close button for first-encounter tooltips |
+| Open standings panel | Tap standings icon | Panel slides up from bottom |
+
+Pan and zoom on the board are **not supported at launch**. The 28-node board is designed to fit on a 6-inch display at a node size that meets the 44pt hit area requirement. If future board expansions make this infeasible, pan/zoom is a P2 addition.
+
+### Screen Size Adaptation
+
+The game targets portrait orientation on mobile. Landscape is not supported on mobile at launch (PC landscape is primary).
+
+| Screen Dimension | Layout Adaptation |
+|----------------|------------------|
+| 375pt wide (iPhone SE) | Node hit areas scale down to 44pt minimum; standings panel collapses to icon strip; text labels on nodes hidden (tap to reveal) |
+| 390pt wide (iPhone 14/15) | Full mobile layout; standings panel shows 2-column abbreviated stats |
+| 430pt wide (iPhone 14 Pro Max) | Full mobile layout with 3-column standings panel |
+| iPad (≥ 768pt wide) | Tablet layout — board centered with sidebar standings panel; no adaptation required |
+
+All text must remain legible at 150% system font scale. Minimum font size: 13pt at 1× scale (scales to 19.5pt at 150%). No text may be clipped or overlapped at any supported font scale on any supported screen size.
+
+### Session Length Considerations
+
+The target session length is 60–90 minutes on PC. Mobile sessions have different constraints:
+
+- The mobile OS may background-kill the app mid-session (common on low-RAM devices). Until the P2 local session resume feature is implemented, the game should warn players on mobile before starting a session: *"Sessions last 60–90 minutes. If your device sleeps or the app is closed, your session will be lost. Make sure you're on a stable connection for online play."*
+- In the future (P2), local sessions will serialize a `LocalSessionCheckpoint` (seed + round number) to local storage, enabling deterministic replay to the interrupted point without storing full game state.
+- For online/async sessions on mobile, the server holds authoritative state — the mobile app can rejoin at any time without data loss.
+
+### Mobile-Specific Performance Targets
+
+| Metric | Target (Recommended) | Target (Minimum) |
+|--------|---------------------|-----------------|
+| Time to board ready (app cold start) | < 5 seconds | < 10 seconds |
+| Action response latency (tap → board update) | < 100ms | < 300ms |
+| Frame rate during Doom Toll advance animation | 60 fps | 30 fps |
+| Memory usage (active session) | < 300 MB | < 500 MB |
+| App background → foreground resume time | < 2 seconds | < 5 seconds |
+| Battery drain per 90-minute session | < 20% on recommended device | < 35% |
+
+Atmospheric animations (candle dimming, Shadowking silhouette growth) are driven by CSS transitions on mobile, not canvas repaints, to minimize CPU/GPU overhead. The canvas layer is reserved for board state and piece movement; all atmosphere is handled in the HTML/CSS layer above it.
+
+---
+
+## Multiplayer Backend & Netcode Specification
+
+### Architecture Choice: Server-Authoritative
+
+Iron Throne of Ashes uses a **server-authoritative** model for all multiplayer sessions. The rationale:
+
+1. Blood Pact card delivery requires a server-side encrypted channel to a single client — P2P architectures cannot guarantee this without a relay server anyway.
+2. The seeded-random determinism system requires a single authoritative seed source — the host in a P2P system creates a trust problem.
+3. Session persistence for async play requires server-side state storage.
+4. A P2P model with a host player introduces first-player-disconnect failure modes that require the same reconnection infrastructure as server-authoritative anyway.
+
+P2P with relay (WebRTC via TURN server) is explicitly rejected.
+
+### Server Stack (Specification)
+
+| Component | Technology | Notes |
+|-----------|-----------|-------|
+| Session management | Node.js + WebSocket (ws library) | Stateful; one process per region |
+| State persistence | PostgreSQL | Full `GameState` JSON serialized per transition |
+| Blood Pact delivery | Encrypted channel (per-session key, server-side only) | Never transmitted to non-recipient clients |
+| Session seed source | Server-generated on `hostSession()` | Clients never generate seeds |
+| Region deployment | Single region at launch (US-West) | Multi-region in v1.1 if latency issues emerge |
+
+### Protocol: Client ↔ Server Message Types
+
+```typescript
+// Client → Server
+type ClientMessage =
+  | { type: 'ACTION'; payload: PlayerAction; roundNumber: number }
+  | { type: 'VOTE'; payload: { choice: 'COUNTER' | 'ABSTAIN' }; roundNumber: number }
+  | { type: 'RECONNECT'; payload: { sessionId: string; playerId: string } }
+  | { type: 'PING'; payload: { timestamp: number } };
+
+// Server → Client
+type ServerMessage =
+  | { type: 'STATE_UPDATE'; payload: GameStateDelta }
+  | { type: 'FULL_STATE'; payload: GameState }  // sent on reconnect only
+  | { type: 'PLAYER_DISCONNECTED'; payload: { playerId: string; reconnectWindowMs: number } }
+  | { type: 'PLAYER_RECONNECTED'; payload: { playerId: string } }
+  | { type: 'AI_FILLING_SLOT'; payload: { playerId: string; difficulty: AIDifficulty } }
+  | { type: 'SESSION_ENDED'; payload: { reason: GameEndReason } }
+  | { type: 'PONG'; payload: { serverTimestamp: number; clientTimestamp: number } };
+```
+
+`GameStateDelta` contains only the fields that changed since the last broadcast. For a typical action-phase player move, the delta is `{ boardState: <updated nodes>, players: [<updated player>], actionLog: [<new entry>] }` — not the full `GameState`. This keeps message sizes small; full state (≈ 12 KB JSON) is only sent on reconnect.
+
+### Latency Tolerance
+
+| Operation | Maximum Acceptable Latency | Behavior if Exceeded |
+|-----------|--------------------------|---------------------|
+| Action submission ACK | 2,000ms | Client shows "waiting..." spinner; action is not retried automatically |
+| Vote submission ACK | 2,000ms | Same |
+| State update broadcast | 500ms from action receipt | Server-side alert if exceeded |
+| Reconnect and full state | 5,000ms | Client shows "reconnecting..." overlay; session is not abandoned |
+
+The game is turn-based with no real-time reaction requirement. No interpolation, rollback netcode, or client-side prediction is implemented. The client waits for server confirmation before updating board state — local state is never mutated optimistically.
+
+### Vote Timer & Auto-Abstain
+
+The Voting Phase enforces a 60-second timer per round in online synchronous play. The server is the authoritative timer — not the client.
+
+```typescript
+// Server-side vote timer pseudocode
+async function runVotingPhase(session: ServerSession): Promise<void> {
+  const deadline = Date.now() + VOTE_TIMER_MS; // VOTE_TIMER_MS = 60_000
+  await broadcastVoteOpen(session, deadline);
+
+  while (Date.now() < deadline && !allVotesSubmitted(session)) {
+    await waitForVoteOrTimeout(session, deadline - Date.now());
+  }
+
+  // Auto-abstain any player who did not submit
+  for (const player of session.state.players) {
+    if (!hasSubmittedVote(session, player.index)) {
+      applyAutoAbstain(session.state, player.index);
+      await broadcastAutoAbstain(session, player.index);
+    }
+  }
+
+  resolveVotes(session.state);
+  await broadcastState(session);
+}
+```
+
+Clients display a countdown derived from the `deadline` timestamp received at vote-open broadcast. Client clocks are not trusted — the countdown is cosmetic. The server applies auto-abstain at deadline regardless of what the client clock shows.
+
+### Reconnection Handling — Full Sequence
+
+```
+Player disconnects
+└── Server detects WebSocket close (onClose event)
+    └── Server broadcasts PLAYER_DISCONNECTED to remaining clients
+        ├── reconnectWindowMs = 90_000 (90 seconds)
+        └── Server starts reconnect timer
+            ├── Player reconnects within window
+            │   └── Player sends RECONNECT message
+            │       └── Server validates sessionId + playerId
+            │           └── Server sends FULL_STATE to reconnecting client
+            │               └── Server broadcasts PLAYER_RECONNECTED to all
+            │                   └── If it is this player's action phase,
+            │                       server re-prompts for pending action
+            └── Reconnect window expires
+                └── Server creates AIPlayer (Knight-Commander)
+                    └── Server broadcasts AI_FILLING_SLOT to all
+                        └── AI takes over for subsequent rounds
+                            └── If human reconnects after AI fill:
+                                └── Human resumes control at next round boundary
+                                    └── AI actions this round are not reversed
+```
+
+### Session Persistence Schema
+
+Each session's `GameState` is serialized to JSON and written to PostgreSQL on every state transition. The session row includes:
+
+```sql
+CREATE TABLE sessions (
+  session_id    UUID PRIMARY KEY,
+  created_at    TIMESTAMPTZ NOT NULL,
+  last_updated  TIMESTAMPTZ NOT NULL,
+  mode          TEXT NOT NULL,              -- 'competitive' | 'blood_pact' | 'cooperative'
+  player_count  INTEGER NOT NULL,
+  seed          INTEGER NOT NULL,
+  state         JSONB NOT NULL,             -- full serialized GameState
+  is_active     BOOLEAN NOT NULL DEFAULT TRUE,
+  end_reason    TEXT,                       -- null until game ends
+  blood_pact_player_index INTEGER          -- server-side only; never sent to clients in bulk
+);
+```
+
+`blood_pact_player_index` is stored server-side and never included in any broadcast `GameState` payload. It is used only to route the encrypted Blood Pact card delivery to the correct client on session start.
+
+Sessions where `is_active = TRUE` and `last_updated` is > 30 days ago are soft-deleted (marked inactive) by a nightly cleanup job. Async sessions are exempt from this cleanup while any player has a pending action.
+
+---
+
 ### Revision History
 
 | Version | Date | Changes |
@@ -1329,6 +1906,7 @@ The engine contains no API keys, database credentials, or seed phrases. Content 
 | 1.0 | 2026-03-04 | Initial PRD — full feature spec, balance parameters, launch checklist |
 | 1.1 | 2026-03-06 | Added Competitive Landscape, Monetization Model, Success Metrics, Platform Requirements, Accessibility, Marketing & Launch Strategy, Build Status |
 | 1.2 | 2026-03-08 | Added Security section |
+| 1.3 | 2026-03-08 | Completed Aaliyah user story; added Technical Architecture (rendering pipeline, networking model, save/state management, Shadowking behavior tree, AI heuristic planner), Post-Launch Content Roadmap (v1.1/v1.2/v2.0), expanded Accessibility Requirements (colorblind modes, input remapping, difficulty settings, localization scope, reduced motion), Analytics Instrumentation Plan (retention curves, tutorial drop-off, mode popularity, session completion targets), Mobile Platform Constraints & UI Adaptations, Multiplayer Backend & Netcode Specification (server-authoritative model, protocol message types, latency tolerance, vote timer, reconnection sequence, session persistence schema), code examples throughout |
 
 ---
 
