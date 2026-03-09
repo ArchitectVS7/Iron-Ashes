@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+echo "🔍 Pre-push: lint + tests..."
+npm run lint
+npm run test -- --run
+echo "✅ Pre-push checks passed"
