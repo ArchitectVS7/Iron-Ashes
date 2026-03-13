@@ -55,10 +55,7 @@ globalThis.document = {
   getElementById(id: string) { return elementsById[id] ?? null; },
 } as unknown as Document;
 
-globalThis.requestAnimationFrame = vi.fn((cb: FrameRequestCallback) => {
-  setTimeout(() => cb(0), 0);
-  return 0;
-});
+globalThis.requestAnimationFrame = vi.fn((_cb: FrameRequestCallback) => 1);
 
 globalThis.cancelAnimationFrame = vi.fn();
 
