@@ -14,6 +14,8 @@ type Listener = (...args: unknown[]) => void;
 class MockEl {
   public className = '';
   public innerHTML = '';
+  get innerText() { return this.innerHTML; }
+  set innerText(v: string) { this.innerHTML = v; }
   public children: MockEl[] = [];
   public style: { display: string } = { display: 'none' };
   private listeners: Record<string, Listener[]> = {};

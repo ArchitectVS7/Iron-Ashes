@@ -11,11 +11,53 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 type Listener = (...args: unknown[]) => void;
 
+class MockClassList {
+  private classes: Set<string> = new Set();
+  private owner: { className: string };
+  constructor(owner: { className: string }) { this.owner = owner; }
+  private sync() { this.owner.className = [...this.classes].join(' '); }
+  add(...tokens: string[]) { tokens.forEach(t => this.classes.add(t)); this.sync(); }
+  remove(...tokens: string[]) { tokens.forEach(t => this.classes.delete(t)); this.sync(); }
+  toggle(token: string) {
+    if (this.classes.has(token)) { this.classes.delete(token); } else { this.classes.add(token); }
+    this.sync();
+  }
+  contains(token: string) { return this.classes.has(token); }
+  toString() { return [...this.classes].join(' '); }
+}
+
+// Registry of all elements with an explicit id, for getElementById lookups
+const mockElementsById: Map<string, MockEl> = new Map();
+
 class MockEl {
   public className = '';
-  public innerHTML = '';
+  private _id = '';
+  get id() { return this._id; }
+  set id(v: string) {
+    if (this._id) mockElementsById.delete(this._id);
+    this._id = v;
+    if (v) mockElementsById.set(v, this);
+  }
+  private _innerHTML = '';
+  get innerHTML() { return this._innerHTML; }
+  set innerHTML(html: string) {
+    this._innerHTML = html;
+    // Re-parse direct children from the HTML string so tests can access them
+    this.children = [];
+    // Extract top-level elements: match opening tags and their content
+    const tagRe = /<(\w+)(?:[^>]*)id="([^"]*)"[^>]*>/g;
+    let m: RegExpExecArray | null;
+    while ((m = tagRe.exec(html)) !== null) {
+      const child = new MockEl();
+      child.id = m[2];
+      this.children.push(child);
+    }
+  }
   public children: MockEl[] = [];
+  public style: Record<string, string> = {};
+  public classList: MockClassList;
   private listeners: Record<string, Listener[]> = {};
+  constructor() { this.classList = new MockClassList(this); }
 
   addEventListener(event: string, fn: Listener) {
     if (!this.listeners[event]) this.listeners[event] = [];
@@ -31,6 +73,7 @@ const mockBody = new MockEl();
 
 globalThis.document = {
   createElement(_tag: string) { return new MockEl(); },
+  getElementById(id: string) { return mockElementsById.get(id) ?? null; },
   body: mockBody,
 } as unknown as Document;
 
@@ -51,7 +94,9 @@ import { SummaryEngine, PlayerStatsData } from '../../src/ui/summary.js';
 
 function cleanup() {
   mockBody.children = [];
+  mockElementsById.clear();
   vi.clearAllTimers();
+  vi.clearAllMocks();
 }
 
 // ─── Tests ───────────────────────────────────────────────────────
@@ -97,16 +142,19 @@ describe('SummaryEngine', () => {
   it('calls onComplete when dismiss button is clicked', () => {
     const engine = new SummaryEngine();
     const onComplete = vi.fn();
-    
+
     engine.showBloodPactReveal('Player 2', onComplete);
-    
-    // Advance timers to make button clickable
+
+    // Advance timers to register the click handler (100ms timeout)
     vi.advanceTimersByTime(100);
-    
+
     const reveal = mockBody.children[1];
     const dismissBtn = reveal.children[0];
     dismissBtn.dispatchEvent('click');
-    
+
+    // onComplete is wrapped in a 1000ms setTimeout inside the click handler
+    vi.advanceTimersByTime(1000);
+
     expect(onComplete).toHaveBeenCalled();
   });
 

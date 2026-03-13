@@ -11,9 +11,40 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 type Listener = (...args: unknown[]) => void;
 
+// Registry of elements by id for querySelector lookups
+const mockRegistry: Map<string, MockEl> = new Map();
+
 class MockEl {
   public className = '';
-  public innerHTML = '';
+  private _id = '';
+  get id(): string { return this._id; }
+  set id(v: string) {
+    if (this._id) mockRegistry.delete(this._id);
+    this._id = v;
+    if (v) mockRegistry.set(v, this);
+  }
+
+  private _innerHTML = '';
+  get innerHTML(): string { return this._innerHTML; }
+  set innerHTML(html: string) {
+    this._innerHTML = html;
+    // Re-extract id-tagged elements (clear old ones first)
+    this.children = [];
+    const tagRe = /<(\w+)([^>]*)>/g;
+    let m: RegExpExecArray | null;
+    while ((m = tagRe.exec(html)) !== null) {
+      const attrs = m[2];
+      const idMatch = /\bid="([^"]+)"/.exec(attrs);
+      if (idMatch) {
+        const child = new MockEl();
+        child.id = idMatch[1];
+        const clsMatch = /\bclass="([^"]+)"/.exec(attrs);
+        if (clsMatch) child.className = clsMatch[1];
+        this.children.push(child);
+      }
+    }
+  }
+
   public children: MockEl[] = [];
   public style: { display: string } = { display: 'none' };
   private listeners: Record<string, Listener[]> = {};
@@ -28,10 +59,8 @@ class MockEl {
   }
   appendChild(child: MockEl) { this.children.push(child); return child; }
   querySelector(selector: string): MockEl | null {
-    if (selector === '#combat-resolve-btn') {
-      const btn = new MockEl();
-      this.children.push(btn);
-      return btn;
+    if (selector.startsWith('#')) {
+      return mockRegistry.get(selector.slice(1)) ?? null;
     }
     return null;
   }
@@ -66,6 +95,7 @@ function setupElement(id: string): MockEl {
 
 function cleanup() {
   for (const key in elementsById) delete elementsById[key];
+  mockRegistry.clear();
   vi.clearAllTimers();
 }
 

@@ -11,9 +11,40 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 type Listener = (...args: unknown[]) => void;
 
+// Registry of elements by id for getElementById lookups
+const mockElRegistry: Map<string, MockEl> = new Map();
+
 class MockEl {
   public className = '';
-  public innerHTML = '';
+  private _id = '';
+  get id(): string { return this._id; }
+  set id(v: string) {
+    if (this._id) mockElRegistry.delete(this._id);
+    this._id = v;
+    if (v) mockElRegistry.set(v, this);
+  }
+
+  private _innerHTML = '';
+  get innerHTML(): string { return this._innerHTML; }
+  set innerHTML(html: string) {
+    this._innerHTML = html;
+    // Extract elements with ids from the HTML string
+    this.children = [];
+    const tagRe = /<(\w+)([^>]*)>/g;
+    let m: RegExpExecArray | null;
+    while ((m = tagRe.exec(html)) !== null) {
+      const attrs = m[2];
+      const idMatch = /id="([^"]+)"/.exec(attrs);
+      if (idMatch) {
+        const child = new MockEl();
+        child.id = idMatch[1];
+        const clsMatch = /class="([^"]+)"/.exec(attrs);
+        if (clsMatch) child.className = clsMatch[1];
+        this.children.push(child);
+      }
+    }
+  }
+
   public children: MockEl[] = [];
   public style: { display: string } = { display: 'none' };
   private listeners: Record<string, Listener[]> = {};
@@ -26,13 +57,6 @@ class MockEl {
     (this.listeners[event] ?? []).forEach(fn => fn());
   }
   appendChild(child: MockEl) { this.children.push(child); return child; }
-  getElementById(_id: string): MockEl | null {
-    // Return first button for confirm/cancel lookups
-    if (this.children.length > 0) {
-      return this.children[0];
-    }
-    return null;
-  }
 }
 
 const elementsById: Record<string, MockEl> = {};
@@ -40,7 +64,7 @@ const mockBody = new MockEl();
 
 globalThis.document = {
   createElement(_tag: string) { return new MockEl(); },
-  getElementById(id: string) { return elementsById[id] ?? mockBody; },
+  getElementById(id: string) { return mockElRegistry.get(id) ?? elementsById[id] ?? null; },
   body: mockBody,
 } as unknown as Document;
 
@@ -59,6 +83,7 @@ function setupElement(id: string): MockEl {
 function cleanup() {
   for (const key in elementsById) delete elementsById[key];
   mockBody.children = [];
+  mockElRegistry.clear();
 }
 
 // ─── Tests ───────────────────────────────────────────────────────
@@ -122,11 +147,13 @@ describe('HeraldActionUI', () => {
   it('calls onConfirm when confirm button is clicked', () => {
     const ui = new HeraldActionUI('game-board');
     const onConfirm = vi.fn();
-    
+
     ui.showInteraction(onConfirm);
-    
+
     const container = elementsById['game-board'];
-    const confirmBtn = container.children[0];
+    // The prompt is container.children[0]; the confirm button is its first child
+    const prompt = container.children[0];
+    const confirmBtn = prompt.children[0]; // btn-herald-confirm
     confirmBtn.dispatchEvent('click');
 
     expect(onConfirm).toHaveBeenCalled();
@@ -135,25 +162,26 @@ describe('HeraldActionUI', () => {
   it('hides prompt when cancel is clicked', () => {
     const ui = new HeraldActionUI('game-board');
     const onConfirm = vi.fn();
-    
+
     ui.showInteraction(onConfirm);
-    
+
     const container = elementsById['game-board'];
-    // Cancel is second button
-    const cancelBtn = container.children[1] || container.children[0];
+    const prompt = container.children[0];
+    const cancelBtn = prompt.children[1]; // btn-herald-cancel
     cancelBtn.dispatchEvent('click');
 
-    expect(container.children[0].style.display).toBe('none');
+    expect(prompt.style.display).toBe('none');
   });
 
   it('plays reduction animation on confirm', () => {
     const ui = new HeraldActionUI('game-board');
     const onConfirm = vi.fn();
-    
+
     ui.showInteraction(onConfirm);
-    
+
     const container = elementsById['game-board'];
-    const confirmBtn = container.children[0];
+    const prompt = container.children[0];
+    const confirmBtn = prompt.children[0]; // btn-herald-confirm
     confirmBtn.dispatchEvent('click');
 
     // Animation adds element to body
@@ -164,13 +192,14 @@ describe('HeraldActionUI', () => {
   it('hides prompt on confirm', () => {
     const ui = new HeraldActionUI('game-board');
     const onConfirm = vi.fn();
-    
+
     ui.showInteraction(onConfirm);
-    
+
     const container = elementsById['game-board'];
-    const confirmBtn = container.children[0];
+    const prompt = container.children[0];
+    const confirmBtn = prompt.children[0]; // btn-herald-confirm
     confirmBtn.dispatchEvent('click');
 
-    expect(container.children[0].style.display).toBe('none');
+    expect(prompt.style.display).toBe('none');
   });
 });

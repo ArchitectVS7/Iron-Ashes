@@ -9,12 +9,26 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // ─── Minimal DOM mock ─────────────────────────────────────────────
 
+class MockClassList {
+  private classes: Set<string> = new Set();
+
+  add(...tokens: string[]) { tokens.forEach(t => this.classes.add(t)); }
+  remove(...tokens: string[]) { tokens.forEach(t => this.classes.delete(t)); }
+  toggle(token: string) {
+    if (this.classes.has(token)) { this.classes.delete(token); } else { this.classes.add(token); }
+  }
+  contains(token: string) { return this.classes.has(token); }
+  toString() { return [...this.classes].join(' '); }
+}
+
 class MockEl {
   public className = '';
+  public id = '';
   public innerHTML = '';
   public children: MockEl[] = [];
-  public style: { display: string } = { display: '' };
+  public style: Record<string, string> = { display: '' };
   public offsetWidth: number = 100;
+  public classList = new MockClassList();
   private listeners: Record<string, (() => void)[]> = {};
 
   addEventListener(event: string, fn: () => void) {
@@ -38,35 +52,50 @@ class MockEl {
       finish: () => { this.onfinish?.(); },
     };
   }
+  remove() {}
 }
 
 const elementsById: Record<string, MockEl> = {};
 const mockBody = new MockEl();
 
-// Mock AudioContext
+// Mock AudioContext as a proper constructor class
+const mockCreateOscillator = vi.fn(() => ({
+  type: 'sine',
+  frequency: {
+    setValueAtTime: vi.fn(),
+    exponentialRampToValueAtTime: vi.fn(),
+  },
+  connect: vi.fn(),
+  start: vi.fn(),
+  stop: vi.fn(),
+}));
+
+const mockCreateGain = vi.fn(() => ({
+  gain: {
+    setValueAtTime: vi.fn(),
+    exponentialRampToValueAtTime: vi.fn(),
+    linearRampToValueAtTime: vi.fn(),
+  },
+  connect: vi.fn(),
+}));
+
 const mockAudioContext = {
   state: 'running',
   currentTime: 0,
-  createOscillator: () => ({
-    type: 'sine',
-    frequency: {
-      setValueAtTime: vi.fn(),
-      exponentialRampToValueAtTime: vi.fn(),
-    },
-    connect: vi.fn(),
-    start: vi.fn(),
-    stop: vi.fn(),
-  }),
-  createGain: () => ({
-    gain: {
-      setValueAtTime: vi.fn(),
-      exponentialRampToValueAtTime: vi.fn(),
-      linearRampToValueAtTime: vi.fn(),
-    },
-    connect: vi.fn(),
-  }),
+  createOscillator: mockCreateOscillator,
+  createGain: mockCreateGain,
+  destination: {},
   resume: vi.fn().mockResolvedValue(undefined),
 };
+
+class MockAudioContext {
+  state = 'running';
+  currentTime = 0;
+  createOscillator = mockCreateOscillator;
+  createGain = mockCreateGain;
+  destination = {};
+  resume = vi.fn().mockResolvedValue(undefined);
+}
 
 globalThis.document = {
   createElement(_tag: string) { return new MockEl(); },
@@ -74,8 +103,13 @@ globalThis.document = {
   body: mockBody,
 } as unknown as Document;
 
-globalThis.AudioContext = vi.fn().mockImplementation(() => mockAudioContext);
-globalThis.webkitAudioContext = globalThis.AudioContext;
+// Override window.AudioContext and globalThis.AudioContext with constructor class
+(globalThis as unknown as Record<string, unknown>).AudioContext = MockAudioContext;
+(globalThis as unknown as Record<string, unknown>).webkitAudioContext = MockAudioContext;
+(globalThis as unknown as { window: Record<string, unknown> }).window = {
+  AudioContext: MockAudioContext,
+  webkitAudioContext: MockAudioContext,
+};
 
 vi.useFakeTimers();
 
@@ -95,6 +129,8 @@ function setupElement(id: string): MockEl {
 function cleanup() {
   for (const key in elementsById) delete elementsById[key];
   mockBody.children = [];
+  mockCreateOscillator.mockClear();
+  mockCreateGain.mockClear();
   vi.clearAllMocks();
 }
 
@@ -117,40 +153,40 @@ describe('AtmosphereEngine', () => {
 
   it('creates atmosphere layer with correct child elements', () => {
     const engine = new AtmosphereEngine('game-board');
-    
+
     const container = elementsById['game-board'];
     expect(container.children.length).toBeGreaterThan(0);
-    
+
     const layer = container.children[0];
     expect(layer.id).toBe('atmosphere-layer');
   });
 
   it('creates lighting element', () => {
     const engine = new AtmosphereEngine('game-board');
-    
+
     const container = elementsById['game-board'];
     const layer = container.children[0];
-    
+
     const lighting = layer.children.find(c => c.className === 'board-lighting');
     expect(lighting).toBeDefined();
   });
 
   it('creates silhouette element', () => {
     const engine = new AtmosphereEngine('game-board');
-    
+
     const container = elementsById['game-board'];
     const layer = container.children[0];
-    
+
     const silhouette = layer.children.find(c => c.className === 'shadowking-silhouette');
     expect(silhouette).toBeDefined();
   });
 
   it('creates particle layer', () => {
     const engine = new AtmosphereEngine('game-board');
-    
+
     const container = elementsById['game-board'];
     const layer = container.children[0];
-    
+
     const particles = layer.children.find(c => c.id === 'particle-layer');
     expect(particles).toBeDefined();
   });
@@ -164,58 +200,58 @@ describe('AtmosphereEngine', () => {
   it('plays bell strike with audio context', () => {
     const engine = new AtmosphereEngine('game-board');
     engine.playBellStrike();
-    
+
     // AudioContext methods should be called
-    expect(mockAudioContext.createOscillator).toHaveBeenCalled();
-    expect(mockAudioContext.createGain).toHaveBeenCalled();
+    expect(mockCreateOscillator).toHaveBeenCalled();
+    expect(mockCreateGain).toHaveBeenCalled();
   });
 
   it('plays rescue sound', () => {
     const engine = new AtmosphereEngine('game-board');
     engine.playRescueSound();
-    
-    expect(mockAudioContext.createOscillator).toHaveBeenCalled();
-    expect(mockAudioContext.createGain).toHaveBeenCalled();
+
+    expect(mockCreateOscillator).toHaveBeenCalled();
+    expect(mockCreateGain).toHaveBeenCalled();
   });
 
   it('explodes particles at given coordinates', () => {
     const engine = new AtmosphereEngine('game-board');
     engine.explodeParticles(100, 200, '#ff0000');
-    
+
     const container = elementsById['game-board'];
     const layer = container.children[0];
     const particleLayer = layer.children.find(c => c.id === 'particle-layer');
-    
+
     expect(particleLayer?.children.length).toBeGreaterThan(0);
   });
 
   it('updates doom toll visual state for position 7-9', () => {
     const engine = new AtmosphereEngine('game-board');
     engine.updateDoomTollEvent(6, 8);
-    
+
     const container = elementsById['game-board'];
     const layer = container.children[0];
     const lighting = layer.children.find(c => c.className?.includes('board-lighting'));
-    
-    expect(lighting?.className).toContain('vignette-dim');
+
+    expect(lighting?.classList.contains('vignette-dim')).toBe(true);
   });
 
   it('updates doom toll visual state for position 10+', () => {
     const engine = new AtmosphereEngine('game-board');
     engine.updateDoomTollEvent(9, 11);
-    
+
     const container = elementsById['game-board'];
     const layer = container.children[0];
     const lighting = layer.children.find(c => c.className?.includes('board-lighting'));
-    
-    expect(lighting?.className).toContain('vignette-heavy');
-    expect(lighting?.className).toContain('lighting-cold');
+
+    expect(lighting?.classList.contains('vignette-heavy')).toBe(true);
+    expect(lighting?.classList.contains('lighting-cold')).toBe(true);
   });
 
   it('triggers game over cutscene at doom toll 13', () => {
     const engine = new AtmosphereEngine('game-board');
     engine.updateDoomTollEvent(12, 13);
-    
+
     // Game over cutscene is added to body
     expect(mockBody.children.length).toBeGreaterThan(0);
     expect(mockBody.children[0].className).toBe('game-over-cutscene');
@@ -225,9 +261,9 @@ describe('AtmosphereEngine', () => {
   it('plays bell strike on doom toll advance', () => {
     const engine = new AtmosphereEngine('game-board');
     const spy = vi.spyOn(engine, 'playBellStrike');
-    
+
     engine.updateDoomTollEvent(5, 7);
-    
+
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();
   });
@@ -235,9 +271,9 @@ describe('AtmosphereEngine', () => {
   it('does not play bell strike on doom toll recede', () => {
     const engine = new AtmosphereEngine('game-board');
     const spy = vi.spyOn(engine, 'playBellStrike');
-    
+
     engine.updateDoomTollEvent(7, 5);
-    
+
     expect(spy).not.toHaveBeenCalled();
     spy.mockRestore();
   });
