@@ -292,6 +292,32 @@ describe('createGameState', () => {
       }
       expect(orders.size).toBeGreaterThan(1);
     });
+
+    // F-018: Turn order is fixed for the entire session — it must not change between rounds.
+    it('is unchanged after a full round completes (F-018)', () => {
+      const state = createGameState(4, 'competitive', TEST_SEED);
+      const orderAtStart = [...state.turnOrder];
+
+      // Advance through a complete round: shadowking → voting → action → cleanup → shadowking
+      advancePhase(state); // → voting
+      advancePhase(state); // → action
+      advancePhase(state); // → cleanup
+      advancePhase(state); // → shadowking (new round)
+
+      expect(state.turnOrder).toEqual(orderAtStart);
+    });
+
+    it('is unchanged after multiple rounds (F-018)', () => {
+      const state = createGameState(3, 'competitive', TEST_SEED);
+      const orderAtStart = [...state.turnOrder];
+
+      for (let round = 0; round < 5; round++) {
+        state.phase = 'cleanup';
+        advancePhase(state); // → shadowking (increments round)
+      }
+
+      expect(state.turnOrder).toEqual(orderAtStart);
+    });
   });
 
   describe('board initialization', () => {

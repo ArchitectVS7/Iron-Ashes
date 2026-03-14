@@ -12,6 +12,7 @@ import { GameState, DOOM_TOLL_MAX, DOOM_TOLL_MIN, DOOM_TOLL_FINAL_PHASE_THRESHOL
 import { Player } from '../models/player.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 import { getFellowshipPower, hasDiplomaticProtection } from './characters.js';
+import { dropArtifact } from './victory.js';
 
 // ─── Doom Toll Helpers ────────────────────────────────────────────
 
@@ -200,6 +201,11 @@ export function resolvePlayerCombat(
   const margin = Math.abs(attackerTotal - defenderTotal);
   const loser = winner === 'attacker' ? defender : attacker;
   const _loserIsAttacker = winner === 'defender';
+
+  // F-010: If the loser holds the Heartstone, it drops to their current node.
+  if (state.artifactHolder === loser.index) {
+    dropArtifact(state, loser.index);
+  }
 
   // Apply penalty cards to loser.
   const wasAlreadyBroken = loser.isBroken;

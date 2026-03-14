@@ -705,3 +705,82 @@ describe('recedeDoomToll()', () => {
     expect(state.isFinalPhase).toBe(false);
   });
 });
+
+// ─── Heartstone Drop on Combat Loss (F-010 / F-004) ──────────────
+
+describe('resolvePlayerCombat() — Heartstone drop (F-010)', () => {
+  const rng = new SeededRandom(42);
+
+  it('drops the Heartstone when the artifact holder loses combat', () => {
+    const state = makeState(42);
+    // Player 1 holds the artifact and is at their starting keep.
+    const holderNode = state.players[1].fellowship.currentNode;
+    state.artifactHolder = 1;
+    state.artifactNode = holderNode;
+
+    // Stack the deck so player 0 wins: attacker draws [4, 0] → total = 17 + 4 = 21 > 17
+    state.fateDeck = [0, 4];
+
+    // Player 0 attacks player 1 (defender/holder loses).
+    resolvePlayerCombat(state, 0, 1, 0, 0, rng);
+
+    // Heartstone should have dropped: no holder, now at loser's node.
+    expect(state.artifactHolder).toBeNull();
+    expect(state.artifactNode).toBe(holderNode);
+  });
+
+  it('drops the Heartstone to the losing holder current node', () => {
+    const state = makeStateWithPlayers('s01');
+    state.players[1].fellowship.currentNode = 's01';
+    state.artifactHolder = 1;
+    state.artifactNode = 's01';
+
+    // Force defender (player 1) to lose: attacker draws high card.
+    state.fateDeck = [0, 4];
+    resolvePlayerCombat(state, 0, 1, 0, 0, rng);
+
+    expect(state.artifactHolder).toBeNull();
+    expect(state.artifactNode).toBe('s01');
+  });
+
+  it('does NOT drop the Heartstone when the non-holder loses combat', () => {
+    const state = makeState(42);
+    // Player 0 holds the artifact.
+    state.artifactHolder = 0;
+    state.artifactNode = state.players[0].fellowship.currentNode;
+
+    // Stack the deck so player 0 wins (non-holder wins → holder never loses).
+    state.fateDeck = [0, 4];
+    resolvePlayerCombat(state, 0, 1, 0, 0, rng);
+
+    // Artifact holder is unchanged (winner still holds it).
+    expect(state.artifactHolder).toBe(0);
+  });
+
+  it('does NOT drop the Heartstone when no one holds it', () => {
+    const state = makeState(42);
+    state.artifactHolder = null;
+    state.artifactNode = 'dark-fortress';
+
+    state.fateDeck = [0, 4];
+    resolvePlayerCombat(state, 0, 1, 0, 0, rng);
+
+    // artifactHolder stays null, node unchanged.
+    expect(state.artifactHolder).toBeNull();
+    expect(state.artifactNode).toBe('dark-fortress');
+  });
+
+  it('logs a drop-artifact action when the holder loses', () => {
+    const state = makeState(42);
+    state.artifactHolder = 1;
+    state.artifactNode = state.players[1].fellowship.currentNode;
+    state.fateDeck = [0, 4];
+
+    const logLenBefore = state.actionLog.length;
+    resolvePlayerCombat(state, 0, 1, 0, 0, rng);
+
+    const dropEntry = state.actionLog.find(e => e.action === 'drop-artifact');
+    expect(dropEntry).toBeDefined();
+    expect(state.actionLog.length).toBeGreaterThan(logLenBefore);
+  });
+});

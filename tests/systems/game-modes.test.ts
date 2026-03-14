@@ -486,3 +486,32 @@ describe('getSuspicionLog()', () => {
     expect(log[0].vote).toBe('abstain');
   });
 });
+
+// F-011b / F-013: AI players never receive the Blood Pact card
+describe('assignBloodPact — AI players excluded (F-011b / F-013)', () => {
+  it('never assigns Blood Pact to an AI player in a mixed AI/human game', () => {
+    // Create a blood_pact game then flip some players to AI.
+    const state = createGameState(4, 'blood_pact', 42);
+    state.players[0].type = 'ai';
+    state.players[2].type = 'ai';
+    // Only players 1 and 3 are human.
+
+    // Run many seeds to ensure the assignment never hits an AI slot.
+    for (let seed = 0; seed < 50; seed++) {
+      const rng = new SeededRandom(seed);
+      // Reset blood pact flags.
+      for (const p of state.players) p.hasBloodPact = false;
+      const holder = assignBloodPact(state, rng);
+      expect(holder).not.toBe(0);
+      expect(holder).not.toBe(2);
+      expect([1, 3]).toContain(holder);
+    }
+  });
+
+  it('returns -1 when all players are AI', () => {
+    const state = createGameState(4, 'blood_pact', 42);
+    for (const p of state.players) p.type = 'ai';
+    const rng = new SeededRandom(42);
+    expect(assignBloodPact(state, rng)).toBe(-1);
+  });
+});

@@ -534,4 +534,33 @@ describe('replenishFateCards()', () => {
     replenishFateCards(player, state);
     expect(state.fateDeck.length).toBe(deckBefore - 3);
   });
+
+  // F-002.5: Surplus rule — cards above the limit are never force-discarded
+  it('does NOT discard surplus cards when hand exceeds limit (F-002.5)', () => {
+    // Simulates a Herald being lost in combat: player had 2 diplomats (limit 4)
+    // and held 4 cards, then lost one diplomat (limit drops back to 3).
+    const state = createGameState(2, 'competitive', 42);
+    const player = state.players[0];
+    // Remove the starting diplomat so limit = 3 (0 diplomats gets min 3).
+    player.fellowship.characters = player.fellowship.characters.filter(c => c.role !== 'diplomat');
+    // Hand has 4 cards — one above the current limit of 3 (surplus from previous round).
+    player.fateCards = [1, 2, 3, 4];
+    const deckBefore = state.fateDeck.length;
+    replenishFateCards(player, state);
+    // Hand must NOT be truncated — surplus cards are held until spent naturally.
+    expect(player.fateCards).toHaveLength(4);
+    // No cards drawn from the deck (hand already meets/exceeds limit).
+    expect(state.fateDeck.length).toBe(deckBefore);
+  });
+
+  it('surplus cards remain in hand across multiple replenishment calls (F-002.5)', () => {
+    const state = createGameState(2, 'competitive', 42);
+    const player = state.players[0];
+    player.fellowship.characters = player.fellowship.characters.filter(c => c.role !== 'diplomat');
+    player.fateCards = [1, 2, 3, 4, 5]; // 5 cards, limit 3
+    // Multiple replenish calls must never reduce hand size.
+    replenishFateCards(player, state);
+    replenishFateCards(player, state);
+    expect(player.fateCards).toHaveLength(5);
+  });
 });
