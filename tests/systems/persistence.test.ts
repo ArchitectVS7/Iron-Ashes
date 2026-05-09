@@ -17,7 +17,6 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { createGameState } from '../../src/engine/game-loop.js';
 import {
   MemoryStorageBackend,
-  LocalStorageBackend,
   setStorageBackend,
   getStorageBackend,
   serializeBoardDefinition,
@@ -230,7 +229,7 @@ describe('serializeAntagonistForce / deserializeAntagonistForce', () => {
     const state = makeState();
     if (state.antagonistForces.length === 0) {
       // Inject a synthetic force for testing
-      (state.antagonistForces as typeof state.antagonistForces & { push: Function }).push({
+      (state.antagonistForces as typeof state.antagonistForces & { push: (val: unknown) => number }).push({
         id: 'test-force-1',
         type: 'lieutenant',
         powerLevel: 3,

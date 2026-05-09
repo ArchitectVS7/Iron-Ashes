@@ -205,7 +205,7 @@ describe('BoardRenderer', () => {
   });
 
   it('tracks selected node on click', () => {
-    const renderer = new BoardRenderer('game-board');
+    const _renderer = new BoardRenderer('game-board');
     const canvas = elementsById['game-board'];
 
     canvas.dispatchEvent('click');
@@ -213,7 +213,7 @@ describe('BoardRenderer', () => {
   });
 
   it('clears selected node when clicking empty space', () => {
-    const renderer = new BoardRenderer('game-board');
+    const _renderer = new BoardRenderer('game-board');
     const canvas = elementsById['game-board'];
 
     // First click to select

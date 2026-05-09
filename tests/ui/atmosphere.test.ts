@@ -79,7 +79,7 @@ const mockCreateGain = vi.fn(() => ({
   connect: vi.fn(),
 }));
 
-const mockAudioContext = {
+const _mockAudioContext = {
   state: 'running',
   currentTime: 0,
   createOscillator: mockCreateOscillator,
@@ -147,12 +147,12 @@ describe('AtmosphereEngine', () => {
   });
 
   it('creates engine with atmosphere layer', () => {
-    const engine = new AtmosphereEngine('game-board');
+    const _engine = new AtmosphereEngine('game-board');
     expect(engine).toBeDefined();
   });
 
   it('creates atmosphere layer with correct child elements', () => {
-    const engine = new AtmosphereEngine('game-board');
+    const _engine = new AtmosphereEngine('game-board');
 
     const container = elementsById['game-board'];
     expect(container.children.length).toBeGreaterThan(0);
@@ -162,7 +162,7 @@ describe('AtmosphereEngine', () => {
   });
 
   it('creates lighting element', () => {
-    const engine = new AtmosphereEngine('game-board');
+    const _engine = new AtmosphereEngine('game-board');
 
     const container = elementsById['game-board'];
     const layer = container.children[0];
@@ -172,7 +172,7 @@ describe('AtmosphereEngine', () => {
   });
 
   it('creates silhouette element', () => {
-    const engine = new AtmosphereEngine('game-board');
+    const _engine = new AtmosphereEngine('game-board');
 
     const container = elementsById['game-board'];
     const layer = container.children[0];
@@ -182,7 +182,7 @@ describe('AtmosphereEngine', () => {
   });
 
   it('creates particle layer', () => {
-    const engine = new AtmosphereEngine('game-board');
+    const _engine = new AtmosphereEngine('game-board');
 
     const container = elementsById['game-board'];
     const layer = container.children[0];

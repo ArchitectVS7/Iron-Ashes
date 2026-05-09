@@ -131,7 +131,7 @@ describe('TutorialEngine', () => {
   });
 
   it('adds overlay to document body', () => {
-    const engine = new TutorialEngine();
+    const _engine = new TutorialEngine();
     expect(mockBody.children.length).toBeGreaterThan(0);
     expect(mockBody.children[0].className).toBe('tutorial-overlay');
   });

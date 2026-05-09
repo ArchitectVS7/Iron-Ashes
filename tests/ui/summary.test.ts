@@ -116,13 +116,13 @@ describe('SummaryEngine', () => {
   });
 
   it('adds summary container to body', () => {
-    const engine = new SummaryEngine();
+    const _engine = new SummaryEngine();
     expect(mockBody.children.length).toBeGreaterThan(0);
     expect(mockBody.children[0].className).toBe('post-game-overlay');
   });
 
   it('creates blood pact reveal element', () => {
-    const engine = new SummaryEngine();
+    const _engine = new SummaryEngine();
     expect(mockBody.children.length).toBe(2);
     expect(mockBody.children[1].className).toBe('blood-pact-reveal');
   });
