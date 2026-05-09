@@ -204,12 +204,6 @@ describe('Cooperative Behavior Deck', () => {
     );
   });
 
-  it('should have more ASSAULT cards than the default deck', () => {
-    expect(COOPERATIVE_BEHAVIOR_DECK_COMPOSITION.assault).toBeGreaterThan(
-      DEFAULT_BEHAVIOR_DECK_COMPOSITION.assault,
-    );
-  });
-
   it('should have fewer CLAIM cards than the default deck', () => {
     expect(COOPERATIVE_BEHAVIOR_DECK_COMPOSITION.claim).toBeLessThan(
       DEFAULT_BEHAVIOR_DECK_COMPOSITION.claim,

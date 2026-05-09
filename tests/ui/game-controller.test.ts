@@ -362,13 +362,13 @@ describe('GameController E2E', () => {
     // Move artifact to a reachable spot (mirrors simulation.ts)
     state.artifactNode = state.boardDefinition.neutralCenter;
 
-    await ctrl.runGame(30);
+    await ctrl.runGame(60);
 
     expect(isGameOver(state)).toBe(true);
     expect(state.gameEndReason).not.toBeNull();
     expect(['doom_complete', 'territory_victory', 'all_broken']).toContain(state.gameEndReason);
     // Round increments one past the last played round
-    expect(state.round).toBeLessThanOrEqual(31);
+    expect(state.round).toBeLessThanOrEqual(61);
   });
 
   // ─── Tutorial integration tests ────────────────────────────

@@ -147,7 +147,7 @@ describe('AtmosphereEngine', () => {
   });
 
   it('creates engine with atmosphere layer', () => {
-    const _engine = new AtmosphereEngine('game-board');
+    const engine = new AtmosphereEngine('game-board');
     expect(engine).toBeDefined();
   });
 

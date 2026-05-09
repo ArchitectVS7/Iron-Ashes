@@ -32,14 +32,14 @@ describe('Game State Constants', () => {
       expect(DEFAULT_BEHAVIOR_DECK_COMPOSITION.escalate).toBe(1);
     });
 
-    it('should have MOVE increased to 6 (balance fix from 5)', () => {
-      expect(DEFAULT_BEHAVIOR_DECK_COMPOSITION.move).toBe(6);
+    it('should have MOVE decreased to 4 (balance fix)', () => {
+      expect(DEFAULT_BEHAVIOR_DECK_COMPOSITION.move).toBe(4);
     });
 
     it('should have correct counts for other card types', () => {
-      expect(DEFAULT_BEHAVIOR_DECK_COMPOSITION.spawn).toBe(6);
+      expect(DEFAULT_BEHAVIOR_DECK_COMPOSITION.spawn).toBe(7);
       expect(DEFAULT_BEHAVIOR_DECK_COMPOSITION.claim).toBe(4);
-      expect(DEFAULT_BEHAVIOR_DECK_COMPOSITION.assault).toBe(3);
+      expect(DEFAULT_BEHAVIOR_DECK_COMPOSITION.assault).toBe(4);
     });
   });
 

@@ -42,10 +42,10 @@ describe('createBehaviorDeck()', () => {
   it('default composition has correct card type counts', () => {
     const deck = createBehaviorDeck();
     const types = countCardTypes(deck);
-    expect(types.spawn).toBe(6);
-    expect(types.move).toBe(6);
+    expect(types.spawn).toBe(7);
+    expect(types.move).toBe(4);
     expect(types.claim).toBe(4);
-    expect(types.assault).toBe(3);
+    expect(types.assault).toBe(4);
     expect(types.escalate).toBe(1);
   });
 

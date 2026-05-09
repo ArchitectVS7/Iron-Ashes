@@ -132,7 +132,7 @@ describe('performDiplomaticAction', () => {
     state.doomToll = 5;
     const diplomatId = state.players[0].fellowship.characters.find(c => c.role === 'diplomat')!.id;
     performDiplomaticAction(state, 0, diplomatId);
-    expect(state.doomToll).toBe(3);
+    expect(state.doomToll).toBe(2);
   });
 
   it('should mark diplomat as used', () => {
@@ -186,7 +186,7 @@ describe('performDiplomaticAction', () => {
     // Move back to fortress and try again
     state.players[0].actionsRemaining = 2;
     expect(performDiplomaticAction(state, 0, diplomatId)).toBe(false);
-    expect(state.doomToll).toBe(3); // Only reduced once (by 2)
+    expect(state.doomToll).toBe(2); // Only reduced once (by 3)
   });
 
   it('should return false for invalid player index', () => {
@@ -213,11 +213,11 @@ describe('performDiplomaticAction', () => {
 
     const diplomat1 = player.fellowship.characters.find(c => c.role === 'diplomat')!;
     expect(performDiplomaticAction(state, 0, diplomat1.id)).toBe(true);
-    expect(state.doomToll).toBe(3); // 5 − 2
+    expect(state.doomToll).toBe(2); // 5 − 3
 
     player.actionsRemaining = 2;
     expect(performDiplomaticAction(state, 0, 'extra-diplomat')).toBe(true);
-    expect(state.doomToll).toBe(1); // 3 − 2
+    expect(state.doomToll).toBe(0); // 2 − 3 (clamped)
   });
 
   it('should not reduce doom toll below 0', () => {
