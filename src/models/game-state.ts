@@ -122,11 +122,11 @@ export interface ActionLogEntry {
 
 /** Default Behavior Deck composition (post-balance-fix). */
 export const DEFAULT_BEHAVIOR_DECK_COMPOSITION: Record<BehaviorCardType, number> = {
-  spawn: 6,
-  move: 6,    // Increased from 5 to 6 (balance fix)
+  spawn: 7,
+  move: 4,
   claim: 4,
-  assault: 3,
-  escalate: 1, // Reduced from 2 to 1 (balance fix)
+  assault: 4,
+  escalate: 1,
 };
 
 /**
@@ -186,7 +186,7 @@ export const VULNERABLE_YELLOW_THRESHOLD = 0.5;   // penaltyCards / warBanners â
 export const VULNERABLE_RED_THRESHOLD = 0.75;     // penaltyCards / warBanners â‰¥ 75%
 
 /** Doom Toll reduction granted by the Herald Diplomatic Action (Fix D: was 1). */
-export const HERALD_DIPLOMATIC_DOOM_REDUCTION = 2;
+export const HERALD_DIPLOMATIC_DOOM_REDUCTION = 3;
 
 /** Blood Pact accusation constants. */
 export const ACCUSATION_PENALTY_CARDS = 3;     // Fate cards traitor loses on successful accusation

@@ -193,7 +193,7 @@ export class GameController {
 
     // Each component is optional. If the DOM environment is headless (tests),
     // constructors may fail silently — the controller keeps working.
-    try { this.boardRenderer = new BoardRenderer(canvasId); } catch { /* headless */ }
+    try { this.boardRenderer = new BoardRenderer(canvas); } catch { /* headless */ }
     try { this.votingPanel = new VotingPanel(uiId); } catch { /* headless */ }
     try { this.combatOverlay = new CombatOverlay(uiId); } catch { /* headless */ }
     try { this.brokenCourtUI = new BrokenCourtUI(uiId); } catch { /* headless */ }
@@ -512,13 +512,26 @@ export class GameController {
    * Routes to movement, claiming, or combat based on game rules.
    */
   public async handleNodeClick(nodeId: string): Promise<void> {
-    if (!this.state || this.state.phase !== 'action') return;
-    if (isGameOver(this.state)) return;
+    console.log(`[GameController] handleNodeClick called for node: ${nodeId}`);
+    if (!this.state || this.state.phase !== 'action') {
+        console.log(`[GameController] Rejected: phase is ${this.state?.phase}`);
+        return;
+    }
+    if (isGameOver(this.state)) {
+        console.log('[GameController] Rejected: game is over');
+        return;
+    }
 
     const player = this.state.players[this.state.activePlayerIndex];
-    if (!player || player.actionsRemaining <= 0) return;
+    console.log(`[GameController] Active player: ${this.state.activePlayerIndex}, Actions: ${player?.actionsRemaining}`);
+    
+    if (!player || player.actionsRemaining <= 0) {
+        console.log('[GameController] Rejected: no player or no actions');
+        return;
+    }
 
     const currentNode = player.fellowship.currentNode;
+    console.log(`[GameController] Current node: ${currentNode}`);
     const definition = this.state.boardDefinition;
 
     // ── Movement: clicked an adjacent node ──
@@ -648,8 +661,9 @@ export class GameController {
   }
 
   /** End the current player's turn early (sets actionsRemaining to 0). */
-  public handleEndTurn(): void {
+  public async handleEndTurn(): Promise<void> {
     if (!this.state || this.state.phase !== 'action') return;
+    
     const player = this.state.players[this.state.activePlayerIndex];
     if (player) {
       if (this.multiplayerSession) {

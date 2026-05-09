@@ -22,14 +22,21 @@ export class BoardRenderer {
     private renderLoopId: number = 0;
     public onNodeClick?: (nodeId: string) => void;
 
-    constructor(canvasId: string) {
-        const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
-        if (!canvas) throw new Error(`Canvas #${canvasId} not found`);
-        this.canvas = canvas;
-        this.ctx = canvas.getContext('2d');
+    constructor(canvas: HTMLCanvasElement | string) {
+        if (typeof canvas === 'string') {
+            const el = document.getElementById(canvas) as HTMLCanvasElement;
+            if (!el) throw new Error(`Canvas #${canvas} not found`);
+            this.canvas = el;
+        } else {
+            this.canvas = canvas;
+        }
+        
+        console.log(`[BoardRenderer] Initializing with canvas: ${this.canvas.id}, current size: ${this.canvas.width}x${this.canvas.height}`);
+        this.ctx = this.canvas.getContext('2d');
 
         this.initCoordinates();
         this.resize();
+        console.log(`[BoardRenderer] After resize: ${this.canvas.width}x${this.canvas.height}`);
         window.addEventListener('resize', () => this.resize());
 
         this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
@@ -116,29 +123,30 @@ export class BoardRenderer {
     }
 
     private resize() {
-        const parent = this.canvas.parentElement;
-        if (parent) {
-            this.canvas.width = parent.clientWidth;
-            this.canvas.height = parent.clientHeight;
-        }
+        const rect = this.canvas.getBoundingClientRect();
+        this.canvas.width = rect.width;
+        this.canvas.height = rect.height;
         this.render();
     }
 
     private handleMouseMove(e: MouseEvent) {
         const rect = this.canvas.getBoundingClientRect();
-        const scaleX = 1920 / rect.width;
-        const scaleY = 1080 / rect.height;
+        const w = rect.width;
+        const h = rect.height;
+        if (w === 0 || h === 0) return;
 
-        // Use the actual CSS scaling or bounding client rect logic
-        // We render using a fixed 1920x1080 logical coordinate system, scaled via transform or canvas context
-        const logicalX = (e.clientX - rect.left) * scaleX;
-        const logicalY = (e.clientY - rect.top) * scaleY;
+        const scale = Math.min(w / 1920, h / 1080);
+        const offsetX = (w - 1920 * scale) / 2;
+        const offsetY = (h - 1080 * scale) / 2;
+
+        const logicalX = (e.clientX - rect.left - offsetX) / scale;
+        const logicalY = (e.clientY - rect.top - offsetY) / scale;
 
         let found: string | null = null;
         for (const [id, pos] of Object.entries(this.coordinates)) {
             const dx = logicalX - pos.x;
             const dy = logicalY - pos.y;
-            if (dx * dx + dy * dy < 30 * 30) { // 60x60 hit area (r=30)
+            if (dx * dx + dy * dy < 60 * 60) { // Generous radius 60
                 found = id;
                 break;
             }
@@ -153,12 +161,14 @@ export class BoardRenderer {
 
     private handleClick(_e: MouseEvent) {
         if (this.hoveredNode) {
+            console.log(`[BoardRenderer] Click detected on node: ${this.hoveredNode}`);
             this.selectedNode = this.hoveredNode;
             if (this.onNodeClick) {
                 this.onNodeClick(this.hoveredNode);
             }
             this.render();
         } else {
+            console.log('[BoardRenderer] Click detected on empty space');
             this.selectedNode = null;
             this.render();
         }
@@ -168,23 +178,11 @@ export class BoardRenderer {
         // Guard: headless environments (jsdom) return null from getContext('2d')
         if (!this.ctx) return;
 
-        const w = this.canvas.width;
-        const h = this.canvas.height;
-
-        // Avoid drawing if zero dimensions
-        if (w === 0 || h === 0) return;
-
-        this.ctx.clearRect(0, 0, w, h);
+        // With fixed logical resolution, we just clear and draw.
+        // The browser handles display scaling.
+        this.ctx.clearRect(0, 0, 1920, 1080);
 
         this.ctx.save();
-
-        // Scale from logical 1920x1080 to actual canvas size
-        const scale = Math.min(w / 1920, h / 1080);
-        const offsetX = (w - 1920 * scale) / 2;
-        const offsetY = (h - 1080 * scale) / 2;
-
-        this.ctx.translate(offsetX, offsetY);
-        this.ctx.scale(scale, scale);
 
         // Draw background elements if any (map texture etc)
         this.ctx.fillStyle = '#111827';
