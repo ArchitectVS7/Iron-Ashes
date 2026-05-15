@@ -10,6 +10,8 @@
 
 Iron Throne of Ashes is a digital board game of dynastic rivalry and cooperative threat management built on the Alliance Engine. Four Arch-Regents compete for territory control while collectively managing the Doom Toll — a shared loss condition driven by an autonomous AI antagonist (the Shadowking). The game ships for PC (Steam) primary and Mobile (iOS/Android) secondary, targeting 2–4 players (human + AI fill) with 60–90 minute sessions. The Alliance Engine uses GLL tokenization, meaning all in-world nouns are swappable content wrappers, enabling future reskins without engine changes.
 
+**NOTE** Repalce "Shadowking" with "Wraith Tyrant" throughout
+
 ---
 
 ## Overview
