@@ -22,6 +22,7 @@ import {
   DK_POWER,
   DK_START_COUNT,
   STARTING_HAND,
+  WARLORD_POWER,
 } from './tunables.js';
 import type {
   GameMode,
@@ -65,6 +66,7 @@ function createPlayerState(
     wounds: 0,
     actionsRemaining: 0,
     warlordNodeId: keepNodeId,
+    rescueDebt: null,
     hasBloodPact: false,
   };
 }
@@ -139,7 +141,7 @@ export function createGame(
       id: `warlord-${i}`,
       type: 'warlord',
       owner: i,
-      power: 3,
+      power: WARLORD_POWER,
       nodeId: keepId,
     });
   }

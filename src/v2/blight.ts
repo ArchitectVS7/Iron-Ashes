@@ -22,8 +22,10 @@ import {
   ACT_THRESHOLDS,
   BLIGHT_TO_ASH,
   DAWN_BLIGHT_ADVANCE,
+  PLEDGE_SHIELD_AMOUNT,
   SPREAD_AMOUNT_BASE,
 } from './tunables.js';
+import { isKeystoneGarrisoned } from './gambit.js';
 
 // ─── Core Blight Operations ──────────────────────────────────────
 
@@ -50,6 +52,12 @@ export function advanceBlightOnNode(
   const events: GameEvent[] = [];
   const nodeState = state.board.state.nodes[nodeId];
   if (!nodeState || nodeState.ashed) return events;
+
+  // Gambit guardrail (§6): a garrisoned Keystone cannot be blighted or ashed by
+  // ANY source while the claimant holds it — the dark must strike adjacent instead.
+  if (nodeId === state.board.definition.keystoneId && isKeystoneGarrisoned(state)) {
+    return events;
+  }
 
   const previousLevel = nodeState.blightLevel;
   nodeState.blightLevel = Math.min(nodeState.blightLevel + amount, BLIGHT_TO_ASH);
@@ -291,6 +299,7 @@ export function resolveStrike(
   state: GameState,
   ratio: number,
   steerQuadrant: number,
+  pledgers: ReadonlySet<number> = new Set(),
 ): BlightResult {
   const events: GameEvent[] = [];
 
@@ -301,11 +310,35 @@ export function resolveStrike(
 
   // Proportional spread: ceil ensures even tiny unblocked fractions do damage
   const spreadAmount = Math.ceil((1 - ratio) * SPREAD_AMOUNT_BASE);
-
-  // Spread on the steered spoke
-  events.push(...advanceBlightOnSpoke(state, steerQuadrant, spreadAmount, 'strike'));
+  events.push(...spreadShieldedOnSpoke(state, steerQuadrant, spreadAmount, pledgers));
 
   return { state, events };
+}
+
+/**
+ * Advance Blight on a quadrant's frontier, shielding contributors' own land.
+ *
+ * Anti-free-rider (§4.2 step 5a): a frontier node owned by a player who pledged
+ * takes `PLEDGE_SHIELD_AMOUNT` less — so the strike falls on free-riders first.
+ * With an empty `pledgers` set this is a plain frontier spread (back-compat).
+ */
+export function spreadShieldedOnSpoke(
+  state: GameState,
+  quadrant: number,
+  amount: number,
+  pledgers: ReadonlySet<number> = new Set(),
+): GameEvent[] {
+  const events: GameEvent[] = [];
+  const frontier = getSpokeFrontier(state, quadrant);
+  for (const nodeId of frontier) {
+    const owner = state.board.state.nodes[nodeId]?.owner;
+    const shielded = owner !== null && owner !== undefined && pledgers.has(owner);
+    const amt = shielded ? Math.max(0, amount - PLEDGE_SHIELD_AMOUNT) : amount;
+    if (amt > 0) {
+      events.push(...advanceBlightOnNode(state, nodeId, amt, 'strike'));
+    }
+  }
+  return events;
 }
 
 /**

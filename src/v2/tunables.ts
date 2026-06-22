@@ -133,6 +133,45 @@ export const GRUDGE_PER_FORGE_RECLAIM = 2;
 /** Grudge added per point of combat damage dealt to Shadowking forces (§5.6). */
 export const GRUDGE_PER_SK_WOUND = 1;
 
+// ─── Pieces / Combat power ────────────────────────────────────────
+
+/** Base combat power of a Warlord piece (consistent at setup and after moving). */
+export const WARLORD_POWER = 3;
+
+// ─── Anti-free-rider reward (§4.2 step 5 — the #1 balance risk) ────
+
+/**
+ * Grudge reduction a player earns for making a non-zero Pledge (the persistent
+ * FAVOR). Contributing buys goodwill; free-riding does not. [TUNABLE / ML]
+ */
+export const PLEDGE_FAVOR_GRUDGE_REDUCTION = 1;
+
+/**
+ * Blight levels a contributor's own frontier land is shielded by when an
+ * un-averted strike spreads (§4.2 step 5a — the averted fraction protects
+ * pledgers' lands first, so free-riders eat the strike). [TUNABLE / ML]
+ */
+export const PLEDGE_SHIELD_AMOUNT = 1;
+
+// ─── Shadowking effect table (§5.6) ───────────────────────────────
+
+/** Nodes a Death Knight maneuvers toward the target on a MARCH_DK effect. */
+export const DK_MARCH_DISTANCE = 2;
+
+/** SURGE (Reckoning) multiplies the SPREAD amount by this. */
+export const SURGE_SPREAD_MULT = 2;
+
+/**
+ * Gambit STRIKE-ADJACENT rate while the Keystone is garrisoned. Per stress-test
+ * P0-3 the amplifying multiplier is DROPPED — the adjacent strike is normal rate.
+ */
+export const GAMBIT_ADJACENT_STRIKE_MULT = 1;
+
+// ─── Rescue binding debt (§5.4) ───────────────────────────────────
+
+/** Forced minimum Pledge a rescued debtor must make next round (open modes). */
+export const RESCUE_DEBT_MIN_PLEDGE = 2;
+
 // ─── Layer B — Blood Pact (§10) ──────────────────────────────────
 
 /** How many recent rounds of pledge tiers the Suspicion Log retains. */
@@ -209,6 +248,13 @@ export const TUNABLES = Object.freeze({
   GRUDGE_PER_DK_KILL,
   GRUDGE_PER_FORGE_RECLAIM,
   GRUDGE_PER_SK_WOUND,
+  WARLORD_POWER,
+  PLEDGE_FAVOR_GRUDGE_REDUCTION,
+  PLEDGE_SHIELD_AMOUNT,
+  DK_MARCH_DISTANCE,
+  SURGE_SPREAD_MULT,
+  GAMBIT_ADJACENT_STRIKE_MULT,
+  RESCUE_DEBT_MIN_PLEDGE,
   SUSPICION_LOG_ROUNDS,
   AUDIT_COST,
   ACCUSATION_COOLDOWN_ROUNDS,

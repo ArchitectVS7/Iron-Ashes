@@ -72,9 +72,12 @@ describe('applyCommand()', () => {
       ).toThrow(InvalidCommandError);
     });
 
-    it('LAST_STAND_COMMIT validates card count (placeholder pending UI wiring)', () => {
+    it('LAST_STAND_COMMIT rejects over-committing more cards than in hand', () => {
+      // NOTE: the LIVE Last Stand mechanic is resolved inside combat
+      // (see tests/v2/mechanics-3f.test.ts — "a defender reverses a losing RAID").
+      // This command is the future interactive sealed-commit entry point; here we
+      // assert only its input validation, NOT that it performs a Last Stand.
       const state = createGame(4, 'competitive', 42);
-      // Over-committing more cards than are in hand is rejected.
       expect(() =>
         applyCommand(state, {
           type: 'LAST_STAND_COMMIT',
@@ -82,14 +85,6 @@ describe('applyCommand()', () => {
           cardCount: 999,
         }),
       ).toThrow(InvalidCommandError);
-      // A valid commit is accepted — Last Stand is resolved inline during combat;
-      // this command is the placeholder for the future interactive sealed-commit flow.
-      const result = applyCommand(state, {
-        type: 'LAST_STAND_COMMIT',
-        playerIndex: 0,
-        cardCount: 1,
-      });
-      expect(result.events.some(e => e.type === 'PLAYER_ACTED')).toBe(true);
     });
 
     it('rejects invalid player index for pledge', () => {

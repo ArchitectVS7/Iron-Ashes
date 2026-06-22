@@ -193,6 +193,45 @@ export function resolveCombat(state: GameState, setup: CombatSetup): CombatResul
 }
 
 /**
+ * Decide the defender's Last Stand cards (§5.3) — deterministic, pure `f(state)`.
+ *
+ * The defender commits the FEWEST additional cards (largest first) needed to
+ * survive (def + committed ≥ atk; ties go to the defender). If their remaining
+ * hand can't reach it, they commit nothing rather than waste the cards. This is
+ * what makes Last Stand actually fire in real games and the sim. [TUNABLE behaviour]
+ */
+export function chooseLastStandCards(
+  state: GameState,
+  defenderIndex: number,
+  attackPower: number,
+  defensePower: number,
+  committedCards: number[],
+): number[] {
+  const defender = state.players[defenderIndex];
+
+  // Cards still in hand (excluding those already committed to this combat).
+  const remaining = [...defender.hand];
+  for (const c of committedCards) {
+    const i = remaining.indexOf(c);
+    if (i !== -1) remaining.splice(i, 1);
+  }
+
+  const needed = attackPower - defensePower; // > 0 because the attacker won
+  if (needed <= 0) return [];
+
+  const sorted = [...remaining].sort((a, b) => b - a);
+  const chosen: number[] = [];
+  let sum = 0;
+  for (const c of sorted) {
+    if (sum >= needed) break;
+    chosen.push(c);
+    sum += c;
+  }
+  // Only stand if it actually reverses the result.
+  return sum >= needed ? chosen : [];
+}
+
+/**
  * Resolve a Last Stand — defender commits additional cards (one-sided, final).
  */
 export function resolveLastStand(

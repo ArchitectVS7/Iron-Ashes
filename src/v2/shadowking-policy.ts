@@ -392,9 +392,12 @@ export function chooseShadowkingIntent(state: GameState): ShadowkingTelegraph {
   // 2. Choose effect based on Act + board state
   const effect = chooseEffect(state);
 
-  // 3. Compute steer quadrant (target's Keep quadrant)
-  const targetKeepId = state.board.definition.keepIds[targetIndex];
-  const steerQuadrant = state.board.definition.nodes[targetKeepId]?.quadrant ?? 0;
+  // 3. Compute steer quadrant — the CROWN holder's quadrant (§5.6: the hot front
+  //    rotates toward whoever leads, even when the named strike targets someone
+  //    else via grudge/Gambit). Falls back to the target's quadrant if no Crown.
+  const steerOwner = state.crownHolder ?? targetIndex;
+  const steerKeepId = state.board.definition.keepIds[steerOwner];
+  const steerQuadrant = state.board.definition.nodes[steerKeepId]?.quadrant ?? 0;
 
   // 4. Choose target node
   const targetNodeId = chooseTargetNode(state, effect, targetIndex, steerQuadrant);

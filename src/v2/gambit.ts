@@ -21,7 +21,7 @@
 
 import type { GameEvent } from './events.js';
 import type { GameState } from './types.js';
-import { GAMBIT_SURCHARGE } from './tunables.js';
+import { FORGE_WEIGHT, GAMBIT_SURCHARGE } from './tunables.js';
 import { generateReactiveVoiceLine } from './shadowking-policy.js';
 
 // ─── Gambit Lifecycle ─────────────────────────────────────────────
@@ -254,9 +254,9 @@ export function computeTerritoryWinner(state: GameState): number | null {
       const nodeDef = state.board.definition.nodes[nodeId];
       if (!nodeDef) continue;
 
-      // Count territory value
+      // Count territory value (single source of truth — matches Crown computation)
       if (nodeDef.tier === 'forge') {
-        territory += 3; // FORGE_WEIGHT
+        territory += FORGE_WEIGHT;
       } else if (nodeDef.tier === 'keep' || nodeDef.tier === 'holding') {
         territory += 1;
       }

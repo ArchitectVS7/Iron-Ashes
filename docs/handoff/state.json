@@ -3,7 +3,7 @@
   "currentStage": "4a",
   "currentStageTitle": "ML / sim harness — Monte-Carlo win-rate sweep over the REAL rules + REAL AI",
   "status": "not-started",
-  "nextAction": "Build the Stage-4 sim harness on the consolidated reducer (NOT a parallel rules path — see docs/ML-SYSTEM-ANALYSIS.md). Drive full AI-vs-AI games via applyCommand + the pure AI choosers (src/v2/ai-player.ts, src/v2/blood-pact.ts); Monte-Carlo sweep over seeds; deterministic; report win-rates/round-counts/Gambit-frequency/rescue-counts vs the §9 targets. Reuse the headless driver pattern from src/ui-v2/session.ts (or tests/v2/ui-session.test.ts). 3e (UI render-from-state) is DONE: src/ui-v2/ (board SVG, HUD, phase panels, P2 beats incl. Whisper onboarding), index.html repointed; 3 UI session-driver tests.",
+  "nextAction": "Build the Stage-4 sim harness on the consolidated reducer (NOT a parallel rules path — see docs/ML-SYSTEM-ANALYSIS.md). Drive full AI-vs-AI games via applyCommand + the pure AI choosers (src/v2/ai-player.ts, src/v2/blood-pact.ts); Monte-Carlo sweep over seeds; deterministic; report win-rates/round-counts/Gambit-frequency/rescue-counts vs the §9 targets. Reuse the headless driver pattern from src/ui-v2/session.ts (or tests/v2/ui-session.test.ts). The engine is now at FULL SPEC PARITY after Stage 3f (anti-free-rider reward, Gambit guardrail, Last Stand, full Shadowking effect table, Rescue debt all built to spec) — so the sim measures the real designed game. The AI choosers may want updating to USE the new mechanics (e.g. Last Stand is engine-auto; AI doesn't yet pursue Gambit or Audit/Accuse in the action loop) before/within the sweep.",
   "specRefs": [
     "ALGORITHM §9 (tunables + target metrics)",
     "ML-SYSTEM-ANALYSIS.md (why the old harness was scrapped; what sound looks like)",
@@ -11,14 +11,14 @@
     "ROADMAP §4 (Stage 4)"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-22T17:52:12.726Z",
-    "commit": "548ee5d",
-    "sourceHash": "da9fe253db92bfa92864b536644cc9595bc7c6bcaa635d60e3f2016747395028",
+    "timestamp": "2026-06-22T18:28:38.341Z",
+    "commit": "788e89f",
+    "sourceHash": "b60da6138a2e26432c369800e6f546d0a1e359af65587f519d92ead7c02f50ff",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 13,
-      "passed": 307,
+      "files": 14,
+      "passed": 323,
       "failed": 0,
       "status": "pass"
     }
@@ -39,7 +39,9 @@
     "The v2 UI lives in src/ui-v2 (entry index.html → src/ui-v2/main.ts; old v1 harness preserved at index-v1.html). It is OUTSIDE the verify lint/test scope (src/v2 tests/v2), but tsc --noEmit covers all of src/ so it must typecheck. Validate UI changes with `npm run dev` (or `npx vite build`); the headless session driver has logic coverage in tests/v2/ui-session.test.ts."
   ],
   "openRisks": [
-    "Pledge free-rider incentive is unproven until the Stage 5 sim (ALGORITHM §4.2 step 5) — the primary balance risk",
-    "Blood Pact accusation tuning (AUDIT_COST, ACCUSATION_* penalties/cooldown, SUSPICION_LOG_ROUNDS, TRAITOR_EXPOSED_WOUNDS) is placeholder — must be balanced in Stage 5 so accusation is neither spammed nor never-fired."
+    "The anti-free-rider reward NOW EXISTS (§4.2 step 5: land-shielding + FAVOR, Stage 3f) but its EFFECTIVENESS is unproven until the Stage-5 sim — still the primary balance risk. PLEDGE_SHIELD_AMOUNT / PLEDGE_FAVOR_GRUDGE_REDUCTION are placeholder [TUNABLE].",
+    "Blood Pact accusation tuning (AUDIT_COST, ACCUSATION_* penalties/cooldown, SUSPICION_LOG_ROUNDS, TRAITOR_EXPOSED_WOUNDS) is placeholder — must be balanced in Stage 5 so accusation is neither spammed nor never-fired.",
+    "Stage 3f effect-table / Last-Stand / rescue-debt magnitudes (SURGE_SPREAD_MULT, DK_MARCH_DISTANCE, GAMBIT_ADJACENT_STRIKE_MULT, RESCUE_DEBT_MIN_PLEDGE, the deterministic Last-Stand 'fight if you can win' rule) are reasonable defaults, not balanced — Stage-5 sim must validate them.",
+    "The AI (ai-player.ts) does not yet pursue the Gambit, Audit, or Accusation in its action loop, and Last Stand is engine-auto — the Stage-4 sim will under-exercise those paths until the AI is extended."
   ]
 }

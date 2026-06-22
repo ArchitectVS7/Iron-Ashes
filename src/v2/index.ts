@@ -75,7 +75,11 @@ export {
   getSpokePath,
   isKeystoneAshed,
   resolveStrike,
+  spreadShieldedOnSpoke,
 } from './blight.js';
+
+// ── Shadowking Effects (§5.6 effect table) ──
+export { applyShadowkingStrike } from './shadowking-effects.js';
 
 // ── Shadowking Policy ──
 export {
@@ -92,6 +96,7 @@ export type { ShadowkingEffect } from './shadowking-policy.js';
 export {
   resolveCombat,
   resolveLastStand,
+  chooseLastStandCards,
   applyCombatOutcome,
   getPlayerPowerAtNode,
   getShadowkingPowerAtNode,

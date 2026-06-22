@@ -24,13 +24,19 @@ import {
   BREAK_THRESHOLD,
   BROKEN_MAX_ROUNDS,
   RESCUE_COST,
+  RESCUE_DEBT_MIN_PLEDGE,
+  WARLORD_POWER,
 } from './tunables.js';
 import {
   applyCombatOutcome,
   checkBrokenState,
+  chooseLastStandCards,
   resolveCombat,
+  resolveLastStand,
   type CombatSetup,
 } from './combat.js';
+import { applyPushback } from './blight.js';
+import { PUSHBACK } from './tunables.js';
 import { checkGambitSeize } from './gambit.js';
 
 // ─── Action Result ────────────────────────────────────────────────
@@ -150,7 +156,7 @@ export function executeMarch(
       id: `warlord-${playerIndex}`,
       type: 'warlord',
       owner: playerIndex,
-      power: 2, // Base Warlord power
+      power: WARLORD_POWER, // Consistent with setup — moving must not weaken the Warlord
       nodeId: targetNodeId,
     });
   }
@@ -299,6 +305,14 @@ export function executeRaid(
     throw new Error(`Cannot RAID: Player ${defenderIndex + 1} is not at ${nodeId}`);
   }
 
+  // Rescue debt (§5.4): a debtor may not attack their creditor while the debt binds.
+  const debt = player.rescueDebt;
+  if (debt && debt.creditor === defenderIndex && state.round <= debt.expiresRound) {
+    throw new Error(
+      `Cannot RAID: you owe Player ${defenderIndex + 1} a rescue debt (withheld attack) until round ${debt.expiresRound}`,
+    );
+  }
+
   // Validate attacker cards
   const atkHandCopy = [...player.hand];
   for (const card of attackerCards) {
@@ -328,14 +342,46 @@ export function executeRaid(
   const combatResult = resolveCombat(state, setup);
   events.push(...combatResult.events);
 
-  // Apply outcome
-  const outcomeEvents = applyCombatOutcome(
-    state, setup, combatResult.winner, combatResult.margin
-  );
+  // ── Last Stand (§5.3) — one-sided, final defender reversal ──
+  let winner = combatResult.winner;
+  let margin = combatResult.margin;
+  let lastStandCards: number[] = [];
+  if (combatResult.lastStandAvailable) {
+    lastStandCards = chooseLastStandCards(
+      state, defenderIndex, combatResult.attackPower, combatResult.defensePower, defenderCards,
+    );
+    if (lastStandCards.length > 0) {
+      const stand = resolveLastStand(combatResult, lastStandCards);
+      winner = stand.winner;
+      margin = stand.margin;
+      events.push({
+        type: 'PLAYER_ACTED',
+        playerIndex: defenderIndex,
+        action: 'PASS',
+        details: { lastStand: true, cards: lastStandCards.length, held: winner === 'defender' },
+      });
+    }
+  }
+
+  // Apply outcome with the FINAL winner/margin (discards the originally-committed cards).
+  const outcomeEvents = applyCombatOutcome(state, setup, winner, margin);
   events.push(...outcomeEvents);
 
-  // If attacker won, transfer ownership of the node
-  if (combatResult.winner === 'attacker') {
+  // Discard the additional Last Stand cards the defender spent.
+  if (lastStandCards.length > 0) {
+    const defender = state.players[defenderIndex];
+    for (const c of lastStandCards) {
+      const i = defender.hand.indexOf(c);
+      if (i !== -1) defender.hand.splice(i, 1);
+    }
+    // A successful Stand also pushes the tide back here (§5.3).
+    if (winner === 'defender') {
+      events.push(...applyPushback(state, nodeId, PUSHBACK));
+    }
+  }
+
+  // If the attacker (still) won, transfer ownership of the node
+  if (winner === 'attacker') {
     const nodeState = state.board.state.nodes[nodeId];
     if (nodeState && nodeState.owner === defenderIndex) {
       nodeState.owner = playerIndex;
@@ -343,7 +389,7 @@ export function executeRaid(
   }
 
   // Check if loser is now Broken
-  const loserIndex = combatResult.winner === 'attacker' ? defenderIndex : playerIndex;
+  const loserIndex = winner === 'attacker' ? defenderIndex : playerIndex;
   events.push(...checkBrokenState(state, loserIndex));
 
   return { state, events, actionConsumed: true };
@@ -396,6 +442,15 @@ export function executeRescue(
   target.brokenRoundsConsecutive = 0;
   target.wounds = Math.floor(BREAK_THRESHOLD / 2); // Recover to half wounds
 
+  // Bind the one-round debt (§5.4): a forced minimum Pledge next round (enforced
+  // in open modes) AND a withheld attack on the creditor (enforced in all modes).
+  // Cleared at the Dawn of the obligation round.
+  target.rescueDebt = {
+    creditor: playerIndex,
+    forcedMinPledge: RESCUE_DEBT_MIN_PLEDGE,
+    expiresRound: state.round + 1,
+  };
+
   events.push({
     type: 'PLAYER_ACTED',
     playerIndex,
@@ -403,8 +458,9 @@ export function executeRescue(
     details: {
       targetPlayerIndex,
       cost: RESCUE_COST,
-      // The binding debt is tracked but enforcement is a UI concern
       debt: 'forced_minimum_pledge',
+      creditor: playerIndex,
+      expiresRound: target.rescueDebt.expiresRound,
     },
   });
 

@@ -146,6 +146,9 @@ export interface PlayerState {
   /** Node ID of this player's Warlord piece. */
   warlordNodeId: string;
 
+  /** Active binding debt owed to a rescuer (§5.4), or null. */
+  rescueDebt: RescueDebt | null;
+
   // ── Blood Pact (Layer B) ──
   /** Whether this player holds the Blood Pact (traitor). */
   hasBloodPact: boolean;
@@ -194,6 +197,18 @@ export interface PledgeEntry {
   readonly amount: number;
   /** Classified tier for Suspicion Log. */
   readonly tier: PledgeTier;
+}
+
+// ─── Rescue debt (§5.4) ───────────────────────────────────────────
+
+/** The binding one-round obligation a rescued Warlord owes their rescuer (§5.4). */
+export interface RescueDebt {
+  /** The rescuer this debt is owed to. */
+  readonly creditor: number;
+  /** Forced minimum Pledge the debtor must make (enforced in open modes). */
+  readonly forcedMinPledge: number;
+  /** Round (inclusive) through which the debt binds; cleared at that round's Dawn. */
+  readonly expiresRound: number;
 }
 
 // ─── Blood Pact / Accusation (Layer B, §10) ──────────────────────

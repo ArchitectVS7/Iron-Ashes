@@ -100,6 +100,20 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     voice narration, Whisper-act coach. Renders from GameState; all input via `applyCommand`. tsc + `vite build`
     clean; 13 test files (307, incl. 3 headless session-driver tests). UI is outside the verify lint/test scope
     (verify with `npm run dev`).*
+  - [x] **3f. Spec-parity reconciliation** — a pre-Stage-4 review (5 audit passes) found several spec-critical
+    mechanics stubbed/dead/missing behind the green suite; this stage builds them to spec so the Stage-4 sim
+    measures the REAL designed game (per `ML-SYSTEM-ANALYSIS.md`).
+    *Completed 2026-06-22. Built: the **anti-free-rider reward** (§4.2 step 5 — contributor land-shielding +
+    persistent FAVOR grudge-reduction; was entirely absent); the **Gambit Keystone guardrail** (§6 — a
+    garrisoned Keystone can't be blighted by any source; strike redirects to the adjacent ring; was dead code);
+    **Last Stand wired into live combat** (§5.3 — deterministic defender reversal; was dead code); the full
+    **Shadowking effect table** (§5.6 — SPREAD/SURGE/SEIZE/MARCH_DK/RAID_DK/REAP now actually fire + DK
+    maneuver; effect was computed-then-discarded); the **Rescue binding debt** (§5.4 — forced-min pledge in open
+    modes + withheld-attack, cleared at expiry; was an unenforced event detail); fixed the **warlord-power 3→2
+    march bug** and the **FORGE_WEIGHT literal desync**; corrected the steered front to the Crown quadrant
+    (§5.6). Replaced the Last-Stand false-confidence test. 14 test files (**323**, +16 spec-parity), typecheck +
+    lint clean, deterministic. NOTE: this supersedes the 3b completion notes that claimed Last Stand / Rescue /
+    Shadowking policy done — they were partial until 3f.*
 - [ ] **Stage 4 — ML/sim harness** — rebuilt on the consolidated reducer (NOT a parallel rules path).
   - [ ] **4a. Sim harness** — Monte-Carlo win-rate sweep over the REAL rules + REAL AI (drive games via
     `applyCommand` + the pure AI choosers; reuse the `src/ui-v2/session.ts` headless driver pattern);
@@ -179,6 +193,15 @@ fresh, but the *foundations* are directly reusable.
   (telegraphed villain + grudge + voice lines), `combat` (sealed-commit + Last Stand), `actions`
   (MARCH/CLAIM/RAID/STRIKE/RESCUE/RECRUIT — all via the one reducer), `gambit` (Crown's Gambit + territory
   tiebreakers). 14 source + 10 test files, **260 tests green**, typecheck clean, deterministic.
+- **2026-06-22** — **Pre-Stage-4 review + Stage 3f complete.** A 5-pass audit (determinism, mechanics
+  conformance, structure/deps, test honesty) confirmed the architecture (single reducer, determinism, no v1
+  imports, render-from-state UI) is sound, but found the green suite masked spec-critical gaps: the
+  anti-free-rider reward (§4.2 step 5, the design's #1 balance risk) was entirely absent; the Gambit
+  Keystone guardrail and Last Stand were dead code; the Shadowking effect table was computed-then-discarded
+  (one real behaviour); the Rescue debt was unenforced; plus a warlord-power march bug and a FORGE_WEIGHT
+  desync. **Stage 3f** built all of these to spec (`src/v2/shadowking-effects.ts` + edits across blight /
+  combat / actions / sequencer / reducer / gambit / tunables / types). Verify: 14 files, **323 passed** / 0
+  failed, typecheck + lint clean. The engine now matches the v2 design before the sim is built on it. Next: 4a.
 - **2026-06-22** — **Stage 3e complete.** Render-from-state UI (`src/ui-v2/`): SVG Closing-Ring board with
   ownership/ash/blightLevel pips + Warlord/Crown/dark markers, persistent HUD + standings, phase panels
   (Threat telegraph, Pledge with Crown-discount-at-commit + threshold beat, Action with node-click MARCH +

@@ -21,6 +21,7 @@ import {
   HAND_LIMIT,
   PATIENCE_CAP,
   PATIENCE_ON_BLOCK,
+  PLEDGE_FAVOR_GRUDGE_REDUCTION,
   ROUND_CAP,
 } from './tunables.js';
 import { SeededRandom } from '../utils/seeded-random.js';
@@ -28,8 +29,8 @@ import {
   applyDawnBlightAdvance,
   checkActAdvance,
   isKeystoneAshed,
-  resolveStrike,
 } from './blight.js';
+import { applyShadowkingStrike } from './shadowking-effects.js';
 import {
   chooseShadowkingIntent,
   decayGrudge,
@@ -130,6 +131,9 @@ export function resolvePledgePhase(state: GameState): SequencerResult {
   // Process in seat order (determinism §7)
   const sortedPledges = [...state.pledgeBuffer].sort((a, b) => a.playerIndex - b.playerIndex);
 
+  // Track who actually contributed — drives the anti-free-rider reward (§4.2 step 5).
+  const pledgers = new Set<number>();
+
   for (const pledge of sortedPledges) {
     const player = state.players[pledge.playerIndex];
     // getEffectivePledgeWeight handles: Gambit surcharge > Crown discount > 1.0
@@ -138,6 +142,14 @@ export function resolvePledgePhase(state: GameState): SequencerResult {
 
     // Discard pledged cards from hand (cards spent regardless of outcome)
     player.hand.splice(0, pledge.amount);
+
+    // Anti-free-rider (§4.2 step 5b): a contributor earns a persistent FAVOR —
+    // grudge-reduction. Free-riders (amount 0) earn nothing.
+    if (pledge.amount > 0) {
+      pledgers.add(pledge.playerIndex);
+      const g = state.shadowking.grudge;
+      g[pledge.playerIndex] = Math.max(0, (g[pledge.playerIndex] ?? 0) - PLEDGE_FAVOR_GRUDGE_REDUCTION);
+    }
   }
 
   const ratio = C > 0 ? Math.min(effective / C, 1) : 1;
@@ -151,12 +163,9 @@ export function resolvePledgePhase(state: GameState): SequencerResult {
     averted,
   });
 
-  // ── Apply the un-averted strike (§5.1 — Blight spread) ──
-  const strikeResult = resolveStrike(
-    state,
-    ratio,
-    telegraph.steerQuadrant,
-  );
+  // ── Apply the un-averted strike (§5.6 effect table / §5.1 Blight spread) ──
+  // Pledgers' own lands are shielded first (§4.2 step 5a).
+  const strikeResult = applyShadowkingStrike(state, telegraph, ratio, pledgers);
   state = strikeResult.state;
   events.push(...strikeResult.events);
 
@@ -285,6 +294,10 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
     if (p.isBroken) {
       p.brokenRoundsConsecutive++;
       events.push(...checkBrokenRecovery(state, p.index));
+    }
+    // Clear a rescue debt once its obligation round has been played (§5.4).
+    if (p.rescueDebt && state.round >= p.rescueDebt.expiresRound) {
+      p.rescueDebt = null;
     }
   }
 
