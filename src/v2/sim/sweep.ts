@@ -5,6 +5,7 @@
  */
 
 import type { GameMode } from '../types.js';
+import type { Tunables } from '../tunables.js';
 import { playHeadlessGame } from './driver.js';
 import { policyOf, type ArchetypeId } from './archetypes.js';
 import { computeMetrics, type GameMetrics } from './metrics.js';
@@ -16,6 +17,8 @@ export interface SweepConfig {
   readonly modes: readonly GameMode[];
   readonly matchups: readonly Matchup[];
   readonly maxStepsPerGame?: number;
+  /** Per-run tunable overrides applied to every game in the sweep (Stage-5 search). */
+  readonly tunables?: Partial<Tunables>;
 }
 
 export interface SweepRow {
@@ -43,7 +46,7 @@ export function runSweep(cfg: SweepConfig): SweepRow[] {
         for (const seed of cfg.seeds) {
           const run = playHeadlessGame({
             seed, playerCount, mode, seatPolicies, maxSteps: cfg.maxStepsPerGame,
-            bloodPactSeat,
+            bloodPactSeat, tunables: cfg.tunables,
           });
           rows.push({
             seed, playerCount, mode,

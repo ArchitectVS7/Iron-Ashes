@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "currentStage": "5b",
-  "currentStageTitle": "Stage 5b — tunable injectability seam + coordinate-descent search harness",
+  "currentStage": "5c",
+  "currentStageTitle": "Stage 5c — tune the dark (fix the doomCost player-count scaling)",
   "status": "not-started",
-  "nextAction": "Stage 5b (plan: ~/.claude plan + ROADMAP §4). Build the injectability seam so the sim can vary tunables per-run: attach a `tunables` object to GameState at createGame (src/v2/setup.ts) + read `state.tunables.X` at the ~15 import sites instead of importing the constants; add `tunables?: Partial<typeof TUNABLES>` to GameRunConfig (src/v2/sim/driver.ts) + SweepConfig (src/v2/sim/sweep.ts), threaded through playHeadlessGame→createGame. CRITICAL: add a bit-for-bit determinism test proving a no-override sweep is byte-identical to today's (the §7.12 invariant). Then add a guided coordinate-descent driver (scalar loss = Σ band-violations + heavy guardrail penalty) + docs/handoff/stage5-tuning-log.md scaffold. THEN 5c tunes the dark. 5a DONE — diagnostics shipped; key findings carried in openRisks.",
+  "nextAction": "Stage 5c — tune the dark to SK win 18-22% with each of 2/3/4p within ~±5pp (rounds stay 10-16, guardrails hold). THE #1 problem (5a): doomCost player-count SCALING — 2p 29% / 4p 1.9%. The doomCost levers ARE ALREADY injectable (5b wired DOOM_COST_WHISPER/MARCH/RECKONING + DOOM_COST_PLAYER_DIVISOR via withTunables). Use src/v2/sim/search.ts runTunableCandidates() to sweep candidates: e.g. lower DOOM_COST_PLAYER_DIVISOR (4→3→2) to raise 4p thresholds, and/or adjust the per-act base, to FLATTEN the per-count SK-win curve. Secondary levers (blight/DK) need wiring first if used: extend the Tunables interface in tunables.ts + convert call sites (blight.ts BLIGHT_TO_ASH/SPREAD_AMOUNT_BASE/DAWN_BLIGHT_ADVANCE, setup.ts+shadowking-effects.ts DK_POWER/DK_START_COUNT) + add to DEFAULT_TUNABLES. Record each candidate in docs/handoff/stage5-tuning-log.md; once a winner hits the band, EDIT the actual tunables.ts constants to the chosen values, re-run npm run sim, confirm, commit. Then 5d (rescue economy), 5e (Blood Pact), 5f (lock + 2-seed + §9 doc).",
   "specRefs": [
-    "ROADMAP §4 (Stage 5 plan, 5a-5f); src/v2/sim/report.ts TARGETS (the bands)",
-    "src/v2/tunables.ts (TUNABLES), src/v2/setup.ts (createGame), src/v2/sim/{driver,sweep}.ts",
-    "sim-results/sample/REPORT.md (the 5a 'before' snapshot with diagnostics)",
-    "ROADMAP §4 (5b)"
+    "docs/handoff/stage5-tuning-log.md (the evidence trail) + ROADMAP §4 (5c-5f)",
+    "src/v2/tunables.ts (doomCost + Tunables seam), src/v2/sim/search.ts (runTunableCandidates), report.ts (tuningLoss/TARGETS)",
+    "sim-results/sample/REPORT.md (the per-count diagnostic to fix)",
+    "ROADMAP §4 (5c)"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-22T20:38:52.496Z",
-    "commit": "05b4e74",
-    "sourceHash": "3b8aea62f8f28565406a6eeb27004a73f76c6ec8329cb50b10224a998d3bc4df",
+    "timestamp": "2026-06-22T21:05:35.395Z",
+    "commit": "914854a",
+    "sourceHash": "3bf465d9032a2815f0d8de526db7f6c43f834a9507c455383bb9b2c8d6f5c62d",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 21,
-      "passed": 360,
+      "files": 22,
+      "passed": 369,
       "failed": 0,
       "status": "pass"
     }

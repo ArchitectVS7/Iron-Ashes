@@ -16,6 +16,7 @@ import { createGame } from '../setup.js';
 import { applyCommand } from '../reducer.js';
 import { runAIPledge, runAITurn, DEFAULT_AI_POLICY, type AIPolicy } from '../ai-player.js';
 import { chooseAccusation, chooseAccusationVote } from '../blood-pact.js';
+import { withTunables, type Tunables } from '../tunables.js';
 import type { Command } from '../commands.js';
 import type { GameMode, GameState } from '../types.js';
 
@@ -36,6 +37,8 @@ export interface GameRunConfig {
    * needs it to measure traitor win-rate. Ignored in competitive mode.
    */
   readonly bloodPactSeat?: number;
+  /** Per-run tunable overrides (Stage-5 balance search). Unspecified = defaults. */
+  readonly tunables?: Partial<Tunables>;
 }
 
 export interface GameRunResult {
@@ -52,6 +55,11 @@ const DEFAULT_MAX_STEPS = 5000;
  * Pure `f(config)` — no `Math.random`, no `Date.now`; the AI seed is the game seed.
  */
 export function playHeadlessGame(cfg: GameRunConfig): GameRunResult {
+  // Scope the tunable overrides for the whole game (leak-safe; default = current values).
+  return withTunables(cfg.tunables ?? {}, () => runHeadlessGame(cfg));
+}
+
+function runHeadlessGame(cfg: GameRunConfig): GameRunResult {
   const { seed, playerCount, mode } = cfg;
   const maxSteps = cfg.maxSteps ?? DEFAULT_MAX_STEPS;
   const policyFor = (seat: number): AIPolicy => cfg.seatPolicies?.[seat] ?? DEFAULT_AI_POLICY;

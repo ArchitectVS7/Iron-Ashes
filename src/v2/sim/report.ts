@@ -209,6 +209,28 @@ function mkCheck(name: string, measured: number, band: { lo: number; hi: number 
   return { name, measured, lo: band.lo, hi: band.hi, pass: inBand(measured, band.lo, band.hi) };
 }
 
+// ─── Tuning loss (Stage 5 — the scalar the coordinate-descent minimizes) ──
+
+/**
+ * A scalar "how far from balanced" score: squared normalized band violations,
+ * plus a heavy penalty for breaking a guardrail (no-dominance / free-rider) or a
+ * non-terminating game. 0 = every band passed and both guardrails held. Lower is
+ * better — the search proposes overrides, this ranks them.
+ */
+export function tuningLoss(s: SweepSummary): number {
+  let loss = 0;
+  for (const c of s.checks) {
+    if (c.pass) continue;
+    const dist = c.measured < c.lo ? c.lo - c.measured : c.measured - c.hi;
+    const scale = c.hi <= 1 ? 0.1 : (c.hi - c.lo); // normalize rate bands vs count bands
+    loss += (dist / scale) ** 2;
+  }
+  if (!s.dominancePass) loss += 100;
+  if (s.freeRider.freeRidingRewarded) loss += 100;
+  if (s.hitGuardCount > 0) loss += 1000;
+  return loss;
+}
+
 // ─── Blood Pact summary (§10) ─────────────────────────────────────
 
 export interface BloodPactSummary {

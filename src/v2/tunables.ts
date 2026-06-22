@@ -219,23 +219,69 @@ export const ACCUSATION_PUSHBACK = 2;
 /** Wounds dealt to the traitor when correctly exposed. */
 export const TRAITOR_EXPOSED_WOUNDS = 3;
 
-// ─── Doom Cost Function ──────────────────────────────────────────
+// ─── Doom Cost curve (per-Act base + player-count scaling) ────────
+// Extracted into named tunables so the Stage-5 search can fix the player-count
+// disparity (5a found SK-win 2p 29% / 4p 1.9% — a SCALING problem).
+
+export const DOOM_COST_WHISPER = 3;
+export const DOOM_COST_MARCH = 5;
+export const DOOM_COST_RECKONING = 8;
+/** doomCost scales as base * playerCount / this divisor (4 = baseline 4p). */
+export const DOOM_COST_PLAYER_DIVISOR = 4;
 
 /**
- * The card threshold the table must collectively meet in the Pledge
- * to fully avert the Shadowking's strike.
- *
- * Scales with Act and player count. [TUNABLE] — ML sets the curve.
+ * The card threshold the table must collectively meet in the Pledge to fully
+ * avert the Shadowking's strike. Reads the live (possibly overridden) tunables.
  */
 export function doomCost(act: Act, playerCount: number): number {
+  const t = getTunables();
   const base: Record<Act, number> = {
-    WHISPER: 3,
-    MARCH: 5,
-    RECKONING: 8,
+    WHISPER: t.DOOM_COST_WHISPER,
+    MARCH: t.DOOM_COST_MARCH,
+    RECKONING: t.DOOM_COST_RECKONING,
   };
-  // Scale linearly with player count (baseline = 4 players).
-  const scale = playerCount / 4;
-  return Math.ceil(base[act] * scale);
+  return Math.ceil(base[act] * playerCount / t.DOOM_COST_PLAYER_DIVISOR);
+}
+
+// ─── Injectable tunables (Stage 5 — the search overrides these per run) ──
+// The set of levers the balance search may vary. Keeping it explicit means
+// overriding an un-wired constant is a TYPE ERROR, not a silent no-op. The
+// engine reads these via `getTunables()`; `withTunables()` scopes an override
+// (the sim sets it per game). The default path returns DEFAULT_TUNABLES, whose
+// values equal the module constants — so behaviour is byte-identical by default.
+
+// `Tunables` lists ONLY the levers whose engine call-sites read `getTunables()`,
+// so an override always takes effect (no silent no-op). It GROWS as later tuning
+// sub-stages wire more levers: each adds the field here + converts that lever's
+// call sites + extends DEFAULT_TUNABLES. 5b wires the doomCost curve (the #1
+// target — the player-count scaling that makes the dark unwinnable at 4p).
+export interface Tunables {
+  readonly DOOM_COST_WHISPER: number;
+  readonly DOOM_COST_MARCH: number;
+  readonly DOOM_COST_RECKONING: number;
+  readonly DOOM_COST_PLAYER_DIVISOR: number;
+}
+
+export const DEFAULT_TUNABLES: Tunables = Object.freeze({
+  DOOM_COST_WHISPER, DOOM_COST_MARCH, DOOM_COST_RECKONING, DOOM_COST_PLAYER_DIVISOR,
+});
+
+let activeTunables: Tunables = DEFAULT_TUNABLES;
+
+/** The tunables in effect right now (overridden inside `withTunables`, else default). */
+export function getTunables(): Tunables {
+  return activeTunables;
+}
+
+/** Run `fn` with `overrides` merged over the defaults, then restore. Deterministic + leak-safe. */
+export function withTunables<T>(overrides: Partial<Tunables>, fn: () => T): T {
+  const prev = activeTunables;
+  activeTunables = Object.freeze({ ...DEFAULT_TUNABLES, ...overrides });
+  try {
+    return fn();
+  } finally {
+    activeTunables = prev;
+  }
 }
 
 // ─── Frozen aggregate ─────────────────────────────────────────────

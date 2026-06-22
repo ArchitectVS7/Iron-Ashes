@@ -178,9 +178,17 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     pooled numbers hid: SK win is 2p 29% / 3p 12% / 4p 1.9% (a doomCost player-count-SCALING problem), and DK
     kills = 0.00/game (players never engage the dark's forces → pushback/grudge dormant). Gambler-free gambit is
     27% (somewhat above the 10–20% band, driven by opportunist/aggressor gambitAmbition).**
-  - [ ] **5b. Injectability + search harness** — thread a `tunables` object through GameState/createGame/
-    GameRunConfig/SweepConfig (read `state.tunables.X`); bit-for-bit determinism test; coordinate-descent driver
-    + `docs/handoff/stage5-tuning-log.md` scaffold.
+  - [x] **5b. Injectability + search harness** — per-run tunable overrides + the coordinate-descent core.
+    *Completed 2026-06-22.* Built a scoped `withTunables()`/`getTunables()` seam in `src/v2/tunables.ts`
+    (chosen over a GameState field to avoid the JSON-clone-drops-functions problem + signature churn); plumbed
+    `tunables?: Partial<Tunables>` through `GameRunConfig`→`playHeadlessGame` (wraps the game in `withTunables`)
+    and `SweepConfig`→`runSweep`; added `tuningLoss()` (Σ band-violations + heavy guardrail penalty) and
+    `src/v2/sim/search.ts` `runTunableCandidates()` (ranks candidate tunable-sets). `tests/v2/sim-tunables.test.ts`:
+    **bit-for-bit determinism** (no-override === current, §7.12), overrides take effect + are deterministic +
+    leak-safe. `docs/handoff/stage5-tuning-log.md` scaffold + the 5a baseline block. 22 test files, **369 green**.
+    *Scope: `Tunables` lists ONLY wired levers (no silent no-op) — 5b wires the **doomCost curve**
+    (DOOM_COST_WHISPER/MARCH/RECKONING + DOOM_COST_PLAYER_DIVISOR — the #1 5c target). 5c-5e extend `Tunables` +
+    convert each lever's call sites as they tune it (blight/DK for 5c, break/rescue for 5d, BP for 5e).*
   - [ ] **5c. Tune the dark** — fix the doomCost player-count scaling (2p too easy / 4p too hard) + the
     PUSHBACK/DAWN stall → SK win 18–22% with each of 2/3/4p within ~±5pp; rounds 10–16; guards hold.
   - [ ] **5d. Tune the rescue/break economy** — raise breaks + rescue uptake (BREAK_THRESHOLD, RESCUE_COST, AI
@@ -260,6 +268,13 @@ fresh, but the *foundations* are directly reusable.
   (telegraphed villain + grudge + voice lines), `combat` (sealed-commit + Last Stand), `actions`
   (MARCH/CLAIM/RAID/STRIKE/RESCUE/RECRUIT — all via the one reducer), `gambit` (Crown's Gambit + territory
   tiebreakers). 14 source + 10 test files, **260 tests green**, typecheck clean, deterministic.
+- **2026-06-22** — **Stage 5b (injectability + search harness) complete.** Built a scoped
+  `withTunables()`/`getTunables()` seam (lower-risk than a GameState field — no JSON-clone/function issue, no
+  signature churn) so the sim can vary tunables per run; plumbed overrides through GameRunConfig/SweepConfig;
+  added `tuningLoss()` + `src/v2/sim/search.ts` `runTunableCandidates()` (the coordinate-descent core). A
+  bit-for-bit determinism test proves the no-override path is byte-identical (§7.12). The doomCost curve (the
+  #1 5c lever) is wired now; later sub-stages extend the wired set. `docs/handoff/stage5-tuning-log.md` scaffold
+  created. Verify: 22 files, **369 passed**. Next: 5c (tune the dark — fix the doomCost player-count scaling).
 - **2026-06-22** — **Stage 5 planned + 5a (diagnostics) complete.** Approved Stage-5 plan (goals/metrics/
   corrective-actions, phased 5a–5f). 5a added tuning diagnostics to the sim report (gambler-free gambit rate,
   breaks/game, conditional rescue rate, DK-kill rate, doom progress, pledge full-block rate, per-Act + per-
