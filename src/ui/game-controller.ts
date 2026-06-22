@@ -99,6 +99,7 @@ import { AtmosphereEngine } from './atmosphere.js';
 import { StandingsPanel } from './standings-panel.js';
 import { TutorialEngine } from './tutorial.js';
 import { SettingsPanel } from './settings-panel.js';
+import { EventFeed } from './event-feed.js';
 
 // ─── Options ──────────────────────────────────────────────────────
 
@@ -150,6 +151,7 @@ export class GameController {
   private summary: SummaryEngine | null = null;
   private atmosphere: AtmosphereEngine | null = null;
   private settingsPanel: SettingsPanel | null = null;
+  private eventFeed: EventFeed | null = null;
   private hudEl: HTMLElement | null = null;
 
   // Multiplayer properties
@@ -160,15 +162,16 @@ export class GameController {
   private aiPlayers: Map<number, AIPlayer> = new Map();
 
   constructor(container: HTMLElement, options: GameControllerOptions = {}) {
-    const isUgtAutoPlay = typeof window !== 'undefined' && (window as any).__UGT_AUTO_PLAY__;
+    const ugtWindow = typeof window !== 'undefined' ? window as Window & { __UGT_AUTO_PLAY__?: boolean; __UGT_TEST_CONTROLLER__?: GameController } : undefined;
+    const isUgtAutoPlay = ugtWindow?.__UGT_AUTO_PLAY__;
     this.autoPlay = options.autoPlay ?? isUgtAutoPlay ?? false;
     this.combatDelayMs = isUgtAutoPlay ? 0 : (options.combatDelayMs ?? 2000);
     this.shadowkingDelayMs = isUgtAutoPlay ? 0 : (options.shadowkingDelayMs ?? 2000);
     this.setupDOM(container);
 
     // Expose for UGT Playwright tests
-    if (typeof window !== 'undefined') {
-      (window as any).__UGT_TEST_CONTROLLER__ = this;
+    if (ugtWindow) {
+      ugtWindow.__UGT_TEST_CONTROLLER__ = this;
     }
   }
 
@@ -210,6 +213,7 @@ export class GameController {
     try { this.atmosphere = new AtmosphereEngine(uiId); } catch { /* headless */ }
     try { this.summary = new SummaryEngine(); } catch { /* headless */ }
     try { this.tutorialEngine = new TutorialEngine(); } catch { /* headless */ }
+    try { this.eventFeed = new EventFeed(container); } catch { /* headless */ }
 
     if (this.boardRenderer) {
       this.boardRenderer.onNodeClick = (nodeId) => this.handleNodeClick(nodeId);
@@ -358,6 +362,15 @@ export class GameController {
       this.shadowkingDisplay.showBehaviorCard(label, BEHAVIOR_DESCRIPTIONS[card.type] ?? '');
     }
 
+    // Event feed: round separator + shadowking draw
+    if (this.eventFeed) {
+      this.eventFeed.addRoundSeparator(this.state.round);
+      if (card) {
+        this.eventFeed.addEvent(this.state.round, 'shadowking',
+          `Shadowking drew <strong>${card.type.toUpperCase()}</strong>: ${BEHAVIOR_DESCRIPTIONS[card.type] ?? 'Unknown effect.'}`);
+      }
+    }
+
     this.renderAll();
 
     if (!this.autoPlay && this.shadowkingDelayMs > 0) {
@@ -420,6 +433,22 @@ export class GameController {
 
     const voteResult = resolveVotes(this.state);
 
+    // Event feed: vote result
+    if (this.eventFeed) {
+      if (voteResult.blocked) {
+        this.eventFeed.addEvent(this.state.round, 'vote',
+          'Vote <strong>PASSED</strong> — all Arch-Regents paid to block the Shadowking!');
+      } else {
+        const abstainers = this.state.players
+          .filter((_, i) => this.state.votes[i] === 'abstain')
+          .map(p => `P${p.index + 1}`);
+        this.eventFeed.addEvent(this.state.round, 'vote',
+          `Vote <strong>FAILED</strong> (${abstainers.join(', ')} abstained). Card resolves!`);
+        this.eventFeed.addEvent(this.state.round, 'doom',
+          `Doom Toll advances to <strong>${this.state.doomToll + 1}</strong>.`);
+      }
+    }
+
     // Resolve the behavior card NOW, using the voting outcome
     if (this.state.currentBehaviorCard) {
       resolveBehaviorCard(this.state, this.rng, voteResult.blocked);
@@ -429,6 +458,10 @@ export class GameController {
     if (isInFinalPhase(this.state)) {
       this.fireDiscoveredTrigger('FIRST_FINAL_PHASE');
       performBlightAutoSpread(this.state, this.rng);
+      if (this.eventFeed) {
+        this.eventFeed.addEvent(this.state.round, 'doom',
+          'Final Phase — Blight auto-spreads across the Known Lands!');
+      }
     }
 
     // Immediate victory checks (doom_complete, all_broken)
@@ -557,6 +590,12 @@ export class GameController {
       player.fellowship.currentNode = nodeId;
       player.actionsRemaining -= 1;
 
+      // Event feed: movement
+      if (this.eventFeed) {
+        this.eventFeed.addEvent(this.state.round, 'action',
+          `P${player.index + 1} moved to <strong>${nodeId}</strong>. (${player.actionsRemaining} action${player.actionsRemaining !== 1 ? 's' : ''} left)`);
+      }
+
       // Artifact pickup on arrival
       if (this.state.artifactHolder === null && nodeId === this.state.artifactNode) {
         if (isArtifactAvailable(this.state)) {
@@ -631,6 +670,12 @@ export class GameController {
         nodeState.claimedBy = player.index;
         player.stats.strongholdsClaimed += 1;
         player.actionsRemaining -= 1;
+
+        // Event feed: claim
+        if (this.eventFeed) {
+          this.eventFeed.addEvent(this.state.round, 'action',
+            `P${player.index + 1} <strong>claimed</strong> ${nodeId}! (${player.stats.strongholdsClaimed} total)`);
+        }
 
         // Tutorial Turn 1 (movement/claim): first successful claim advances tutorial
         if (this.isTutorialMode && player.index === 0 && this.tutorialState.currentTurnIndex === 0) {
@@ -1042,7 +1087,7 @@ export class GameController {
     if (!this.state) return;
 
     if (this.boardRenderer) {
-      this.boardRenderer.updateState(this.state.boardState);
+      this.boardRenderer.updateFullState(this.state);
     }
 
     if (this.doomTollDisplay) {

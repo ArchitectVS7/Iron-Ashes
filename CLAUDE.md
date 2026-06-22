@@ -14,10 +14,18 @@ src/
   gll/        # GLL token types, registry, validation
   models/     # Data models (GameState, Player, Board, Characters)
   systems/    # Game systems (combat, voting, doom toll, shadowking)
+  ui/         # Vanilla-TS frontend: game-controller.ts orchestrates ~17 panel/*.css pairs
   utils/      # Seeded RNG, pathfinding, helpers
-tests/        # Mirrors src/ structure
+tests/        # Mirrors src/ structure (jsdom environment)
 content/      # GLL content packs (iron-throne/, future reskins)
+server/       # Express + WebSocket backend (own package.json, build, schema.sql)
+ml_training/  # Balance simulation harness (UGT) — TS batch sims + Python UI test
 ```
+
+**Frontend note:** `src/ui/` is a no-framework TypeScript UI. `game-controller.ts` is the
+entry orchestrator; each feature panel (`voting-panel.ts`, `combat-overlay.ts`, etc.) ships
+with a sibling `.css` file. Served via Vite (`npm run dev`, `index.html` at root). UI code is
+not covered by the Vitest suite — verify UI changes by running the app.
 
 ## Design Commitments (Non-Negotiable)
 
@@ -29,10 +37,18 @@ content/      # GLL content packs (iron-throne/, future reskins)
 
 ## Commands
 
-- `npm run build` — compile TypeScript
+- `npm run dev` — Vite dev server for the `src/ui/` frontend
+- `npm run build` — compile TypeScript (`tsc`)
 - `npm run typecheck` — type check without emitting
-- `npm test` — run all tests
+- `npm run lint` — ESLint over `src/` and `tests/`
+- `npm test` — run all tests (`vitest run`)
 - `npm run test:watch` — run tests in watch mode
+- `npm test -- tests/systems/combat.test.ts` — run a single test file
+- `npm test -- -t "doom toll"` — run tests matching a name pattern
+- `npm run start:server` — start the backend (`server/` has its own `npm install`)
+
+**Pre-push hook:** `core.hooksPath=.githooks`; `.githooks/pre-push` runs `npm run lint` and
+`npm run test`. A push fails if either fails — keep both green (do not bypass with `--no-verify`).
 
 ## Coding Standards
 
