@@ -71,11 +71,13 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
 - [x] **Stage 2 — Textual algorithm** → `DESIGN-V2-ALGORITHM.md`
 - [x] **Stage 2.5 — Adversarial stress-test + fixes folded in** → `DESIGN-V2-STRESS-TEST.md`
 - [ ] **Stage 3 — Build the new engine (from the spec).** Recommended order:
-  - [ ] **3a. Scaffold** — `GameState` shapes (ALGORITHM §2) + a single `applyCommand(state, cmd) → {state, events}`
+  - [x] **3a. Scaffold** — `GameState` shapes (ALGORITHM §2) + a single `applyCommand(state, cmd) → {state, events}`
     reducer + a pure phase sequencer (THREAT→PLEDGE→ACTION→DAWN) + determinism tests (§7). UI-less, headless.
-  - [ ] **3b. Layer A core mechanics** — Pledge (open) §4.2, Crown §5.2, ash-map/Blight §5.1, combat + Last
+    *Completed 2026-06-21. 9 source files in `src/v2/`, 5 test files (104 tests). Clean typecheck.*
+  - [x] **3b. Layer A core mechanics** — Pledge (open) §4.2, Crown §5.2, ash-map/Blight §5.1, combat + Last
     Stand §5.3, Broken/Rescue §5.4, escalation acts §5.5, Shadowking policy §5.6, victory + Gambit §6.
     *All actors (human/AI/sim) route through the one reducer — no duplicate movement/claim logic.*
+    *Completed 2026-06-22. 5 new modules (`blight`, `shadowking-policy`, `combat`, `actions`, `gambit`), 10 test files (260 tests). Clean typecheck.*
   - [ ] **3c. AI players** — deterministic `f(state, seed)` for pledge + actions + (later) accusation.
   - [ ] **3d. Layer B — Blood Pact** — sealed pledges, Suspicion Log, Audit, accusation (§10), behind the mode flag.
   - [ ] **3e. UI — render-from-state** — readable board, persistent HUD, the P2 legibility items
@@ -129,7 +131,7 @@ fresh, but the *foundations* are directly reusable.
 
 1. Read this file, then `docs/DESIGN-V2-ALGORITHM.md`.
 2. Check `git log` for what's been built since the design commit.
-3. The current next action is the first unchecked box in §4. (Right now: **Stage 3a — scaffold the engine**.)
+3. The current next action is the first unchecked box in §4. (Right now: **Stage 3c — AI players**.)
 4. Build through the one `applyCommand` reducer; keep everything deterministic (§7); write tests as you go.
 5. Update §4 checkboxes and §8 changelog in THIS file as work completes — keep the resume point current.
 
@@ -144,3 +146,16 @@ fresh, but the *foundations* are directly reusable.
   traitor=full at launch; win=Contested Throne + Gambit; map=Closing Ring.
 - **2026-06-21** — Stage 2.5 stress-test (5 experts, unanimous "fix-then-code") → P0/P1 fixes folded into the spec.
 - **2026-06-21** — Roadmap created; design docs committed before scaffolding.
+- **2026-06-21** — **Stage 3a complete.** 9 source files in `src/v2/`, 5 test files (104 tests, all green).
+  New engine scaffold: types, board (17-node Closing Ring), commands, events, reducer (`applyCommand`),
+  sequencer (THREAT→PLEDGE→ACTION→DAWN), setup (`createGame`), tunables, barrel export.
+  Determinism contract (§7) proven. Typecheck clean. v1 code untouched.
+- **2026-06-22** — **Stage 3b complete.** Layer A core mechanics added: `blight` (ash-map), `shadowking-policy`
+  (telegraphed villain + grudge + voice lines), `combat` (sealed-commit + Last Stand), `actions`
+  (MARCH/CLAIM/RAID/STRIKE/RESCUE/RECRUIT — all via the one reducer), `gambit` (Crown's Gambit + territory
+  tiebreakers). 14 source + 10 test files, **260 tests green**, typecheck clean, deterministic.
+- **2026-06-22** — Handover audit + cleanup. Triaged the v2 suite: 1 real code bug (`pledgeHistory` stored
+  in submission order → now seat order, determinism §7.2) + 7 stale/incorrect tests — including an
+  infinite-loop test helper (`passAllActions`) that had prevented the suite from ever completing (so the
+  earlier "all green" was never actually observed). All fixed → 260 green. Removed unused-import lint
+  errors (0 v2 lint errors). Memory refreshed; stale `AGENTS.md` (a verbatim v1 copy) deleted.
