@@ -83,7 +83,13 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     a tunable free-rider lean; greedy economic actions via BFS) + `runAIPledge`/`runAITurn` drivers that route
     every decision through `applyCommand`. 11 test files (281 tests). Full AI-vs-AI games are seed-reproducible
     (§7.12). Accusation deferred to 3d with the rest of Blood Pact.*
-  - [ ] **3d. Layer B — Blood Pact** — sealed pledges, Suspicion Log, Audit, accusation (§10), behind the mode flag.
+  - [x] **3d. Layer B — Blood Pact** — sealed pledges, Suspicion Log, Audit, accusation (§10), behind the mode flag.
+    *Completed 2026-06-22. `src/v2/blood-pact.ts`: sealed pledge reveal (PLEDGE_COMMITTED conceals amount/tier
+    in blood_pact; real tiers → bounded Suspicion Log), the Audit action (`AUDIT`, costs banners, reveals one
+    opponent's last pledge), and the full accusation lifecycle (initiate/vote/resolve → correct exposes the
+    traitor & forfeits the doom win + pushes the front back; wrong vindicates & locks out; non-unanimous
+    fizzles) + pure `f(state, seed)` AI choosers (suspicion-scored). 12 test files (304 tests). Competitive
+    mode byte-identical.*
   - [ ] **3e. UI — render-from-state** — readable board, persistent HUD, the P2 legibility items
     (`STRESS-TEST §P2`: threshold-beat pledge reveal, blightLevel pips, Gambit alarm, Crown-handoff beat,
     villain voice layer, Whisper-act onboarding). The old vanilla-TS UI is a debug/test harness only.
@@ -139,7 +145,7 @@ fresh, but the *foundations* are directly reusable.
    previous handover first), then read **`docs/handoff/state.json`** — the machine source of truth for
    status (`currentStage`, `nextAction`, `specRefs`, `invariants`, `gotchas`).
 2. Read this file (§2 locked decisions; §4 — the first unchecked box equals `state.currentStage`) and the
-   `specRefs` sections of `docs/DESIGN-V2-ALGORITHM.md`. (Right now: **Stage 3d — Layer B, Blood Pact**.)
+   `specRefs` sections of `docs/DESIGN-V2-ALGORITHM.md`. (Right now: **Stage 3e — UI, render-from-state**.)
 3. Build through the one `applyCommand` reducer; keep everything deterministic (§7); write tests as you go.
 4. **Definition of Done (enforced):** `npm run verify` exits 0 → update `state.json` + §4 box + §8
    changelog + the memory file → commit → `npm run handoff:check` exits 0. See `docs/AGENT-PROTOCOL.md`.
@@ -163,6 +169,13 @@ fresh, but the *foundations* are directly reusable.
   (telegraphed villain + grudge + voice lines), `combat` (sealed-commit + Last Stand), `actions`
   (MARCH/CLAIM/RAID/STRIKE/RESCUE/RECRUIT — all via the one reducer), `gambit` (Crown's Gambit + territory
   tiebreakers). 14 source + 10 test files, **260 tests green**, typecheck clean, deterministic.
+- **2026-06-22** — **Stage 3d complete.** Layer B — Blood Pact (`src/v2/blood-pact.ts`), behind the mode
+  flag: sealed pledge reveal (`PLEDGE_COMMITTED` conceals amount/tier; real tiers feed a bounded Suspicion
+  Log), the `AUDIT` action (banner cost → reveals one opponent's last pledge), and the accusation lifecycle
+  (initiate → unanimous vote → resolve: correct exposes the traitor & forfeits their `doom_complete` win &
+  pushes the front back; wrong vindicates the accused & locks out; non-unanimous fizzles) with pure
+  `f(state, seed)` AI deduction choosers. Competitive mode is byte-identical (verified by the unchanged 281).
+  Verify: 12 files, 304 passed / 0 failed, typecheck+lint pass. Next: 3e (UI — render-from-state).
 - **2026-06-22** — **Stage 3c complete.** Deterministic AI player (`src/v2/ai-player.ts`): pure
   `choosePledge` (fair-share vs. threshold, harder if named/struck, tunable free-rider lean) + `chooseAction`
   (greedy economic: STRIKE-if-favorable → CLAIM → BFS-MARCH toward the best claimable → PASS), both pure

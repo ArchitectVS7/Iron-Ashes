@@ -18,6 +18,7 @@ export type ActionType =
   | 'STRIKE'    // Initiate combat vs a co-located Shadowking force (§5.3)
   | 'RESCUE'    // Un-Break a co-located/adjacent ally (§5.4)
   | 'RECRUIT'   // Recruit a retinue piece
+  | 'AUDIT'     // Reveal one opponent's last pledge (Blood Pact only, §10)
   | 'PASS';     // End actions early
 
 /** A player action with its parameters. */
@@ -39,7 +40,9 @@ export type Command =
   | AdvancePhaseCommand
   | SubmitPledgeCommand
   | PlayerActionCommand
-  | LastStandCommitCommand;
+  | LastStandCommitCommand
+  | InitiateAccusationCommand
+  | AccusationVoteCommand;
 
 /** Advance to the next phase (or next round at Dawn → Threat). */
 export interface AdvancePhaseCommand {
@@ -67,4 +70,18 @@ export interface LastStandCommitCommand {
   readonly playerIndex: number;
   /** Number of additional cards to commit. */
   readonly cardCount: number;
+}
+
+/** Open an accusation against a suspected Blood Pact holder (§10, Blood Pact only). */
+export interface InitiateAccusationCommand {
+  readonly type: 'INITIATE_ACCUSATION';
+  readonly accuserIndex: number;
+  readonly accusedIndex: number;
+}
+
+/** Cast a vote on the open accusation (§10). All required voters must agree to convict. */
+export interface AccusationVoteCommand {
+  readonly type: 'ACCUSATION_VOTE';
+  readonly playerIndex: number;
+  readonly agree: boolean;
 }

@@ -87,6 +87,12 @@ export function applyCommand(state: GameState, command: Command): CommandResult 
     case 'LAST_STAND_COMMIT':
       return handleLastStandCommit(newState, command.playerIndex, command.cardCount);
 
+    case 'INITIATE_ACCUSATION':
+      return handleInitiateAccusation(newState, command.accuserIndex, command.accusedIndex);
+
+    case 'ACCUSATION_VOTE':
+      return handleAccusationVote(newState, command.playerIndex, command.agree);
+
     default: {
       // Exhaustive check
       const _exhaustive: never = command;
@@ -182,12 +188,18 @@ function handleSubmitPledge(
     tier,
   });
 
-  events.push({
-    type: 'PLEDGE_SUBMITTED',
-    playerIndex,
-    amount,
-    tier,
-  });
+  // In Blood Pact mode the reveal is sealed: the public log shows only that a
+  // player committed — amount and tier go to the Suspicion Log, not here (§10).
+  if (state.mode === 'blood_pact') {
+    events.push({ type: 'PLEDGE_COMMITTED', playerIndex });
+  } else {
+    events.push({
+      type: 'PLEDGE_SUBMITTED',
+      playerIndex,
+      amount,
+      tier,
+    });
+  }
 
   // Append to actionLog
   state.actionLog.push(...events);
@@ -203,6 +215,11 @@ import {
   executeRescue,
   executeRecruit,
 } from './actions.js';
+import {
+  executeAudit,
+  initiateAccusation,
+  submitAccusationVote,
+} from './blood-pact.js';
 
 function handlePlayerAction(
   state: GameState,
@@ -356,6 +373,24 @@ function handlePlayerAction(
       break;
     }
 
+    case 'AUDIT': {
+      if (action.targetPlayerIndex === undefined || action.targetPlayerIndex === null) {
+        throw new InvalidCommandError(
+          { type: 'PLAYER_ACTION', playerIndex, action },
+          'AUDIT requires a targetPlayerIndex',
+        );
+      }
+      try {
+        actionResult = executeAudit(state, playerIndex, action.targetPlayerIndex);
+      } catch (e: unknown) {
+        throw new InvalidCommandError(
+          { type: 'PLAYER_ACTION', playerIndex, action },
+          (e as Error).message,
+        );
+      }
+      break;
+    }
+
     default: {
       throw new InvalidCommandError(
         { type: 'PLAYER_ACTION', playerIndex, action },
@@ -385,7 +420,10 @@ function handlePlayerAction(
   const keystoneState = state.board.state.nodes[state.board.definition.keystoneId];
   if (keystoneState?.ashed) {
     state.gameEndReason = 'doom_complete';
-    state.winner = state.mode === 'blood_pact' ? state.bloodPactHolder : null;
+    // The traitor wins on doom UNLESS they were exposed by a correct accusation (§10).
+    state.winner = (state.mode === 'blood_pact' && !state.bloodPactExposed)
+      ? state.bloodPactHolder
+      : null;
     events.push({
       type: 'GAME_OVER',
       reason: 'doom_complete',
@@ -436,5 +474,43 @@ function handleLastStandCommit(
 
   state.actionLog.push(...events);
   return { state, events };
+}
+
+// ─── Blood Pact command handlers (§10) ───────────────────────────
+
+function handleInitiateAccusation(
+  state: GameState,
+  accuserIndex: number,
+  accusedIndex: number,
+): CommandResult {
+  let result;
+  try {
+    result = initiateAccusation(state, accuserIndex, accusedIndex);
+  } catch (e: unknown) {
+    throw new InvalidCommandError(
+      { type: 'INITIATE_ACCUSATION', accuserIndex, accusedIndex },
+      (e as Error).message,
+    );
+  }
+  result.state.actionLog.push(...result.events);
+  return result;
+}
+
+function handleAccusationVote(
+  state: GameState,
+  playerIndex: number,
+  agree: boolean,
+): CommandResult {
+  let result;
+  try {
+    result = submitAccusationVote(state, playerIndex, agree);
+  } catch (e: unknown) {
+    throw new InvalidCommandError(
+      { type: 'ACCUSATION_VOTE', playerIndex, agree },
+      (e as Error).message,
+    );
+  }
+  result.state.actionLog.push(...result.events);
+  return result;
 }
 

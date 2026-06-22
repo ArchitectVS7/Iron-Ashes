@@ -43,6 +43,7 @@ import {
   getEffectivePledgeWeight,
   computeTerritoryWinner,
 } from './gambit.js';
+import { recordSuspicionLog } from './blood-pact.js';
 
 // ─── Result type ──────────────────────────────────────────────────
 
@@ -171,6 +172,9 @@ export function resolvePledgePhase(state: GameState): SequencerResult {
   // Record pledge history in canonical SEAT ORDER (not submission order) so the
   // resulting state is submission-order-invariant (determinism §7.2).
   state.pledgeHistory.push([...sortedPledges]);
+
+  // Blood Pact: feed this round's tiers into the bounded Suspicion Log (§10).
+  recordSuspicionLog(state, sortedPledges);
 
   // Patience ratchet (§4.2 step 6)
   if (averted) {
@@ -352,8 +356,10 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
   // 6. Loss checks (§7.10 — doom_complete before all_broken)
   if (isKeystoneAshed(state)) {
     state.gameEndReason = 'doom_complete';
-    // In blood_pact mode, the traitor wins
-    state.winner = state.mode === 'blood_pact' ? state.bloodPactHolder : null;
+    // In blood_pact mode the traitor wins — unless exposed by a correct accusation (§10).
+    state.winner = (state.mode === 'blood_pact' && !state.bloodPactExposed)
+      ? state.bloodPactHolder
+      : null;
     events.push({
       type: 'GAME_OVER',
       reason: 'doom_complete',

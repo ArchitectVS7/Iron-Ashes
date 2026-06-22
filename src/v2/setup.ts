@@ -203,8 +203,11 @@ export function createGame(
     gambit: null,
 
     bloodPactHolder,
+    bloodPactExposed: false,
     suspicionLog: [],
     accusationState: null,
+    accusationLockoutUntilRound: 0,
+    auditLog: [],
 
     actionLog: [],
     mode,

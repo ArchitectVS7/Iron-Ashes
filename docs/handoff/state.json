@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "currentStage": "3d",
-  "currentStageTitle": "Layer B — Blood Pact (sealed pledges, Suspicion Log, Audit, accusation)",
+  "currentStage": "3e",
+  "currentStageTitle": "UI — render-from-state (readable board, persistent HUD, P2 legibility items)",
   "status": "not-started",
-  "nextAction": "Implement Layer B behind the mode flag (ALGORITHM §10): true-sealed pledges (hidden commit, aggregate-only reveal), the Suspicion Log, the Audit (SealedCommit primitive), and deterministic accusation. Keep AI accusation pure f(state, seed) per §7.9. Add tests/v2/blood-pact.test.ts. 3c (deterministic AI player) is DONE: src/v2/ai-player.ts, 21 tests.",
+  "nextAction": "Build the render-from-state UI (ALGORITHM §2 board; STRESS-TEST §P2 legibility): readable Closing-Ring board, persistent HUD, threshold-beat pledge reveal, blightLevel pips, Gambit alarm, Crown-handoff beat, villain voice layer, Whisper-act onboarding. Render from GameState; route every input through applyCommand. The old vanilla-TS UI is a debug/test harness only. 3d (Layer B — Blood Pact) is DONE: src/v2/blood-pact.ts (sealed pledges, Suspicion Log, Audit, accusation + pure AI choosers), 23 tests.",
   "specRefs": [
-    "ALGORITHM §10 (Layer B — Blood Pact)",
-    "ALGORITHM §4.2 (Pledge — sealed variant)",
-    "ALGORITHM §7 (determinism; §7.3 SealedCommit, §7.9 AI accusation pure)",
-    "ROADMAP §4 (3d)"
+    "STRESS-TEST §P2 (UI legibility punch list)",
+    "ALGORITHM §2 (board — Closing Ring)",
+    "ALGORITHM §5.2/§6 (Crown, Gambit — UI beats)",
+    "ROADMAP §4 (3e)"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-22T17:21:22.206Z",
-    "commit": "7e7eedf",
-    "sourceHash": "747ef149f75f0004519d0c528776840769ab23096b162e2155e79e658b4e0bd8",
+    "timestamp": "2026-06-22T17:34:57.338Z",
+    "commit": "ed9a817",
+    "sourceHash": "5e50b85029bbb64b8a7ac3cfced49a100d2f3a80dd81e53a9abec2d401444adc",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 11,
-      "passed": 281,
+      "files": 12,
+      "passed": 304,
       "failed": 0,
       "status": "pass"
     }
@@ -28,7 +28,8 @@
     "All mutation goes through applyCommand (src/v2/reducer.ts) — no direct state mutation elsewhere",
     "No Math.random / Date.now / any in src/v2 — all RNG via SeededRandom (ALGORITHM §7)",
     "GameState is JSON-serializable (clone = JSON.parse(JSON.stringify))",
-    "AI decisions must be pure f(state, seed) (ALGORITHM §7.9) — required for reproducibility"
+    "AI decisions must be pure f(state, seed) (ALGORITHM §7.9) — required for reproducibility",
+    "Layer B (blood_pact) only: pledges emit PLEDGE_COMMITTED (concealed) not PLEDGE_SUBMITTED; real tiers go to suspicionLog; the traitor forfeits the doom_complete win iff bloodPactExposed. Competitive mode behavior is unchanged."
   ],
   "gotchas": [
     "`npm test` includes ~50 RED v1 tests by design (they anchor v1) — use `npm run test:v2` for the v2 suite",
@@ -37,6 +38,7 @@
     "ACTION pointer quirk: after the LAST player in turnOrder exhausts actions, advanceActivePlayer leaves activePlayerIndex ON that player (turnOrderPosition === turnOrder.length). Any per-player action loop must ALSO stop on actionsRemaining===0, not just the index — else it re-enters a 0-action player (runAITurn handles this)."
   ],
   "openRisks": [
-    "Pledge free-rider incentive is unproven until the Stage 5 sim (ALGORITHM §4.2 step 5) — the primary balance risk"
+    "Pledge free-rider incentive is unproven until the Stage 5 sim (ALGORITHM §4.2 step 5) — the primary balance risk",
+    "Blood Pact accusation tuning (AUDIT_COST, ACCUSATION_* penalties/cooldown, SUSPICION_LOG_ROUNDS, TRAITOR_EXPOSED_WOUNDS) is placeholder — must be balanced in Stage 5 so accusation is neither spammed nor never-fired."
   ]
 }

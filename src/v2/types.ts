@@ -196,6 +196,49 @@ export interface PledgeEntry {
   readonly tier: PledgeTier;
 }
 
+// ─── Blood Pact / Accusation (Layer B, §10) ──────────────────────
+
+/** One player's vote in an active accusation. */
+export interface AccusationVote {
+  /** The voting player's index. */
+  readonly playerIndex: number;
+  /** Whether they back the accusation. */
+  readonly agree: boolean;
+}
+
+/** How an accusation resolved (§10). */
+export type AccusationOutcome = 'correct' | 'wrong' | 'fizzled';
+
+/** A live accusation against a suspected traitor (§10). */
+export interface AccusationState {
+  /** Player who opened the accusation (auto-agrees). */
+  readonly accuser: number;
+  /** Player being accused of holding the Blood Pact. */
+  readonly accused: number;
+  /** Round the accusation was opened. */
+  readonly round: number;
+  /** Votes collected so far (accuser pre-included as agree). */
+  votes: AccusationVote[];
+  /** Whether resolution has run. */
+  resolved: boolean;
+  /** The resolved outcome, or null while pending. */
+  outcome: AccusationOutcome | null;
+}
+
+/** A single Audit reveal — the auditor learned a target's last pledge (§10). */
+export interface AuditEntry {
+  /** Round the Audit was performed. */
+  readonly round: number;
+  /** Player who paid for the Audit. */
+  readonly auditor: number;
+  /** Player whose last pledge was revealed. */
+  readonly target: number;
+  /** The revealed pledge amount. */
+  readonly amount: number;
+  /** The revealed pledge tier. */
+  readonly tier: PledgeTier;
+}
+
 // ─── Victory / Loss ───────────────────────────────────────────────
 
 /** How the game ended (§6). */
@@ -279,10 +322,16 @@ export interface GameState {
   // ── Blood Pact (Layer B) ──
   /** Player index holding the Blood Pact, or null (Layer A). */
   bloodPactHolder: number | null;
-  /** Suspicion Log entries (Layer B only). */
+  /** Whether the traitor has been correctly accused (forfeits the doom_complete win). */
+  bloodPactExposed: boolean;
+  /** Suspicion Log — recent per-round pledge tiers (Layer B only, bounded, §10). */
   suspicionLog: PledgeEntry[][];
-  /** Accusation state (Layer B only, stub for 3a). */
-  accusationState: null;
+  /** Live accusation, or null when none is open (Layer B only, §10). */
+  accusationState: AccusationState | null;
+  /** Round number until which new accusations are locked out (anti-spam, §10). */
+  accusationLockoutUntilRound: number;
+  /** Persistent record of Audit reveals (Layer B only, §10). */
+  auditLog: AuditEntry[];
 
   /** The event stream the UI renders from / post-game reviews. */
   actionLog: GameEvent[];

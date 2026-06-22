@@ -10,6 +10,7 @@
 
 import type {
   Act,
+  AccusationOutcome,
   GameEndReason,
   GamePhase,
   PledgeTier,
@@ -24,6 +25,7 @@ export type GameEvent =
   | RoundStartedEvent
   | ThreatDeclaredEvent
   | PledgeSubmittedEvent
+  | PledgeCommittedEvent
   | PledgeResolvedEvent
   | PlayerActedEvent
   | ActivePlayerChangedEvent
@@ -34,7 +36,11 @@ export type GameEvent =
   | BlightAdvancedEvent
   | NodeAshedEvent
   | GrudgeChangedEvent
-  | SkVoiceLineEvent;
+  | SkVoiceLineEvent
+  | AuditResultEvent
+  | AccusationOpenedEvent
+  | AccusationVoteCastEvent
+  | AccusationResolvedEvent;
 
 // ─── Individual Events ────────────────────────────────────────────
 
@@ -60,6 +66,17 @@ export interface PledgeSubmittedEvent {
   readonly playerIndex: number;
   readonly amount: number;
   readonly tier: PledgeTier;
+}
+
+/**
+ * Concealed pledge commit (Blood Pact only, §10): the table sees only that a
+ * player committed — never the amount or tier (those go to the Suspicion Log,
+ * visible only from the accusation screen). Replaces PLEDGE_SUBMITTED in
+ * blood_pact mode so the public log can't be data-mined.
+ */
+export interface PledgeCommittedEvent {
+  readonly type: 'PLEDGE_COMMITTED';
+  readonly playerIndex: number;
 }
 
 export interface PledgeResolvedEvent {
@@ -136,4 +153,40 @@ export interface SkVoiceLineEvent {
   readonly type: 'SK_VOICE_LINE';
   readonly line: string;
   readonly trigger: string;
+}
+
+// ─── Stage 3d: Blood Pact Events (§10) ───────────────────────────
+
+/** Result of an Audit — the auditor learns a target's last pledge. */
+export interface AuditResultEvent {
+  readonly type: 'AUDIT_RESULT';
+  readonly auditorIndex: number;
+  readonly targetIndex: number;
+  readonly amount: number;
+  readonly tier: PledgeTier;
+  readonly round: number;
+}
+
+/** An accusation was opened against a suspected traitor. */
+export interface AccusationOpenedEvent {
+  readonly type: 'ACCUSATION_OPENED';
+  readonly accuser: number;
+  readonly accused: number;
+}
+
+/** A required voter cast their vote on the open accusation. */
+export interface AccusationVoteCastEvent {
+  readonly type: 'ACCUSATION_VOTE_CAST';
+  readonly playerIndex: number;
+  readonly agree: boolean;
+}
+
+/** The accusation resolved (correct / wrong / fizzled). */
+export interface AccusationResolvedEvent {
+  readonly type: 'ACCUSATION_RESOLVED';
+  readonly accuser: number;
+  readonly accused: number;
+  readonly outcome: AccusationOutcome;
+  /** True iff the accused actually held the Blood Pact. */
+  readonly wasTraitor: boolean;
 }

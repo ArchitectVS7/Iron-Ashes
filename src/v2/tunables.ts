@@ -133,6 +133,29 @@ export const GRUDGE_PER_FORGE_RECLAIM = 2;
 /** Grudge added per point of combat damage dealt to Shadowking forces (§5.6). */
 export const GRUDGE_PER_SK_WOUND = 1;
 
+// ─── Layer B — Blood Pact (§10) ──────────────────────────────────
+
+/** How many recent rounds of pledge tiers the Suspicion Log retains. */
+export const SUSPICION_LOG_ROUNDS = 4;
+
+/** Banner cost to Audit one opponent's last pledge. */
+export const AUDIT_COST = 2;
+
+/** Rounds new accusations are locked out after a wrong/fizzled one (anti-spam). */
+export const ACCUSATION_COOLDOWN_ROUNDS = 2;
+
+/** Cards each agreeing accuser discards when the accusation is wrong. */
+export const ACCUSATION_WRONG_PENALTY = 1;
+
+/** Banners the vindicated (wrongly-accused) player gains. */
+export const ACCUSATION_VINDICATION_BONUS = 2;
+
+/** Blight pushback applied to the worst frontier node when the traitor is exposed. */
+export const ACCUSATION_PUSHBACK = 2;
+
+/** Wounds dealt to the traitor when correctly exposed. */
+export const TRAITOR_EXPOSED_WOUNDS = 3;
+
 // ─── Doom Cost Function ──────────────────────────────────────────
 
 /**
@@ -186,5 +209,12 @@ export const TUNABLES = Object.freeze({
   GRUDGE_PER_DK_KILL,
   GRUDGE_PER_FORGE_RECLAIM,
   GRUDGE_PER_SK_WOUND,
+  SUSPICION_LOG_ROUNDS,
+  AUDIT_COST,
+  ACCUSATION_COOLDOWN_ROUNDS,
+  ACCUSATION_WRONG_PENALTY,
+  ACCUSATION_VINDICATION_BONUS,
+  ACCUSATION_PUSHBACK,
+  TRAITOR_EXPOSED_WOUNDS,
   doomCost,
 });

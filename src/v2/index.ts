@@ -15,6 +15,10 @@ export type { CommandResult } from './reducer.js';
 // ── Types ──
 export type {
   Act,
+  AccusationOutcome,
+  AccusationState,
+  AccusationVote,
+  AuditEntry,
   GameEndReason,
   GameMode,
   GamePhase,
@@ -118,6 +122,20 @@ export {
   isKeystoneGarrisoned,
   computeTerritoryWinner,
 } from './gambit.js';
+
+// ── Blood Pact (Layer B, §10) ──
+export {
+  recordSuspicionLog,
+  executeAudit,
+  initiateAccusation,
+  submitAccusationVote,
+  isAccusationComplete,
+  suspicionScore,
+  chooseAuditTarget,
+  chooseAccusation,
+  chooseAccusationVote,
+} from './blood-pact.js';
+export type { BloodPactResult, AuditResult } from './blood-pact.js';
 
 // ── AI Player ──
 export {
