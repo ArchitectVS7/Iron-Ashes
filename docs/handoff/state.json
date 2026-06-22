@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "currentStage": "3e",
-  "currentStageTitle": "UI — render-from-state (readable board, persistent HUD, P2 legibility items)",
+  "currentStage": "4a",
+  "currentStageTitle": "ML / sim harness — Monte-Carlo win-rate sweep over the REAL rules + REAL AI",
   "status": "not-started",
-  "nextAction": "Build the render-from-state UI (ALGORITHM §2 board; STRESS-TEST §P2 legibility): readable Closing-Ring board, persistent HUD, threshold-beat pledge reveal, blightLevel pips, Gambit alarm, Crown-handoff beat, villain voice layer, Whisper-act onboarding. Render from GameState; route every input through applyCommand. The old vanilla-TS UI is a debug/test harness only. 3d (Layer B — Blood Pact) is DONE: src/v2/blood-pact.ts (sealed pledges, Suspicion Log, Audit, accusation + pure AI choosers), 23 tests.",
+  "nextAction": "Build the Stage-4 sim harness on the consolidated reducer (NOT a parallel rules path — see docs/ML-SYSTEM-ANALYSIS.md). Drive full AI-vs-AI games via applyCommand + the pure AI choosers (src/v2/ai-player.ts, src/v2/blood-pact.ts); Monte-Carlo sweep over seeds; deterministic; report win-rates/round-counts/Gambit-frequency/rescue-counts vs the §9 targets. Reuse the headless driver pattern from src/ui-v2/session.ts (or tests/v2/ui-session.test.ts). 3e (UI render-from-state) is DONE: src/ui-v2/ (board SVG, HUD, phase panels, P2 beats incl. Whisper onboarding), index.html repointed; 3 UI session-driver tests.",
   "specRefs": [
-    "STRESS-TEST §P2 (UI legibility punch list)",
-    "ALGORITHM §2 (board — Closing Ring)",
-    "ALGORITHM §5.2/§6 (Crown, Gambit — UI beats)",
-    "ROADMAP §4 (3e)"
+    "ALGORITHM §9 (tunables + target metrics)",
+    "ML-SYSTEM-ANALYSIS.md (why the old harness was scrapped; what sound looks like)",
+    "ALGORITHM §7 (determinism — sim must be reproducible)",
+    "ROADMAP §4 (Stage 4)"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-22T17:34:57.338Z",
-    "commit": "ed9a817",
-    "sourceHash": "5e50b85029bbb64b8a7ac3cfced49a100d2f3a80dd81e53a9abec2d401444adc",
+    "timestamp": "2026-06-22T17:52:12.726Z",
+    "commit": "548ee5d",
+    "sourceHash": "da9fe253db92bfa92864b536644cc9595bc7c6bcaa635d60e3f2016747395028",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 12,
-      "passed": 304,
+      "files": 13,
+      "passed": 307,
       "failed": 0,
       "status": "pass"
     }
@@ -35,7 +35,8 @@
     "`npm test` includes ~50 RED v1 tests by design (they anchor v1) — use `npm run test:v2` for the v2 suite",
     "vitest output buffers when piped through `tail` — redirect to a file, or use the JSON reporter (verify.mjs does)",
     "Run `npm run verify` to (re)populate this block; never hand-edit lastVerified/dirty",
-    "ACTION pointer quirk: after the LAST player in turnOrder exhausts actions, advanceActivePlayer leaves activePlayerIndex ON that player (turnOrderPosition === turnOrder.length). Any per-player action loop must ALSO stop on actionsRemaining===0, not just the index — else it re-enters a 0-action player (runAITurn handles this)."
+    "ACTION pointer quirk: after the LAST player in turnOrder exhausts actions, advanceActivePlayer leaves activePlayerIndex ON that player (turnOrderPosition === turnOrder.length). Any per-player action loop must ALSO stop on actionsRemaining===0, not just the index — else it re-enters a 0-action player (runAITurn handles this).",
+    "The v2 UI lives in src/ui-v2 (entry index.html → src/ui-v2/main.ts; old v1 harness preserved at index-v1.html). It is OUTSIDE the verify lint/test scope (src/v2 tests/v2), but tsc --noEmit covers all of src/ so it must typecheck. Validate UI changes with `npm run dev` (or `npx vite build`); the headless session driver has logic coverage in tests/v2/ui-session.test.ts."
   ],
   "openRisks": [
     "Pledge free-rider incentive is unproven until the Stage 5 sim (ALGORITHM §4.2 step 5) — the primary balance risk",

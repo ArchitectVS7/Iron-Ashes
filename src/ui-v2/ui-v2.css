@@ -1,0 +1,123 @@
+/* Iron Throne of Ashes — v2 render-from-state UI (Stage 3e). */
+
+:root {
+  --bg: #0c0a0d;
+  --panel: #17141a;
+  --panel-2: #211c26;
+  --ink: #e7e3ea;
+  --muted: #9a92a6;
+  --line: #2c2632;
+  --accent: #c9a227;
+  --danger: #ef4444;
+  --ash: #1f1014;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+#app { height: 100vh; width: 100vw; overflow: hidden; }
+
+h1 { font-family: 'Cinzel', serif; letter-spacing: 1px; }
+
+/* ── Start screen ── */
+.start {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+.start h1 { font-size: 42px; margin: 0; color: var(--accent); }
+.tagline { color: var(--muted); margin: 0 0 12px; font-style: italic; }
+.start-form { display: flex; gap: 16px; align-items: flex-end; background: var(--panel); padding: 20px 24px; border-radius: 10px; border: 1px solid var(--line); }
+.start-form label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--muted); text-align: left; }
+.start-form select, .start-form input { background: var(--panel-2); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px; font-size: 15px; }
+.note { color: var(--muted); font-size: 13px; max-width: 420px; }
+
+/* ── Layout ── */
+.layout { display: flex; height: 100vh; }
+.board-pane { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; padding: 16px; min-width: 0; }
+.side-pane { flex: 0 0 380px; background: var(--panel); border-left: 1px solid var(--line); padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+
+/* ── Board ── */
+.board-svg { width: 100%; height: 100%; max-height: 96vh; }
+.edge { stroke: #34303a; stroke-width: 2; }
+.node { stroke: #000; stroke-width: 2; cursor: default; }
+.node-group { cursor: pointer; }
+.node.ashed { stroke: #3a2128; opacity: 0.7; }
+.node-keystone { stroke: var(--accent); stroke-width: 3; }
+.node-label { fill: #fff; font-size: 18px; text-anchor: middle; pointer-events: none; }
+.pip { stroke: #000; stroke-width: 0.5; }
+.pip-on { fill: #e0552b; }
+.pip-off { fill: #3a3340; }
+.warlord { stroke-width: 2; }
+.crown-glyph { fill: var(--accent); font-size: 14px; text-anchor: middle; }
+.dk-glyph { fill: #c9b8ff; font-size: 16px; text-anchor: middle; }
+
+/* ── Header / standings ── */
+.header { border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+.title { font-family: 'Cinzel', serif; color: var(--accent); font-size: 20px; }
+.clock { font-size: 14px; margin-top: 4px; }
+.sk-meter { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+.standings { width: 100%; border-collapse: collapse; font-size: 14px; }
+.standings th { text-align: left; color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--line); padding: 4px 6px; }
+.standings td { padding: 5px 6px; border-bottom: 1px solid #211c26; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.tag { font-size: 11px; padding: 1px 6px; border-radius: 4px; }
+.tag.crown { background: rgba(201,162,39,0.2); color: var(--accent); }
+.tag.broken { background: rgba(239,68,68,0.2); color: var(--danger); }
+.tag.you { background: rgba(59,130,246,0.2); color: #93c5fd; }
+
+/* ── Panels ── */
+.panel { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+.panel-title { font-weight: 600; margin-bottom: 8px; }
+button { font-family: inherit; cursor: pointer; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); padding: 8px 12px; font-size: 14px; }
+button:hover { border-color: var(--accent); }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+button.primary { background: var(--accent); color: #1a1206; border: none; font-weight: 600; }
+.action-btns { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.end-turn { width: 100%; margin-top: 6px; }
+
+/* ── Threat ── */
+.villain-line { font-style: italic; color: #d8b4fe; font-size: 16px; margin-bottom: 8px; }
+.threat-detail { font-size: 14px; color: var(--muted); margin-bottom: 12px; }
+
+/* ── Pledge ── */
+.pledge-threshold { font-size: 14px; margin-bottom: 10px; }
+.discount { color: var(--accent); }
+.discount.full { color: var(--muted); }
+.pledge-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.pledge-btn { display: flex; flex-direction: column; align-items: center; min-width: 48px; }
+.pledge-btn small { color: var(--muted); font-size: 11px; }
+.pledge-btn.suggested { border-color: var(--accent); }
+.hint { font-size: 13px; color: var(--muted); margin-top: 10px; }
+
+/* ── Whisper-act onboarding coach ── */
+.coach { margin-top: 10px; padding: 8px 10px; background: rgba(99,102,241,0.12); border: 1px solid #3730a3; border-radius: 6px; font-size: 13px; color: #c7d2fe; }
+.coach-tag { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; background: #4338ca; color: #fff; padding: 1px 6px; border-radius: 4px; margin-right: 6px; }
+
+/* ── Gambit alarm ── */
+.gambit-alarm { position: absolute; top: 0; left: 0; right: 380px; background: linear-gradient(90deg, #7f1d1d, #b45309); color: #fff; text-align: center; padding: 6px; font-weight: 600; z-index: 5; letter-spacing: 0.5px; }
+
+/* ── Narration / errors ── */
+.narration { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.narr { font-size: 13px; padding: 6px 8px; border-radius: 6px; border-left: 3px solid var(--line); background: var(--panel-2); }
+.narr.villain { border-left-color: #a855f7; color: #e9d5ff; font-style: italic; }
+.narr.beat { border-left-color: #e0552b; }
+.narr.system { border-left-color: var(--accent); }
+.error { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid #7f1d1d; border-radius: 6px; padding: 8px; font-size: 13px; }
+
+/* ── Accuse / game over ── */
+.accuse { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; }
+.accuse-btn { background: rgba(239,68,68,0.12); }
+.game-over .ending { font-size: 16px; margin-bottom: 14px; color: var(--accent); }

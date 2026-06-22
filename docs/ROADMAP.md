@@ -90,14 +90,24 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     traitor & forfeits the doom win + pushes the front back; wrong vindicates & locks out; non-unanimous
     fizzles) + pure `f(state, seed)` AI choosers (suspicion-scored). 12 test files (304 tests). Competitive
     mode byte-identical.*
-  - [ ] **3e. UI — render-from-state** — readable board, persistent HUD, the P2 legibility items
+  - [x] **3e. UI — render-from-state** — readable board, persistent HUD, the P2 legibility items
     (`STRESS-TEST §P2`: threshold-beat pledge reveal, blightLevel pips, Gambit alarm, Crown-handoff beat,
     villain voice layer, Whisper-act onboarding). The old vanilla-TS UI is a debug/test harness only.
+    *Completed 2026-06-22. `src/ui-v2/` (entry `index.html` → `main.ts`; old v1 harness preserved at
+    `index-v1.html`): SVG Closing-Ring board (ownership, ash, blightLevel pips, Warlord/Crown/dark markers),
+    persistent HUD/standings, phase panels (Threat telegraph, Pledge with Crown-discount-at-commit + threshold
+    beat, Action with node-click MARCH + context verbs, Audit/Accuse for Blood Pact), Gambit alarm, villain
+    voice narration, Whisper-act coach. Renders from GameState; all input via `applyCommand`. tsc + `vite build`
+    clean; 13 test files (307, incl. 3 headless session-driver tests). UI is outside the verify lint/test scope
+    (verify with `npm run dev`).*
 - [ ] **Stage 4 — ML/sim harness** — rebuilt on the consolidated reducer (NOT a parallel rules path).
-  Monte-Carlo win-rate sweep over the REAL rules + REAL AI; deterministic; reports vs targets.
-- [ ] **Stage 5 — Balance validation** — set the `[TUNABLE]` params (ALGORITHM §9); **prove the Pledge
-  free-rider incentive is solved** (the primary open balance question); hit targets (Shadowking win 18–22%,
-  ~10–16 rounds, Gambit fires ~1-in-6–8 games, 2–4 rescues/game, no dominant pledge line).
+  - [ ] **4a. Sim harness** — Monte-Carlo win-rate sweep over the REAL rules + REAL AI (drive games via
+    `applyCommand` + the pure AI choosers; reuse the `src/ui-v2/session.ts` headless driver pattern);
+    deterministic; report win-rate / round-count / Gambit-frequency / rescue-count vs the §9 targets.
+- [ ] **Stage 5 — Balance validation** — set the `[TUNABLE]` params (ALGORITHM §9).
+  - [ ] **5a. Tune to targets** — **prove the Pledge free-rider incentive is solved** (the primary open
+    balance question); hit targets (Shadowking win 18–22%, ~10–16 rounds, Gambit fires ~1-in-6–8 games,
+    2–4 rescues/game, no dominant pledge line; balance the Blood Pact accusation knobs).
 
 ---
 
@@ -145,7 +155,7 @@ fresh, but the *foundations* are directly reusable.
    previous handover first), then read **`docs/handoff/state.json`** — the machine source of truth for
    status (`currentStage`, `nextAction`, `specRefs`, `invariants`, `gotchas`).
 2. Read this file (§2 locked decisions; §4 — the first unchecked box equals `state.currentStage`) and the
-   `specRefs` sections of `docs/DESIGN-V2-ALGORITHM.md`. (Right now: **Stage 3e — UI, render-from-state**.)
+   `specRefs` sections of `docs/DESIGN-V2-ALGORITHM.md`. (Right now: **Stage 4a — ML/sim harness**.)
 3. Build through the one `applyCommand` reducer; keep everything deterministic (§7); write tests as you go.
 4. **Definition of Done (enforced):** `npm run verify` exits 0 → update `state.json` + §4 box + §8
    changelog + the memory file → commit → `npm run handoff:check` exits 0. See `docs/AGENT-PROTOCOL.md`.
@@ -169,6 +179,15 @@ fresh, but the *foundations* are directly reusable.
   (telegraphed villain + grudge + voice lines), `combat` (sealed-commit + Last Stand), `actions`
   (MARCH/CLAIM/RAID/STRIKE/RESCUE/RECRUIT — all via the one reducer), `gambit` (Crown's Gambit + territory
   tiebreakers). 14 source + 10 test files, **260 tests green**, typecheck clean, deterministic.
+- **2026-06-22** — **Stage 3e complete.** Render-from-state UI (`src/ui-v2/`): SVG Closing-Ring board with
+  ownership/ash/blightLevel pips + Warlord/Crown/dark markers, persistent HUD + standings, phase panels
+  (Threat telegraph, Pledge with Crown-discount-at-commit + threshold beat, Action with node-click MARCH +
+  context verbs, Blood-Pact Audit/Accuse), Gambit alarm banner, villain voice narration, and a Whisper-act
+  onboarding coach. The `GameSession` driver routes every input through `applyCommand`; `index.html` repointed
+  to the v2 UI (old v1 harness preserved at `index-v1.html`). Verify: 13 files, **307 passed** / 0 failed
+  (incl. 3 headless session-driver tests), typecheck + lint pass; `vite build` clean. UI is outside the
+  verify lint/test scope — `npm run dev` to play. Roadmap §4 restructured: Stages 4/5 given `4a`/`5a` boxes so
+  the handoff-check stage regex resolves. Next: 4a (sim harness).
 - **2026-06-22** — **Stage 3d complete.** Layer B — Blood Pact (`src/v2/blood-pact.ts`), behind the mode
   flag: sealed pledge reveal (`PLEDGE_COMMITTED` conceals amount/tier; real tiers feed a bounded Suspicion
   Log), the `AUDIT` action (banner cost → reveals one opponent's last pledge), and the accusation lifecycle
