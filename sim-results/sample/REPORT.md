@@ -37,3 +37,28 @@ Winners' mean pledge **1.59** vs the field's **1.69**.
 | gambit_victory | 1181 | 28.1% |
 | territory_victory | 2327 | 55.4% |
 
+## Tuning diagnostics (Stage 5)
+| Diagnostic | Value | Reading |
+|---|---|---|
+| Gambit fire rate — gambler-free subset | 27.2% | the HONEST gambit number (judge the §9 band on this) |
+| Gambit seize / win rate (all matchups) | 43.9% / 28.1% | aggregate, inflated by the gambler archetype |
+| Breaks per game | 0.73 | rescue target is gated on this |
+| Conditional rescue rate (rescues / break) | 13.4% | ~0 with breaks present ⇒ nobody bothers; low breaks ⇒ raise lethality |
+| DK kills per game | 0.00 | combat lethality vs the dark / pushback supply |
+| Mean nodes ashed (doom progress) | 6.09 | how close the dark got |
+| Pledge full-block rate | 40.0% | high ⇒ table over-blocks ⇒ dark too weak |
+
+## Per-player-count (strictness)
+| Count | Games | SK win | Rounds | Rescues | Gambit fire |
+|---|---|---|---|---|---|
+| 2p | 1400 | 29.2% | 11.5 | 0.05 | 42.4% |
+| 3p | 1400 | 11.6% | 12.0 | 0.09 | 43.6% |
+| 4p | 1400 | 1.9% | 12.3 | 0.15 | 45.6% |
+
+## End Act
+| Act | Count | Share |
+|---|---|---|
+| MARCH | 1320 | 31.4% |
+| RECKONING | 2742 | 65.3% |
+| WHISPER | 138 | 3.3% |
+

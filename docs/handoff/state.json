@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "currentStage": "5a",
-  "currentStageTitle": "Stage 5 — tune the [TUNABLE] params to the §9 targets",
+  "currentStage": "5b",
+  "currentStageTitle": "Stage 5b — tunable injectability seam + coordinate-descent search harness",
   "status": "not-started",
-  "nextAction": "Stage 5a — math-tune src/v2/tunables.ts to the §9 targets using `npm run sim` (competitive) + `npm run sim -- --bloodpact` (traitor) as the instrument. Stage 4 + 4g hardening are DONE, so the data is now TRUSTWORTHY (combat is value-aware, not draw-order; AI contests gambits). PRIORITIZED, TRUSTWORTHY targets from the post-4g sweep (sim-results/sample/): (1) Shadowking win 14.3% → 18-22% — the dark is genuinely a bit weak (consider doomCost base, DK_POWER/DK_START_COUNT, SPREAD/DAWN blight rates). (2) rescues 0.1/game → 2-4 — the break/rescue economy under-fires (value-aware combat made breaks rarer; revisit BREAK_THRESHOLD, combat lethality, RESCUE_COST, AI rescueWillingness). (3) Blood Pact accusation accuracy 20.5% (AIs over-accuse innocents) — tune the chooseAccusation suspicion threshold + ACCUSATION_* penalties so accusations beat random. NOTE: the Gambit is NOT a problem in normal play (16% without a dedicated gambler — in band); the 'gambler' archetype is a stress test, don't over-nerf GAMBIT_SURCHARGE off the aggregate. Re-run the sweep after each change; keep 'no dominant strategy' PASS and 'free-riding not rewarded' PASS. Also weigh the PUSHBACK<DAWN_BLIGHT_ADVANCE constraint (tunables.ts note) and the tunable-injectability seam (plan-stage4.md §4) for auto-sweeping.",
+  "nextAction": "Stage 5b (plan: ~/.claude plan + ROADMAP §4). Build the injectability seam so the sim can vary tunables per-run: attach a `tunables` object to GameState at createGame (src/v2/setup.ts) + read `state.tunables.X` at the ~15 import sites instead of importing the constants; add `tunables?: Partial<typeof TUNABLES>` to GameRunConfig (src/v2/sim/driver.ts) + SweepConfig (src/v2/sim/sweep.ts), threaded through playHeadlessGame→createGame. CRITICAL: add a bit-for-bit determinism test proving a no-override sweep is byte-identical to today's (the §7.12 invariant). Then add a guided coordinate-descent driver (scalar loss = Σ band-violations + heavy guardrail penalty) + docs/handoff/stage5-tuning-log.md scaffold. THEN 5c tunes the dark. 5a DONE — diagnostics shipped; key findings carried in openRisks.",
   "specRefs": [
-    "ALGORITHM §9 (the [TUNABLE] list + target metrics)",
-    "sim-results/sample/REPORT.md + BLOOD_PACT.md (the baseline findings to fix)",
-    "src/v2/tunables.ts (the knobs), src/v2/sim/* + `npm run sim` (the instrument)",
-    "ROADMAP §4 (5a)"
+    "ROADMAP §4 (Stage 5 plan, 5a-5f); src/v2/sim/report.ts TARGETS (the bands)",
+    "src/v2/tunables.ts (TUNABLES), src/v2/setup.ts (createGame), src/v2/sim/{driver,sweep}.ts",
+    "sim-results/sample/REPORT.md (the 5a 'before' snapshot with diagnostics)",
+    "ROADMAP §4 (5b)"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-22T20:17:34.763Z",
-    "commit": "a53d058",
-    "sourceHash": "b2f716a0364d8f4fb9fcaf7649a6e713eadf75476be10291c27c2ff965b946d3",
+    "timestamp": "2026-06-22T20:38:52.496Z",
+    "commit": "05b4e74",
+    "sourceHash": "3b8aea62f8f28565406a6eeb27004a73f76c6ec8329cb50b10224a998d3bc4df",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
       "files": 21,
-      "passed": 359,
+      "passed": 360,
       "failed": 0,
       "status": "pass"
     }
@@ -39,7 +39,8 @@
     "The v2 UI lives in src/ui-v2 (entry index.html → src/ui-v2/main.ts; old v1 harness preserved at index-v1.html). It is OUTSIDE the verify lint/test scope (src/v2 tests/v2), but tsc --noEmit covers all of src/ so it must typecheck. Validate UI changes with `npm run dev` (or `npx vite build`); the headless session driver has logic coverage in tests/v2/ui-session.test.ts."
   ],
   "openRisks": [
-    "TRUSTWORTHY POST-4g SWEEP FINDINGS (4200 games — sim-results/sample/REPORT.md, after the fidelity/contestation hardening): (a) Shadowking win 14.3% (target 18-22%) — dark genuinely a bit weak. (b) rescues 0.10/game (target 2-4) — break/rescue economy under-fires; value-aware combat made breaks rarer (all_broken 2.2%). (c) BP accusation accuracy 20.5% — AIs over-accuse innocents. GOOD: no dominant strategy (gambler 44.9% < dominance threshold), free-riding NOT rewarded. CORRECTION to the earlier 'Gambit OVERPOWERED' alarm: that was a CONFOUND — the gambit fires only 16% WITHOUT a dedicated gambler archetype (in §9 band); the mechanic is fine, the aggregate was inflated by the gambler stress-archetype + (pre-4g) weak combat. Do NOT over-nerf the Gambit.",
+    "STAGE-5a DIAGNOSTIC FINDINGS (the pooled numbers hid these — sim-results/sample/REPORT.md): (1) SK-win is WILDLY uneven by player count — 2p 29.2% / 3p 11.6% / 4p 1.9% (pooled 14.3%). The dark is nearly unwinnable at 4p and too strong at 2p → the #1 5c fix is the doomCost() PLAYER-COUNT SCALING (currently base*playerCount/4: more pledgers block far more easily at 4p). (2) DK-kills = 0.00/game — players NEVER engage the dark's Death Knights (DKs sit on outer seams players don't visit), so pushback/grudge/heroic mechanics are DORMANT; consider relevant in 5d. (3) gambler-FREE gambit fire 27.2% (above the 10-20% band — driven by opportunist/aggressor gambitAmbition, not just the gambler archetype) → may need a SMALL gambit nerf after all. (4) breaks 0.73/game but conditional-rescue 13.4% → both more breaks AND more rescue-uptake needed for 2-4 rescues. Pledge full-block 40%, mean ashed 6.09.",
+    "TRUSTWORTHY POST-4g SWEEP FINDINGS (4200 games — sim-results/sample/REPORT.md): SK win 14.3% pooled (but see the 5a per-count finding below — it's the scaling that's broken, not just the level), rescues 0.10/game (under-fires), BP accusation accuracy 20.5%. GOOD: no dominant strategy, free-riding NOT rewarded. Gambit: the earlier 'OVERPOWERED' aggregate alarm is a stress-archetype confound, but 5a's gambler-free measure (27%) is mildly above band — a small nerf may be warranted, NOT the 49%-driven over-nerf.",
     "The anti-free-rider reward (§4.2 step 5, Stage 3f) MEASURES as working across both pre- and post-4g sweeps (winners don't pledge less) — but PLEDGE_SHIELD_AMOUNT / PLEDGE_FAVOR_GRUDGE_REDUCTION are still placeholder [TUNABLE]; confirm it holds after Stage-5 retuning.",
     "DATA-TRUST CAVEAT (4g notes): combat commits are now value-aware but the ENGINE auto-decides them (COMBAT_COMMIT_MAX, RAID_DEFENSE_MARGIN) rather than a per-policy choice; the Last Stand is also engine-auto. Good enough for balance signal, but a future improvement is to make combat commits a policy decision. The PUSHBACK(1)==DAWN_BLIGHT_ADVANCE(1) relationship can let the front stall (tunables.ts note) — a Stage-5 tuning call.",
     "Blood Pact accusation tuning (AUDIT_COST, ACCUSATION_* penalties/cooldown, SUSPICION_LOG_ROUNDS, TRAITOR_EXPOSED_WOUNDS) is placeholder — must be balanced in Stage 5 so accusation is neither spammed nor never-fired.",

@@ -43,6 +43,16 @@ export interface GameMetrics {
   readonly traitorExposed: boolean;
   readonly accusationsResolved: number;
   readonly accusationsCorrect: number;
+
+  // ── Stage 5 diagnostics (so tuning isn't blind) ──
+  /** Death Knights killed (STRIKE wins) — combat lethality vs the dark + pushback supply. */
+  readonly dkKills: number;
+  /** Nodes ashed by game end — the doom-progress proxy. */
+  readonly ashedNodes: number;
+  /** Rounds whose Pledge was resolved (denominator for the full-block rate). */
+  readonly pledgeRounds: number;
+  /** Rounds the table FULLY blocked the strike (averted) — pledge health. */
+  readonly pledgeFullBlocks: number;
 }
 
 /** Living owned production (Holdings + weighted Forges) for one seat. */
@@ -80,6 +90,9 @@ export function computeMetrics(state: GameState): GameMetrics {
   let gambitSeized = false;
   let accusationsResolved = 0;
   let accusationsCorrect = 0;
+  let dkKills = 0;
+  let pledgeRounds = 0;
+  let pledgeFullBlocks = 0;
   for (const e of state.actionLog) {
     if (e.type === 'PLAYER_ACTED') {
       if (e.action === 'RESCUE') rescueCount++;
@@ -88,8 +101,16 @@ export function computeMetrics(state: GameState): GameMetrics {
     } else if (e.type === 'ACCUSATION_RESOLVED') {
       accusationsResolved++;
       if (e.outcome === 'correct') accusationsCorrect++;
+    } else if (e.type === 'SK_VOICE_LINE' && e.trigger === 'dk_killed') {
+      dkKills++;
+    } else if (e.type === 'PLEDGE_RESOLVED') {
+      pledgeRounds++;
+      if (e.averted) pledgeFullBlocks++;
     }
   }
+
+  let ashedNodes = 0;
+  for (const ns of Object.values(state.board.state.nodes)) if (ns.ashed) ashedNodes++;
 
   const isBloodPact = state.mode === 'blood_pact';
 
@@ -114,5 +135,9 @@ export function computeMetrics(state: GameState): GameMetrics {
     traitorExposed: isBloodPact && state.bloodPactExposed === true,
     accusationsResolved,
     accusationsCorrect,
+    dkKills,
+    ashedNodes,
+    pledgeRounds,
+    pledgeFullBlocks,
   };
 }

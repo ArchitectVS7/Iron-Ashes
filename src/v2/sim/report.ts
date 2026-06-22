@@ -45,6 +45,39 @@ export interface SweepSummary {
     readonly freeRidingRewarded: boolean;
   };
   readonly endReasonCounts: Readonly<Record<string, number>>;
+  readonly diagnostics: SweepDiagnostics;
+}
+
+/** Stage-5 tuning diagnostics — context behind the headline §9 bands. */
+export interface SweepDiagnostics {
+  /** Mean Broken transitions per game (the rescue target is gated on breaks). */
+  readonly breakRatePerGame: number;
+  /** Rescues per break-opportunity — separates "nobody breaks" from "nobody rescues". */
+  readonly conditionalRescueRate: number;
+  /** Mean Death Knights killed per game (combat lethality vs the dark). */
+  readonly dkKillRate: number;
+  /** Mean nodes ashed by game end (doom progress). */
+  readonly meanAshedNodes: number;
+  /** Fraction of pledge rounds that fully blocked the strike. */
+  readonly pledgeFullBlockRate: number;
+  /** Fraction of games where any Gambit was seized. */
+  readonly gambitSeizeRate: number;
+  /** Fraction of games won via the Gambit. */
+  readonly gambitWinRate: number;
+  /** THE honest gambit-fire number: seize rate over matchups with NO dedicated gambler. */
+  readonly gambitFireRateNoGambler: number;
+  /** End-Act distribution (which Act games finish in). */
+  readonly perActEnd: Readonly<Record<string, number>>;
+  /** Primary metrics split by player count (strictness check). */
+  readonly perCount: Readonly<Record<number, PerCountStats>>;
+}
+
+export interface PerCountStats {
+  readonly games: number;
+  readonly shadowkingWinRate: number;
+  readonly meanRounds: number;
+  readonly meanRescues: number;
+  readonly gambitFireRate: number;
 }
 
 const mean = (xs: number[]): number => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
@@ -117,6 +150,42 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
     endReasonCounts[k] = (endReasonCounts[k] ?? 0) + 1;
   }
 
+  // ── Stage-5 diagnostics ──
+  const sum = (f: (r: SweepRow) => number): number => rows.reduce((s, r) => s + f(r), 0);
+  const totalBreaks = sum(r => r.metrics.brokenCount);
+  const totalRescues = sum(r => r.metrics.rescueCount);
+  const totalPledgeRounds = sum(r => r.metrics.pledgeRounds);
+  const totalFullBlocks = sum(r => r.metrics.pledgeFullBlocks);
+
+  const noGambler = rows.filter(r => !r.seatArchetypes.includes('gambler'));
+  const perActEnd: Record<string, number> = {};
+  for (const r of rows) perActEnd[r.metrics.actReached] = (perActEnd[r.metrics.actReached] ?? 0) + 1;
+
+  const perCount: Record<number, PerCountStats> = {};
+  for (const pc of [...new Set(rows.map(r => r.playerCount))].sort()) {
+    const g = rows.filter(r => r.playerCount === pc);
+    perCount[pc] = {
+      games: g.length,
+      shadowkingWinRate: g.length ? g.filter(r => r.metrics.shadowkingWin).length / g.length : 0,
+      meanRounds: mean(g.map(r => r.metrics.rounds)),
+      meanRescues: mean(g.map(r => r.metrics.rescueCount)),
+      gambitFireRate: g.length ? g.filter(r => r.metrics.gambitSeized).length / g.length : 0,
+    };
+  }
+
+  const diagnostics: SweepDiagnostics = {
+    breakRatePerGame: mean(rows.map(r => r.metrics.brokenCount)),
+    conditionalRescueRate: totalBreaks > 0 ? totalRescues / totalBreaks : 0,
+    dkKillRate: mean(rows.map(r => r.metrics.dkKills)),
+    meanAshedNodes: mean(rows.map(r => r.metrics.ashedNodes)),
+    pledgeFullBlockRate: totalPledgeRounds > 0 ? totalFullBlocks / totalPledgeRounds : 0,
+    gambitSeizeRate: total ? rows.filter(r => r.metrics.gambitSeized).length / total : 0,
+    gambitWinRate: total ? rows.filter(r => r.metrics.gambitWin).length / total : 0,
+    gambitFireRateNoGambler: noGambler.length ? noGambler.filter(r => r.metrics.gambitSeized).length / noGambler.length : 0,
+    perActEnd,
+    perCount,
+  };
+
   return {
     totalGames: total,
     hitGuardCount: rows.filter(r => r.hitGuard).length,
@@ -132,6 +201,7 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
       freeRidingRewarded: fieldMeanPledge > 0 && winnerMeanPledge < fieldMeanPledge * 0.8,
     },
     endReasonCounts,
+    diagnostics,
   };
 }
 
@@ -213,6 +283,11 @@ export function renderMarkdown(summary: SweepSummary, meta: ReportMeta): string 
     .map(([k, v]) => `| ${k} | ${v} | ${pct(v / summary.totalGames)} |`).join('\n');
 
   const fr = summary.freeRider;
+  const d = summary.diagnostics;
+  const actRows = Object.entries(d.perActEnd).sort()
+    .map(([k, v]) => `| ${k} | ${v} | ${pct(v / summary.totalGames)} |`).join('\n');
+  const countRows = Object.entries(d.perCount)
+    .map(([k, s]) => `| ${k}p | ${s.games} | ${pct(s.shadowkingWinRate)} | ${s.meanRounds.toFixed(1)} | ${s.meanRescues.toFixed(2)} | ${pct(s.gambitFireRate)} |`).join('\n');
 
   return `# Balance Sweep Report — ${meta.runId}
 
@@ -241,6 +316,27 @@ ${fr.freeRidingRewarded ? '❌ Free-riding appears REWARDED (winners pledge nota
 | Reason | Count | Share |
 |---|---|---|
 ${endRows}
+
+## Tuning diagnostics (Stage 5)
+| Diagnostic | Value | Reading |
+|---|---|---|
+| Gambit fire rate — gambler-free subset | ${pct(d.gambitFireRateNoGambler)} | the HONEST gambit number (judge the §9 band on this) |
+| Gambit seize / win rate (all matchups) | ${pct(d.gambitSeizeRate)} / ${pct(d.gambitWinRate)} | aggregate, inflated by the gambler archetype |
+| Breaks per game | ${d.breakRatePerGame.toFixed(2)} | rescue target is gated on this |
+| Conditional rescue rate (rescues / break) | ${pct(d.conditionalRescueRate)} | ~0 with breaks present ⇒ nobody bothers; low breaks ⇒ raise lethality |
+| DK kills per game | ${d.dkKillRate.toFixed(2)} | combat lethality vs the dark / pushback supply |
+| Mean nodes ashed (doom progress) | ${d.meanAshedNodes.toFixed(2)} | how close the dark got |
+| Pledge full-block rate | ${pct(d.pledgeFullBlockRate)} | high ⇒ table over-blocks ⇒ dark too weak |
+
+## Per-player-count (strictness)
+| Count | Games | SK win | Rounds | Rescues | Gambit fire |
+|---|---|---|---|---|---|
+${countRows}
+
+## End Act
+| Act | Count | Share |
+|---|---|---|
+${actRows}
 
 ${summary.hitGuardCount > 0 ? `\n> ⚠️ ${summary.hitGuardCount} game(s) hit the step guard without terminating — investigate.\n` : ''}`;
 }

@@ -21,9 +21,18 @@ function mkMetrics(p: Partial<GameMetrics> & { winner: number | null }): GameMet
     allBrokenDraw: false,
     gambitSeized: p.gambitSeized ?? false,
     rescueCount: p.rescueCount ?? 3,
-    brokenCount: 0,
+    brokenCount: p.brokenCount ?? 0,
     territoryPerSeat: p.territoryPerSeat ?? [0, 0, 0, 0],
     meanPledgePerSeat: p.meanPledgePerSeat ?? [1, 1, 1, 1],
+    isBloodPact: false,
+    traitorWin: false,
+    traitorExposed: false,
+    accusationsResolved: 0,
+    accusationsCorrect: 0,
+    dkKills: p.dkKills ?? 0,
+    ashedNodes: p.ashedNodes ?? 0,
+    pledgeRounds: p.pledgeRounds ?? 10,
+    pledgeFullBlocks: p.pledgeFullBlocks ?? 0,
   };
 }
 
@@ -65,6 +74,21 @@ describe('summarize', () => {
       mkRow(SEATS, mkMetrics({ winner: 0, meanPledgePerSeat: [0, 3, 3, 3] })),
     );
     expect(summarize(rows).freeRider.freeRidingRewarded).toBe(true);
+  });
+
+  it('computes the Stage-5 diagnostics (conditional rescue rate, gambler-free gambit, per-count)', () => {
+    // 12 games: 6 with a gambler (3 seized), 6 without (1 seized); breaks/rescues controlled.
+    const withG: ArchetypeId[] = ['gambler', 'turtle', 'opportunist', 'cooperator'];
+    const rows: SweepRow[] = [
+      ...Array.from({ length: 6 }, (_, i) => mkRow(withG, mkMetrics({ winner: 0, gambitSeized: i < 3, brokenCount: 2, rescueCount: 1 }))),
+      ...Array.from({ length: 6 }, (_, i) => mkRow(SEATS, mkMetrics({ winner: 1, gambitSeized: i < 1, brokenCount: 0, rescueCount: 0 }))),
+    ];
+    const d = summarize(rows).diagnostics;
+    // gambler-free subset: 1 of 6 seized.
+    expect(d.gambitFireRateNoGambler).toBeCloseTo(1 / 6);
+    // conditional rescue rate = total rescues (6) / total breaks (12) = 0.5.
+    expect(d.conditionalRescueRate).toBeCloseTo(0.5);
+    expect(d.perCount[4].games).toBe(12);
   });
 
   it('renders markdown with the target table and verdicts', () => {

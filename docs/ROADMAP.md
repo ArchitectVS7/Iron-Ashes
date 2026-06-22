@@ -166,10 +166,29 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     now: SK win 14.3% (genuinely a bit weak), rescues 0.1/game (break/rescue economy under-fires), accusation
     accuracy 20.5% (AIs over-accuse). Free-riding NOT rewarded ✅ (robust). 21 test files, **359 green**;
     samples refreshed in `sim-results/sample/`.
-- [ ] **Stage 5 — Balance validation** — set the `[TUNABLE]` params (ALGORITHM §9).
-  - [ ] **5a. Tune to targets** — **prove the Pledge free-rider incentive is solved** (the primary open
-    balance question); hit targets (Shadowking win 18–22%, ~10–16 rounds, Gambit fires ~1-in-6–8 games,
-    2–4 rescues/game, no dominant pledge line; balance the Blood Pact accusation knobs).
+- [ ] **Stage 5 — Balance validation** — math-tune `src/v2/tunables.ts` to the §9 bands using the sim as
+  the instrument. Approved plan: goals/metrics/corrective-actions, phased 5a–5f. Targets: SK win 18–22%,
+  10–16 rounds, gambit 10–20% (gambler-free), 2–4 rescues/game; guardrails (no dominant strategy, free-riding
+  not rewarded) hold; stable across 2/3/4p + 2 seeds. Ratified Blood-Pact bands: traitor win 12–20%, accusation
+  accuracy ≥45%, ≤2.5 accusations/game, exposure 40–70%.
+  - [x] **5a. Diagnostics** — add tuning diagnostics to `src/v2/sim/metrics.ts` + `report.ts` (gambler-free
+    gambit rate, breaks/game, conditional rescue rate, DK-kill rate, doom progress, pledge full-block rate,
+    per-Act + **per-player-count split**); re-run the baseline; commit the richer "before" REPORT. NO tunable
+    changed. *Completed 2026-06-22. 21 files, 360 green.* **The diagnostics already surfaced the real targets the
+    pooled numbers hid: SK win is 2p 29% / 3p 12% / 4p 1.9% (a doomCost player-count-SCALING problem), and DK
+    kills = 0.00/game (players never engage the dark's forces → pushback/grudge dormant). Gambler-free gambit is
+    27% (somewhat above the 10–20% band, driven by opportunist/aggressor gambitAmbition).**
+  - [ ] **5b. Injectability + search harness** — thread a `tunables` object through GameState/createGame/
+    GameRunConfig/SweepConfig (read `state.tunables.X`); bit-for-bit determinism test; coordinate-descent driver
+    + `docs/handoff/stage5-tuning-log.md` scaffold.
+  - [ ] **5c. Tune the dark** — fix the doomCost player-count scaling (2p too easy / 4p too hard) + the
+    PUSHBACK/DAWN stall → SK win 18–22% with each of 2/3/4p within ~±5pp; rounds 10–16; guards hold.
+  - [ ] **5d. Tune the rescue/break economy** — raise breaks + rescue uptake (BREAK_THRESHOLD, RESCUE_COST, AI
+    rescueWillingness; consider engaging the dormant DKs) → rescues 2–4, all_broken < ~5%.
+  - [ ] **5e. Blood Pact** — fix the chooseAccusation relative-gap heuristic + ACCUSATION knobs → accuracy ≥45%,
+    ≤2.5 accusations/game, traitor win 12–20%, exposure 40–70%.
+  - [ ] **5f. Final validation + lock** — 2-seed stability; all bands + guards + per-count + BP pass; LOCK
+    values; update `DESIGN-V2-ALGORITHM.md §9` placeholder → FINAL + the AI-ceiling/human-playtest caveat.
 
 ---
 
@@ -241,6 +260,13 @@ fresh, but the *foundations* are directly reusable.
   (telegraphed villain + grudge + voice lines), `combat` (sealed-commit + Last Stand), `actions`
   (MARCH/CLAIM/RAID/STRIKE/RESCUE/RECRUIT — all via the one reducer), `gambit` (Crown's Gambit + territory
   tiebreakers). 14 source + 10 test files, **260 tests green**, typecheck clean, deterministic.
+- **2026-06-22** — **Stage 5 planned + 5a (diagnostics) complete.** Approved Stage-5 plan (goals/metrics/
+  corrective-actions, phased 5a–5f). 5a added tuning diagnostics to the sim report (gambler-free gambit rate,
+  breaks/game, conditional rescue rate, DK-kill rate, doom progress, pledge full-block rate, per-Act + per-
+  player-count split) and re-ran the baseline — NO tunable changed. **The diagnostics immediately exposed what
+  the pooled 14.3% SK-win hid: SK win is 2p 29% / 3p 12% / 4p 1.9% (a doomCost player-count-SCALING bug — the
+  dark is unwinnable at 4p), and DK-kills = 0.00/game (players never engage the dark's forces). These are the
+  real 5c targets.** Verify: 21 files, **360 passed**. Next: 5b (injectability + search harness).
 - **2026-06-22** — **Pre-Stage-5 review + Stage 4g (hardening) complete.** A data-trust + mechanics-logic
   review (user-requested) found the sweep numbers were confounded: combat auto-committed `hand[0]` (draw-order
   noise biasing every combat metric), pledges discarded cards by position not value, and the "Gambit OP" finding
