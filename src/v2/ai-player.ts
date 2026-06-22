@@ -75,6 +75,12 @@ export interface AIPolicy {
   readonly gambitAmbition?: number;
   /** 0..1 — propensity to RESCUE an adjacent Broken ally when affordable. Neutral 0. */
   readonly rescueWillingness?: number;
+  /**
+   * 0..1 — Blood Pact traitor only (active iff this seat holds the Pact): suppress
+   * pledges toward the noise floor and stop pushing the front back, to let the
+   * dark reach the Keystone (§10). Neutral 0 (and inert for non-traitors).
+   */
+  readonly saboteurPledgeSuppression?: number;
 }
 
 /** A moderately-cooperative economic player — the Stage-3c baseline (the neutral point). */
@@ -148,7 +154,14 @@ export function choosePledge(
   const reserve = amInDanger ? 0 : policy.handReserve;
   const available = Math.max(0, handSize - reserve);
 
-  const amount = Math.max(0, Math.min(desired, available));
+  let amount = Math.max(0, Math.min(desired, available));
+
+  // Saboteur (Blood Pact traitor only): hide a thin pledge in the noise so the
+  // dark advances (§10). Inert for non-traitors and in competitive mode.
+  const suppression = policy.saboteurPledgeSuppression ?? 0;
+  if (suppression > 0 && player.hasBloodPact) {
+    amount = Math.min(amount, Math.floor(amount * (1 - suppression)));
+  }
 
   // Honor an active Rescue debt (§5.4): in open modes the reducer ENFORCES a
   // forced-minimum pledge, so never return below it — else applyCommand rejects
@@ -391,6 +404,8 @@ function archetypeAction(
   const claimVsRaid = policy.claimVsRaidPref ?? 1;
   const gambitAmbition = policy.gambitAmbition ?? 0;
   const rescueWillingness = policy.rescueWillingness ?? 0;
+  // A traitor sabotaging the table won't push the front back (it wants the doom).
+  const sabotaging = (policy.saboteurPledgeSuppression ?? 0) > 0 && player.hasBloodPact;
 
   // 1. RESCUE a Broken ally (cooperator).
   if (rescueWillingness > 0 && player.hand.length >= RESCUE_COST) {
@@ -412,7 +427,8 @@ function archetypeAction(
   }
 
   // 3. STRIKE favourable co-located Shadowking forces (front pushback / defense).
-  if (hasSKForcesAtNode(state, here) && player.hand.length > 0) {
+  //    A sabotaging traitor skips this — it wants the dark to advance.
+  if (!sabotaging && hasSKForcesAtNode(state, here) && player.hand.length > 0) {
     if (getPlayerPowerAtNode(state, playerIndex, here) >= getShadowkingPowerAtNode(state, here)) {
       return { type: 'STRIKE' };
     }

@@ -50,6 +50,19 @@ export function allRoundRobins(): Matchup[] {
   return out;
 }
 
+/** Blood Pact tables: a saboteur in seat 0 against varied fields (it becomes the traitor). */
+export function bloodPactMatchups(): Matchup[] {
+  const fields: ArchetypeId[][] = [
+    ['saboteur', 'baseline', 'baseline', 'baseline'],
+    ['saboteur', 'cooperator', 'opportunist', 'turtle'],
+    ['saboteur', 'aggressor', 'cooperator', 'baseline'],
+  ];
+  return fields.map((f, i) => ({
+    id: `bp:field${i}`,
+    seatsFor: (n: number) => Array.from({ length: n }, (_, s) => f[s % f.length]),
+  }));
+}
+
 /** The default, reasonably-broad matchup set for a balance sweep. */
 export function standardMatchups(): Matchup[] {
   return [

@@ -3,7 +3,7 @@
   "currentStage": "4f",
   "currentStageTitle": "Blood Pact sim + v1 ml_training cleanup",
   "status": "not-started",
-  "nextAction": "Stage 4f (plan: docs/handoff/plan-stage4.md). (1) Add a 'saboteur' archetype (saboteurPledgeSuppression knob) + wire BP audit/accuse hooks into the AI action loop / driver so the sim exercises the deduction surface; add a sim-only affordance for an AI seat to hold the Blood Pact (real play forbids it — §10) + traitor-win/accusation metrics in src/v2/sim/metrics.ts; extend the sweep to blood_pact mode. (2) The v1 ml_training/ DISPOSITION COMMIT (separate, destructive — CONFIRM WITH USER FIRST): delete venv(750MB)/PPO models/ugt_env.ts/ugt.config.yaml/v1 simulate_batch.ts; archive reports/+UGT_TESTING_PLAN.md to docs/archive/ml_training-v1/ marked INVALIDATED. 4a-4e DONE: src/v2/sim/* + scripts/sim.mjs (npm run sim); sample report in sim-results/sample/REPORT.md.",
+  "nextAction": "Stage 4f REMAINING STEP = the v1 ml_training/ DISPOSITION (user APPROVED 'delete cruft, archive reports'): delete ml_training/venv (750MB), models/*.zip (PPO), ugt_env.ts, ugt.config.yaml, simulate_batch.ts, generate_report.ts, ui_test.py; `git mv` reports/ + results/ + UGT_TESTING_PLAN.md to docs/archive/ml_training-v1/ and prepend an INVALIDATED note; remove ml_training/ from the root. Its own commit. THEN tick ROADMAP 4f and set currentStage 5a (Stage 5 = tune to §9 targets; #1 target = nerf the Gambit). The Blood Pact sim part of 4f is DONE (saboteur archetype + AI-traitor sim affordance + accusation driving + traitor metrics + `npm run sim -- --bloodpact`; sample sim-results/sample/BLOOD_PACT.md: traitor exposed 70.8% / wins 6.7%, accusation accuracy only 20.3% = over-accusing innocents, a Stage-5 target).",
   "specRefs": [
     "docs/handoff/plan-stage4.md (4f scope), ML-SYSTEM-ANALYSIS.md (disposition table)",
     "ALGORITHM §10 (Blood Pact), src/v2/blood-pact.ts (pure choosers)",
@@ -11,14 +11,14 @@
     "ROADMAP §4 (4f)"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-22T19:20:13.849Z",
-    "commit": "58d066a",
-    "sourceHash": "85961ec732c608a770e7c688ceb82a6c4c84d253e4177a25e165bf8e73d9a344",
+    "timestamp": "2026-06-22T19:32:18.813Z",
+    "commit": "32fb318",
+    "sourceHash": "5994297d2ad69b22a466100bd45daeab3228cf4c25206256d2f88d5370257934",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 19,
-      "passed": 349,
+      "files": 20,
+      "passed": 352,
       "failed": 0,
       "status": "pass"
     }

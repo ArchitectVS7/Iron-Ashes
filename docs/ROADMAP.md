@@ -142,9 +142,14 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     50.2%** vs 26.4% even-share → the Crown's Gambit is the dominant strategy and the #1 Stage-5 tuning target;
     rescues 0.2/game (target 2–4, far too rare); **free-riding NOT rewarded** ✅ (the 3f anti-free-rider reward
     works). 19 test files, 349 green.*
-  - [ ] **4f. Blood Pact + v1 cleanup** — saboteur archetype + BP audit/accuse hooks + sim-only AI-traitor
-    affordance + traitor metrics; then the `ml_training/` disposition (delete dead PPO/venv/parallel-sims,
+  - [ ] **4f. Blood Pact + v1 cleanup** — saboteur archetype + sim-only AI-traitor affordance + accusation
+    driving + traitor metrics; then the `ml_training/` disposition (delete dead PPO/venv/parallel-sims,
     archive reports) — confirmed before deleting.
+    *BP sim DONE 2026-06-22: `saboteurPledgeSuppression` knob (active only when holding the Pact), `saboteur`
+    archetype, driver `bloodPactSeat` affordance + AI accusation driving (pure `chooseAccusation`/Vote), traitor
+    metrics, `npm run sim -- --bloodpact`. `tests/v2/sim-bloodpact.test.ts`; 352 green. BP sweep (sample
+    `sim-results/sample/BLOOD_PACT.md`): traitor exposed 70.8% / wins 6.7%, **accusation accuracy 20.3%**
+    (AIs over-accuse innocents — a Stage-5 target). REMAINING: the v1 `ml_training/` disposition (user approved).*
 - [ ] **Stage 5 — Balance validation** — set the `[TUNABLE]` params (ALGORITHM §9).
   - [ ] **5a. Tune to targets** — **prove the Pledge free-rider incentive is solved** (the primary open
     balance question); hit targets (Shadowking win 18–22%, ~10–16 rounds, Gambit fires ~1-in-6–8 games,

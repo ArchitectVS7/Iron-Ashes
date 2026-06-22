@@ -36,10 +36,14 @@ export function runSweep(cfg: SweepConfig): SweepRow[] {
     for (const playerCount of cfg.playerCounts) {
       const seatArchetypes = matchup.seatsFor(playerCount);
       const seatPolicies = seatArchetypes.map(policyOf);
+      // Blood Pact: the traitor is the saboteur seat if present, else seat 0.
+      const sabSeat = seatArchetypes.indexOf('saboteur');
+      const bloodPactSeat = sabSeat >= 0 ? sabSeat : 0;
       for (const mode of cfg.modes) {
         for (const seed of cfg.seeds) {
           const run = playHeadlessGame({
             seed, playerCount, mode, seatPolicies, maxSteps: cfg.maxStepsPerGame,
+            bloodPactSeat,
           });
           rows.push({
             seed, playerCount, mode,

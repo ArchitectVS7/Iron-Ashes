@@ -20,7 +20,8 @@ export type ArchetypeId =
   | 'turtle'
   | 'opportunist'
   | 'cooperator'
-  | 'gambler';
+  | 'gambler'
+  | 'saboteur';
 
 export interface Archetype {
   readonly id: ArchetypeId;
@@ -78,6 +79,18 @@ export const ARCHETYPES: Readonly<Record<ArchetypeId, Archetype>> = Object.freez
       selfishness: 0.5, targetCover: 0.5, handReserve: 1,
       pledgeGenerosity: 0.7, aggression: 0.4, raidLeaderBias: 0.3,
       defensiveness: 0.1, claimVsRaidPref: 0.4, gambitAmbition: 0.9, rescueWillingness: 0,
+    },
+  },
+  saboteur: {
+    id: 'saboteur',
+    label: 'Saboteur (Blood Pact traitor — suppresses pledges, feeds the dark)',
+    policy: {
+      // Plays a normal-looking opportunist UNLESS it actually holds the Pact, at
+      // which point saboteurPledgeSuppression suppresses its pledges + front pushback.
+      selfishness: 0.6, targetCover: 0.4, handReserve: 1,
+      pledgeGenerosity: 0.8, aggression: 0.4, raidLeaderBias: 0.4,
+      defensiveness: 0.2, claimVsRaidPref: 0.5, gambitAmbition: 0,
+      rescueWillingness: 0, saboteurPledgeSuppression: 0.8,
     },
   },
 });

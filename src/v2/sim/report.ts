@@ -139,6 +139,50 @@ function mkCheck(name: string, measured: number, band: { lo: number; hi: number 
   return { name, measured, lo: band.lo, hi: band.hi, pass: inBand(measured, band.lo, band.hi) };
 }
 
+// ─── Blood Pact summary (§10) ─────────────────────────────────────
+
+export interface BloodPactSummary {
+  readonly games: number;
+  readonly traitorWinRate: number;
+  readonly traitorExposureRate: number;
+  readonly accusationsPerGame: number;
+  readonly accusationAccuracy: number; // correct / resolved
+}
+
+/** Traitor-side stats over the blood_pact rows only (empty-safe). */
+export function summarizeBloodPact(rows: readonly SweepRow[]): BloodPactSummary {
+  const bp = rows.filter(r => r.metrics.isBloodPact);
+  const games = bp.length;
+  const resolved = bp.reduce((s, r) => s + r.metrics.accusationsResolved, 0);
+  const correct = bp.reduce((s, r) => s + r.metrics.accusationsCorrect, 0);
+  return {
+    games,
+    traitorWinRate: games ? bp.filter(r => r.metrics.traitorWin).length / games : 0,
+    traitorExposureRate: games ? bp.filter(r => r.metrics.traitorExposed).length / games : 0,
+    accusationsPerGame: games ? resolved / games : 0,
+    accusationAccuracy: resolved ? correct / resolved : 0,
+  };
+}
+
+export function renderBloodPactMarkdown(bp: BloodPactSummary, meta: ReportMeta): string {
+  const pct = (x: number): string => `${(x * 100).toFixed(1)}%`;
+  return `# Blood Pact Sweep — ${meta.runId}
+
+**${bp.games} traitor games** · base seed ${meta.baseSeed} (${meta.seedCount} seeds) ·
+player counts ${meta.playerCounts.join('/')}. An AI seat holds the Pact (sim-only affordance).
+
+| Metric | Value |
+|---|---|
+| Traitor win rate (reaches doom unexposed) | ${pct(bp.traitorWinRate)} |
+| Traitor exposure rate (correctly accused) | ${pct(bp.traitorExposureRate)} |
+| Accusations resolved per game | ${bp.accusationsPerGame.toFixed(2)} |
+| Accusation accuracy (correct / resolved) | ${pct(bp.accusationAccuracy)} |
+
+> Balance reading: the traitor should win sometimes but not freely, and accusations should
+> catch them more often than random — both are Stage-5 tuning targets, not yet tuned.
+`;
+}
+
 // ─── Markdown rendering (pure; CLI supplies the run metadata) ─────
 
 export interface ReportMeta {

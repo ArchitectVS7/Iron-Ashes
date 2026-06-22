@@ -34,6 +34,15 @@ export interface GameMetrics {
   readonly territoryPerSeat: readonly number[];
   /** Mean pledged card amount per seat across the game (from pledgeHistory). */
   readonly meanPledgePerSeat: readonly number[];
+
+  // ── Blood Pact (§10) — false/0 in competitive ──
+  readonly isBloodPact: boolean;
+  /** The traitor won by reaching doom (Keystone ashed, not exposed). */
+  readonly traitorWin: boolean;
+  /** The traitor was correctly accused and exposed. */
+  readonly traitorExposed: boolean;
+  readonly accusationsResolved: number;
+  readonly accusationsCorrect: number;
 }
 
 /** Living owned production (Holdings + weighted Forges) for one seat. */
@@ -69,13 +78,20 @@ export function computeMetrics(state: GameState): GameMetrics {
   let rescueCount = 0;
   let brokenCount = 0;
   let gambitSeized = false;
+  let accusationsResolved = 0;
+  let accusationsCorrect = 0;
   for (const e of state.actionLog) {
     if (e.type === 'PLAYER_ACTED') {
       if (e.action === 'RESCUE') rescueCount++;
       if (e.details?.broken === true) brokenCount++;
       if (e.details?.gambitSeized === true) gambitSeized = true;
+    } else if (e.type === 'ACCUSATION_RESOLVED') {
+      accusationsResolved++;
+      if (e.outcome === 'correct') accusationsCorrect++;
     }
   }
+
+  const isBloodPact = state.mode === 'blood_pact';
 
   return {
     gameEndReason: state.gameEndReason,
@@ -91,5 +107,12 @@ export function computeMetrics(state: GameState): GameMetrics {
     brokenCount,
     territoryPerSeat: state.players.map(p => territoryOf(state, p.index)),
     meanPledgePerSeat: meanPledges(state, playerCount),
+
+    isBloodPact,
+    traitorWin: isBloodPact && state.gameEndReason === 'doom_complete'
+      && state.winner !== null && state.winner === state.bloodPactHolder,
+    traitorExposed: isBloodPact && state.bloodPactExposed === true,
+    accusationsResolved,
+    accusationsCorrect,
   };
 }

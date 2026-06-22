@@ -15,6 +15,7 @@
 import { createGame } from '../setup.js';
 import { applyCommand } from '../reducer.js';
 import { runAIPledge, runAITurn, DEFAULT_AI_POLICY, type AIPolicy } from '../ai-player.js';
+import { chooseAccusation, chooseAccusationVote } from '../blood-pact.js';
 import type { Command } from '../commands.js';
 import type { GameMode, GameState } from '../types.js';
 
@@ -29,6 +30,12 @@ export interface GameRunConfig {
   readonly seatPolicies?: SeatPolicies;
   /** Hard step cap so a bug can never hang a sweep. Default 5000. */
   readonly maxSteps?: number;
+  /**
+   * SIM-ONLY: force an AI seat to hold the Blood Pact (blood_pact mode). Real
+   * play forbids this (§10 — only a human is the traitor), but the headless sim
+   * needs it to measure traitor win-rate. Ignored in competitive mode.
+   */
+  readonly bloodPactSeat?: number;
 }
 
 export interface GameRunResult {
@@ -53,7 +60,15 @@ export function playHeadlessGame(cfg: GameRunConfig): GameRunResult {
 
   // humanCount 0 → every seat is AI-controlled.
   let state = createGame(playerCount, mode, seed, 0);
+
+  // Sim-only: assign the Blood Pact to an AI seat (real play forbids it, §10).
+  if (mode === 'blood_pact' && cfg.bloodPactSeat !== undefined && state.players[cfg.bloodPactSeat]) {
+    state.players.forEach(p => { p.hasBloodPact = p.index === cfg.bloodPactSeat; });
+    state.bloodPactHolder = cfg.bloodPactSeat;
+  }
+
   let steps = 0;
+  let accusedThroughRound = 0;
 
   while (state.gameEndReason === null && steps < maxSteps) {
     steps++;
@@ -73,6 +88,13 @@ export function playHeadlessGame(cfg: GameRunConfig): GameRunResult {
       }
 
       case 'ACTION': {
+        // Blood Pact: once per round, let the AIs run the deduction surface
+        // (accusation) using the pure choosers — this is how the traitor gets caught.
+        if (state.mode === 'blood_pact' && state.round > accusedThroughRound) {
+          accusedThroughRound = state.round;
+          state = runAIAccusations(state, seed);
+          if (state.gameEndReason !== null) break;
+        }
         // Each active player runs its full turn; the reducer advances the pointer.
         const active = state.activePlayerIndex;
         state = runAITurn(state, active, seed, policyFor(active)).state;
@@ -101,4 +123,41 @@ export function playHeadlessGame(cfg: GameRunConfig): GameRunResult {
   }
 
   return { finalState: state, steps, hitGuard: state.gameEndReason === null };
+}
+
+/**
+ * Drive one round of AI accusation (Blood Pact). The first AI with a clear
+ * suspect opens an accusation; the other required voters weigh in via the pure
+ * `chooseAccusationVote`. Everything routes through `applyCommand`; lockout /
+ * already-open errors are swallowed (a no-op round). Pure `f(state, seed)`.
+ */
+function runAIAccusations(state: GameState, seed: number): GameState {
+  if (state.bloodPactExposed) return state;
+  const apply = (s: GameState, cmd: Command): GameState => applyCommand(s, cmd).state;
+
+  for (const p of state.players) {
+    if (state.gameEndReason !== null || state.bloodPactExposed) break;
+    const accused = chooseAccusation(state, p.index, seed);
+    if (accused === null) continue;
+
+    try {
+      state = apply(state, { type: 'INITIATE_ACCUSATION', accuserIndex: p.index, accusedIndex: accused });
+    } catch {
+      continue; // lockout / already-open — skip this accuser
+    }
+
+    let guard = 0;
+    while (state.accusationState && state.gameEndReason === null && guard < 8) {
+      guard++;
+      const acc = state.accusationState;
+      const pending = state.players.find(
+        q => q.index !== acc.accused && !acc.votes.some(v => v.playerIndex === q.index),
+      );
+      if (!pending) break;
+      const agree = chooseAccusationVote(state, pending.index, seed);
+      state = apply(state, { type: 'ACCUSATION_VOTE', playerIndex: pending.index, agree });
+    }
+    break; // at most one accusation attempt per round
+  }
+  return state;
 }
