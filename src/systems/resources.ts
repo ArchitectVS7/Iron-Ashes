@@ -14,10 +14,10 @@ import { drawFateCards } from './combat.js';
 // ─── Resource Constants ───────────────────────────────────────────
 
 /** Banners produced per Artificer at a standard node per turn. */
-export const BANNER_PER_PRODUCER = 1;
+export const BANNER_PER_PRODUCER = 3;
 
 /** Banners produced per Artificer at a Forge Keep per turn. */
-export const BANNER_PER_PRODUCER_AT_FORGE = 3;
+export const BANNER_PER_PRODUCER_AT_FORGE = 4;
 
 /** War Banner cost to move through one node. */
 export const BANNER_COST_MOVE = 1;

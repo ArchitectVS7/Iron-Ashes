@@ -97,8 +97,7 @@ export function simulatePlayerAction(
 
   // When few unclaimed nodes remain, start seeking the artifact incrementally (1 step/action)
   const shouldSeekArtifact = state.artifactHolder === null &&
-    unclaimedNodes.length < 6 &&
-    definition.nodes[state.artifactNode]?.type !== 'antagonist_base';
+    unclaimedNodes.length < 6;
 
   if (shouldSeekArtifact && player.warBanners > 0 && currentNode !== state.artifactNode) {
     const path = findShortestPath(definition, currentNode, state.artifactNode);

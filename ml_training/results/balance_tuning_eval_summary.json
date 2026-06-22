@@ -1,0 +1,5839 @@
+{
+  "project": "Iron Ashes",
+  "profile": "balance_tuning",
+  "model": "models/ppo_balance_tuning_final.zip",
+  "algorithm": "PPO",
+  "total_episodes": 500,
+  "outcomes": {
+    "wins": 0,
+    "losses": 500,
+    "win_rate": "0.00%"
+  },
+  "reward_stats": {
+    "mean": 46.73,
+    "median": 40.5,
+    "std": 18.61,
+    "min": 25.5,
+    "max": 88.5
+  },
+  "step_stats": {
+    "mean": 84.7,
+    "median": 100.0,
+    "min": 16,
+    "max": 100
+  },
+  "action_distribution": {
+    "move_to_nearest_unclaimed": 4412,
+    "claim_current_node": 37302,
+    "move_to_artifact": 616
+  },
+  "evaluation_duration_seconds": 22.5,
+  "episodes": [
+    {
+      "episode": 1,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 2,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 3,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 4,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 5,
+      "outcome": "Loss",
+      "reward": 77.4,
+      "steps": 61,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 10,
+        "claim_current_node": 48,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 6,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 47,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 7,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 8,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 9,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 10,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 11,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 13,
+        "claim_current_node": 87
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 12,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 13,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 14,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 47,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 15,
+      "outcome": "Loss",
+      "reward": 55.2,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 16,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 17,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 18,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 19,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 20,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 21,
+      "outcome": "Loss",
+      "reward": 55.8,
+      "steps": 57,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 48,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 22,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 23,
+      "outcome": "Loss",
+      "reward": 51.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 86,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 24,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 25,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 26,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 27,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 28,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 29,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 30,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 31,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 32,
+      "outcome": "Loss",
+      "reward": 51.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 86,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 33,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 34,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 35,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 36,
+      "outcome": "Loss",
+      "reward": 41.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 85,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 37,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 38,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 39,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 40,
+      "outcome": "Loss",
+      "reward": 55.2,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 41,
+      "outcome": "Loss",
+      "reward": 55.2,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 42,
+      "outcome": "Loss",
+      "reward": 55.2,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 43,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 44,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 45,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 46,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 47,
+      "outcome": "Loss",
+      "reward": 55.8,
+      "steps": 57,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 48,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 48,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 49,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 50,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 51,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 52,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 53,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 54,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 55,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 56,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 57,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 58,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 59,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 60,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 61,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 62,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 63,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 64,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 65,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 66,
+      "outcome": "Loss",
+      "reward": 30.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 91,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 67,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 68,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 69,
+      "outcome": "Loss",
+      "reward": 55.8,
+      "steps": 57,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 48,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 70,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 71,
+      "outcome": "Loss",
+      "reward": 30.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 91,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 72,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 73,
+      "outcome": "Loss",
+      "reward": 52.8,
+      "steps": 57,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 50
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 74,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 75,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 76,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 77,
+      "outcome": "Loss",
+      "reward": 51.3,
+      "steps": 57,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 78,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 79,
+      "outcome": "Loss",
+      "reward": 54.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 10,
+        "claim_current_node": 87,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 80,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 81,
+      "outcome": "Loss",
+      "reward": 75.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 82,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 83,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 84,
+      "outcome": "Loss",
+      "reward": 30.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 91,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 85,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 86,
+      "outcome": "Loss",
+      "reward": 30.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 91,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 87,
+      "outcome": "Loss",
+      "reward": 30.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 91,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 88,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 13,
+        "claim_current_node": 87
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 89,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 90,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 91,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 92,
+      "outcome": "Loss",
+      "reward": 51.3,
+      "steps": 57,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 93,
+      "outcome": "Loss",
+      "reward": 55.2,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 94,
+      "outcome": "Loss",
+      "reward": 77.4,
+      "steps": 61,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 10,
+        "claim_current_node": 48,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 95,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 96,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 97,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 98,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 99,
+      "outcome": "Loss",
+      "reward": 55.2,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 100,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 101,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 102,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 13,
+        "claim_current_node": 87
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 103,
+      "outcome": "Loss",
+      "reward": 77.4,
+      "steps": 61,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 10,
+        "claim_current_node": 48,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 104,
+      "outcome": "Loss",
+      "reward": 51.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 86,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 105,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 47,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 106,
+      "outcome": "Loss",
+      "reward": 27.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 93
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 107,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 108,
+      "outcome": "Loss",
+      "reward": 77.4,
+      "steps": 61,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 10,
+        "claim_current_node": 48,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 109,
+      "outcome": "Loss",
+      "reward": 52.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 46,
+        "move_to_artifact": 4
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 110,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 111,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 47,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 112,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 113,
+      "outcome": "Loss",
+      "reward": 55.8,
+      "steps": 57,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 48,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 114,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 115,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 116,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 117,
+      "outcome": "Loss",
+      "reward": 55.8,
+      "steps": 57,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 48,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 118,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 91
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 119,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 120,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 121,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 122,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 123,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 47,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 124,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 125,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 126,
+      "outcome": "Loss",
+      "reward": 30.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 91,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 127,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 128,
+      "outcome": "Loss",
+      "reward": 51.3,
+      "steps": 57,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 129,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 130,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 131,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 132,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 133,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 134,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 135,
+      "outcome": "Loss",
+      "reward": 41.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 85,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 136,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 137,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 138,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 139,
+      "outcome": "Loss",
+      "reward": 52.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 46,
+        "move_to_artifact": 4
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 140,
+      "outcome": "Loss",
+      "reward": 54.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 86,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 141,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 142,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 143,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 144,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 145,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 146,
+      "outcome": "Loss",
+      "reward": 51.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 86,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 147,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 148,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 149,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 13,
+        "claim_current_node": 87
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 150,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 151,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 152,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 153,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 154,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 155,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 156,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 157,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 158,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 159,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 160,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 161,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 162,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 163,
+      "outcome": "Loss",
+      "reward": 30.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 13,
+        "claim_current_node": 84,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 164,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 165,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 166,
+      "outcome": "Loss",
+      "reward": 41.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 13,
+        "claim_current_node": 84,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 167,
+      "outcome": "Loss",
+      "reward": 53.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 6,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 168,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 169,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 170,
+      "outcome": "Loss",
+      "reward": 53.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 6,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 171,
+      "outcome": "Loss",
+      "reward": 55.2,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 172,
+      "outcome": "Loss",
+      "reward": 27.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 93
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 173,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 174,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 175,
+      "outcome": "Loss",
+      "reward": 55.8,
+      "steps": 57,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 48,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 176,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 177,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 178,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 179,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 180,
+      "outcome": "Loss",
+      "reward": 43.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 44,
+        "move_to_artifact": 4
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 181,
+      "outcome": "Loss",
+      "reward": 27.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 6,
+        "claim_current_node": 93,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 182,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 183,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 184,
+      "outcome": "Loss",
+      "reward": 51.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 86,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 185,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 186,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 187,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 188,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 189,
+      "outcome": "Loss",
+      "reward": 53.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 6,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 190,
+      "outcome": "Loss",
+      "reward": 41.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 14,
+        "claim_current_node": 84,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 191,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 192,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 193,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 194,
+      "outcome": "Loss",
+      "reward": 27.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 83,
+        "move_to_artifact": 6
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 195,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 196,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 197,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 198,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 199,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 13,
+        "claim_current_node": 87
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 200,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 47,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 201,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 202,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 203,
+      "outcome": "Loss",
+      "reward": 27.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 13,
+        "claim_current_node": 83,
+        "move_to_artifact": 4
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 204,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 205,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 206,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 207,
+      "outcome": "Loss",
+      "reward": 55.2,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 208,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 13,
+        "claim_current_node": 87
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 209,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 210,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 211,
+      "outcome": "Loss",
+      "reward": 77.4,
+      "steps": 61,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 10,
+        "claim_current_node": 48,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 212,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 213,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 214,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 215,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 91
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 216,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 217,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 218,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 219,
+      "outcome": "Loss",
+      "reward": 76.8,
+      "steps": 62,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 48,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 220,
+      "outcome": "Loss",
+      "reward": 51.3,
+      "steps": 57,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 221,
+      "outcome": "Loss",
+      "reward": 30.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 91,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 222,
+      "outcome": "Loss",
+      "reward": 74.1,
+      "steps": 59,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 13,
+        "claim_current_node": 46
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 223,
+      "outcome": "Loss",
+      "reward": 55.2,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 224,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 225,
+      "outcome": "Loss",
+      "reward": 76.8,
+      "steps": 62,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 48,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 226,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 227,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 228,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 229,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 230,
+      "outcome": "Loss",
+      "reward": 52.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 46,
+        "move_to_artifact": 4
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 231,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 232,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 233,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 234,
+      "outcome": "Loss",
+      "reward": 75.0,
+      "steps": 65,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 13,
+        "claim_current_node": 49,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 235,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 236,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 237,
+      "outcome": "Loss",
+      "reward": 51.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 86,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 238,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 239,
+      "outcome": "Loss",
+      "reward": 27.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 93
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 240,
+      "outcome": "Loss",
+      "reward": 77.4,
+      "steps": 61,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 10,
+        "claim_current_node": 48,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 241,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 242,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 243,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 244,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 245,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 246,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 247,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 248,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 249,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 250,
+      "outcome": "Loss",
+      "reward": 30.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 91,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 251,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 252,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 253,
+      "outcome": "Loss",
+      "reward": 30.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 91,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 254,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 255,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 256,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 257,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 258,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 259,
+      "outcome": "Loss",
+      "reward": 55.2,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 260,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 261,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 13,
+        "claim_current_node": 87
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 262,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 263,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 264,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 265,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 266,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 267,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 268,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 269,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 270,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 271,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 272,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 47,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 273,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 274,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 275,
+      "outcome": "Loss",
+      "reward": 43.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 88,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 276,
+      "outcome": "Loss",
+      "reward": 51.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 86,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 277,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 278,
+      "outcome": "Loss",
+      "reward": 53.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 6,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 279,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 280,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 281,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 282,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 283,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 284,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 285,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 286,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 287,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 288,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 289,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 290,
+      "outcome": "Loss",
+      "reward": 51.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 86,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 291,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 292,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 293,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 294,
+      "outcome": "Loss",
+      "reward": 54.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 10,
+        "claim_current_node": 87,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 295,
+      "outcome": "Loss",
+      "reward": 27.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 6,
+        "claim_current_node": 93,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 296,
+      "outcome": "Loss",
+      "reward": 43.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 44,
+        "move_to_artifact": 4
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 297,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 298,
+      "outcome": "Loss",
+      "reward": 55.2,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 299,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 300,
+      "outcome": "Loss",
+      "reward": 51.3,
+      "steps": 57,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 301,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 302,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 303,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 304,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 305,
+      "outcome": "Loss",
+      "reward": 51.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 86,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 306,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 307,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 308,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 309,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 310,
+      "outcome": "Loss",
+      "reward": 75.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 311,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 312,
+      "outcome": "Loss",
+      "reward": 41.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 86,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 313,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 314,
+      "outcome": "Loss",
+      "reward": 55.2,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 315,
+      "outcome": "Loss",
+      "reward": 53.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 316,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 317,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 318,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 319,
+      "outcome": "Loss",
+      "reward": 54.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 10,
+        "claim_current_node": 87,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 320,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 321,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 322,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 323,
+      "outcome": "Loss",
+      "reward": 55.2,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 324,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 47,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 325,
+      "outcome": "Loss",
+      "reward": 41.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 85,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 326,
+      "outcome": "Loss",
+      "reward": 52.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 46,
+        "move_to_artifact": 4
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 327,
+      "outcome": "Loss",
+      "reward": 30.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 91,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 328,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 329,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 330,
+      "outcome": "Loss",
+      "reward": 27.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 6,
+        "claim_current_node": 93,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 331,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 332,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 333,
+      "outcome": "Loss",
+      "reward": 27.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 93
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 334,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 335,
+      "outcome": "Loss",
+      "reward": 30.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 91,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 336,
+      "outcome": "Loss",
+      "reward": 76.8,
+      "steps": 62,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 48,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 337,
+      "outcome": "Loss",
+      "reward": 55.8,
+      "steps": 57,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 48,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 338,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 339,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 340,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 341,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 342,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 343,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 47,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 344,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 345,
+      "outcome": "Loss",
+      "reward": 77.4,
+      "steps": 61,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 10,
+        "claim_current_node": 48,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 346,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 347,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 348,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 349,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 350,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 351,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 352,
+      "outcome": "Loss",
+      "reward": 27.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 13,
+        "claim_current_node": 83,
+        "move_to_artifact": 4
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 353,
+      "outcome": "Loss",
+      "reward": 30.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 91,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 354,
+      "outcome": "Loss",
+      "reward": 41.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 85,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 355,
+      "outcome": "Loss",
+      "reward": 30.4,
+      "steps": 16,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 7,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 356,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 357,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 358,
+      "outcome": "Loss",
+      "reward": 27.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 6,
+        "claim_current_node": 93,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 359,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 360,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 361,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 362,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 363,
+      "outcome": "Loss",
+      "reward": 77.4,
+      "steps": 61,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 10,
+        "claim_current_node": 48,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 364,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 365,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 366,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 367,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 368,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 369,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 370,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 371,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 372,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 373,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 374,
+      "outcome": "Loss",
+      "reward": 51.3,
+      "steps": 57,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 375,
+      "outcome": "Loss",
+      "reward": 53.3,
+      "steps": 57,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 45,
+        "move_to_artifact": 4
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 376,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 377,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 378,
+      "outcome": "Loss",
+      "reward": 41.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 86,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 379,
+      "outcome": "Loss",
+      "reward": 30.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 91,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 380,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 381,
+      "outcome": "Loss",
+      "reward": 27.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 13,
+        "claim_current_node": 81,
+        "move_to_artifact": 6
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 382,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 383,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 384,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 47,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 385,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 386,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 387,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 388,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 389,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 13,
+        "claim_current_node": 87
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 390,
+      "outcome": "Loss",
+      "reward": 54.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 86,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 391,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 392,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 393,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 394,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 395,
+      "outcome": "Loss",
+      "reward": 53.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 6,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 396,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 397,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 398,
+      "outcome": "Loss",
+      "reward": 77.4,
+      "steps": 61,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 47,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 399,
+      "outcome": "Loss",
+      "reward": 27.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 93
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 400,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 401,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 402,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 403,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 404,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 405,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 406,
+      "outcome": "Loss",
+      "reward": 41.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 85,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 407,
+      "outcome": "Loss",
+      "reward": 51.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 86,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 408,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 409,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 410,
+      "outcome": "Loss",
+      "reward": 27.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 6,
+        "claim_current_node": 93,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 411,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 13,
+        "claim_current_node": 87
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 412,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 413,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 414,
+      "outcome": "Loss",
+      "reward": 27.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 6,
+        "claim_current_node": 93,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 415,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 416,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 417,
+      "outcome": "Loss",
+      "reward": 77.4,
+      "steps": 61,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 10,
+        "claim_current_node": 48,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 418,
+      "outcome": "Loss",
+      "reward": 51.3,
+      "steps": 57,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 419,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 420,
+      "outcome": "Loss",
+      "reward": 74.1,
+      "steps": 59,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 13,
+        "claim_current_node": 46
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 421,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 422,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 423,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 424,
+      "outcome": "Loss",
+      "reward": 53.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 6,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 425,
+      "outcome": "Loss",
+      "reward": 51.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 86,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 426,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 427,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 428,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 429,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 430,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 431,
+      "outcome": "Loss",
+      "reward": 30.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 91,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 432,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 433,
+      "outcome": "Loss",
+      "reward": 55.2,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 434,
+      "outcome": "Loss",
+      "reward": 55.2,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 435,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 436,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 437,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 438,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 439,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 440,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 441,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 442,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 443,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 444,
+      "outcome": "Loss",
+      "reward": 43.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 43,
+        "move_to_artifact": 4
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 445,
+      "outcome": "Loss",
+      "reward": 51.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 86,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 446,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 447,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 448,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 449,
+      "outcome": "Loss",
+      "reward": 64.4,
+      "steps": 61,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 10,
+        "claim_current_node": 48,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 450,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 451,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 452,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 453,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 454,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 455,
+      "outcome": "Loss",
+      "reward": 55.2,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 456,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 457,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 458,
+      "outcome": "Loss",
+      "reward": 51.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 11,
+        "claim_current_node": 86,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 459,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 460,
+      "outcome": "Loss",
+      "reward": 55.2,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 49,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 461,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 462,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 463,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 464,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 465,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 466,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 467,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 468,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 469,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 470,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 13,
+        "claim_current_node": 87
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 471,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 472,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 473,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 474,
+      "outcome": "Loss",
+      "reward": 27.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 6,
+        "claim_current_node": 93,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 475,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 476,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 477,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 478,
+      "outcome": "Loss",
+      "reward": 41.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 86,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 479,
+      "outcome": "Loss",
+      "reward": 40.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 91,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 480,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 481,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 482,
+      "outcome": "Loss",
+      "reward": 52.8,
+      "steps": 57,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 6,
+        "claim_current_node": 50,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 483,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 484,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 485,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 47,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 486,
+      "outcome": "Loss",
+      "reward": 30.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 91,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 487,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 488,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 489,
+      "outcome": "Loss",
+      "reward": 25.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 92
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 490,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 491,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 492,
+      "outcome": "Loss",
+      "reward": 41.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 85,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 493,
+      "outcome": "Loss",
+      "reward": 65.7,
+      "steps": 58,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 7,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 494,
+      "outcome": "Loss",
+      "reward": 68.1,
+      "steps": 59,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 47,
+        "move_to_artifact": 3
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 495,
+      "outcome": "Loss",
+      "reward": 36.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 88
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 496,
+      "outcome": "Loss",
+      "reward": 88.5,
+      "steps": 60,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 49,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 497,
+      "outcome": "Loss",
+      "reward": 56.4,
+      "steps": 56,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 47,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 498,
+      "outcome": "Loss",
+      "reward": 64.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 9,
+        "claim_current_node": 89,
+        "move_to_artifact": 2
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 499,
+      "outcome": "Loss",
+      "reward": 51.5,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 12,
+        "claim_current_node": 87,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    },
+    {
+      "episode": 500,
+      "outcome": "Loss",
+      "reward": 30.0,
+      "steps": 100,
+      "action_distribution": {
+        "move_to_nearest_unclaimed": 8,
+        "claim_current_node": 91,
+        "move_to_artifact": 1
+      },
+      "game_telemetry": {}
+    }
+  ]
+}

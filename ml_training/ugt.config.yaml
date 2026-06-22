@@ -1,0 +1,63 @@
+project:
+  name: "Iron Ashes"
+  version: "1.0.0"
+
+engine:
+  type: "simulation"
+  # Use tsx to execute the TypeScript headless wrapper with ESM support
+  entry: "npx -y tsx ugt_env.ts"
+
+observation_space:
+  type: "box"
+  shape: 9
+  mappings:
+    - path: "doomToll"
+      min: 0
+      max: 20
+    - path: "round"
+      min: 1
+      max: 50
+    - path: "agent.warBanners"
+      min: 0
+      max: 20
+    - path: "agent.actionsRemaining"
+      min: 0
+      max: 4
+    - path: "agent.stats.strongholdsClaimed"
+      min: 0
+      max: 20
+    - path: "ml_agent_node_id"
+      min: 0
+      max: 100
+    - path: "ml_artifact_node_id"
+      min: 0
+      max: 100
+    - path: "ml_distance_to_artifact"
+      min: 0
+      max: 20
+    - path: "ml_distance_to_nearest_unclaimed"
+      min: 0
+      max: 20
+
+action_space:
+  type: "discrete"
+  size: 5
+  actions:
+    0: { name: "end_turn" }
+    1: { name: "move_to_artifact" }
+    2: { name: "claim_artifact" }
+    3: { name: "move_to_nearest_unclaimed" }
+    4: { name: "claim_current_node" }
+
+reward_profiles:
+  balance_tuning:
+    # Reward is now computed inside ugt_env.ts dynamically based on transitions
+    formula: "state.ml_reward"
+    win_bonus: 100
+    loss_penalty: 50
+
+training:
+  algorithm: "PPO"
+  total_timesteps: 100000
+  parallel_envs: 1
+  checkpoint_freq: 25000

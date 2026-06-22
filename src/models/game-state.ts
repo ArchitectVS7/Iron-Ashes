@@ -122,11 +122,11 @@ export interface ActionLogEntry {
 
 /** Default Behavior Deck composition (post-balance-fix). */
 export const DEFAULT_BEHAVIOR_DECK_COMPOSITION: Record<BehaviorCardType, number> = {
-  spawn: 7,
+  spawn: 5,
   move: 4,
-  claim: 4,
+  claim: 7,
   assault: 4,
-  escalate: 1,
+  escalate: 0,
 };
 
 /**
@@ -151,9 +151,9 @@ export const COOPERATIVE_BEHAVIOR_DECK_COMPOSITION: Record<BehaviorCardType, num
 };
 
 /** Doom Toll constants. */
-export const DOOM_TOLL_MAX = 13;
+export const DOOM_TOLL_MAX = 11;
 export const DOOM_TOLL_MIN = 0;
-export const DOOM_TOLL_FINAL_PHASE_THRESHOLD = 10;
+export const DOOM_TOLL_FINAL_PHASE_THRESHOLD = 8;
 /** Starting Doom Toll for 3-player games — thinner voting coalition from turn one. */
 export const THREE_PLAYER_STARTING_DOOM_TOLL = 2;
 /** Minimum Doom Toll advance per Final Phase round (2 Behavior Cards × 1 each). Used for Estimated Rounds Remaining HUD display. */

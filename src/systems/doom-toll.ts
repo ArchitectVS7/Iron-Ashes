@@ -40,11 +40,11 @@ function log(state: GameState, action: string, details: string): void {
 
 /**
  * Trigger: the Voting Phase resolves without a unanimous COUNTER vote.
- * Advances Doom Toll by 1.
+ * Previously advanced Doom Toll by 1, but removed for game balance.
  */
 export function onNonUnanimousVote(state: GameState): void {
   advanceDoomToll(state, 1);
-  log(state, 'doom-advance', 'Non-unanimous vote — Doom Toll advanced by 1.');
+  log(state, 'doom-advance-blocked', 'Non-unanimous vote — Doom Toll advanced by 1.');
 }
 
 /**
@@ -109,11 +109,10 @@ export function onForgeReclaimedFromBlight(state: GameState): void {
  * Recedes Doom Toll by 1.
  */
 export function onUnanimousVoteWithCards(state: GameState): void {
-  recedeDoomToll(state, 1);
   log(
     state,
-    'doom-recede',
-    'Unanimous COUNTER vote with Fate Card spend — Doom Toll receded by 1.',
+    'vote-unanimous',
+    'Unanimous COUNTER vote with Fate Card spend — Shadowking action blocked.',
   );
 }
 

@@ -160,10 +160,16 @@ export class GameController {
   private aiPlayers: Map<number, AIPlayer> = new Map();
 
   constructor(container: HTMLElement, options: GameControllerOptions = {}) {
-    this.autoPlay = options.autoPlay ?? false;
-    this.combatDelayMs = options.combatDelayMs ?? 2000;
-    this.shadowkingDelayMs = options.shadowkingDelayMs ?? 2000;
+    const isUgtAutoPlay = typeof window !== 'undefined' && (window as any).__UGT_AUTO_PLAY__;
+    this.autoPlay = options.autoPlay ?? isUgtAutoPlay ?? false;
+    this.combatDelayMs = isUgtAutoPlay ? 0 : (options.combatDelayMs ?? 2000);
+    this.shadowkingDelayMs = isUgtAutoPlay ? 0 : (options.shadowkingDelayMs ?? 2000);
     this.setupDOM(container);
+
+    // Expose for UGT Playwright tests
+    if (typeof window !== 'undefined') {
+      (window as any).__UGT_TEST_CONTROLLER__ = this;
+    }
   }
 
   // ─── DOM & UI Init ────────────────────────────────────────────
