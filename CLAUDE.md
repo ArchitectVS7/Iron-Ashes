@@ -33,8 +33,11 @@ src/
 tests/        # Mirrors src/ structure (jsdom environment)
 content/      # GLL content packs (iron-throne/, future reskins)
 server/       # Express + WebSocket backend (own package.json, build, schema.sql)
-ml_training/  # Balance simulation harness (UGT) — TS batch sims + Python UI test
+src/v2/sim/   # v2 balance harness — deterministic Monte-Carlo over the real reducer (npm run sim)
 ```
+
+> The old `ml_training/` (v1 PPO/RL + parallel-rules sims) was scrapped in Stage 4; its
+> historical artifacts live in `docs/archive/ml_training-v1/` (marked INVALIDATED).
 
 **Frontend note:** `src/ui/` is a no-framework TypeScript UI. `game-controller.ts` is the
 entry orchestrator; each feature panel (`voting-panel.ts`, `combat-overlay.ts`, etc.) ships

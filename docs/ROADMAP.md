@@ -142,14 +142,15 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     50.2%** vs 26.4% even-share → the Crown's Gambit is the dominant strategy and the #1 Stage-5 tuning target;
     rescues 0.2/game (target 2–4, far too rare); **free-riding NOT rewarded** ✅ (the 3f anti-free-rider reward
     works). 19 test files, 349 green.*
-  - [ ] **4f. Blood Pact + v1 cleanup** — saboteur archetype + sim-only AI-traitor affordance + accusation
+  - [x] **4f. Blood Pact + v1 cleanup** — saboteur archetype + sim-only AI-traitor affordance + accusation
     driving + traitor metrics; then the `ml_training/` disposition (delete dead PPO/venv/parallel-sims,
     archive reports) — confirmed before deleting.
     *BP sim DONE 2026-06-22: `saboteurPledgeSuppression` knob (active only when holding the Pact), `saboteur`
     archetype, driver `bloodPactSeat` affordance + AI accusation driving (pure `chooseAccusation`/Vote), traitor
-    metrics, `npm run sim -- --bloodpact`. `tests/v2/sim-bloodpact.test.ts`; 352 green. BP sweep (sample
-    `sim-results/sample/BLOOD_PACT.md`): traitor exposed 70.8% / wins 6.7%, **accusation accuracy 20.3%**
-    (AIs over-accuse innocents — a Stage-5 target). REMAINING: the v1 `ml_training/` disposition (user approved).*
+    metrics, `npm run sim -- --bloodpact`. BP sweep (`sim-results/sample/BLOOD_PACT.md`): traitor exposed 70.8% /
+    wins 6.7%, **accusation accuracy 20.3%** (AIs over-accuse innocents — a Stage-5 target). v1 cleanup DONE
+    (user-approved): deleted the dead PPO/venv (750MB)/parallel-sims; archived the plan + reports + the 2 result
+    JSONs to `docs/archive/ml_training-v1/` marked INVALIDATED; `ml_training/` removed. 352 green. **Stage 4 complete.***
 - [ ] **Stage 5 — Balance validation** — set the `[TUNABLE]` params (ALGORITHM §9).
   - [ ] **5a. Tune to targets** — **prove the Pledge free-rider incentive is solved** (the primary open
     balance question); hit targets (Shadowking win 18–22%, ~10–16 rounds, Gambit fires ~1-in-6–8 games,
@@ -201,7 +202,7 @@ fresh, but the *foundations* are directly reusable.
    previous handover first), then read **`docs/handoff/state.json`** — the machine source of truth for
    status (`currentStage`, `nextAction`, `specRefs`, `invariants`, `gotchas`).
 2. Read this file (§2 locked decisions; §4 — the first unchecked box equals `state.currentStage`) and the
-   `specRefs` sections of `docs/DESIGN-V2-ALGORITHM.md`. (Right now: **Stage 4a — ML/sim harness**.)
+   `specRefs` sections of `docs/DESIGN-V2-ALGORITHM.md`. (Right now: **Stage 5a — tune to the §9 targets**.)
 3. Build through the one `applyCommand` reducer; keep everything deterministic (§7); write tests as you go.
 4. **Definition of Done (enforced):** `npm run verify` exits 0 → update `state.json` + §4 box + §8
    changelog + the memory file → commit → `npm run handoff:check` exits 0. See `docs/AGENT-PROTOCOL.md`.
@@ -225,6 +226,14 @@ fresh, but the *foundations* are directly reusable.
   (telegraphed villain + grudge + voice lines), `combat` (sealed-commit + Last Stand), `actions`
   (MARCH/CLAIM/RAID/STRIKE/RESCUE/RECRUIT — all via the one reducer), `gambit` (Crown's Gambit + territory
   tiebreakers). 14 source + 10 test files, **260 tests green**, typecheck clean, deterministic.
+- **2026-06-22** — **Stage 4f complete → STAGE 4 DONE.** Blood Pact sim: `saboteur` archetype +
+  `saboteurPledgeSuppression` (active only when holding the Pact) + driver `bloodPactSeat` sim-affordance +
+  per-round AI accusation driving (pure choosers) + traitor metrics + `npm run sim -- --bloodpact`. BP sweep
+  (360 games): traitor exposed 70.8% / wins 6.7%, accusation accuracy 20.3% (over-accusing — Stage-5 target).
+  Then the user-approved **v1 `ml_training/` disposition**: deleted the dead PPO models / 750MB venv /
+  parallel-rules sims / Python; archived the plan + boilerplate reports + the 2 result JSONs to
+  `docs/archive/ml_training-v1/` (marked INVALIDATED); removed `ml_training/`. The v2 sim (`src/v2/sim/`,
+  `npm run sim`) fully replaces it. Verify: 20 files, **352 passed**. Next: Stage 5a (tune to §9 — nerf the Gambit).
 - **2026-06-22** — **Stage 4c/4d/4e complete — the balance harness runs.** `src/v2/sim/` gained
   matchups (homogeneous/mixed/round-robin/one-vs-field), `runSweep`, pure `computeMetrics` (from state +
   actionLog), and a PASS/FAIL report (§9 + win-rate-by-archetype + free-rider). `scripts/sim.mjs` (`npm run

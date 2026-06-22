@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
-  "currentStage": "4f",
-  "currentStageTitle": "Blood Pact sim + v1 ml_training cleanup",
+  "currentStage": "5a",
+  "currentStageTitle": "Stage 5 — tune the [TUNABLE] params to the §9 targets",
   "status": "not-started",
-  "nextAction": "Stage 4f REMAINING STEP = the v1 ml_training/ DISPOSITION (user APPROVED 'delete cruft, archive reports'): delete ml_training/venv (750MB), models/*.zip (PPO), ugt_env.ts, ugt.config.yaml, simulate_batch.ts, generate_report.ts, ui_test.py; `git mv` reports/ + results/ + UGT_TESTING_PLAN.md to docs/archive/ml_training-v1/ and prepend an INVALIDATED note; remove ml_training/ from the root. Its own commit. THEN tick ROADMAP 4f and set currentStage 5a (Stage 5 = tune to §9 targets; #1 target = nerf the Gambit). The Blood Pact sim part of 4f is DONE (saboteur archetype + AI-traitor sim affordance + accusation driving + traitor metrics + `npm run sim -- --bloodpact`; sample sim-results/sample/BLOOD_PACT.md: traitor exposed 70.8% / wins 6.7%, accusation accuracy only 20.3% = over-accusing innocents, a Stage-5 target).",
+  "nextAction": "Stage 5a (STAGE 4 is COMPLETE — the harness exists & runs: `npm run sim` competitive, `npm run sim -- --bloodpact` traitor). Tune src/v2/tunables.ts to hit the §9 targets using the sim as the measuring instrument. PRIORITIZED by the baseline sweep (sim-results/sample/): (1) THE GAMBIT IS OVERPOWERED — fires 49% (target 10-20%), gambler wins 50.2% vs 26.4% even-share → raise GAMBIT_SURCHARGE / make seize harder / re-examine the gambit win timing. (2) Shadowking win 15.3% → 18-22% (strengthen the dark slightly). (3) rescues 0.2/game → 2-4 (the rescue economy barely fires — RESCUE_COST / broken dynamics / AI rescueWillingness). (4) Blood Pact: accusation accuracy 20.3% (AIs over-accuse) — tune ACCUSATION_* knobs and/or the chooseAccusation threshold so accusations catch traitors more than random. RE-RUN the sweep after each change; prove no archetype dominates and free-riding stays unrewarded. Consider the Stage-5 tunable-injectability seam (plan-stage4.md §4 Option 1) so the sim can sweep params automatically.",
   "specRefs": [
-    "docs/handoff/plan-stage4.md (4f scope), ML-SYSTEM-ANALYSIS.md (disposition table)",
-    "ALGORITHM §10 (Blood Pact), src/v2/blood-pact.ts (pure choosers)",
-    "src/v2/sim/* (the harness to extend), sim-results/sample/REPORT.md (baseline findings)",
-    "ROADMAP §4 (4f)"
+    "ALGORITHM §9 (the [TUNABLE] list + target metrics)",
+    "sim-results/sample/REPORT.md + BLOOD_PACT.md (the baseline findings to fix)",
+    "src/v2/tunables.ts (the knobs), src/v2/sim/* + `npm run sim` (the instrument)",
+    "ROADMAP §4 (5a)"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-22T19:32:18.813Z",
-    "commit": "32fb318",
+    "timestamp": "2026-06-22T19:35:25.753Z",
+    "commit": "440fb53",
     "sourceHash": "5994297d2ad69b22a466100bd45daeab3228cf4c25206256d2f88d5370257934",
     "typecheck": "pass",
     "lint": "pass",
