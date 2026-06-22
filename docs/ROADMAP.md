@@ -78,7 +78,11 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     Stand §5.3, Broken/Rescue §5.4, escalation acts §5.5, Shadowking policy §5.6, victory + Gambit §6.
     *All actors (human/AI/sim) route through the one reducer — no duplicate movement/claim logic.*
     *Completed 2026-06-22. 5 new modules (`blight`, `shadowking-policy`, `combat`, `actions`, `gambit`), 10 test files (260 tests). Clean typecheck.*
-  - [ ] **3c. AI players** — deterministic `f(state, seed)` for pledge + actions + (later) accusation.
+  - [x] **3c. AI players** — deterministic `f(state, seed)` for pledge + actions + (later) accusation.
+    *Completed 2026-06-22. `src/v2/ai-player.ts`: pure `choosePledge`/`chooseAction` (fair-share pledge with
+    a tunable free-rider lean; greedy economic actions via BFS) + `runAIPledge`/`runAITurn` drivers that route
+    every decision through `applyCommand`. 11 test files (281 tests). Full AI-vs-AI games are seed-reproducible
+    (§7.12). Accusation deferred to 3d with the rest of Blood Pact.*
   - [ ] **3d. Layer B — Blood Pact** — sealed pledges, Suspicion Log, Audit, accusation (§10), behind the mode flag.
   - [ ] **3e. UI — render-from-state** — readable board, persistent HUD, the P2 legibility items
     (`STRESS-TEST §P2`: threshold-beat pledge reveal, blightLevel pips, Gambit alarm, Crown-handoff beat,
@@ -135,7 +139,7 @@ fresh, but the *foundations* are directly reusable.
    previous handover first), then read **`docs/handoff/state.json`** — the machine source of truth for
    status (`currentStage`, `nextAction`, `specRefs`, `invariants`, `gotchas`).
 2. Read this file (§2 locked decisions; §4 — the first unchecked box equals `state.currentStage`) and the
-   `specRefs` sections of `docs/DESIGN-V2-ALGORITHM.md`. (Right now: **Stage 3c — AI players**.)
+   `specRefs` sections of `docs/DESIGN-V2-ALGORITHM.md`. (Right now: **Stage 3d — Layer B, Blood Pact**.)
 3. Build through the one `applyCommand` reducer; keep everything deterministic (§7); write tests as you go.
 4. **Definition of Done (enforced):** `npm run verify` exits 0 → update `state.json` + §4 box + §8
    changelog + the memory file → commit → `npm run handoff:check` exits 0. See `docs/AGENT-PROTOCOL.md`.
@@ -159,6 +163,12 @@ fresh, but the *foundations* are directly reusable.
   (telegraphed villain + grudge + voice lines), `combat` (sealed-commit + Last Stand), `actions`
   (MARCH/CLAIM/RAID/STRIKE/RESCUE/RECRUIT — all via the one reducer), `gambit` (Crown's Gambit + territory
   tiebreakers). 14 source + 10 test files, **260 tests green**, typecheck clean, deterministic.
+- **2026-06-22** — **Stage 3c complete.** Deterministic AI player (`src/v2/ai-player.ts`): pure
+  `choosePledge` (fair-share vs. threshold, harder if named/struck, tunable free-rider lean) + `chooseAction`
+  (greedy economic: STRIKE-if-favorable → CLAIM → BFS-MARCH toward the best claimable → PASS), both pure
+  `f(state, seed)` (§7.9); `runAIPledge`/`runAITurn` drivers route through the one `applyCommand`. Fixed a
+  last-player ACTION-pointer quirk (loop must stop on `actionsRemaining===0`, not just the seat index).
+  Verify: 11 files, 281 passed / 0 failed, typecheck+lint pass. Next: 3d (Layer B — Blood Pact).
 - **2026-06-22** — Handover audit + cleanup. Triaged the v2 suite: 1 real code bug (`pledgeHistory` stored
   in submission order → now seat order, determinism §7.2) + 7 stale/incorrect tests — including an
   infinite-loop test helper (`passAllActions`) that had prevented the suite from ever completing (so the

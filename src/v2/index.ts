@@ -119,6 +119,16 @@ export {
   computeTerritoryWinner,
 } from './gambit.js';
 
+// ── AI Player ──
+export {
+  choosePledge,
+  chooseAction,
+  runAIPledge,
+  runAITurn,
+  DEFAULT_AI_POLICY,
+} from './ai-player.js';
+export type { AIPolicy } from './ai-player.js';
+
 // ── Tunables ──
 export { TUNABLES } from './tunables.js';
 
