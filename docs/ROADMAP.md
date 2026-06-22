@@ -1,0 +1,146 @@
+# Iron Throne of Ashes — Roadmap & Resume Point
+
+> **READ THIS FIRST to resume work.** This is the single entry point that survives context clearing.
+> Last updated: 2026-06-21.
+
+---
+
+## 0. Where we are right now
+
+**The design phase is COMPLETE and stress-tested. The next action is Stage 3 (code scaffolding) —
+not started.** We have NOT written any new engine code yet; we have a full, hardened spec to build from.
+
+The short story: the shipped v1 ("Iron Throne of Ashes") was a vibe-coded mess — broken UI, an
+unreachable tutorial, 50 failing tests, and balance silently mutated by a broken ML bot. Rather than
+patch it, we ran a 5-expert design focus group and did a **ground-up redesign of the game itself**. The
+new design is settled, adversarially stress-tested, and documented. We are about to build the new engine.
+
+**Immediate next action:** Stage 3a — scaffold the new engine (state shapes + a single `applyCommand`
+reducer + a pure phase sequencer + determinism tests), reusing only the safe foundations (§Reuse below).
+
+---
+
+## 1. The game in one paragraph (orient a cold session)
+
+**"Save the world, or take it."** A 30–45 min digital board game for 2–4 rival Warlords carving up a
+dying kingdom while an autonomous, *telegraphed* AI villain (the Shadowking) **burns the map to permanent
+ash** and hunts whoever leads. Each round: the villain **telegraphs** its next strike (aimed by name,
+usually at the leader) → players **Pledge** cards toward a threshold to hold it back (partial = proportional
+block, no veto; the leader's cards count for less; **open live in core, sealed in traitor mode**) → players
+**act** (march, claim, raid, rescue-with-strings, heroic Last Stand) → **Dawn** (income, escalation). Doom
+IS the map: the central **Keystone** is what the dark races to consume — if it's ashed, *everyone* loses.
+You win by **territory lead** at a round cap, OR by the bold **Crown's Gambit** (hold the Keystone a full
+round as the dark's named target). No elimination (Broken = an active comeback engine). A separable
+**Blood Pact** hidden-traitor mode ships at launch.
+
+---
+
+## 2. Locked decisions (the spine — do not relitigate without explicit sign-off)
+
+| Decision | Choice | Where |
+|---|---|---|
+| Doom model | **Doom IS the map** — Blight spreads node→node into permanent ash | ALGORITHM §2, §5.1 |
+| Pledge (replaces voting) | **Open live window in core; sealed in Blood Pact**; both resolve deterministically | ALGORITHM §4.2 |
+| Win condition | **Contested Throne + Gambit** — territory baseline + telegraphed Keystone-hold sudden-win | ALGORITHM §6 |
+| Map | **Closing Ring with a steered front** — concentric, symmetric, 17 nodes, lateral mid-belt + Approach ZoC | ALGORITHM §2 |
+| Traitor | **Full hidden-role Blood Pact at launch**, built as a separable mode flag over a self-contained core | ALGORITHM §10 |
+| Leading is dangerous | **The Crown** = how you win + who the villain hunts + a defense surcharge | ALGORITHM §5.2 |
+| No elimination | **Broken-with-teeth** — active comeback, recovery cap, debt-rescue, lost lands feed the dark | ALGORITHM §5.4 |
+| Determinism | Whole game reproducible from a seed; one `SeededRandom`; AI decisions pure too | ALGORITHM §7 |
+
+---
+
+## 3. Document map (read order)
+
+1. **`docs/ROADMAP.md`** — this file. Status + plan + how to resume.
+2. **`docs/DESIGN-V2-ALGORITHM.md`** — ⭐ THE SPEC to code from. Hardened with stress-test fixes. Every
+   turn, phase, mechanic, the determinism contract, the reuse map (§8), and the tunable list (§9).
+3. **`docs/DESIGN-V2-STRESS-TEST.md`** — the pre-code punch list (P0/P1 folded into the spec; P2 = Stage-3 UI).
+4. **`docs/DESIGN-V2-FOCUS-GROUP.md`** — Stage 1, the core idea and the panel synthesis (the "why").
+5. **`docs/REDESIGN-ANALYSIS.md`** — why v1 failed; original reuse-vs-rebuild analysis.
+6. **`docs/ML-SYSTEM-ANALYSIS.md`** — why the old ML harness was scrapped; what a sound one looks like.
+7. (Reference) `docs/prd.md` = the OLD v1 PRD — historical; superseded by the v2 docs for mechanics.
+
+---
+
+## 4. The plan (stages → concrete steps → status)
+
+Workflow defined with the user: **① idea → ② textual algorithm → ③ code → ④ ML training → ⑤ ML validation.**
+
+- [x] **Stage 1 — Game idea / focus group** → `DESIGN-V2-FOCUS-GROUP.md`
+- [x] **Stage 2 — Textual algorithm** → `DESIGN-V2-ALGORITHM.md`
+- [x] **Stage 2.5 — Adversarial stress-test + fixes folded in** → `DESIGN-V2-STRESS-TEST.md`
+- [ ] **Stage 3 — Build the new engine (from the spec).** Recommended order:
+  - [ ] **3a. Scaffold** — `GameState` shapes (ALGORITHM §2) + a single `applyCommand(state, cmd) → {state, events}`
+    reducer + a pure phase sequencer (THREAT→PLEDGE→ACTION→DAWN) + determinism tests (§7). UI-less, headless.
+  - [ ] **3b. Layer A core mechanics** — Pledge (open) §4.2, Crown §5.2, ash-map/Blight §5.1, combat + Last
+    Stand §5.3, Broken/Rescue §5.4, escalation acts §5.5, Shadowking policy §5.6, victory + Gambit §6.
+    *All actors (human/AI/sim) route through the one reducer — no duplicate movement/claim logic.*
+  - [ ] **3c. AI players** — deterministic `f(state, seed)` for pledge + actions + (later) accusation.
+  - [ ] **3d. Layer B — Blood Pact** — sealed pledges, Suspicion Log, Audit, accusation (§10), behind the mode flag.
+  - [ ] **3e. UI — render-from-state** — readable board, persistent HUD, the P2 legibility items
+    (`STRESS-TEST §P2`: threshold-beat pledge reveal, blightLevel pips, Gambit alarm, Crown-handoff beat,
+    villain voice layer, Whisper-act onboarding). The old vanilla-TS UI is a debug/test harness only.
+- [ ] **Stage 4 — ML/sim harness** — rebuilt on the consolidated reducer (NOT a parallel rules path).
+  Monte-Carlo win-rate sweep over the REAL rules + REAL AI; deterministic; reports vs targets.
+- [ ] **Stage 5 — Balance validation** — set the `[TUNABLE]` params (ALGORITHM §9); **prove the Pledge
+  free-rider incentive is solved** (the primary open balance question); hit targets (Shadowking win 18–22%,
+  ~10–16 rounds, Gambit fires ~1-in-6–8 games, 2–4 rescues/game, no dominant pledge line).
+
+---
+
+## 5. Reuse vs. rebuild (rule: reuse only when refactor ≤ writing fresh)
+
+From ALGORITHM §8 + REDESIGN-ANALYSIS. The new mechanics differ enough from v1 that most *systems* are
+fresh, but the *foundations* are directly reusable.
+
+| v1 asset | Verdict | Note |
+|---|---|---|
+| `src/utils/seeded-random.ts`, `src/utils/pathfinding.ts` | **REUSE as-is** | Clean, foundational. |
+| `src/gll/` (registry, types) + `content/` packs | **REUSE as-is** | The engine's best idea; keep. |
+| `src/models/board.ts` (BoardDefinition/Node, BFS, validation) | **REUSE the machinery, REPLACE the node data** | New 17-node Closing Ring topology + lateral links + ZoC + ash state. The graph/validation code is reusable; refactor < rewrite. |
+| `src/models/game-state.ts` | **REWRITE** | New state shape (ALGORITHM §2); reference the old constants file but the model changed substantially. |
+| `src/engine/game-loop.ts` (phase machine) | **REFACTOR** → pure THREAT/PLEDGE/ACTION/DAWN sequencer | Salvage the structure; new phases. |
+| `src/systems/*` (voting, doom-toll, combat, shadowking, broken-court, victory, resources, etc.) | **REBUILD** | Mechanics changed (Pledge, ash-map, Crown, Gambit, policy). Consolidate all movement/claim/combat into the ONE reducer — kills the 3–4 duplicate copies. |
+| `src/systems/ai-player.ts` | **REFACTOR** | New action/pledge space; must be pure `f(state, seed)`. |
+| `src/ui/game-controller.ts` (1196 lines, 5 jobs) | **REBUILD** | Split driver / orchestrator / AI-runner / netcode; render-from-state. |
+| `src/ui/board-renderer.ts` | **REBUILD** | Readable Closing-Ring layout; legible affordances. |
+| `src/ui/*` panels, social-pressure onboarding | **REBUILD / drop the essay** | Teach in-context (Whisper act). |
+| `ml_training/ugt_env.ts`, PPO model + checkpoints, `ugt.config.yaml` | **SCRAP** | Degenerate agent, never won, non-deterministic. (ML-SYSTEM-ANALYSIS.) |
+| `ml_training/simulate_batch.ts` | **REBUILD on the reducer** | Right shape, wrong (parallel) rules path. |
+| `src/index.ts` engine barrel | **REWRITE** as the new public API surfaces. |
+| Existing test suite (50 failing) | **REPLACE** | Anchors the OLD design; write fresh tests against the new spec. Do not spend effort greening the old suite. |
+
+---
+
+## 6. Known risks / parked questions
+
+- **PRIMARY:** Is the Pledge **free-rider incentive** solved? (ALGORITHM §4.2 step 5.) Must be proven in
+  Stage-5 sim before the design is trusted. Candidate fixes are in the spec; ML decides.
+- The 17-node production base is thin (8 production nodes) — watch the Crown for thrashing; add node
+  `developmentLevel` if it thrashes (STRESS-TEST P2 / 40K H5).
+- The old test suite is RED and stays red until replaced — this is expected (it tests v1).
+- Pre-existing uncommitted v1 WIP exists in the working tree (CLAUDE.md, index.html, board-renderer.ts,
+  game-controller.ts, event-feed.*) — **unrelated to this redesign; left untouched.** Don't assume it's ours.
+
+---
+
+## 7. How to resume (fresh session checklist)
+
+1. Read this file, then `docs/DESIGN-V2-ALGORITHM.md`.
+2. Check `git log` for what's been built since the design commit.
+3. The current next action is the first unchecked box in §4. (Right now: **Stage 3a — scaffold the engine**.)
+4. Build through the one `applyCommand` reducer; keep everything deterministic (§7); write tests as you go.
+5. Update §4 checkboxes and §8 changelog in THIS file as work completes — keep the resume point current.
+
+---
+
+## 8. Changelog / decision log
+
+- **2026-06-21** — v1 analyzed (`REDESIGN-ANALYSIS`); old ML harness analyzed & scrapped (`ML-SYSTEM-ANALYSIS`).
+- **2026-06-21** — Stage 1 focus group (5 experts) → core idea settled (`DESIGN-V2-FOCUS-GROUP`).
+- **2026-06-21** — Stage 2 textual algorithm written (`DESIGN-V2-ALGORITHM`).
+- **2026-06-21** — Forks decided by lead designer: doom=map; pledge=sealed→**revised to open-core/sealed-traitor**;
+  traitor=full at launch; win=Contested Throne + Gambit; map=Closing Ring.
+- **2026-06-21** — Stage 2.5 stress-test (5 experts, unanimous "fix-then-code") → P0/P1 fixes folded into the spec.
+- **2026-06-21** — Roadmap created; design docs committed before scaffolding.
