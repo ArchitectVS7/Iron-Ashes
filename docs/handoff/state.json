@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "currentStage": "4a",
-  "currentStageTitle": "ML / sim harness — Monte-Carlo win-rate sweep over the REAL rules + REAL AI",
+  "currentStage": "4b",
+  "currentStageTitle": "Sim archetypes — diverse strategic AI (aggressor/turtle/opportunist/cooperator/gambler/saboteur)",
   "status": "not-started",
-  "nextAction": "Build the Stage-4 sim harness on the consolidated reducer (NOT a parallel rules path — see docs/ML-SYSTEM-ANALYSIS.md). Drive full AI-vs-AI games via applyCommand + the pure AI choosers (src/v2/ai-player.ts, src/v2/blood-pact.ts); Monte-Carlo sweep over seeds; deterministic; report win-rates/round-counts/Gambit-frequency/rescue-counts vs the §9 targets. Reuse the headless driver pattern from src/ui-v2/session.ts (or tests/v2/ui-session.test.ts). The engine is now at FULL SPEC PARITY after Stage 3f (anti-free-rider reward, Gambit guardrail, Last Stand, full Shadowking effect table, Rescue debt all built to spec) — so the sim measures the real designed game. The AI choosers may want updating to USE the new mechanics (e.g. Last Stand is engine-auto; AI doesn't yet pursue Gambit or Audit/Accuse in the action loop) before/within the sweep.",
+  "nextAction": "Stage 4b (plan: docs/handoff/plan-stage4.md). Extend AIPolicy in src/v2/ai-player.ts with ADDITIVE strategy knobs (pledgeGenerosity, aggression, raidLeaderBias, defensiveness, claimVsRaidPref, gambitAmbition; BP: audit/accuse/saboteur) whose neutral values reproduce today's behavior. CRITICAL: keep DEFAULT_AI_POLICY byte-identical — use a referential-identity guard so chooseAction delegates to the untouched legacy body when policy===DEFAULT_AI_POLICY (the 328 tests + §7.12 must stay green). Add src/v2/sim/archetypes.ts (ARCHETYPES roster, baseline===DEFAULT_AI_POLICY). Wire RAID/RESCUE/Gambit action branches for non-default policies. Add tests/v2/sim-archetypes.test.ts (baseline unchanged; each archetype's branch fires). 4a DONE: src/v2/sim/driver.ts (playHeadlessGame).",
   "specRefs": [
-    "ALGORITHM §9 (tunables + target metrics)",
-    "ML-SYSTEM-ANALYSIS.md (why the old harness was scrapped; what sound looks like)",
-    "ALGORITHM §7 (determinism — sim must be reproducible)",
-    "ROADMAP §4 (Stage 4)"
+    "docs/handoff/plan-stage4.md (approved plan — knob table + phasing)",
+    "ALGORITHM §9 (targets), §4.2 step 5 (free-rider), §7.9 (AI pure)",
+    "src/v2/ai-player.ts (AIPolicy, choosePledge/chooseAction), src/v2/sim/driver.ts",
+    "ROADMAP §4 (4b)"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-22T18:28:38.341Z",
-    "commit": "788e89f",
-    "sourceHash": "b60da6138a2e26432c369800e6f546d0a1e359af65587f519d92ead7c02f50ff",
+    "timestamp": "2026-06-22T19:01:30.770Z",
+    "commit": "ffe7f9c",
+    "sourceHash": "b81baeb4c120b2f0446975798507452a8ab5443eba1c99e43811bc695128bc2d",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 14,
-      "passed": 323,
+      "files": 15,
+      "passed": 328,
       "failed": 0,
       "status": "pass"
     }

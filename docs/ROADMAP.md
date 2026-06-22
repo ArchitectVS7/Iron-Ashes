@@ -114,10 +114,25 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     (§5.6). Replaced the Last-Stand false-confidence test. 14 test files (**323**, +16 spec-parity), typecheck +
     lint clean, deterministic. NOTE: this supersedes the 3b completion notes that claimed Last Stand / Rescue /
     Shadowking policy done — they were partial until 3f.*
-- [ ] **Stage 4 — ML/sim harness** — rebuilt on the consolidated reducer (NOT a parallel rules path).
-  - [ ] **4a. Sim harness** — Monte-Carlo win-rate sweep over the REAL rules + REAL AI (drive games via
-    `applyCommand` + the pure AI choosers; reuse the `src/ui-v2/session.ts` headless driver pattern);
-    deterministic; report win-rate / round-count / Gambit-frequency / rescue-count vs the §9 targets.
+- [ ] **Stage 4 — ML/sim harness** — a deterministic Monte-Carlo balance/strategy validator on the REAL
+  reducer + REAL AI across DIVERSE archetypes (NOT a parallel rules path, NOT one greedy bot). Plan in
+  `docs/handoff/plan-stage4.md` (mirror of the approved plan). NO neural RL (the failed v1 path).
+  - [x] **4a. Extract the headless driver** — one canonical `playHeadlessGame(cfg)` in `src/v2/sim/driver.ts`,
+    parameterized by per-seat `AIPolicy`; replaces the duplicated `playFullGame` loop. §7.12 byte-identical
+    determinism preserved. *Completed 2026-06-22. `tests/v2/ai-player.test.ts` delegates to it; new
+    `tests/v2/sim-driver.test.ts` (5 tests). 328 tests green.*
+  - [ ] **4b. Archetypes** — extend `AIPolicy` with additive strategy knobs (default-preserving via a
+    referential-identity guard) + `src/v2/sim/archetypes.ts` roster (baseline/aggressor/turtle/opportunist/
+    cooperator/gambler/saboteur); wire RAID/RESCUE/Gambit action branches.
+  - [ ] **4c. Matchups + sweep** — `src/v2/sim/matchups.ts` (homogeneous / mixed / round-robin / one-vs-field)
+    + `src/v2/sim/sweep.ts` over seeds × playerCount × mode × matchup; fast smoke-sweep test.
+  - [ ] **4d. Metrics + report** — `src/v2/sim/metrics.ts` (pure, from state + actionLog) + `report.ts`
+    (PASS/FAIL vs §9 + win-rate-by-archetype + free-rider verdict). Unit-tested on fixtures.
+  - [ ] **4e. CLI + run** — `scripts/sim.mjs` + `npm run sim` → `sim-results/<runId>/{rows,summary}.json` +
+    `REPORT.md`; run a real sweep and read off the §9 PASS/FAIL.
+  - [ ] **4f. Blood Pact + v1 cleanup** — saboteur archetype + BP audit/accuse hooks + sim-only AI-traitor
+    affordance + traitor metrics; then the `ml_training/` disposition (delete dead PPO/venv/parallel-sims,
+    archive reports) — confirmed before deleting.
 - [ ] **Stage 5 — Balance validation** — set the `[TUNABLE]` params (ALGORITHM §9).
   - [ ] **5a. Tune to targets** — **prove the Pledge free-rider incentive is solved** (the primary open
     balance question); hit targets (Shadowking win 18–22%, ~10–16 rounds, Gambit fires ~1-in-6–8 games,
@@ -193,6 +208,12 @@ fresh, but the *foundations* are directly reusable.
   (telegraphed villain + grudge + voice lines), `combat` (sealed-commit + Last Stand), `actions`
   (MARCH/CLAIM/RAID/STRIKE/RESCUE/RECRUIT — all via the one reducer), `gambit` (Crown's Gambit + territory
   tiebreakers). 14 source + 10 test files, **260 tests green**, typecheck clean, deterministic.
+- **2026-06-22** — **Stage 4 planned + 4a complete.** Approved plan (`docs/handoff/plan-stage4.md`): a
+  deterministic Monte-Carlo balance validator on the REAL reducer + REAL AI across diverse archetypes (no
+  neural RL — the failed v1 path). **4a** extracted the duplicated full-game loop into one canonical
+  `playHeadlessGame(cfg)` (`src/v2/sim/driver.ts`), parameterized by per-seat `AIPolicy`;
+  `tests/v2/ai-player.test.ts` delegates to it and the §7.12 byte-identical determinism test still passes.
+  Verify: 15 files, **328 passed** / 0 failed, typecheck + lint clean. Next: 4b (archetypes).
 - **2026-06-22** — **Pre-Stage-4 review + Stage 3f complete.** A 5-pass audit (determinism, mechanics
   conformance, structure/deps, test honesty) confirmed the architecture (single reducer, determinism, no v1
   imports, render-from-state UI) is sound, but found the green suite masked spec-critical gaps: the

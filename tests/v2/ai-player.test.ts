@@ -17,6 +17,7 @@ import {
   runAITurn,
   DEFAULT_AI_POLICY,
 } from '../../src/v2/ai-player.js';
+import { playHeadlessGame } from '../../src/v2/sim/driver.js';
 import type { Command } from '../../src/v2/commands.js';
 import type { GameState } from '../../src/v2/types.js';
 
@@ -33,60 +34,16 @@ function toPledge(state: GameState): GameState {
 
 /**
  * Drive a full AI-vs-AI game to a terminal state through the reducer.
- * Returns the final state. Hard-capped so a bug can never hang the suite.
+ * Delegates to the canonical headless driver (src/v2/sim/driver.ts); with no
+ * seat policies every seat uses DEFAULT_AI_POLICY, so this is byte-identical to
+ * the loop that previously lived here (the §7.12 determinism anchor).
  */
 function playFullGame(
   seed: number,
   playerCount = 4,
   mode: 'competitive' | 'blood_pact' = 'competitive',
 ): GameState {
-  // humanCount 0 → every seat is AI-controlled.
-  let state = createGame(playerCount, mode, seed, 0);
-  let guard = 0;
-  const MAX_STEPS = 5000;
-
-  while (state.gameEndReason === null && guard < MAX_STEPS) {
-    guard++;
-    switch (state.phase) {
-      case 'THREAT':
-        state = apply(state, { type: 'ADVANCE_PHASE' });
-        break;
-      case 'PLEDGE': {
-        for (const p of state.players) {
-          if (!state.pledgeBuffer.some(e => e.playerIndex === p.index)) {
-            state = runAIPledge(state, p.index, seed).state;
-          }
-        }
-        state = apply(state, { type: 'ADVANCE_PHASE' });
-        break;
-      }
-      case 'ACTION': {
-        // Each active player runs its full turn; the reducer advances the pointer.
-        const active = state.activePlayerIndex;
-        state = runAITurn(state, active, seed).state;
-        if (state.phase === 'ACTION' &&
-            state.activePlayerIndex === active &&
-            state.players[active].actionsRemaining > 0) {
-          // Pointer didn't move and the player still has actions — force-pass to
-          // guarantee progress (defensive; runAITurn shouldn't leave this state).
-          state = apply(state, { type: 'PLAYER_ACTION', playerIndex: active, action: { type: 'PASS' } });
-        }
-        // When all players are done, advance to DAWN.
-        if (state.gameEndReason === null &&
-            state.phase === 'ACTION' &&
-            state.turnOrderPosition >= state.turnOrder.length) {
-          state = apply(state, { type: 'ADVANCE_PHASE' });
-        }
-        break;
-      }
-      case 'DAWN':
-        // Dawn auto-runs inside ADVANCE_PHASE from ACTION; nothing to do here.
-        state = apply(state, { type: 'ADVANCE_PHASE' });
-        break;
-    }
-  }
-
-  return state;
+  return playHeadlessGame({ seed, playerCount, mode }).finalState;
 }
 
 // ─── Pledge policy ────────────────────────────────────────────────
