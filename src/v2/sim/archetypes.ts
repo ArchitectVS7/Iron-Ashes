@@ -42,7 +42,7 @@ export const ARCHETYPES: Readonly<Record<ArchetypeId, Archetype>> = Object.freez
     policy: {
       selfishness: 0.6, targetCover: 0.4, handReserve: 1,
       pledgeGenerosity: 0.6, aggression: 0.9, raidLeaderBias: 0.7,
-      defensiveness: 0.1, claimVsRaidPref: 0.3, gambitAmbition: 0.2, rescueWillingness: 0,
+      defensiveness: 0.1, claimVsRaidPref: 0.3, gambitAmbition: 0.2, rescueWillingness: 0, gambitContest: 0.9,
     },
   },
   turtle: {
@@ -51,7 +51,7 @@ export const ARCHETYPES: Readonly<Record<ArchetypeId, Archetype>> = Object.freez
     policy: {
       selfishness: 0.2, targetCover: 0.7, handReserve: 1,
       pledgeGenerosity: 0.8, aggression: 0.05, raidLeaderBias: 0,
-      defensiveness: 0.9, claimVsRaidPref: 0.9, gambitAmbition: 0, rescueWillingness: 0.2,
+      defensiveness: 0.9, claimVsRaidPref: 0.9, gambitAmbition: 0, rescueWillingness: 0.2, gambitContest: 0.5,
     },
   },
   opportunist: {
@@ -60,7 +60,7 @@ export const ARCHETYPES: Readonly<Record<ArchetypeId, Archetype>> = Object.freez
     policy: {
       selfishness: 0.4, targetCover: 0.5, handReserve: 1,
       pledgeGenerosity: 0.9, aggression: 0.5, raidLeaderBias: 0.9,
-      defensiveness: 0.3, claimVsRaidPref: 0.5, gambitAmbition: 0.3, rescueWillingness: 0.1,
+      defensiveness: 0.3, claimVsRaidPref: 0.5, gambitAmbition: 0.3, rescueWillingness: 0.1, gambitContest: 0.8,
     },
   },
   cooperator: {
@@ -69,7 +69,7 @@ export const ARCHETYPES: Readonly<Record<ArchetypeId, Archetype>> = Object.freez
     policy: {
       selfishness: 0.0, targetCover: 0.6, handReserve: 1,
       pledgeGenerosity: 1.6, aggression: 0.0, raidLeaderBias: 0,
-      defensiveness: 0.4, claimVsRaidPref: 0.8, gambitAmbition: 0, rescueWillingness: 0.8,
+      defensiveness: 0.4, claimVsRaidPref: 0.8, gambitAmbition: 0, rescueWillingness: 0.8, gambitContest: 0.4,
     },
   },
   gambler: {
@@ -90,7 +90,7 @@ export const ARCHETYPES: Readonly<Record<ArchetypeId, Archetype>> = Object.freez
       selfishness: 0.6, targetCover: 0.4, handReserve: 1,
       pledgeGenerosity: 0.8, aggression: 0.4, raidLeaderBias: 0.4,
       defensiveness: 0.2, claimVsRaidPref: 0.5, gambitAmbition: 0,
-      rescueWillingness: 0, saboteurPledgeSuppression: 0.8,
+      rescueWillingness: 0, gambitContest: 0.6, saboteurPledgeSuppression: 0.8,
     },
   },
 });

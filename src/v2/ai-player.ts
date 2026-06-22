@@ -76,6 +76,12 @@ export interface AIPolicy {
   /** 0..1 — propensity to RESCUE an adjacent Broken ally when affordable. Neutral 0. */
   readonly rescueWillingness?: number;
   /**
+   * 0..1 — propensity to CONTEST a live rival Crown's Gambit: march to the Keystone
+   * and raid the claimant off it (a Gambit win ends the game, so this is urgent).
+   * Neutral 0. Without it the sweep measured passive opponents, not the mechanic.
+   */
+  readonly gambitContest?: number;
+  /**
    * 0..1 — Blood Pact traitor only (active iff this seat holds the Pact): suppress
    * pledges toward the noise floor and stop pushing the front back, to let the
    * dark reach the Keystone (§10). Neutral 0 (and inert for non-traitors).
@@ -404,8 +410,28 @@ function archetypeAction(
   const claimVsRaid = policy.claimVsRaidPref ?? 1;
   const gambitAmbition = policy.gambitAmbition ?? 0;
   const rescueWillingness = policy.rescueWillingness ?? 0;
+  const gambitContest = policy.gambitContest ?? 0;
   // A traitor sabotaging the table won't push the front back (it wants the doom).
   const sabotaging = (policy.saboteurPledgeSuppression ?? 0) > 0 && player.hasBloodPact;
+
+  // 0. CONTEST a live rival Gambit — a Gambit win ends the game, so this is the
+  //    most urgent thing on the board. Raid the claimant off the Keystone if
+  //    co-located, else march toward it. (The saboteur traitor WANTS others to
+  //    lose, so it doesn't bother contesting.)
+  const gambit = state.gambit;
+  if (gambitContest > 0 && !sabotaging && gambit && gambit.claimant !== playerIndex && !state.bloodPactExposed) {
+    if (rng.float() < gambitContest) {
+      const ks = state.board.definition.keystoneId;
+      if (here === ks && hasRivalAtNode(state, playerIndex, here) === gambit.claimant
+          && !raidDebtBlocked(state, playerIndex, gambit.claimant)) {
+        return { type: 'RAID', targetPlayerIndex: gambit.claimant };
+      }
+      const step = firstStepTowardNode(state, playerIndex, ks);
+      if (step !== null && player.banners >= marchCost(state, step)) {
+        return { type: 'MARCH', targetNodeId: step };
+      }
+    }
+  }
 
   // 1. RESCUE a Broken ally (cooperator).
   if (rescueWillingness > 0 && player.hand.length >= RESCUE_COST) {

@@ -232,10 +232,10 @@ function chooseTargetNode(
 
     case 'MARCH_DK':
     case 'RAID_DK': {
-      // Target player's keep
-      const keepId = definition.keepIds[targetPlayerIndex];
-      if (keepId) return keepId;
-      return definition.approachIds[0];
+      // The target player's ACTUAL location (P1b — not keepIds[index], which only
+      // worked because player i happens to be seated in keep i; that aliases the
+      // player index with a quadrant index and breaks if seating ever changes).
+      return state.players[targetPlayerIndex]?.warlordNodeId ?? definition.approachIds[0];
     }
   }
 }

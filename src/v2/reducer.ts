@@ -233,6 +233,12 @@ import {
   initiateAccusation,
   submitAccusationVote,
 } from './blood-pact.js';
+import {
+  chooseCombatCommit,
+  getPlayerPowerAtNode,
+  getShadowkingPowerAtNode,
+} from './combat.js';
+import { COMBAT_COMMIT_MAX, RAID_DEFENSE_MARGIN } from './tunables.js';
 
 function handlePlayerAction(
   state: GameState,
@@ -319,8 +325,11 @@ function handlePlayerAction(
     }
 
     case 'STRIKE': {
-      // For headless/sim: auto-commit 1 card (or none if empty hand)
-      const strikeCards = player.hand.length > 0 ? [player.hand[0]] : [];
+      // Value-aware commit (4g): enough of the best cards to beat the SK force
+      // (its power is public), not an arbitrary hand[0].
+      const skPower = getShadowkingPowerAtNode(state, player.warlordNodeId);
+      const myBase = getPlayerPowerAtNode(state, playerIndex, player.warlordNodeId);
+      const strikeCards = chooseCombatCommit(player.hand, myBase, skPower, COMBAT_COMMIT_MAX);
       try {
         actionResult = executeStrike(state, playerIndex, strikeCards);
       } catch (e: unknown) {
@@ -339,10 +348,14 @@ function handlePlayerAction(
           'RAID requires a targetPlayerIndex',
         );
       }
-      // For headless/sim: auto-commit 1 card each (or none if empty)
-      const atkCards = player.hand.length > 0 ? [player.hand[0]] : [];
+      // Value-aware commits (4g): the attacker sizes to beat the defender's known
+      // BASE power plus a small assumed defense; the defender commits its best card.
       const defender = state.players[action.targetPlayerIndex];
-      const defCards = defender && defender.hand.length > 0 ? [defender.hand[0]] : [];
+      const node = player.warlordNodeId;
+      const atkBase = getPlayerPowerAtNode(state, playerIndex, node);
+      const defBase = defender ? getPlayerPowerAtNode(state, action.targetPlayerIndex, node) : 0;
+      const atkCards = chooseCombatCommit(player.hand, atkBase, defBase + RAID_DEFENSE_MARGIN, COMBAT_COMMIT_MAX);
+      const defCards = defender ? chooseCombatCommit(defender.hand, defBase, atkBase, 1) : [];
       try {
         actionResult = executeRaid(
           state, playerIndex, action.targetPlayerIndex, atkCards, defCards

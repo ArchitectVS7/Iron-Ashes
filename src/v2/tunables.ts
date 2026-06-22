@@ -92,8 +92,9 @@ export const ACT_THRESHOLDS = {
 // ─── Crown's Gambit ───────────────────────────────────────────────
 
 /**
- * Gambit holder's pledged cards are multiplied by this surcharge discount
- * (stacks with Crown discount if the Gambiteer also holds the Crown).
+ * A named Gambit claimant's pledged cards are multiplied by this surcharge.
+ * It does NOT stack with the Crown discount — `getEffectivePledgeWeight` returns
+ * this outright (the worst weight wins): Gambit 0.25 > Crown 0.5 > normal 1.0.
  */
 export const GAMBIT_SURCHARGE = 0.25;
 
@@ -104,7 +105,17 @@ export const BASE_BANNER_INCOME = 2;
 
 // ─── Blight / Ash-Map ────────────────────────────────────────────
 
-/** Baseline Blight levels added to the steered spoke each Dawn (anti-turtle, §5.1 / P1-C3). */
+/**
+ * Baseline Blight levels added to the steered spoke each Dawn (anti-turtle, §5.1 / P1-C3).
+ *
+ * BALANCE CONSTRAINT (Stage 5): the spec requires the front can never *perfectly*
+ * stall. A single DK-kill PUSHBACK (−`PUSHBACK`) on the steered frontier node
+ * cancels this Dawn advance exactly when `PUSHBACK === DAWN_BLIGHT_ADVANCE`. To
+ * keep the doom clock monotonic under sustained pushback, tune so the net Dawn
+ * advance exceeds the sustainable pushback rate (e.g. DAWN_BLIGHT_ADVANCE > PUSHBACK,
+ * or rely on the steered-quadrant rotation + multi-spoke advance to guarantee net
+ * progress). Left at 1/1 for now — a Stage-5 measurement + tuning decision.
+ */
 export const DAWN_BLIGHT_ADVANCE = 1;
 
 /** Base Blight spread from an un-averted strike (scaled by 1-ratio). */
@@ -137,6 +148,19 @@ export const GRUDGE_PER_SK_WOUND = 1;
 
 /** Base combat power of a Warlord piece (consistent at setup and after moving). */
 export const WARLORD_POWER = 3;
+
+/** Max cards the engine auto-commits to a single combat (value-aware, §5.3). */
+export const COMBAT_COMMIT_MAX = 3;
+
+/** Power an attacker assumes the defender will add when sizing a RAID commit. */
+export const RAID_DEFENSE_MARGIN = 1;
+
+// ─── Card values (the core pledge/combat scaling lever) ───────────
+
+/** Lowest possible drawn card value. */
+export const CARD_VALUE_MIN = 1;
+/** Highest possible drawn card value. Card values scale BOTH pledging and combat. */
+export const CARD_VALUE_MAX = 4;
 
 // ─── Anti-free-rider reward (§4.2 step 5 — the #1 balance risk) ────
 
@@ -249,6 +273,10 @@ export const TUNABLES = Object.freeze({
   GRUDGE_PER_FORGE_RECLAIM,
   GRUDGE_PER_SK_WOUND,
   WARLORD_POWER,
+  COMBAT_COMMIT_MAX,
+  RAID_DEFENSE_MARGIN,
+  CARD_VALUE_MIN,
+  CARD_VALUE_MAX,
   PLEDGE_FAVOR_GRUDGE_REDUCTION,
   PLEDGE_SHIELD_AMOUNT,
   DK_MARCH_DISTANCE,

@@ -1,38 +1,39 @@
 # Balance Sweep Report — s20260622-n40
 
-**3240 games** · base seed 20260622 (40 seeds) ·
+**4200 games** · base seed 20260622 (40 seeds) ·
 player counts 2/3/4 · modes competitive ·
-27 matchups. Driven through the REAL reducer + REAL AI (deterministic).
+35 matchups. Driven through the REAL reducer + REAL AI (deterministic).
 
 ## §9 targets
 | Metric | Measured | Target | Verdict |
 |---|---|---|---|
-| Shadowking win rate | 15.3% | 18.0%–22.0% | ❌ FAIL |
-| Mean game length (rounds) | 11.60 | 10–16 | ✅ PASS |
-| Gambit fire rate (~1-in-6-to-8) | 49.0% | 10.0%–20.0% | ❌ FAIL |
-| Rescues per game | 0.20 | 2–4 | ❌ FAIL |
+| Shadowking win rate | 14.3% | 18.0%–22.0% | ❌ FAIL |
+| Mean game length (rounds) | 11.91 | 10–16 | ✅ PASS |
+| Gambit fire rate (~1-in-6-to-8) | 43.9% | 10.0%–20.0% | ❌ FAIL |
+| Rescues per game | 0.10 | 2–4 | ❌ FAIL |
 
 ## No-dominant-strategy check
-Even per-seat win share ≈ **26.4%**. ❌ FAIL — **gambler** dominates.
+Even per-seat win share ≈ **27.8%**. ✅ PASS — no archetype dominates.
 
 | Archetype | Seat-games | Wins | Win rate |
 |---|---|---|---|
-| aggressor | 1560 | 96 | 6.2% |
-| baseline | 2560 | 613 | 23.9% |
-| cooperator | 1360 | 295 | 21.7% |
-| gambler | 1280 | 643 | 50.2% |
-| opportunist | 1440 | 497 | 34.5% |
-| turtle | 1520 | 418 | 27.5% |
+| aggressor | 1760 | 179 | 10.2% |
+| baseline | 3000 | 749 | 25.0% |
+| cooperator | 1560 | 382 | 24.5% |
+| gambler | 1480 | 664 | 44.9% |
+| opportunist | 1640 | 616 | 37.6% |
+| saboteur | 1440 | 387 | 26.9% |
+| turtle | 1720 | 531 | 30.9% |
 
 ## Free-rider verdict (§4.2 step 5)
-Winners' mean pledge **1.60** vs the field's **1.79**.
+Winners' mean pledge **1.59** vs the field's **1.69**.
 ✅ Free-riding is not rewarded (winners pledge at least their share).
 
 ## Game endings
 | Reason | Count | Share |
 |---|---|---|
-| all_broken | 183 | 5.6% |
-| doom_complete | 495 | 15.3% |
-| gambit_victory | 956 | 29.5% |
-| territory_victory | 1606 | 49.6% |
+| all_broken | 93 | 2.2% |
+| doom_complete | 599 | 14.3% |
+| gambit_victory | 1181 | 28.1% |
+| territory_victory | 2327 | 55.4% |
 

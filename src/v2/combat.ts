@@ -19,7 +19,7 @@
 
 import type { GameEvent } from './events.js';
 import type { GameState } from './types.js';
-import { BREAK_THRESHOLD, PUSHBACK } from './tunables.js';
+import { BLIGHT_TO_ASH, BREAK_THRESHOLD, PUSHBACK } from './tunables.js';
 import { applyPushback } from './blight.js';
 import { addGrudge } from './shadowking-policy.js';
 import { GRUDGE_PER_DK_KILL, GRUDGE_PER_FORGE_RECLAIM } from './tunables.js';
@@ -190,6 +190,38 @@ export function resolveCombat(state: GameState, setup: CombatSetup): CombatResul
     lastStandAvailable,
     events,
   };
+}
+
+/**
+ * Choose an attacker's combat commit deterministically and by VALUE (§5.3).
+ *
+ * Pre-4g the engine auto-committed `hand[0]` — so combat strength was whatever the
+ * first card in hand-order happened to be (draw-order noise that biased every
+ * combat metric). This commits the FEWEST highest-value cards needed to exceed
+ * `targetPower` from `basePower` (a real win), capped at `maxCards`; if it can't
+ * win, it commits the single best card (always put up a fight, never dump the
+ * hand) — or nothing if already winning on base power alone (save cards).
+ */
+export function chooseCombatCommit(
+  hand: readonly number[],
+  basePower: number,
+  targetPower: number,
+  maxCards: number,
+): number[] {
+  if (hand.length === 0) return [];
+  const sorted = [...hand].sort((a, b) => b - a);
+  const need = targetPower - basePower + 1; // strictly exceed to win
+  if (need <= 0) return []; // already winning on pieces — no cards needed
+
+  const chosen: number[] = [];
+  let sum = 0;
+  for (const c of sorted) {
+    if (sum >= need || chosen.length >= maxCards) break;
+    chosen.push(c);
+    sum += c;
+  }
+  if (sum >= need) return chosen;
+  return [sorted[0]]; // can't win — commit the best single card, not the whole hand
 }
 
 /**
@@ -391,7 +423,7 @@ export function checkBrokenState(state: GameState, playerIndex: number): GameEve
       if (nodeDef && nodeDef.tier === 'holding') {
         const prevOwner = nodeState.owner;
         nodeState.ashed = true;
-        nodeState.blightLevel = 3;
+        nodeState.blightLevel = BLIGHT_TO_ASH;
         nodeState.owner = null;
         events.push({
           type: 'NODE_ASHED',

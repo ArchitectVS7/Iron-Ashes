@@ -18,6 +18,8 @@ import {
   BROKEN_INCOME_BONUS,
   CROWN_PLEDGE_DISCOUNT,
   FORGE_WEIGHT,
+  CARD_VALUE_MAX,
+  CARD_VALUE_MIN,
   HAND_LIMIT,
   PATIENCE_CAP,
   PATIENCE_ON_BLOCK,
@@ -30,7 +32,7 @@ import {
   checkActAdvance,
   isKeystoneAshed,
 } from './blight.js';
-import { applyShadowkingStrike } from './shadowking-effects.js';
+import { applyShadowkingStrike, respawnDeathKnights } from './shadowking-effects.js';
 import {
   chooseShadowkingIntent,
   decayGrudge,
@@ -140,8 +142,16 @@ export function resolvePledgePhase(state: GameState): SequencerResult {
     const weight = getEffectivePledgeWeight(state, pledge.playerIndex, CROWN_PLEDGE_DISCOUNT);
     effective += pledge.amount * weight;
 
-    // Discard pledged cards from hand (cards spent regardless of outcome)
-    player.hand.splice(0, pledge.amount);
+    // Discard pledged cards (cards spent regardless of outcome). Spend the
+    // LOWEST-value cards first (keep the best for combat) so the shared hand
+    // resource is valued coherently between pledging and fighting (4g fidelity).
+    for (let k = 0; k < pledge.amount && player.hand.length > 0; k++) {
+      let minIdx = 0;
+      for (let j = 1; j < player.hand.length; j++) {
+        if (player.hand[j] < player.hand[minIdx]) minIdx = j;
+      }
+      player.hand.splice(minIdx, 1);
+    }
 
     // Anti-free-rider (§4.2 step 5b): a contributor earns a persistent FAVOR —
     // grudge-reduction. Free-riders (amount 0) earn nothing.
@@ -283,8 +293,7 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
   for (const playerIndex of state.turnOrder) {
     const p = state.players[playerIndex];
     while (p.hand.length < HAND_LIMIT) {
-      // Generate a card value (1-4 range for now — Stage 3b refines)
-      p.hand.push(rng.int(1, 4));
+      p.hand.push(rng.int(CARD_VALUE_MIN, CARD_VALUE_MAX));
     }
   }
 
@@ -337,6 +346,10 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
       previousAct,
       newAct,
     });
+
+    // The noose tightens: the dark's fallen Death Knights rise again (P1a) so its
+    // MARCH_DK/RAID_DK pressure doesn't permanently collapse after a couple kills.
+    events.push(...respawnDeathKnights(state));
 
     // Escalation voice line (P0-5) — cites the block that caused it if patience-triggered
     if (patienceForced) {

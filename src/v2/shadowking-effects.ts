@@ -23,6 +23,8 @@ import type { GameEvent } from './events.js';
 import type { GameState, ShadowkingForce, ShadowkingTelegraph } from './types.js';
 import {
   DK_MARCH_DISTANCE,
+  DK_POWER,
+  DK_START_COUNT,
   GAMBIT_ADJACENT_STRIKE_MULT,
   SPREAD_AMOUNT_BASE,
   SURGE_SPREAD_MULT,
@@ -108,6 +110,30 @@ export function applyShadowkingStrike(
     default:
       return resolveStrike(state, ratio, steer, pledgers);
   }
+}
+
+// ─── Death Knight respawn (P1a — the villain's forces renew) ──────
+
+/**
+ * Replenish Death Knights up to `targetCount` at non-ashed Blight seams. Without
+ * this, two STRIKE kills permanently disabled the MARCH_DK / RAID_DK effects for
+ * the rest of the game (only 2 DKs, no respawn) — a balance cliff. Called when an
+ * Act escalates ("the noose tightens"). Deterministic: fixed seam order, unique ids.
+ */
+export function respawnDeathKnights(state: GameState, targetCount: number = DK_START_COUNT): GameEvent[] {
+  const events: GameEvent[] = [];
+  const current = state.shadowking.forces.filter(f => f.type === 'death_knight').length;
+  const seams = state.board.definition.blightEntrySeams.filter(s => !state.board.state.nodes[s]?.ashed);
+  if (seams.length === 0) return events;
+
+  for (let i = current; i < targetCount; i++) {
+    const seam = seams[i % seams.length];
+    const force: ShadowkingForce = { id: `dk-r${state.round}-${i}`, type: 'death_knight', power: DK_POWER, nodeId: seam };
+    state.shadowking.forces.push({ ...force });
+    state.board.state.nodes[seam].shadowkingForces.push({ ...force });
+    events.push({ type: 'SK_VOICE_LINE', line: 'The fallen rise to my call again.', trigger: 'dk_respawn' });
+  }
+  return events;
 }
 
 // ─── Gambit guardrail (§6) ────────────────────────────────────────

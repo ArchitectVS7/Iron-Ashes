@@ -151,6 +151,21 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     wins 6.7%, **accusation accuracy 20.3%** (AIs over-accuse innocents — a Stage-5 target). v1 cleanup DONE
     (user-approved): deleted the dead PPO/venv (750MB)/parallel-sims; archived the plan + reports + the 2 result
     JSONs to `docs/archive/ml_training-v1/` marked INVALIDATED; `ml_training/` removed. 352 green. **Stage 4 complete.***
+  - [x] **4g. Pre-balance hardening** — a data-trust + mechanics-logic review (user-requested) found the sweep
+    numbers were confounded by combat-fidelity gaps, and surfaced logic issues. Fixed BEFORE math-tuning so
+    Stage 5 tunes trustworthy data. *Completed 2026-06-22.* **P0 fidelity:** value-aware combat commits
+    (`chooseCombatCommit` — was an arbitrary `hand[0]`, which biased every combat metric by draw order) +
+    pledges now spend the LOWEST-value cards (keep the best for combat). **P1 logic:** Death Knight respawn on
+    Act escalation (was: 2 kills permanently disabled MARCH_DK/RAID_DK) + fixed the player-index/quadrant
+    aliasing in SK targeting + documented the PUSHBACK/DAWN_BLIGHT_ADVANCE tuning constraint. **P2 data-file:**
+    `CARD_VALUE_MIN/MAX` (card range was hardcoded — a core lever), ash literal → `BLIGHT_TO_ASH`, stale
+    Gambit-stacking comment fixed. **AI contestation:** a `gambitContest` knob so archetypes race to/raid a
+    gambiteer. **KEY RESULT — the data is now trustworthy AND correctly interpretable:** the "Gambit OP (49%)"
+    headline was an artifact — *without a dedicated gambler archetype the gambit fires 16%* (in §9 band); the
+    mechanic is fine, the aggregate was inflated by the gambler stress-archetype. Trustworthy Stage-5 targets
+    now: SK win 14.3% (genuinely a bit weak), rescues 0.1/game (break/rescue economy under-fires), accusation
+    accuracy 20.5% (AIs over-accuse). Free-riding NOT rewarded ✅ (robust). 21 test files, **359 green**;
+    samples refreshed in `sim-results/sample/`.
 - [ ] **Stage 5 — Balance validation** — set the `[TUNABLE]` params (ALGORITHM §9).
   - [ ] **5a. Tune to targets** — **prove the Pledge free-rider incentive is solved** (the primary open
     balance question); hit targets (Shadowking win 18–22%, ~10–16 rounds, Gambit fires ~1-in-6–8 games,
@@ -226,6 +241,15 @@ fresh, but the *foundations* are directly reusable.
   (telegraphed villain + grudge + voice lines), `combat` (sealed-commit + Last Stand), `actions`
   (MARCH/CLAIM/RAID/STRIKE/RESCUE/RECRUIT — all via the one reducer), `gambit` (Crown's Gambit + territory
   tiebreakers). 14 source + 10 test files, **260 tests green**, typecheck clean, deterministic.
+- **2026-06-22** — **Pre-Stage-5 review + Stage 4g (hardening) complete.** A data-trust + mechanics-logic
+  review (user-requested) found the sweep numbers were confounded: combat auto-committed `hand[0]` (draw-order
+  noise biasing every combat metric), pledges discarded cards by position not value, and the "Gambit OP" finding
+  was an AI-contestation artifact (gambler won 100% vs passive archetypes, 34% vs an aggressor). Fixed BEFORE
+  tuning: value-aware combat commits + pledge-lowest-value (P0), DK respawn on escalation + index-aliasing fix +
+  documented PUSHBACK/DAWN constraint (P1), `CARD_VALUE_MIN/MAX` + ash-literal + comment (P2 data-file), and a
+  `gambitContest` AI knob. Re-swept: **the gambit is fine in normal play (16% without a dedicated gambler — in
+  band)**; trustworthy targets are now SK win 14.3% (weak), rescues 0.1 (under-fires), accusation accuracy 20.5%.
+  Free-riding still NOT rewarded. Verify: 21 files, **359 passed**. Next: Stage 5a (math-tuning on trusted data).
 - **2026-06-22** — **Stage 4f complete → STAGE 4 DONE.** Blood Pact sim: `saboteur` archetype +
   `saboteurPledgeSuppression` (active only when holding the Pact) + driver `bloodPactSeat` sim-affordance +
   per-round AI accusation driving (pure choosers) + traitor metrics + `npm run sim -- --bloodpact`. BP sweep
