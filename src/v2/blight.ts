@@ -20,10 +20,8 @@ import type { GameEvent, BlightSource } from './events.js';
 import type { Act, GameState, V2BoardDef } from './types.js';
 import {
   ACT_THRESHOLDS,
-  BLIGHT_TO_ASH,
-  DAWN_BLIGHT_ADVANCE,
   PLEDGE_SHIELD_AMOUNT,
-  SPREAD_AMOUNT_BASE,
+  getTunables,
 } from './tunables.js';
 import { isKeystoneGarrisoned } from './gambit.js';
 
@@ -60,7 +58,7 @@ export function advanceBlightOnNode(
   }
 
   const previousLevel = nodeState.blightLevel;
-  nodeState.blightLevel = Math.min(nodeState.blightLevel + amount, BLIGHT_TO_ASH);
+  nodeState.blightLevel = Math.min(nodeState.blightLevel + amount, getTunables().BLIGHT_TO_ASH);
 
   if (nodeState.blightLevel !== previousLevel) {
     events.push({
@@ -73,7 +71,7 @@ export function advanceBlightOnNode(
   }
 
   // Check if the node should ash
-  if (nodeState.blightLevel >= BLIGHT_TO_ASH && !nodeState.ashed) {
+  if (nodeState.blightLevel >= getTunables().BLIGHT_TO_ASH && !nodeState.ashed) {
     events.push(...ashNode(state, nodeId));
   }
 
@@ -91,7 +89,7 @@ export function ashNode(state: GameState, nodeId: string): GameEvent[] {
 
   const previousOwner = nodeState.owner;
   nodeState.ashed = true;
-  nodeState.blightLevel = BLIGHT_TO_ASH;
+  nodeState.blightLevel = getTunables().BLIGHT_TO_ASH;
   nodeState.owner = null;
 
   events.push({
@@ -309,7 +307,7 @@ export function resolveStrike(
   }
 
   // Proportional spread: ceil ensures even tiny unblocked fractions do damage
-  const spreadAmount = Math.ceil((1 - ratio) * SPREAD_AMOUNT_BASE);
+  const spreadAmount = Math.ceil((1 - ratio) * getTunables().SPREAD_AMOUNT_BASE);
   events.push(...spreadShieldedOnSpoke(state, steerQuadrant, spreadAmount, pledgers));
 
   return { state, events };
@@ -355,7 +353,7 @@ export function applyDawnBlightAdvance(
   steerQuadrant: number,
 ): BlightResult {
   const events: GameEvent[] = [];
-  events.push(...advanceBlightOnSpoke(state, steerQuadrant, DAWN_BLIGHT_ADVANCE, 'dawn'));
+  events.push(...advanceBlightOnSpoke(state, steerQuadrant, getTunables().DAWN_BLIGHT_ADVANCE, 'dawn'));
   return { state, events };
 }
 

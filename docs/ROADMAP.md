@@ -189,8 +189,13 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     *Scope: `Tunables` lists ONLY wired levers (no silent no-op) — 5b wires the **doomCost curve**
     (DOOM_COST_WHISPER/MARCH/RECKONING + DOOM_COST_PLAYER_DIVISOR — the #1 5c target). 5c-5e extend `Tunables` +
     convert each lever's call sites as they tune it (blight/DK for 5c, break/rescue for 5d, BP for 5e).*
-  - [ ] **5c. Tune the dark** — fix the doomCost player-count scaling (2p too easy / 4p too hard) + the
-    PUSHBACK/DAWN stall → SK win 18–22% with each of 2/3/4p within ~±5pp; rounds 10–16; guards hold.
+  - [x] **5c. Tune the dark** — LOCKED `DOOM_COST_WHISPER/MARCH/RECKONING` 3/5/8→6/9/12, `DOOM_COST_PER_PLAYER`
+    0→6, `SPREAD_AMOUNT_BASE` 2→5. **SK win 14.3%→20.2% ✅** (band 18–22), rounds 11.52 ✅, guards held,
+    2-seed-stable (s20260622 + s13371337). 4p lifted 1.9%→7.9%. ⚠️ **Per-count ±5pp is STRUCTURALLY
+    unreachable by numbers** (2p 34.6 / 3p 17.9 / 4p 7.9 — proven across 5 grids / ~120k games): pledge
+    supply scales with player count, so co-op is inherently easier with more allies. Full 4p closure needs
+    a MECHANIC change (pledge-effectiveness decay / super-linear strike threshold) — **escalated to user**,
+    not a number. Evidence: `docs/handoff/stage5-tuning-log.md` §5c.
   - [ ] **5d. Tune the rescue/break economy** — raise breaks + rescue uptake (BREAK_THRESHOLD, RESCUE_COST, AI
     rescueWillingness; consider engaging the dormant DKs) → rescues 2–4, all_broken < ~5%.
   - [ ] **5e. Blood Pact** — fix the chooseAccusation relative-gap heuristic + ACCUSATION knobs → accuracy ≥45%,
@@ -244,7 +249,7 @@ fresh, but the *foundations* are directly reusable.
    previous handover first), then read **`docs/handoff/state.json`** — the machine source of truth for
    status (`currentStage`, `nextAction`, `specRefs`, `invariants`, `gotchas`).
 2. Read this file (§2 locked decisions; §4 — the first unchecked box equals `state.currentStage`) and the
-   `specRefs` sections of `docs/DESIGN-V2-ALGORITHM.md`. (Right now: **Stage 5a — tune to the §9 targets**.)
+   `specRefs` sections of `docs/DESIGN-V2-ALGORITHM.md`. (Right now: **Stage 5d — tune the rescue/break economy**.)
 3. Build through the one `applyCommand` reducer; keep everything deterministic (§7); write tests as you go.
 4. **Definition of Done (enforced):** `npm run verify` exits 0 → update `state.json` + §4 box + §8
    changelog + the memory file → commit → `npm run handoff:check` exits 0. See `docs/AGENT-PROTOCOL.md`.
@@ -268,6 +273,14 @@ fresh, but the *foundations* are directly reusable.
   (telegraphed villain + grudge + voice lines), `combat` (sealed-commit + Last Stand), `actions`
   (MARCH/CLAIM/RAID/STRIKE/RESCUE/RECRUIT — all via the one reducer), `gambit` (Crown's Gambit + territory
   tiebreakers). 14 source + 10 test files, **260 tests green**, typecheck clean, deterministic.
+- **2026-06-22** — **Stage 5c (tune the dark) complete.** Wired the remaining 5c lever cluster
+  (SPREAD/DAWN/BLIGHT_TO_ASH/PUSHBACK + DK scaling) through `getTunables()`, then ran a coordinate-descent
+  search (5 grids, ~120k games, `scripts/tune-5c.mjs`). LOCKED `DOOM_COST_*` 3/5/8→6/9/12,
+  `DOOM_COST_PER_PLAYER` 0→6, `SPREAD_AMOUNT_BASE` 2→5: **SK win 14.3%→20.2%** (band 18–22), rounds 11.52,
+  both guards held, 2-seed-stable. **Key finding: per-count ±5pp flatness is STRUCTURALLY unreachable by
+  number-tuning** — pledge supply scales with player count, so 4p caps ~8% (lifted from 1.9%) while 2p sits
+  ~35%; closing it needs a mechanic change (escalated to user). DK scaling proved a dead lever (players never
+  engage the dark). 22 files, **373 green**. Next: 5d (rescue/break economy).
 - **2026-06-22** — **Stage 5b (injectability + search harness) complete.** Built a scoped
   `withTunables()`/`getTunables()` seam (lower-risk than a GameState field — no JSON-clone/function issue, no
   signature churn) so the sim can vary tunables per run; plumbed overrides through GameRunConfig/SweepConfig;

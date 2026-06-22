@@ -23,11 +23,9 @@ import type { GameEvent } from './events.js';
 import type { GameState, ShadowkingForce, ShadowkingTelegraph } from './types.js';
 import {
   DK_MARCH_DISTANCE,
-  DK_POWER,
-  DK_START_COUNT,
   GAMBIT_ADJACENT_STRIKE_MULT,
-  SPREAD_AMOUNT_BASE,
   SURGE_SPREAD_MULT,
+  getTunables,
 } from './tunables.js';
 import {
   advanceBlightOnNode,
@@ -59,7 +57,7 @@ export function applyShadowkingStrike(
   const effect = telegraph.effect as ShadowkingEffect;
   const steer = telegraph.steerQuadrant;
   const target = telegraph.struckPlayerIndex;
-  const baseSpread = Math.ceil((1 - ratio) * SPREAD_AMOUNT_BASE);
+  const baseSpread = Math.ceil((1 - ratio) * getTunables().SPREAD_AMOUNT_BASE);
 
   switch (effect) {
     case 'SPREAD':
@@ -67,7 +65,7 @@ export function applyShadowkingStrike(
 
     case 'SURGE': {
       // Reckoning: a doubled spread down the steered spoke.
-      const amount = Math.ceil((1 - ratio) * SPREAD_AMOUNT_BASE * SURGE_SPREAD_MULT);
+      const amount = Math.ceil((1 - ratio) * getTunables().SPREAD_AMOUNT_BASE * SURGE_SPREAD_MULT);
       events.push(...spreadShieldedOnSpoke(state, steer, amount, pledgers));
       return { state, events };
     }
@@ -120,7 +118,7 @@ export function applyShadowkingStrike(
  * the rest of the game (only 2 DKs, no respawn) — a balance cliff. Called when an
  * Act escalates ("the noose tightens"). Deterministic: fixed seam order, unique ids.
  */
-export function respawnDeathKnights(state: GameState, targetCount: number = DK_START_COUNT): GameEvent[] {
+export function respawnDeathKnights(state: GameState, targetCount: number = getTunables().DK_START_COUNT): GameEvent[] {
   const events: GameEvent[] = [];
   const current = state.shadowking.forces.filter(f => f.type === 'death_knight').length;
   const seams = state.board.definition.blightEntrySeams.filter(s => !state.board.state.nodes[s]?.ashed);
@@ -128,7 +126,7 @@ export function respawnDeathKnights(state: GameState, targetCount: number = DK_S
 
   for (let i = current; i < targetCount; i++) {
     const seam = seams[i % seams.length];
-    const force: ShadowkingForce = { id: `dk-r${state.round}-${i}`, type: 'death_knight', power: DK_POWER, nodeId: seam };
+    const force: ShadowkingForce = { id: `dk-r${state.round}-${i}`, type: 'death_knight', power: getTunables().DK_POWER, nodeId: seam };
     state.shadowking.forces.push({ ...force });
     state.board.state.nodes[seam].shadowkingForces.push({ ...force });
     events.push({ type: 'SK_VOICE_LINE', line: 'The fallen rise to my call again.', trigger: 'dk_respawn' });
@@ -146,7 +144,7 @@ export function respawnDeathKnights(state: GameState, targetCount: number = DK_S
 function strikeAdjacentToKeystone(state: GameState, ratio: number): BlightResult {
   const events: GameEvent[] = [];
   const def = state.board.definition;
-  const amount = Math.ceil((1 - ratio) * SPREAD_AMOUNT_BASE * GAMBIT_ADJACENT_STRIKE_MULT);
+  const amount = Math.ceil((1 - ratio) * getTunables().SPREAD_AMOUNT_BASE * GAMBIT_ADJACENT_STRIKE_MULT);
 
   // Hit the first non-ashed Approach in fixed order (deterministic).
   for (const approachId of def.approachIds) {

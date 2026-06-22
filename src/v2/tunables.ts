@@ -25,8 +25,16 @@ export const ACTIONS_BROKEN = 1;
 
 // ─── Shadowking Forces ────────────────────────────────────────────
 
-/** Number of Death Knights placed at game start. */
+/** Number of Death Knights placed at game start (flat, before per-player scaling). */
 export const DK_START_COUNT = 2;
+
+/**
+ * Per-player scaling of the Death Knight count (via `deathKnightCount()`):
+ * `+ DK_PER_PLAYER * (playerCount - 3)`. Defaults to 0 (flat DK_START_COUNT ⇒
+ * byte-identical). The search raises it to give the dark more force at high
+ * player counts (5a: dark is out-numbered 2-DK-vs-4-Warlord at 4p).
+ */
+export const DK_PER_PLAYER = 0;
 
 /** Combat power of a Death Knight. */
 export const DK_POWER = 4;
@@ -118,8 +126,15 @@ export const BASE_BANNER_INCOME = 2;
  */
 export const DAWN_BLIGHT_ADVANCE = 1;
 
-/** Base Blight spread from an un-averted strike (scaled by 1-ratio). */
-export const SPREAD_AMOUNT_BASE = 2;
+/**
+ * Base Blight spread from an un-averted strike (scaled by 1-ratio).
+ * Stage 5c: 2 → 5. This sets how hard a LANDED strike hits; raising it is the
+ * floor-lift that brought the pooled SK-win from 14% into the 18-22% band, and
+ * (with the high doom base) is the only lever that cracks the 4p wall — at 4p
+ * strikes are usually fully blocked (ratio≈1), so only when the high doomCost
+ * lets one through does this damage register. See docs/handoff/stage5-tuning-log.md.
+ */
+export const SPREAD_AMOUNT_BASE = 5;
 
 /** Extra banner cost to march through an ashed node (P0-3: traversable, not impassable). */
 export const ASHED_TRAVERSE_EXTRA_COST = 1;
@@ -223,11 +238,33 @@ export const TRAITOR_EXPOSED_WOUNDS = 3;
 // Extracted into named tunables so the Stage-5 search can fix the player-count
 // disparity (5a found SK-win 2p 29% / 4p 1.9% — a SCALING problem).
 
-export const DOOM_COST_WHISPER = 3;
-export const DOOM_COST_MARCH = 5;
-export const DOOM_COST_RECKONING = 8;
+// Stage 5c LOCKED values (was 3/5/8). Raised together with DOOM_COST_PER_PLAYER
+// to make strikes occasionally LAND at high player counts (where 3-4 hands of
+// pledge otherwise block everything). Combined with SPREAD_AMOUNT_BASE=5 this
+// lifts pooled SK-win 14%→~20% and 4p 1.9%→~8%. Evidence + the structural 4p
+// caveat are in docs/handoff/stage5-tuning-log.md.
+export const DOOM_COST_WHISPER = 6;
+export const DOOM_COST_MARCH = 9;
+export const DOOM_COST_RECKONING = 12;
 /** doomCost scales as base * playerCount / this divisor (4 = baseline 4p). */
 export const DOOM_COST_PLAYER_DIVISOR = 4;
+/**
+ * Per-player TILT added to doomCost: `+ DOOM_COST_PER_PLAYER * (playerCount - DOOM_COST_PIVOT)`.
+ * This is the lever that flattens the 5a per-count SK-win disparity (the linear
+ * `base*pc/divisor` term can't — it locks the 2p:4p threshold ratio). Defaults to
+ * 0 (no tilt) so behaviour is byte-identical until the search turns it on:
+ * positive values LOWER the threshold below the pivot (dark weaker at low pc) and
+ * RAISE it above (dark stronger at high pc).
+ *
+ * Stage 5c LOCKED at 6 (was 0). The search showed this is the only lever that
+ * raises the dark's 4p win rate at all — at 4p the threshold becomes high enough
+ * (WHISPER 12 / MARCH 15 / RECKONING 18) that 4 hands sometimes fail to block.
+ * At 2p it floors to 1 (the dark is already dominant there). Residual per-count
+ * disparity (2p ~33% vs 4p ~8%) is STRUCTURAL — see the tuning log §5c note.
+ */
+export const DOOM_COST_PER_PLAYER = 6;
+/** Player count at which the per-player tilt is zero (the curve's pivot). */
+export const DOOM_COST_PIVOT = 3;
 
 /**
  * The card threshold the table must collectively meet in the Pledge to fully
@@ -240,7 +277,20 @@ export function doomCost(act: Act, playerCount: number): number {
     MARCH: t.DOOM_COST_MARCH,
     RECKONING: t.DOOM_COST_RECKONING,
   };
-  return Math.ceil(base[act] * playerCount / t.DOOM_COST_PLAYER_DIVISOR);
+  const linear = base[act] * playerCount / t.DOOM_COST_PLAYER_DIVISOR;
+  const tilt = t.DOOM_COST_PER_PLAYER * (playerCount - t.DOOM_COST_PIVOT);
+  return Math.max(1, Math.ceil(linear + tilt));
+}
+
+/**
+ * Number of Death Knights to field at the given player count. Defaults to a flat
+ * `DK_START_COUNT` (DK_PER_PLAYER=0 ⇒ no scaling ⇒ current behaviour), but the
+ * search can scale the dark's army with the table size (5a: at 4p the dark fields
+ * 2 DKs against 4 warlords — structurally out-numbered).
+ */
+export function deathKnightCount(playerCount: number): number {
+  const t = getTunables();
+  return Math.max(1, Math.round(t.DK_START_COUNT + t.DK_PER_PLAYER * (playerCount - DOOM_COST_PIVOT)));
 }
 
 // ─── Injectable tunables (Stage 5 — the search overrides these per run) ──
@@ -256,14 +306,29 @@ export function doomCost(act: Act, playerCount: number): number {
 // call sites + extends DEFAULT_TUNABLES. 5b wires the doomCost curve (the #1
 // target — the player-count scaling that makes the dark unwinnable at 4p).
 export interface Tunables {
+  // ── Doom cost curve (the dark's pledge threshold) ──
   readonly DOOM_COST_WHISPER: number;
   readonly DOOM_COST_MARCH: number;
   readonly DOOM_COST_RECKONING: number;
   readonly DOOM_COST_PLAYER_DIVISOR: number;
+  readonly DOOM_COST_PER_PLAYER: number;
+  readonly DOOM_COST_PIVOT: number;
+  // ── Dark forces (5c cluster) ──
+  readonly DK_START_COUNT: number;
+  readonly DK_PER_PLAYER: number;
+  readonly DK_POWER: number;
+  // ── Blight pacing (5c cluster) ──
+  readonly SPREAD_AMOUNT_BASE: number;
+  readonly DAWN_BLIGHT_ADVANCE: number;
+  readonly BLIGHT_TO_ASH: number;
+  readonly PUSHBACK: number;
 }
 
 export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   DOOM_COST_WHISPER, DOOM_COST_MARCH, DOOM_COST_RECKONING, DOOM_COST_PLAYER_DIVISOR,
+  DOOM_COST_PER_PLAYER, DOOM_COST_PIVOT,
+  DK_START_COUNT, DK_PER_PLAYER, DK_POWER,
+  SPREAD_AMOUNT_BASE, DAWN_BLIGHT_ADVANCE, BLIGHT_TO_ASH, PUSHBACK,
 });
 
 let activeTunables: Tunables = DEFAULT_TUNABLES;

@@ -21,10 +21,10 @@ import { computeCrownHolder, generateBannersForPlayer } from './sequencer.js';
 import {
   CARD_VALUE_MAX,
   CARD_VALUE_MIN,
-  DK_POWER,
-  DK_START_COUNT,
   STARTING_HAND,
   WARLORD_POWER,
+  deathKnightCount,
+  getTunables,
 } from './tunables.js';
 import type {
   GameMode,
@@ -78,16 +78,19 @@ function createPlayerState(
 function createInitialForces(
   rng: SeededRandom,
   blightEntrySeams: readonly string[],
+  playerCount: number,
 ): ShadowkingForce[] {
   const forces: ShadowkingForce[] = [];
 
-  // Place Death Knights at blight entry seams
-  for (let i = 0; i < DK_START_COUNT; i++) {
+  // Place Death Knights at blight entry seams. Count scales with player count
+  // (deathKnightCount) — default 0 scaling reproduces the flat DK_START_COUNT.
+  const dkCount = deathKnightCount(playerCount);
+  for (let i = 0; i < dkCount; i++) {
     const seamIndex = i % blightEntrySeams.length;
     forces.push({
       id: `dk-${i}`,
       type: 'death_knight',
-      power: DK_POWER,
+      power: getTunables().DK_POWER,
       nodeId: blightEntrySeams[seamIndex],
     });
   }
@@ -149,7 +152,7 @@ export function createGame(
   }
 
   // 3. Place initial Shadowking forces
-  const forces = createInitialForces(rng, boardDef.blightEntrySeams);
+  const forces = createInitialForces(rng, boardDef.blightEntrySeams, playerCount);
 
   // Place forces on the board state
   for (const force of forces) {

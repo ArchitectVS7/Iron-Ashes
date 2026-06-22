@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "currentStage": "5c",
-  "currentStageTitle": "Stage 5c — tune the dark (fix the doomCost player-count scaling)",
+  "currentStage": "5d",
+  "currentStageTitle": "Stage 5d — tune the rescue/break economy",
   "status": "not-started",
-  "nextAction": "Stage 5c — tune the dark to SK win 18-22% with each of 2/3/4p within ~±5pp (rounds stay 10-16, guardrails hold). THE #1 problem (5a): doomCost player-count SCALING — 2p 29% / 4p 1.9%. The doomCost levers ARE ALREADY injectable (5b wired DOOM_COST_WHISPER/MARCH/RECKONING + DOOM_COST_PLAYER_DIVISOR via withTunables). Use src/v2/sim/search.ts runTunableCandidates() to sweep candidates: e.g. lower DOOM_COST_PLAYER_DIVISOR (4→3→2) to raise 4p thresholds, and/or adjust the per-act base, to FLATTEN the per-count SK-win curve. Secondary levers (blight/DK) need wiring first if used: extend the Tunables interface in tunables.ts + convert call sites (blight.ts BLIGHT_TO_ASH/SPREAD_AMOUNT_BASE/DAWN_BLIGHT_ADVANCE, setup.ts+shadowking-effects.ts DK_POWER/DK_START_COUNT) + add to DEFAULT_TUNABLES. Record each candidate in docs/handoff/stage5-tuning-log.md; once a winner hits the band, EDIT the actual tunables.ts constants to the chosen values, re-run npm run sim, confirm, commit. Then 5d (rescue economy), 5e (Blood Pact), 5f (lock + 2-seed + §9 doc).",
+  "nextAction": "Stage 5d — raise rescues to 2-4/game (locked-defaults sim: 0.06/game). Diagnose with conditionalRescueRate first (5c locked sim: breaks 0.95/game, conditional-rescue 6.6% — SOME breaks happen but almost nobody rescues). Levers: lower RESCUE_COST (2->1) and/or raise AI rescueWillingness on cooperator/baseline/turtle archetypes; if breaks themselves are too rare, lower BREAK_THRESHOLD (6->4). These break/rescue levers are NOT yet in the Tunables seam — wire them (extend Tunables interface in tunables.ts + DEFAULT_TUNABLES + convert call sites) before sweeping, same pattern as 5c. Watch all_broken < ~5% (currently 2.4%) and keep SK-win 18-22% + guards. Use scripts/tune-5c.mjs as the search template (copy to tune-5d.mjs, swap the candidate grid). Record in stage5-tuning-log.md, lock winners into tunables.ts, re-run npm run sim, confirm, commit. NOTE: gambit gambler-free fire is 26.7% (above the 10-20 band) — a SMALL gambit nerf may be folded into 5d/5e (GAMBIT_SURCHARGE), but it is NOT a 5c regression. ESCALATED TO USER (see ROADMAP 5c box + tuning-log section 5c): per-count SK-win flatness (2p 35% / 4p 8%) is structurally unreachable by numbers — the user must decide whether to accept the monotonic co-op difficulty gradient or authorize a pledge/strike MECHANIC change before the 5f lock. Then 5e (Blood Pact accusation heuristic), 5f (2-seed lock + section 9 doc).",
   "specRefs": [
     "docs/handoff/stage5-tuning-log.md (the evidence trail) + ROADMAP §4 (5c-5f)",
     "src/v2/tunables.ts (doomCost + Tunables seam), src/v2/sim/search.ts (runTunableCandidates), report.ts (tuningLoss/TARGETS)",
-    "sim-results/sample/REPORT.md (the per-count diagnostic to fix)",
+    "sim-results/s20260622-n40/REPORT.md (the 5c LOCKED-defaults report: SK-win 20.2%, per-count 2p 34.6/3p 17.9/4p 7.9)",
     "ROADMAP §4 (5c)"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-22T21:05:35.395Z",
-    "commit": "914854a",
-    "sourceHash": "3bf465d9032a2815f0d8de526db7f6c43f834a9507c455383bb9b2c8d6f5c62d",
+    "timestamp": "2026-06-22T22:18:36.027Z",
+    "commit": "1426600",
+    "sourceHash": "76e280bd0d24cf5f3e4c45c9bd5f369f28c0098355fd78e4b8f8763696d9405c",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
       "files": 22,
-      "passed": 369,
+      "passed": 373,
       "failed": 0,
       "status": "pass"
     }

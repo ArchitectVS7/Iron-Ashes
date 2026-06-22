@@ -144,7 +144,12 @@ describe('AI action policy', () => {
     // Put the Warlord on an adjacent unclaimed Holding and ensure banners.
     const holding = state.board.definition.holdingIds[0];
     state.players[me].warlordNodeId = holding;
+    // Construct a CLAIMABLE precondition: unclaimed and not ashed. (The Stage-5c
+    // spread tuning can ash this node during the opening strike — clear it so the
+    // test exercises AI action priority, not board incidentals.)
     state.board.state.nodes[holding].owner = null;
+    state.board.state.nodes[holding].ashed = false;
+    state.board.state.nodes[holding].blightLevel = 0;
     state.players[me].banners = 3;
     expect(chooseAction(state, me, 7)).toEqual({ type: 'CLAIM' });
   });

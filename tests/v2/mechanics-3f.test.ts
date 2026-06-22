@@ -29,6 +29,7 @@ import {
   PLEDGE_FAVOR_GRUDGE_REDUCTION,
   PLEDGE_SHIELD_AMOUNT,
   RESCUE_DEBT_MIN_PLEDGE,
+  withTunables,
 } from '../../src/v2/tunables.js';
 import type { Command } from '../../src/v2/commands.js';
 import type { GameState, ShadowkingTelegraph } from '../../src/v2/types.js';
@@ -201,11 +202,16 @@ describe('Shadowking effect table (§5.6)', () => {
   }
 
   it('SURGE spreads more Blight than SPREAD', () => {
-    const a = createGame(4, 'competitive', 42);
-    applyShadowkingStrike(a, telegraph('SPREAD'), 0);
-    const b = createGame(4, 'competitive', 42);
-    applyShadowkingStrike(b, telegraph('SURGE'), 0);
-    expect(totalBlight(b)).toBeGreaterThan(totalBlight(a));
+    // Pin a small spread base so the SURGE ×2 multiplier stays observable below
+    // the per-node ash cap (the Stage-5c default SPREAD_AMOUNT_BASE=5 saturates
+    // every steered node for both effects, masking the multiplier).
+    withTunables({ SPREAD_AMOUNT_BASE: 1 }, () => {
+      const a = createGame(4, 'competitive', 42);
+      applyShadowkingStrike(a, telegraph('SPREAD'), 0);
+      const b = createGame(4, 'competitive', 42);
+      applyShadowkingStrike(b, telegraph('SURGE'), 0);
+      expect(totalBlight(b)).toBeGreaterThan(totalBlight(a));
+    });
   });
 
   it('MARCH_DK actually maneuvers a Death Knight toward the target', () => {

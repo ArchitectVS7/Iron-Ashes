@@ -19,7 +19,7 @@
 
 import type { GameEvent } from './events.js';
 import type { GameState } from './types.js';
-import { BLIGHT_TO_ASH, BREAK_THRESHOLD, PUSHBACK } from './tunables.js';
+import { BREAK_THRESHOLD, getTunables } from './tunables.js';
 import { applyPushback } from './blight.js';
 import { addGrudge } from './shadowking-policy.js';
 import { GRUDGE_PER_DK_KILL, GRUDGE_PER_FORGE_RECLAIM } from './tunables.js';
@@ -328,7 +328,7 @@ export function applyCombatOutcome(
       }
 
       // Pushback Blight on this node
-      events.push(...applyPushback(state, nodeId, PUSHBACK));
+      events.push(...applyPushback(state, nodeId, getTunables().PUSHBACK));
 
       // Add grudge (heroic action)
       events.push(...addGrudge(state, attackerIndex, GRUDGE_PER_DK_KILL, 'dk_kill'));
@@ -423,7 +423,7 @@ export function checkBrokenState(state: GameState, playerIndex: number): GameEve
       if (nodeDef && nodeDef.tier === 'holding') {
         const prevOwner = nodeState.owner;
         nodeState.ashed = true;
-        nodeState.blightLevel = BLIGHT_TO_ASH;
+        nodeState.blightLevel = getTunables().BLIGHT_TO_ASH;
         nodeState.owner = null;
         events.push({
           type: 'NODE_ASHED',

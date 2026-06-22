@@ -8,7 +8,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { doomCost, getTunables, withTunables, DEFAULT_TUNABLES } from '../../src/v2/tunables.js';
+import { doomCost, deathKnightCount, getTunables, withTunables, DEFAULT_TUNABLES } from '../../src/v2/tunables.js';
 import { playHeadlessGame } from '../../src/v2/sim/driver.js';
 import { runTunableCandidates } from '../../src/v2/sim/search.js';
 import { MIXED_CANONICAL } from '../../src/v2/sim/matchups.js';
@@ -18,18 +18,54 @@ describe('tunable seam', () => {
     expect(getTunables()).toEqual(DEFAULT_TUNABLES);
   });
 
+  // The formula tests PIN every doomCost lever explicitly so they assert the
+  // FORMULA, not the (Stage-5c-tuned) defaults — a later re-tune of the defaults
+  // must not silently break them.
+  const FLAT = { DOOM_COST_WHISPER: 3, DOOM_COST_PER_PLAYER: 0, DOOM_COST_PLAYER_DIVISOR: 4 };
+
   it('withTunables applies overrides, then restores (leak-safe)', () => {
-    expect(doomCost('WHISPER', 4)).toBe(3);
-    const inside = withTunables({ DOOM_COST_WHISPER: 9 }, () => doomCost('WHISPER', 4));
-    expect(inside).toBe(9);
-    expect(doomCost('WHISPER', 4)).toBe(3); // restored
-    expect(getTunables().DOOM_COST_WHISPER).toBe(3);
+    const baseline = withTunables(FLAT, () => doomCost('WHISPER', 4));
+    expect(baseline).toBe(3); // ceil(3*4/4 + 0)
+    const inside = withTunables({ ...FLAT, DOOM_COST_WHISPER: 9 }, () => doomCost('WHISPER', 4));
+    expect(inside).toBe(9); // ceil(9*4/4 + 0)
+    expect(getTunables()).toEqual(DEFAULT_TUNABLES); // restored to the shipped defaults
   });
 
   it('the player-count divisor lever changes the doom-cost scaling', () => {
-    expect(doomCost('WHISPER', 2)).toBe(2); // ceil(3*2/4)
-    const harder = withTunables({ DOOM_COST_PLAYER_DIVISOR: 2 }, () => doomCost('WHISPER', 2));
-    expect(harder).toBe(3); // ceil(3*2/2)
+    expect(withTunables(FLAT, () => doomCost('WHISPER', 2))).toBe(2); // ceil(3*2/4)
+    expect(withTunables({ ...FLAT, DOOM_COST_PLAYER_DIVISOR: 2 }, () => doomCost('WHISPER', 2))).toBe(3); // ceil(3*2/2)
+  });
+
+  it('DOOM_COST_PER_PLAYER tilts the curve — lowers low-pc, raises high-pc (5c lever)', () => {
+    // FLAT (tilt 0): flat per-player share.
+    expect(withTunables(FLAT, () => doomCost('WHISPER', 2))).toBe(2);
+    expect(withTunables(FLAT, () => doomCost('WHISPER', 4))).toBe(3);
+    const tilted = { ...FLAT, DOOM_COST_PER_PLAYER: 1 };
+    expect(withTunables(tilted, () => doomCost('WHISPER', 2))).toBe(1); // max(1, ceil(1.5 + 1*(2-3))) = 1
+    expect(withTunables(tilted, () => doomCost('WHISPER', 4))).toBe(4); // ceil(3 + 1*(4-3)) = 4
+  });
+
+  it('ships the Stage 5c locked doom curve (the tuned defaults)', () => {
+    expect(doomCost('WHISPER', 2)).toBe(1);    // 2p floors: ceil(6*2/4 + 6*(2-3)) = max(1, -3)
+    expect(doomCost('WHISPER', 3)).toBe(5);    // pivot: ceil(6*3/4 + 0)
+    expect(doomCost('WHISPER', 4)).toBe(12);   // ceil(6*4/4 + 6*1)
+    expect(doomCost('RECKONING', 4)).toBe(18); // ceil(12*4/4 + 6*1)
+    expect(getTunables().SPREAD_AMOUNT_BASE).toBe(5);
+  });
+
+  it('deathKnightCount scales the dark army with player count when DK_PER_PLAYER>0 (5c lever)', () => {
+    expect(deathKnightCount(2)).toBe(2); // default flat
+    expect(deathKnightCount(4)).toBe(2);
+    withTunables({ DK_PER_PLAYER: 1 }, () => {
+      expect(deathKnightCount(2)).toBe(1); // round(2 + 1*(2-3))
+      expect(deathKnightCount(4)).toBe(3); // round(2 + 1*(4-3))
+    });
+  });
+
+  it('a DK-scaling override actually changes the initial forces', () => {
+    const base = playHeadlessGame({ seed: 7, playerCount: 4, mode: 'competitive' });
+    const moreDk = playHeadlessGame({ seed: 7, playerCount: 4, mode: 'competitive', tunables: { DK_PER_PLAYER: 1 } });
+    expect(JSON.stringify(moreDk.finalState)).not.toBe(JSON.stringify(base.finalState));
   });
 });
 
@@ -55,8 +91,8 @@ describe('playHeadlessGame with tunables', () => {
   });
 
   it('leaves no leak: a default game after an override game is still default', () => {
-    playHeadlessGame({ seed: 7, playerCount: 4, mode: 'competitive', tunables: { DOOM_COST_WHISPER: 9 } });
-    expect(getTunables().DOOM_COST_WHISPER).toBe(3);
+    playHeadlessGame({ seed: 7, playerCount: 4, mode: 'competitive', tunables: { DOOM_COST_WHISPER: 99 } });
+    expect(getTunables()).toEqual(DEFAULT_TUNABLES);
   });
 });
 

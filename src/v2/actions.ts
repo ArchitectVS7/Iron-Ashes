@@ -36,7 +36,7 @@ import {
   type CombatSetup,
 } from './combat.js';
 import { applyPushback } from './blight.js';
-import { PUSHBACK } from './tunables.js';
+import { getTunables } from './tunables.js';
 import { checkGambitSeize } from './gambit.js';
 
 // ─── Action Result ────────────────────────────────────────────────
@@ -376,7 +376,7 @@ export function executeRaid(
     }
     // A successful Stand also pushes the tide back here (§5.3).
     if (winner === 'defender') {
-      events.push(...applyPushback(state, nodeId, PUSHBACK));
+      events.push(...applyPushback(state, nodeId, getTunables().PUSHBACK));
     }
   }
 
