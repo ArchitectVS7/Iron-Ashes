@@ -22,3 +22,22 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: npm test
+
+  verify-v2:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+      # v2 redesign gate: typecheck + v2 lint + v2 tests, independent of the
+      # intentionally-RED v1 suite in build-and-test. --check = no state.json write.
+      - run: npm run verify:check
+      # Assert the committed handover state is honest (green, fresh source hash,
+      # matches ROADMAP §4). `dirty` is always false in a fresh CI checkout.
+      - run: npm run handoff:check

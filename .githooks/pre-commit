@@ -1,0 +1,9 @@
+#!/bin/sh
+# v2 handover gate — blocks committing engine code that fails typecheck, v2 lint,
+# or the v2 test suite (a hang trips the 120s timeout in verify.mjs and fails loudly).
+# --check mode runs the gates WITHOUT writing state.json (no mid-commit mutation).
+# The separate pre-push hook still runs the full v1 lint+test. Do NOT bypass with --no-verify.
+set -e
+echo "🔒 pre-commit: v2 verify (typecheck + v2 lint + v2 tests)…"
+node scripts/verify.mjs --check
+echo "✅ pre-commit checks passed"

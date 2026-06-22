@@ -1,5 +1,19 @@
 # Iron Throne of Ashes — Development Guide
 
+## Agent Handover (read this first)
+
+This project is mid **v2 ground-up redesign** (engine in `src/v2/`). Before doing anything:
+1. Run **`npm run handoff:check`** and read **`docs/handoff/state.json`** — the machine-checked source of
+   truth for status (current stage, next action, verified test state).
+2. Read **`docs/ROADMAP.md`** (resume point) and follow **`docs/AGENT-PROTOCOL.md`** — the enforced
+   Definition of Done (`npm run verify` exits 0 → update state.json + ROADMAP + memory → commit →
+   `npm run handoff:check` exits 0).
+
+Key gotchas: the full `npm test` / pre-push hook is **RED by design** (it includes the old v1 suite) —
+use **`npm run test:v2`** for the v2 engine. Never bypass a hook (`--no-verify` is forbidden). The
+sections below describe the **v1** engine and are retained for reference; `docs/DESIGN-V2-ALGORITHM.md`
+is the authority for v2 mechanics.
+
 ## Architecture
 
 - **Engine:** Alliance Engine v1.0, built in TypeScript

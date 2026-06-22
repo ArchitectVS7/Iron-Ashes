@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "currentStage": "3c",
+  "currentStageTitle": "AI players — deterministic f(state, seed)",
+  "status": "not-started",
+  "nextAction": "Build a deterministic AI player (pledge + action selection) as a pure f(state, seed); route all actions through applyCommand; add tests/v2/ai-player.test.ts.",
+  "specRefs": [
+    "ALGORITHM §4.2 (Pledge)",
+    "ALGORITHM §5 (mechanics)",
+    "ALGORITHM §7 (determinism; §7.9 AI pure)",
+    "ROADMAP §4 (3c)"
+  ],
+  "lastVerified": {
+    "timestamp": "2026-06-22T16:39:36.539Z",
+    "commit": "e5eece2",
+    "sourceHash": "78673d1611692cafeec83a14137d98949ed0bf90d852acbf7c755daa25224d6d",
+    "typecheck": "pass",
+    "lint": "pass",
+    "tests": {
+      "files": 10,
+      "passed": 260,
+      "failed": 0,
+      "status": "pass"
+    }
+  },
+  "dirty": true,
+  "invariants": [
+    "All mutation goes through applyCommand (src/v2/reducer.ts) — no direct state mutation elsewhere",
+    "No Math.random / Date.now / any in src/v2 — all RNG via SeededRandom (ALGORITHM §7)",
+    "GameState is JSON-serializable (clone = JSON.parse(JSON.stringify))",
+    "AI decisions must be pure f(state, seed) (ALGORITHM §7.9) — required for reproducibility"
+  ],
+  "gotchas": [
+    "`npm test` includes ~50 RED v1 tests by design (they anchor v1) — use `npm run test:v2` for the v2 suite",
+    "vitest output buffers when piped through `tail` — redirect to a file, or use the JSON reporter (verify.mjs does)",
+    "Run `npm run verify` to (re)populate this block; never hand-edit lastVerified/dirty"
+  ],
+  "openRisks": [
+    "Pledge free-rider incentive is unproven until the Stage 5 sim (ALGORITHM §4.2 step 5) — the primary balance risk"
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://iron-ashes/docs/handoff/state.schema.json",
+  "title": "Iron Ashes — Agent Handover State",
+  "description": "Single machine-readable source of truth for v2 engine status. The `lastVerified` block and `dirty` are written ONLY by scripts/verify.mjs; the narrative fields are written by the agent as part of Definition-of-Done. See docs/AGENT-PROTOCOL.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "currentStage", "currentStageTitle", "status", "nextAction", "specRefs", "lastVerified", "dirty", "invariants", "gotchas", "openRisks"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "currentStage": {
+      "type": "string",
+      "description": "Stage id; MUST equal the first unchecked box in ROADMAP §4 (e.g. '3c'). Agent-written.",
+      "pattern": "^[0-9]+[a-z]?$|^unknown$"
+    },
+    "currentStageTitle": { "type": "string", "description": "Human title of the current stage. Agent-written." },
+    "status": {
+      "type": "string",
+      "enum": ["not-started", "in-progress", "blocked", "done"],
+      "description": "Agent-written."
+    },
+    "nextAction": { "type": "string", "description": "One-line 'do this next'. Agent-written." },
+    "specRefs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Spec anchors for this stage (e.g. 'ALGORITHM §4.2'). Agent-written."
+    },
+    "lastVerified": {
+      "type": "object",
+      "description": "WRITTEN ONLY BY scripts/verify.mjs. The trust anchor — agents must not edit.",
+      "additionalProperties": false,
+      "required": ["timestamp", "sourceHash", "typecheck", "lint", "tests"],
+      "properties": {
+        "timestamp": { "type": "string", "format": "date-time" },
+        "commit": { "type": ["string", "null"], "description": "Informational: git HEAD short sha at verify time." },
+        "sourceHash": {
+          "type": "string",
+          "description": "sha256 over sorted src/v2 + tests/v2 file contents. The freshness anchor; handoff-check recomputes and compares."
+        },
+        "typecheck": { "type": "string", "enum": ["pass", "fail", "timeout"] },
+        "lint": { "type": "string", "enum": ["pass", "fail", "timeout"] },
+        "tests": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status"],
+          "properties": {
+            "files": { "type": ["integer", "null"] },
+            "passed": { "type": ["integer", "null"] },
+            "failed": { "type": ["integer", "null"] },
+            "status": { "type": "string", "enum": ["pass", "fail", "timeout"] }
+          }
+        }
+      }
+    },
+    "dirty": { "type": "boolean", "description": "WRITTEN ONLY BY verify.mjs: true if git working tree was dirty at verify time." },
+    "invariants": { "type": "array", "items": { "type": "string" }, "description": "Operational engine invariants. Agent-written." },
+    "gotchas": { "type": "array", "items": { "type": "string" }, "description": "Operational at-the-keyboard gotchas. Agent-written." },
+    "openRisks": { "type": "array", "items": { "type": "string" }, "description": "Short operational risk list. Agent-written; design risks live in ROADMAP §6." }
+  }
+}

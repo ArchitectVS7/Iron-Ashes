@@ -11,8 +11,12 @@
     "start:server": "cd server && npm start",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:v2": "vitest run tests/v2",
     "lint": "eslint src/ tests/",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "verify": "node scripts/verify.mjs",
+    "verify:check": "node scripts/verify.mjs --check",
+    "handoff:check": "node scripts/handoff-check.mjs"
   },
   "keywords": [
     "board-game",

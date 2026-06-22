@@ -129,11 +129,16 @@ fresh, but the *foundations* are directly reusable.
 
 ## 7. How to resume (fresh session checklist)
 
-1. Read this file, then `docs/DESIGN-V2-ALGORITHM.md`.
-2. Check `git log` for what's been built since the design commit.
-3. The current next action is the first unchecked box in §4. (Right now: **Stage 3c — AI players**.)
-4. Build through the one `applyCommand` reducer; keep everything deterministic (§7); write tests as you go.
-5. Update §4 checkboxes and §8 changelog in THIS file as work completes — keep the resume point current.
+**Follow the full protocol in `docs/AGENT-PROTOCOL.md` — it is the enforced Definition of Done.**
+
+1. Run **`npm run handoff:check`** (confirms a clean, verified, committed baseline; if it fails, fix the
+   previous handover first), then read **`docs/handoff/state.json`** — the machine source of truth for
+   status (`currentStage`, `nextAction`, `specRefs`, `invariants`, `gotchas`).
+2. Read this file (§2 locked decisions; §4 — the first unchecked box equals `state.currentStage`) and the
+   `specRefs` sections of `docs/DESIGN-V2-ALGORITHM.md`. (Right now: **Stage 3c — AI players**.)
+3. Build through the one `applyCommand` reducer; keep everything deterministic (§7); write tests as you go.
+4. **Definition of Done (enforced):** `npm run verify` exits 0 → update `state.json` + §4 box + §8
+   changelog + the memory file → commit → `npm run handoff:check` exits 0. See `docs/AGENT-PROTOCOL.md`.
 
 ---
 
