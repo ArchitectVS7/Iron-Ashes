@@ -10,6 +10,38 @@
 
 ---
 
+## Resuming in a new session (paste this prompt)
+
+Starting a fresh session? Paste the block below verbatim. It is **durable** — it names no stage or
+counts, only the protocol, so the same prompt works for every step. The agent derives "what's next"
+from `state.json`, which the previous agent's Definition of Done keeps current.
+
+```
+Resume the Iron Ashes v2 engine work. Follow the handover protocol exactly:
+
+1. Run `npm run handoff:check`. If it FAILS, stop and fix the previous
+   handover (the baseline is broken) before any new work.
+2. Read docs/handoff/state.json — the machine source of truth for status.
+   Note currentStage, nextAction, specRefs, invariants, gotchas.
+3. Read docs/AGENT-PROTOCOL.md (the enforced Definition of Done), then
+   docs/ROADMAP.md (§2 locked decisions, §4 plan), then the specRefs
+   sections of docs/DESIGN-V2-ALGORITHM.md.
+4. Do the work in state.json.nextAction. All state mutation goes through
+   applyCommand (src/v2/reducer.ts); keep it deterministic (no Math.random/
+   Date.now/any; RNG via SeededRandom); write tests/v2/*.test.ts as you go.
+   Use `npm run test:v2` (the full `npm test` is red by design — v1 suite).
+5. Definition of Done: `npm run verify` exits 0 → update state.json narrative
+   fields + ROADMAP §4 box + §8 changelog + the memory file → commit →
+   `npm run handoff:check` exits 0. Only then is the step done.
+
+Confirm the current stage and your plan before writing code.
+```
+
+(This project also auto-loads a memory pointer, so a bare "continue the Iron Ashes work" often suffices —
+but the prompt above is deterministic regardless. The detailed step-by-step is below.)
+
+---
+
 ## START of a step (read-only)
 
 1. **`npm run handoff:check`** — confirms you're inheriting a clean, verified, committed baseline.
