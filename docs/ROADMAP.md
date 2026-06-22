@@ -121,9 +121,14 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     parameterized by per-seat `AIPolicy`; replaces the duplicated `playFullGame` loop. §7.12 byte-identical
     determinism preserved. *Completed 2026-06-22. `tests/v2/ai-player.test.ts` delegates to it; new
     `tests/v2/sim-driver.test.ts` (5 tests). 328 tests green.*
-  - [ ] **4b. Archetypes** — extend `AIPolicy` with additive strategy knobs (default-preserving via a
+  - [x] **4b. Archetypes** — extend `AIPolicy` with additive strategy knobs (default-preserving via a
     referential-identity guard) + `src/v2/sim/archetypes.ts` roster (baseline/aggressor/turtle/opportunist/
-    cooperator/gambler/saboteur); wire RAID/RESCUE/Gambit action branches.
+    cooperator/gambler; saboteur deferred to 4f); wire RAID/RESCUE/Gambit action branches.
+    *Completed 2026-06-22. `AIPolicy` gained 7 optional knobs (neutral = baseline); `chooseAction` dispatches
+    to the untouched legacy body for DEFAULT_AI_POLICY (referential guard) → 328 baseline tests + §7.12 stay
+    byte-identical. `tests/v2/sim-archetypes.test.ts` (13). The mixed-archetype safety net caught 2 latent
+    bugs baseline never hit: choosePledge ignored the rescue-debt forced-minimum (→ reducer rejected the
+    pledge), and the driver force-pass dispatched on a game ended mid-turn by combat — both fixed. 338 green.*
   - [ ] **4c. Matchups + sweep** — `src/v2/sim/matchups.ts` (homogeneous / mixed / round-robin / one-vs-field)
     + `src/v2/sim/sweep.ts` over seeds × playerCount × mode × matchup; fast smoke-sweep test.
   - [ ] **4d. Metrics + report** — `src/v2/sim/metrics.ts` (pure, from state + actionLog) + `report.ts`
@@ -208,6 +213,13 @@ fresh, but the *foundations* are directly reusable.
   (telegraphed villain + grudge + voice lines), `combat` (sealed-commit + Last Stand), `actions`
   (MARCH/CLAIM/RAID/STRIKE/RESCUE/RECRUIT — all via the one reducer), `gambit` (Crown's Gambit + territory
   tiebreakers). 14 source + 10 test files, **260 tests green**, typecheck clean, deterministic.
+- **2026-06-22** — **Stage 4b complete.** Archetype-parameterized AI: 7 additive `AIPolicy` knobs
+  (pledgeGenerosity/aggression/raidLeaderBias/defensiveness/claimVsRaidPref/gambitAmbition/rescueWillingness),
+  neutral = baseline; `chooseAction` keeps the DEFAULT path byte-identical via a referential-identity guard
+  and adds RAID/RESCUE/Gambit/hunt branches for archetypes. `src/v2/sim/archetypes.ts` roster
+  (baseline/aggressor/turtle/opportunist/cooperator/gambler). The mixed-archetype termination safety net
+  caught 2 real latent bugs (choosePledge ignored the rescue-debt forced-min; driver force-pass ran on a
+  combat-ended game) — both fixed. Verify: 16 files, **338 passed** / 0 failed. Next: 4c (matchups + sweep).
 - **2026-06-22** — **Stage 4 planned + 4a complete.** Approved plan (`docs/handoff/plan-stage4.md`): a
   deterministic Monte-Carlo balance validator on the REAL reducer + REAL AI across diverse archetypes (no
   neural RL — the failed v1 path). **4a** extracted the duplicated full-game loop into one canonical

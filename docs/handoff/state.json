@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "currentStage": "4b",
-  "currentStageTitle": "Sim archetypes — diverse strategic AI (aggressor/turtle/opportunist/cooperator/gambler/saboteur)",
+  "currentStage": "4c",
+  "currentStageTitle": "Sim matchups + sweep — run the archetypes across seeds × count × mode",
   "status": "not-started",
-  "nextAction": "Stage 4b (plan: docs/handoff/plan-stage4.md). Extend AIPolicy in src/v2/ai-player.ts with ADDITIVE strategy knobs (pledgeGenerosity, aggression, raidLeaderBias, defensiveness, claimVsRaidPref, gambitAmbition; BP: audit/accuse/saboteur) whose neutral values reproduce today's behavior. CRITICAL: keep DEFAULT_AI_POLICY byte-identical — use a referential-identity guard so chooseAction delegates to the untouched legacy body when policy===DEFAULT_AI_POLICY (the 328 tests + §7.12 must stay green). Add src/v2/sim/archetypes.ts (ARCHETYPES roster, baseline===DEFAULT_AI_POLICY). Wire RAID/RESCUE/Gambit action branches for non-default policies. Add tests/v2/sim-archetypes.test.ts (baseline unchanged; each archetype's branch fires). 4a DONE: src/v2/sim/driver.ts (playHeadlessGame).",
+  "nextAction": "Stage 4c (plan: docs/handoff/plan-stage4.md). Add src/v2/sim/matchups.ts (Matchup → deterministic seat→archetype assignment: homogeneous tables, a mixed canonical table, round-robin pairings, one-vs-field) and src/v2/sim/sweep.ts (runSweep over seeds × playerCounts × modes × matchups → SweepRow[], one playHeadlessGame per cell). Each SweepRow records seed/count/mode/matchupId/seatArchetypes (metrics come in 4d). Add a FAST smoke-sweep test (a few seeds, baseline) to tests/v2 — keep the expensive full sweep for the 4e script (don't bloat the 120s suite). Reuse playHeadlessGame (src/v2/sim/driver.ts) + ARCHETYPES (src/v2/sim/archetypes.ts). 4a/4b DONE.",
   "specRefs": [
-    "docs/handoff/plan-stage4.md (approved plan — knob table + phasing)",
-    "ALGORITHM §9 (targets), §4.2 step 5 (free-rider), §7.9 (AI pure)",
-    "src/v2/ai-player.ts (AIPolicy, choosePledge/chooseAction), src/v2/sim/driver.ts",
-    "ROADMAP §4 (4b)"
+    "docs/handoff/plan-stage4.md (matchup designs + phasing)",
+    "src/v2/sim/driver.ts (playHeadlessGame), src/v2/sim/archetypes.ts (ARCHETYPES)",
+    "ALGORITHM §9 (targets the sweep will measure in 4d)",
+    "ROADMAP §4 (4c)"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-22T19:01:30.770Z",
-    "commit": "ffe7f9c",
-    "sourceHash": "b81baeb4c120b2f0446975798507452a8ab5443eba1c99e43811bc695128bc2d",
+    "timestamp": "2026-06-22T19:11:12.435Z",
+    "commit": "e87f923",
+    "sourceHash": "ef2bcf48baa5ecbc8625879cb9996f8e36e464dd240d5d87436821969b60a70d",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 15,
-      "passed": 328,
+      "files": 16,
+      "passed": 338,
       "failed": 0,
       "status": "pass"
     }
@@ -42,6 +42,6 @@
     "The anti-free-rider reward NOW EXISTS (§4.2 step 5: land-shielding + FAVOR, Stage 3f) but its EFFECTIVENESS is unproven until the Stage-5 sim — still the primary balance risk. PLEDGE_SHIELD_AMOUNT / PLEDGE_FAVOR_GRUDGE_REDUCTION are placeholder [TUNABLE].",
     "Blood Pact accusation tuning (AUDIT_COST, ACCUSATION_* penalties/cooldown, SUSPICION_LOG_ROUNDS, TRAITOR_EXPOSED_WOUNDS) is placeholder — must be balanced in Stage 5 so accusation is neither spammed nor never-fired.",
     "Stage 3f effect-table / Last-Stand / rescue-debt magnitudes (SURGE_SPREAD_MULT, DK_MARCH_DISTANCE, GAMBIT_ADJACENT_STRIKE_MULT, RESCUE_DEBT_MIN_PLEDGE, the deterministic Last-Stand 'fight if you can win' rule) are reasonable defaults, not balanced — Stage-5 sim must validate them.",
-    "The AI (ai-player.ts) does not yet pursue the Gambit, Audit, or Accusation in its action loop, and Last Stand is engine-auto — the Stage-4 sim will under-exercise those paths until the AI is extended."
+    "Archetype AI (Stage 4b) now pursues RAID/RESCUE/Gambit; Last Stand remains engine-auto and Audit/Accusation are NOT yet in the AI action loop (wired in 4f for Blood Pact) — the Stage-4 competitive sweep under-exercises the BP deduction paths until then."
   ]
 }

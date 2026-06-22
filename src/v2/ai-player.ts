@@ -27,8 +27,8 @@ import type { GameEvent } from './events.js';
 import type { GameState } from './types.js';
 import { applyCommand, type CommandResult } from './reducer.js';
 import { getPlayerPowerAtNode, getShadowkingPowerAtNode } from './combat.js';
-import { hasSKForcesAtNode } from './actions.js';
-import { ASHED_TRAVERSE_EXTRA_COST } from './tunables.js';
+import { hasSKForcesAtNode, hasRivalAtNode, areAdjacent } from './actions.js';
+import { ASHED_TRAVERSE_EXTRA_COST, RESCUE_COST } from './tunables.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 
 // ─── Policy ───────────────────────────────────────────────────────
@@ -55,9 +55,29 @@ export interface AIPolicy {
    * combat commits / Rescue (cards — not banners — pay for those).
    */
   readonly handReserve: number;
+
+  // ── Stage 4b archetype knobs (OPTIONAL; neutral value reproduces the baseline) ──
+  // These let the sim express diverse strategies (aggressor … defender) WITHOUT
+  // changing DEFAULT_AI_POLICY. When a policy is the DEFAULT object, chooseAction
+  // takes the untouched legacy path; these knobs only steer non-default policies.
+
+  /** Scale the fair-share Pledge up (cooperator >1) or down (turtle <1). Neutral 1. */
+  readonly pledgeGenerosity?: number;
+  /** 0..1 — propensity to RAID a co-located/reachable rival. Neutral 0. */
+  readonly aggression?: number;
+  /** 0..1 — extra RAID propensity when the rival holds the Crown. Neutral 0. */
+  readonly raidLeaderBias?: number;
+  /** 0..1 — prefer holding/garrisoning home over expanding outward. Neutral 0. */
+  readonly defensiveness?: number;
+  /** 0..1 — 1 = pure expander (baseline), low = prefer hunting combat over claiming. Neutral 1. */
+  readonly claimVsRaidPref?: number;
+  /** 0..1 — propensity to march toward and seize the Keystone (the Gambit). Neutral 0. */
+  readonly gambitAmbition?: number;
+  /** 0..1 — propensity to RESCUE an adjacent Broken ally when affordable. Neutral 0. */
+  readonly rescueWillingness?: number;
 }
 
-/** A moderately-cooperative economic player — the Stage-3c baseline. */
+/** A moderately-cooperative economic player — the Stage-3c baseline (the neutral point). */
 export const DEFAULT_AI_POLICY: AIPolicy = {
   selfishness: 0.34,
   targetCover: 0.5,
@@ -111,6 +131,10 @@ export function choosePledge(
   const fairShare = Math.ceil(C / Math.max(state.players.length, 1));
   let desired = amInDanger ? Math.ceil(C * policy.targetCover) : fairShare;
 
+  // Archetype generosity (neutral 1 ⇒ no change ⇒ DEFAULT path byte-identical).
+  const generosity = policy.pledgeGenerosity ?? 1;
+  if (generosity !== 1) desired = Math.max(0, Math.round(desired * generosity));
+
   // Free-rider lean: when not personally threatened, sometimes contribute less.
   if (!amInDanger) {
     const rng = decisionRng(state, playerIndex, seed, 0);
@@ -124,7 +148,17 @@ export function choosePledge(
   const reserve = amInDanger ? 0 : policy.handReserve;
   const available = Math.max(0, handSize - reserve);
 
-  return Math.max(0, Math.min(desired, available));
+  const amount = Math.max(0, Math.min(desired, available));
+
+  // Honor an active Rescue debt (§5.4): in open modes the reducer ENFORCES a
+  // forced-minimum pledge, so never return below it — else applyCommand rejects
+  // this pledge. (Baseline games never create a debt, so this is inert for DEFAULT.)
+  const debt = player.rescueDebt;
+  if (debt && state.mode !== 'blood_pact' && state.round <= debt.expiresRound) {
+    return Math.max(amount, Math.min(debt.forcedMinPledge, handSize));
+  }
+
+  return amount;
 }
 
 // ─── Action policy (§4.3) ─────────────────────────────────────────
@@ -220,21 +254,31 @@ function bestStepToward(state: GameState, playerIndex: number, rng: SeededRandom
  * Decide a single ACTION for player `playerIndex`. Called repeatedly by
  * `runAITurn` until the player passes or runs out of actions.
  *
- * Priority (greedy economic baseline):
- *   1. STRIKE  — clear co-located Shadowking forces when the fight is favourable
- *                (pushes back the Blight, defends the player's lands).
- *   2. CLAIM   — bank an unclaimed Holding/Forge the Warlord is standing on.
- *   3. MARCH   — step toward the best reachable claimable node.
- *   4. PASS    — nothing useful to do (no banners / nowhere worth going).
- *
- * Pure `f(state, seed)`.
+ * The DEFAULT policy takes the untouched economic baseline (`baselineAction`),
+ * guaranteed byte-identical via a referential-identity guard. Archetype policies
+ * (Stage 4b) get the knob-driven `archetypeAction`. Both are pure `f(state, seed)`
+ * and return only LEGAL actions (so the reducer never rejects an AI command).
  */
 export function chooseAction(
   state: GameState,
   playerIndex: number,
   seed: number,
-  _policy: AIPolicy = DEFAULT_AI_POLICY,
+  policy: AIPolicy = DEFAULT_AI_POLICY,
 ): PlayerAction {
+  if (policy === DEFAULT_AI_POLICY) {
+    return baselineAction(state, playerIndex, seed);
+  }
+  return archetypeAction(state, playerIndex, seed, policy);
+}
+
+/**
+ * The greedy economic baseline (the Stage-3c logic, unchanged).
+ *   1. STRIKE favourable co-located Shadowking forces.
+ *   2. CLAIM an unclaimed Holding/Forge under the Warlord.
+ *   3. MARCH toward the best reachable claimable node.
+ *   4. PASS.
+ */
+function baselineAction(state: GameState, playerIndex: number, seed: number): PlayerAction {
   const player = state.players[playerIndex];
   const nodeId = player.warlordNodeId;
 
@@ -260,6 +304,152 @@ export function chooseAction(
   }
 
   // 4. Nothing useful — end the turn.
+  return { type: 'PASS' };
+}
+
+// ─── Archetype action logic (Stage 4b — knob-driven, non-default policies) ──
+
+/** Does this player owe `rival` a rescue debt that forbids attacking them? */
+function raidDebtBlocked(state: GameState, playerIndex: number, rival: number): boolean {
+  const debt = state.players[playerIndex].rescueDebt;
+  return !!debt && debt.creditor === rival && state.round <= debt.expiresRound;
+}
+
+/** Is `rival` the current leader (Crown holder)? */
+function isLeader(state: GameState, rival: number): boolean {
+  return state.crownHolder === rival || state.players[rival]?.crownHeld === true;
+}
+
+/** First legal step from the Warlord toward `goal` (BFS, ZoC-respecting), or null. */
+function firstStepTowardNode(state: GameState, playerIndex: number, goal: string): string | null {
+  const def = state.board.definition;
+  const start = state.players[playerIndex].warlordNodeId;
+  if (start === goal) return null;
+  const visited = new Set<string>([start]);
+  const queue: Array<{ node: string; firstStep: string | null }> = [{ node: start, firstStep: null }];
+  while (queue.length > 0) {
+    const cur = queue.shift()!;
+    for (const nb of def.nodes[cur.node].connections) {
+      if (visited.has(nb)) continue;
+      if (stepBlocked(state, playerIndex, nb)) continue;
+      const firstStep = cur.firstStep ?? nb;
+      if (nb === goal) return firstStep;
+      visited.add(nb);
+      queue.push({ node: nb, firstStep });
+    }
+  }
+  return null;
+}
+
+/** First legal step toward the nearest rival Warlord (BFS), or null. */
+function firstStepTowardNearestRival(state: GameState, playerIndex: number): string | null {
+  const def = state.board.definition;
+  const start = state.players[playerIndex].warlordNodeId;
+  const visited = new Set<string>([start]);
+  const queue: Array<{ node: string; firstStep: string | null }> = [{ node: start, firstStep: null }];
+  while (queue.length > 0) {
+    const cur = queue.shift()!;
+    for (const nb of def.nodes[cur.node].connections) {
+      if (visited.has(nb)) continue;
+      if (stepBlocked(state, playerIndex, nb)) continue;
+      const firstStep = cur.firstStep ?? nb;
+      if (hasRivalAtNode(state, playerIndex, nb) !== null) return firstStep;
+      visited.add(nb);
+      queue.push({ node: nb, firstStep });
+    }
+  }
+  return null;
+}
+
+/** A Broken ally co-located with or adjacent to the Warlord (for RESCUE), or null. */
+function rescuableAlly(state: GameState, playerIndex: number): number | null {
+  const here = state.players[playerIndex].warlordNodeId;
+  for (const p of state.players) {
+    if (p.index === playerIndex || !p.isBroken) continue;
+    if (p.warlordNodeId === here || areAdjacent(state, here, p.warlordNodeId)) return p.index;
+  }
+  return null;
+}
+
+/**
+ * Knob-driven action for a non-default (archetype) policy. Every returned action
+ * is validated legal here so the reducer never rejects it. Pure `f(state, seed)`.
+ */
+function archetypeAction(
+  state: GameState,
+  playerIndex: number,
+  seed: number,
+  policy: AIPolicy,
+): PlayerAction {
+  const player = state.players[playerIndex];
+  const here = player.warlordNodeId;
+  const rng = decisionRng(state, playerIndex, seed, 1 + player.actionsRemaining);
+
+  const aggression = policy.aggression ?? 0;
+  const raidLeaderBias = policy.raidLeaderBias ?? 0;
+  const defensiveness = policy.defensiveness ?? 0;
+  const claimVsRaid = policy.claimVsRaidPref ?? 1;
+  const gambitAmbition = policy.gambitAmbition ?? 0;
+  const rescueWillingness = policy.rescueWillingness ?? 0;
+
+  // 1. RESCUE a Broken ally (cooperator).
+  if (rescueWillingness > 0 && player.hand.length >= RESCUE_COST) {
+    const ally = rescuableAlly(state, playerIndex);
+    if (ally !== null && rng.float() < rescueWillingness) {
+      return { type: 'RESCUE', targetPlayerIndex: ally };
+    }
+  }
+
+  // 2. RAID a co-located rival we can beat (aggressor / opportunist).
+  const rival = hasRivalAtNode(state, playerIndex, here);
+  if (rival !== null && aggression > 0 && !raidDebtBlocked(state, playerIndex, rival)) {
+    const mine = getPlayerPowerAtNode(state, playerIndex, here);
+    const theirs = getPlayerPowerAtNode(state, rival, here);
+    if (mine >= theirs) {
+      const eff = Math.min(1, aggression + (isLeader(state, rival) ? raidLeaderBias : 0));
+      if (rng.float() < eff) return { type: 'RAID', targetPlayerIndex: rival };
+    }
+  }
+
+  // 3. STRIKE favourable co-located Shadowking forces (front pushback / defense).
+  if (hasSKForcesAtNode(state, here) && player.hand.length > 0) {
+    if (getPlayerPowerAtNode(state, playerIndex, here) >= getShadowkingPowerAtNode(state, here)) {
+      return { type: 'STRIKE' };
+    }
+  }
+
+  // 4. GAMBIT — march toward the Keystone (gambler).
+  if (gambitAmbition > 0 && here !== state.board.definition.keystoneId && rng.float() < gambitAmbition) {
+    const step = firstStepTowardNode(state, playerIndex, state.board.definition.keystoneId);
+    if (step !== null && player.banners >= marchCost(state, step)) {
+      return { type: 'MARCH', targetNodeId: step };
+    }
+  }
+
+  // 5. HUNT — march toward the nearest rival (aggressor who prefers combat to claiming).
+  if (aggression > 0 && claimVsRaid < 0.5 && rival === null && rng.float() < aggression) {
+    const step = firstStepTowardNearestRival(state, playerIndex);
+    if (step !== null && player.banners >= marchCost(state, step)) {
+      return { type: 'MARCH', targetNodeId: step };
+    }
+  }
+
+  // 6. CLAIM the node we're standing on.
+  if (player.banners >= 1 && claimValue(state, here) > 0) {
+    return { type: 'CLAIM' };
+  }
+
+  // 7. MARCH toward the best reachable claimable node. A defender only expands to a
+  //    directly-adjacent claimable (the first step IS the prize); otherwise it holds.
+  const step = bestStepToward(state, playerIndex, rng);
+  if (step !== null && player.banners >= marchCost(state, step)) {
+    if (defensiveness >= 0.7 && claimValue(state, step) <= 0) {
+      return { type: 'PASS' }; // hold position rather than march out
+    }
+    return { type: 'MARCH', targetNodeId: step };
+  }
+
+  // 8. Nothing useful — end the turn.
   return { type: 'PASS' };
 }
 

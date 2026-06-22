@@ -76,7 +76,8 @@ export function playHeadlessGame(cfg: GameRunConfig): GameRunResult {
         // Each active player runs its full turn; the reducer advances the pointer.
         const active = state.activePlayerIndex;
         state = runAITurn(state, active, seed, policyFor(active)).state;
-        if (state.phase === 'ACTION' &&
+        if (state.gameEndReason === null &&
+            state.phase === 'ACTION' &&
             state.activePlayerIndex === active &&
             state.players[active].actionsRemaining > 0) {
           // Pointer didn't move and the player still has actions — force-pass to
