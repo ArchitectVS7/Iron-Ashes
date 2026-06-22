@@ -4,3 +4,5 @@ dist/
 *.d.ts.map
 coverage/
 .env
+sim-results/*
+!sim-results/sample/

@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "currentStage": "4c",
-  "currentStageTitle": "Sim matchups + sweep — run the archetypes across seeds × count × mode",
+  "currentStage": "4f",
+  "currentStageTitle": "Blood Pact sim + v1 ml_training cleanup",
   "status": "not-started",
-  "nextAction": "Stage 4c (plan: docs/handoff/plan-stage4.md). Add src/v2/sim/matchups.ts (Matchup → deterministic seat→archetype assignment: homogeneous tables, a mixed canonical table, round-robin pairings, one-vs-field) and src/v2/sim/sweep.ts (runSweep over seeds × playerCounts × modes × matchups → SweepRow[], one playHeadlessGame per cell). Each SweepRow records seed/count/mode/matchupId/seatArchetypes (metrics come in 4d). Add a FAST smoke-sweep test (a few seeds, baseline) to tests/v2 — keep the expensive full sweep for the 4e script (don't bloat the 120s suite). Reuse playHeadlessGame (src/v2/sim/driver.ts) + ARCHETYPES (src/v2/sim/archetypes.ts). 4a/4b DONE.",
+  "nextAction": "Stage 4f (plan: docs/handoff/plan-stage4.md). (1) Add a 'saboteur' archetype (saboteurPledgeSuppression knob) + wire BP audit/accuse hooks into the AI action loop / driver so the sim exercises the deduction surface; add a sim-only affordance for an AI seat to hold the Blood Pact (real play forbids it — §10) + traitor-win/accusation metrics in src/v2/sim/metrics.ts; extend the sweep to blood_pact mode. (2) The v1 ml_training/ DISPOSITION COMMIT (separate, destructive — CONFIRM WITH USER FIRST): delete venv(750MB)/PPO models/ugt_env.ts/ugt.config.yaml/v1 simulate_batch.ts; archive reports/+UGT_TESTING_PLAN.md to docs/archive/ml_training-v1/ marked INVALIDATED. 4a-4e DONE: src/v2/sim/* + scripts/sim.mjs (npm run sim); sample report in sim-results/sample/REPORT.md.",
   "specRefs": [
-    "docs/handoff/plan-stage4.md (matchup designs + phasing)",
-    "src/v2/sim/driver.ts (playHeadlessGame), src/v2/sim/archetypes.ts (ARCHETYPES)",
-    "ALGORITHM §9 (targets the sweep will measure in 4d)",
-    "ROADMAP §4 (4c)"
+    "docs/handoff/plan-stage4.md (4f scope), ML-SYSTEM-ANALYSIS.md (disposition table)",
+    "ALGORITHM §10 (Blood Pact), src/v2/blood-pact.ts (pure choosers)",
+    "src/v2/sim/* (the harness to extend), sim-results/sample/REPORT.md (baseline findings)",
+    "ROADMAP §4 (4f)"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-22T19:11:12.435Z",
-    "commit": "e87f923",
-    "sourceHash": "ef2bcf48baa5ecbc8625879cb9996f8e36e464dd240d5d87436821969b60a70d",
+    "timestamp": "2026-06-22T19:20:13.849Z",
+    "commit": "58d066a",
+    "sourceHash": "85961ec732c608a770e7c688ceb82a6c4c84d253e4177a25e165bf8e73d9a344",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 16,
-      "passed": 338,
+      "files": 19,
+      "passed": 349,
       "failed": 0,
       "status": "pass"
     }
@@ -39,7 +39,8 @@
     "The v2 UI lives in src/ui-v2 (entry index.html → src/ui-v2/main.ts; old v1 harness preserved at index-v1.html). It is OUTSIDE the verify lint/test scope (src/v2 tests/v2), but tsc --noEmit covers all of src/ so it must typecheck. Validate UI changes with `npm run dev` (or `npx vite build`); the headless session driver has logic coverage in tests/v2/ui-session.test.ts."
   ],
   "openRisks": [
-    "The anti-free-rider reward NOW EXISTS (§4.2 step 5: land-shielding + FAVOR, Stage 3f) but its EFFECTIVENESS is unproven until the Stage-5 sim — still the primary balance risk. PLEDGE_SHIELD_AMOUNT / PLEDGE_FAVOR_GRUDGE_REDUCTION are placeholder [TUNABLE].",
+    "STAGE-4 SWEEP FINDINGS (3240 games, untuned defaults — sim-results/sample/REPORT.md): (a) the Crown's Gambit is OVERPOWERED — fires 49% of games (target 10-20%) and the 'gambler' archetype wins 50.2% vs 26.4% even-share → the #1 Stage-5 tuning target (raise GAMBIT_SURCHARGE / make seize harder). (b) Shadowking win 15.3% (target 18-22%, slightly weak). (c) rescues 0.2/game (target 2-4, far too rare — rescue economy needs attention). (d) aggressor wins only 6.2% (raiding currently weak). GOOD: free-riding is NOT rewarded (winners pledge 1.60 vs field 1.79) — the 3f anti-free-rider reward works.",
+    "The anti-free-rider reward (§4.2 step 5, Stage 3f) now MEASURES as working in the Stage-4 sweep (winners don't pledge less) — but PLEDGE_SHIELD_AMOUNT / PLEDGE_FAVOR_GRUDGE_REDUCTION are still placeholder [TUNABLE]; confirm it holds after Stage-5 retuning.",
     "Blood Pact accusation tuning (AUDIT_COST, ACCUSATION_* penalties/cooldown, SUSPICION_LOG_ROUNDS, TRAITOR_EXPOSED_WOUNDS) is placeholder — must be balanced in Stage 5 so accusation is neither spammed nor never-fired.",
     "Stage 3f effect-table / Last-Stand / rescue-debt magnitudes (SURGE_SPREAD_MULT, DK_MARCH_DISTANCE, GAMBIT_ADJACENT_STRIKE_MULT, RESCUE_DEBT_MIN_PLEDGE, the deterministic Last-Stand 'fight if you can win' rule) are reasonable defaults, not balanced — Stage-5 sim must validate them.",
     "Archetype AI (Stage 4b) now pursues RAID/RESCUE/Gambit; Last Stand remains engine-auto and Audit/Accusation are NOT yet in the AI action loop (wired in 4f for Blood Pact) — the Stage-4 competitive sweep under-exercises the BP deduction paths until then."

@@ -16,7 +16,8 @@
     "typecheck": "tsc --noEmit",
     "verify": "node scripts/verify.mjs",
     "verify:check": "node scripts/verify.mjs --check",
-    "handoff:check": "node scripts/handoff-check.mjs"
+    "handoff:check": "node scripts/handoff-check.mjs",
+    "sim": "tsc && node scripts/sim.mjs"
   },
   "keywords": [
     "board-game",

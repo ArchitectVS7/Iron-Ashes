@@ -129,12 +129,19 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     byte-identical. `tests/v2/sim-archetypes.test.ts` (13). The mixed-archetype safety net caught 2 latent
     bugs baseline never hit: choosePledge ignored the rescue-debt forced-minimum (→ reducer rejected the
     pledge), and the driver force-pass dispatched on a game ended mid-turn by combat — both fixed. 338 green.*
-  - [ ] **4c. Matchups + sweep** — `src/v2/sim/matchups.ts` (homogeneous / mixed / round-robin / one-vs-field)
+  - [x] **4c. Matchups + sweep** — `src/v2/sim/matchups.ts` (homogeneous / mixed / round-robin / one-vs-field)
     + `src/v2/sim/sweep.ts` over seeds × playerCount × mode × matchup; fast smoke-sweep test.
-  - [ ] **4d. Metrics + report** — `src/v2/sim/metrics.ts` (pure, from state + actionLog) + `report.ts`
+    *Completed 2026-06-22 (with 4d/4e). 27 matchups; deterministic SweepRow[]; `tests/v2/sim-sweep.test.ts`.*
+  - [x] **4d. Metrics + report** — `src/v2/sim/metrics.ts` (pure, from state + actionLog) + `report.ts`
     (PASS/FAIL vs §9 + win-rate-by-archetype + free-rider verdict). Unit-tested on fixtures.
-  - [ ] **4e. CLI + run** — `scripts/sim.mjs` + `npm run sim` → `sim-results/<runId>/{rows,summary}.json` +
-    `REPORT.md`; run a real sweep and read off the §9 PASS/FAIL.
+    *Completed 2026-06-22. `tests/v2/sim-metrics.test.ts` + `sim-report.test.ts`.*
+  - [x] **4e. CLI + run** — `scripts/sim.mjs` + `npm run sim` (tsc → run dist/) → `sim-results/<runId>/`
+    {rows,summary}.json + `REPORT.md`. *Completed 2026-06-22. Ran a 3240-game sweep (40 seeds × 27 matchups ×
+    2/3/4p). FINDINGS at untuned defaults (sample in `sim-results/sample/REPORT.md`): Shadowking win 15.3%
+    (target 18–22%, slightly weak); rounds 11.6 ✅; **Gambit fires 49%** (target 10–20%) and **gambler wins
+    50.2%** vs 26.4% even-share → the Crown's Gambit is the dominant strategy and the #1 Stage-5 tuning target;
+    rescues 0.2/game (target 2–4, far too rare); **free-riding NOT rewarded** ✅ (the 3f anti-free-rider reward
+    works). 19 test files, 349 green.*
   - [ ] **4f. Blood Pact + v1 cleanup** — saboteur archetype + BP audit/accuse hooks + sim-only AI-traitor
     affordance + traitor metrics; then the `ml_training/` disposition (delete dead PPO/venv/parallel-sims,
     archive reports) — confirmed before deleting.
@@ -213,6 +220,14 @@ fresh, but the *foundations* are directly reusable.
   (telegraphed villain + grudge + voice lines), `combat` (sealed-commit + Last Stand), `actions`
   (MARCH/CLAIM/RAID/STRIKE/RESCUE/RECRUIT — all via the one reducer), `gambit` (Crown's Gambit + territory
   tiebreakers). 14 source + 10 test files, **260 tests green**, typecheck clean, deterministic.
+- **2026-06-22** — **Stage 4c/4d/4e complete — the balance harness runs.** `src/v2/sim/` gained
+  matchups (homogeneous/mixed/round-robin/one-vs-field), `runSweep`, pure `computeMetrics` (from state +
+  actionLog), and a PASS/FAIL report (§9 + win-rate-by-archetype + free-rider). `scripts/sim.mjs` (`npm run
+  sim`) builds + runs a sweep → `sim-results/<runId>/`. First real run: **3240 games** (40 seeds × 27 matchups
+  × 2/3/4p). Results at untuned defaults: Shadowking 15.3% (target 18–22%), rounds 11.6 ✅, **Gambit 49% fire /
+  gambler 50.2% win → dominant strategy (#1 Stage-5 fix)**, rescues 0.2 (too rare), **free-riding NOT rewarded
+  ✅** (3f reward works). Sample report committed at `sim-results/sample/REPORT.md`. Verify: 19 files, **349
+  passed**. Next: 4f (Blood Pact saboteur + v1 `ml_training/` cleanup).
 - **2026-06-22** — **Stage 4b complete.** Archetype-parameterized AI: 7 additive `AIPolicy` knobs
   (pledgeGenerosity/aggression/raidLeaderBias/defensiveness/claimVsRaidPref/gambitAmbition/rescueWillingness),
   neutral = baseline; `chooseAction` keeps the DEFAULT path byte-identical via a referential-identity guard
