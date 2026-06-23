@@ -225,6 +225,13 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     banner toll to the owner (the chokepoint tax; sworn allies free). `FORGE_TOLL_COST` 0→1 + AI
     `forgeValuation`. Tolls 0.74/game, SK-win 18.6% ✅, monotonic ladder, guards PASS, 396 tests. Spec
     `DESIGN-V2-FOCUS-GROUP-R3.md` §4, evidence `stage5-tuning-log.md` §tolls. *Completed 2026-06-23.*
+  - [x] **Stage S — Sealed Pledge + the Gambit fix (R3 build wave 2/3)** — the named Gambit claimant's
+    pledge is sealed (`SEALED_CORE_PLEDGE`='gambit_claimant') + a risk-aware seize gate
+    (`GAMBIT_SELF_COVER_CARDS`=4: only gamble if you can self-defend) + a doom compensator
+    (`DOOM_COST_PER_PLAYER` 6→5). **Gambler-free gambit fire 26.7%→14.3% ✅** (in 10-20 band, finally —
+    open since 5a), gambit-win 28.9%→19.0%, SK-win 21.3% ✅, guards PASS, 2-seed stable, 401 tests.
+    **Resolves the gambit-nerf TODO** (no GAMBIT_SURCHARGE change). Side-effect: per-count ladder mildly
+    non-monotonic (2p 23.6 / 3p 25.7 / 4p 14.6). Evidence `stage5-tuning-log.md` §sealed. *Completed 2026-06-23.*
   - [ ] **5e. Blood Pact** — fix the chooseAccusation relative-gap heuristic + ACCUSATION knobs → accuracy ≥45%,
     ≤2.5 accusations/game, traitor win 12–20%, exposure 40–70%.
   - [ ] **5f. Final validation + lock** — 2-seed stability; all bands + guards + per-count + BP pass; LOCK
@@ -283,10 +290,10 @@ fresh, but the *foundations* are directly reusable.
    **Stage 5d rescue economy COMPLETE** (rescues 0.07→~0.8/game; pooled 2–4 structurally capped, escalated).
    **Oaths + the Ledger (passion spine) COMPLETE** (`DESIGN-V2-OATHS.md`, `DESIGN-V2-FOCUS-GROUP-R3.md`):
    public breakable player Oaths + a villain that hunts oathbreakers; social density 0 → ~5.8 sworn/game.
-   **R3 build wave underway** (`docs/i-want-to-use-transient-quill.md` plan): **Stage T Forge-tolls DONE**
-   (`FORGE_TOLL_COST`=1, tolls 0.74/game, SK-win 18.6% ✅, 396 tests). **NEXT: Stage S (sealed
-   gambit-claimant Pledge + the gambit fix — honest gambit fire 28%), then Stage H (Herald + political/martial
-   stance), then a both-modes re-baseline + resume 5e (Blood Pact) → 5f lock.**)
+   **R3 build wave underway** (`~/.claude/plans/i-want-to-use-transient-quill.md`): **Stage T Forge-tolls
+   DONE** + **Stage S Sealed-Pledge/Gambit-fix DONE** (gambler-free gambit fire 26.7%→14.3% ✅, SK-win 21.3%,
+   401 tests). **NEXT: Stage H (Herald + political/martial stance — the big one), then a both-modes
+   re-baseline + resume 5e (Blood Pact) → 5f lock.**)
 3. Build through the one `applyCommand` reducer; keep everything deterministic (§7); write tests as you go.
 4. **Definition of Done (enforced):** `npm run verify` exits 0 → update `state.json` + §4 box + §8
    changelog + the memory file → commit → `npm run handoff:check` exits 0. See `docs/AGENT-PROTOCOL.md`.

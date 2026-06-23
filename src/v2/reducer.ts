@@ -201,9 +201,9 @@ function handleSubmitPledge(
     tier,
   });
 
-  // In Blood Pact mode the reveal is sealed: the public log shows only that a
-  // player committed — amount and tier go to the Suspicion Log, not here (§10).
-  if (state.mode === 'blood_pact') {
+  // Sealed reveal (blood_pact always; competitive per SEALED_CORE_PLEDGE): the public
+  // log shows only that a player committed — amount/tier go to the Suspicion Log (§10).
+  if (isPledgeSealed(state, playerIndex)) {
     events.push({ type: 'PLEDGE_COMMITTED', playerIndex });
   } else {
     events.push({
@@ -240,7 +240,23 @@ import {
   getPlayerPowerAtNode,
   getShadowkingPowerAtNode,
 } from './combat.js';
-import { COMBAT_COMMIT_MAX, RAID_DEFENSE_MARGIN } from './tunables.js';
+import { COMBAT_COMMIT_MAX, RAID_DEFENSE_MARGIN, getTunables } from './tunables.js';
+
+/**
+ * Is player `playerIndex`'s pledge SEALED (concealed reveal) this round? Always in
+ * blood_pact; in competitive per SEALED_CORE_PLEDGE (§ Sealed Pledge): 'all' seals
+ * everyone, 'gambit_claimant' seals only the named Gambit claimant. (Sealing affects
+ * only the emitted event — the deterministic AI never reads rivals' pledges.)
+ */
+function isPledgeSealed(state: GameState, playerIndex: number): boolean {
+  if (state.mode === 'blood_pact') return true;
+  const mode = getTunables().SEALED_CORE_PLEDGE;
+  if (mode === 'all') return true;
+  if (mode === 'gambit_claimant') {
+    return state.gambit?.claimant === playerIndex && state.gambit?.named === true;
+  }
+  return false;
+}
 
 function handlePlayerAction(
   state: GameState,

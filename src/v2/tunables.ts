@@ -120,6 +120,29 @@ export const ACT_THRESHOLDS = {
  */
 export const GAMBIT_SURCHARGE = 0.25;
 
+/**
+ * Which pledges are SEALED (concealed reveal) in competitive play (§ Sealed Pledge,
+ * FOCUS-GROUP-R3). blood_pact mode is always sealed regardless. Options:
+ *   'off'            — open live pledges (the Round-1 core pillar; default).
+ *   'gambit_claimant'— only the named Gambit claimant's pledge is sealed (a
+ *                      volunteer's-dilemma aimed at the Gambit, minimal reversal).
+ *   'all'            — every competitive pledge is sealed (full table-wide dilemma).
+ * NOTE: sealing is a HUMAN-facing information change — the deterministic AI never
+ * reads rivals' pledges, so it is a sim no-op ON ITS OWN. It gates the risk-aware
+ * Gambit self-cover rule below (the lever that actually moves the fire rate).
+ */
+export const SEALED_CORE_PLEDGE: 'off' | 'gambit_claimant' | 'all' = 'gambit_claimant';
+
+/**
+ * Risk-aware Gambit gate (§ Sealed Pledge): when a would-be claimant's pledge will be
+ * SEALED (so it can't count on rivals bailing it out), the AI only seizes the Keystone
+ * if it holds at least this many cards to self-defend the named strike. 0 = off (no
+ * gate). Higher ⇒ fewer speculative Gambits ⇒ lower fire rate. Stage-S locked 0 → 4
+ * (with SEALED_CORE_PLEDGE='gambit_claimant'): gambler-free gambit fire 26.7%→~14%
+ * (in 10-20 band), gambit-win 28.9%→~19%, 2-seed stable. [TUNABLE]
+ */
+export const GAMBIT_SELF_COVER_CARDS = 4;
+
 // ─── Banner Generation ────────────────────────────────────────────
 
 /** Base banners generated per player each Dawn (before territory income). */
@@ -327,13 +350,14 @@ export const DOOM_COST_PLAYER_DIVISOR = 4;
  * positive values LOWER the threshold below the pivot (dark weaker at low pc) and
  * RAISE it above (dark stronger at high pc).
  *
- * Stage 5c LOCKED at 6 (was 0). The search showed this is the only lever that
- * raises the dark's 4p win rate at all — at 4p the threshold becomes high enough
- * (WHISPER 12 / MARCH 15 / RECKONING 18) that 4 hands sometimes fail to block.
- * At 2p it floors to 1 (the dark is already dominant there). Residual per-count
- * disparity (2p ~33% vs 4p ~8%) is STRUCTURAL — see the tuning log §5c note.
+ * Stage 5c LOCKED at 6 (was 0); Stage-S retuned 6 → 5 as the fine compensator that
+ * offset the gambit gate (suppressing gambits — a player win-path — raised SK-win, so
+ * a slightly easier doom threshold pulled it back into band). The search showed this is
+ * the lever that raises the dark's 4p win rate — at 4p the threshold is high enough that
+ * 4 hands sometimes fail to block. At 2p it floors to 1. Residual per-count disparity is
+ * STRUCTURAL — see the tuning log §5c note.
  */
-export const DOOM_COST_PER_PLAYER = 6;
+export const DOOM_COST_PER_PLAYER = 5;
 /** Player count at which the per-player tilt is zero (the curve's pivot). */
 export const DOOM_COST_PIVOT = 3;
 
@@ -411,6 +435,9 @@ export interface Tunables {
   readonly GRUDGE_OATHBREAK: number;
   // ── Forge tolls (Stage T) ──
   readonly FORGE_TOLL_COST: number;
+  // ── Sealed Pledge + gambit fix (Stage S) ──
+  readonly SEALED_CORE_PLEDGE: 'off' | 'gambit_claimant' | 'all';
+  readonly GAMBIT_SELF_COVER_CARDS: number;
 }
 
 export const DEFAULT_TUNABLES: Tunables = Object.freeze({
@@ -421,7 +448,7 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   DK_BLOCKS_CLAIM, DK_KILL_CLAIMS_NODE, GRUDGE_MARK_TOP_N,
   BREAK_THRESHOLD, RESCUE_COST, RESCUE_TRIBUTE_BANNERS, LANDED_STRIKE_WOUNDS, BROKEN_MAX_ROUNDS,
   OATH_DIVIDEND, OATH_DURATION, OATH_LOYALTY_BONUS, OATH_BREAK_BANNERS, GRUDGE_OATHBREAK,
-  FORGE_TOLL_COST,
+  FORGE_TOLL_COST, SEALED_CORE_PLEDGE, GAMBIT_SELF_COVER_CARDS,
 });
 
 let activeTunables: Tunables = DEFAULT_TUNABLES;

@@ -634,8 +634,14 @@ function archetypeAction(
     }
   }
 
-  // 4. GAMBIT — march toward the Keystone (gambler).
-  if (gambitAmbition > 0 && here !== state.board.definition.keystoneId && rng.float() < gambitAmbition) {
+  // 4. GAMBIT — march toward the Keystone (gambler). Risk-aware (§ Sealed Pledge): when
+  //    a claimant's pledge will be SEALED, you can't count on rivals bailing you out, so
+  //    only seize if you hold enough cards to self-defend the named strike.
+  const t = getTunables();
+  const gambitTooRisky = t.SEALED_CORE_PLEDGE !== 'off'
+    && player.hand.length < t.GAMBIT_SELF_COVER_CARDS;
+  if (gambitAmbition > 0 && !gambitTooRisky
+      && here !== state.board.definition.keystoneId && rng.float() < gambitAmbition) {
     const step = firstStepTowardNode(state, playerIndex, state.board.definition.keystoneId);
     if (step !== null && player.banners >= marchCostFor(state, playerIndex, step)
           && tollAcceptable(state, playerIndex, step, forgeValuation)) {

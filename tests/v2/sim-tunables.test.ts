@@ -45,11 +45,11 @@ describe('tunable seam', () => {
     expect(withTunables(tilted, () => doomCost('WHISPER', 4))).toBe(4); // ceil(3 + 1*(4-3)) = 4
   });
 
-  it('ships the locked doom curve (5c) + the 5-dark retune spread', () => {
-    expect(doomCost('WHISPER', 2)).toBe(1);    // 2p floors: ceil(6*2/4 + 6*(2-3)) = max(1, -3)
+  it('ships the locked doom curve (DOOM_COST_PER_PLAYER 6→5 at Stage S) + spread', () => {
+    expect(doomCost('WHISPER', 2)).toBe(1);    // 2p floors: ceil(6*2/4 + 5*(2-3)) = max(1, -2)
     expect(doomCost('WHISPER', 3)).toBe(5);    // pivot: ceil(6*3/4 + 0)
-    expect(doomCost('WHISPER', 4)).toBe(12);   // ceil(6*4/4 + 6*1)
-    expect(doomCost('RECKONING', 4)).toBe(18); // ceil(12*4/4 + 6*1)
+    expect(doomCost('WHISPER', 4)).toBe(11);   // ceil(6*4/4 + 5*1) = 6 + 5
+    expect(doomCost('RECKONING', 4)).toBe(17); // ceil(12*4/4 + 5*1) = 12 + 5
     expect(getTunables().SPREAD_AMOUNT_BASE).toBe(5); // 5c 5 → 5-dark 4 → Oaths retune 5
   });
 

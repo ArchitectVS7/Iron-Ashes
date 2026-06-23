@@ -1,25 +1,24 @@
 {
   "schemaVersion": 1,
   "currentStage": "5e",
-  "currentStageTitle": "R3 build wave (Stage S sealed-pledge → Stage H Herald) THEN 5e Blood Pact",
+  "currentStageTitle": "R3 build wave — Stage H (Herald + stance) next, THEN 5e Blood Pact",
   "status": "in-progress",
-  "nextAction": "R3 BUILD WAVE in progress (plan: ~/.claude/plans/i-want-to-use-transient-quill.md; from panel round-3 docs/DESIGN-V2-FOCUS-GROUP-R3.md). Building three deferred panel mechanics smallest-first, each re-tuned + 2-seed-locked, then a both-modes re-baseline, then resume 5e/5f. ** Stage T (Forge-as-Gate tolls) DONE & LOCKED**: marching into a rival-owned living Forge pays the owner FORGE_TOLL_COST banners (sworn-exempt; toll-aware AI marchCostFor + forgeValuation knob). LOCKED FORGE_TOLL_COST 0->1; sim: tolls 0.74/game, SK-win 18.6% PASS (2-seed 19.4%), monotonic ladder (2p 22.8>3p 21.5>4p 11.6), guards PASS, oaths intact (5.79/3.25), 396 tests. Evidence stage5-tuning-log.md §tolls. **NEXT = Stage S (Sealed gambit-claimant Pledge + gambit fix):** generalize the blood_pact conceal condition (reducer.ts PLEDGE_COMMITTED vs PLEDGE_SUBMITTED) to isPledgeSealed + a SEALED_CORE_PLEDGE tunable ('off'|'all'|'gambit_claimant', default 'off'); AI pledgeUnderUncertainty knob; tune-sealed-pledge.mjs targeting gambitFireRateNoGambler 28.5%->10-20 (this RESOLVES the long-standing gambit-nerf TODO: sealing OR GAMBIT_SURCHARGE, never both). **THEN Stage H (Herald + political/martial stance, MVP, the big re-tune), THEN Stage R (both-modes re-baseline) + 5e (Blood Pact accusation: accuracy>=45%, <=2.5/game, traitor win 12-20%, exposure 40-70%) + 5f (final lock + §9 doc, amend ROADMAP §2 open-pledge decision).** (Note: rescues ~0.78 pooled 2-4 STRUCTURALLY CAPPED by all_broken<5%, escalated; Herald may push it lower — decide at Stage H.)",
+  "nextAction": "R3 BUILD WAVE in progress (plan: ~/.claude/plans/i-want-to-use-transient-quill.md). Building 3 deferred panel mechanics smallest-first, each re-tuned + 2-seed-locked, then a both-modes re-baseline, then 5e/5f. **Stage T (Forge tolls) DONE & LOCKED** (FORGE_TOLL_COST=1; tolls 0.74/game). **Stage S (Sealed Pledge + Gambit fix) DONE & LOCKED**: named Gambit claimant's pledge sealed (SEALED_CORE_PLEDGE='gambit_claimant' via isPledgeSealed, reusing blood_pact PLEDGE_COMMITTED machinery — a HUMAN-facing feature, sim no-op alone) + the functional lever, a risk-aware seize gate (GAMBIT_SELF_COVER_CARDS=4: gambler only seizes if it can self-defend) + a doom compensator (DOOM_COST_PER_PLAYER 6->5). RESULT (sim-results/s20260622-n40): gambler-free gambit fire 26.7%->14.3% PASS (in 10-20 band — the over-fire open since 5a is FIXED), gambit-win 28.9%->19.0%, SK-win 21.3% PASS (2-seed 20.6%), guards PASS, oaths 6.08/3.39, tolls 0.89, DK-kills 2.35, all_broken 2.3%, 401 tests. RESOLVED the gambit-nerf TODO (GAMBIT_SURCHARGE stays 0.25, no double-nerf). SIDE-EFFECT: per-count ladder now mildly non-monotonic (2p 23.6 / 3p 25.7 / 4p 14.6) from the DOOM_COST_PER_PLAYER compensator — pooled in band + guards hold; accept or restore monotonicity later. **NEXT = Stage H (Herald + political/martial stance, MVP — the BIG re-tune):** PieceType 'herald'; per-player handLimit (sequencer Dawn HAND_LIMIT->p.handLimit); executeRecruit (Herald: +HERALD_HAND_BONUS hand / -HERALD_COMBAT_PENALTY fighter = political vs martial axis, sticky stance) + executeParley (non-card pushback vs the dark) + 'PARLEY' action + piece-selector march; AI heraldAffinity/parleyBias; herald metrics + political/martial parity guard; tune-herald.mjs (expect SK-win down + rescues lower — budget the largest re-tune). THEN Stage R (both-modes re-baseline) + 5e (Blood Pact accusation) + 5f (final lock + §9 doc + amend ROADMAP §2 open-pledge decision: sealed-claimant ships). (rescues ~0.89 pooled 2-4 STRUCTURALLY CAPPED, escalated; Herald may lower it — decide at Stage H.)",
   "specRefs": [
-    "PLAN: ~/.claude/plans/i-want-to-use-transient-quill.md (the R3 build wave) + docs/DESIGN-V2-FOCUS-GROUP-R3.md §3-4 (the deferred ideas)",
-    "Stage T (done): src/v2/actions.ts executeMarch toll branch, src/v2/ai-player.ts (forgeValuation/forgeToll/marchCostFor/tollAcceptable), tunables FORGE_TOLL_COST=1, scripts/tune-tolls.mjs, tuning-log §tolls",
-    "Stage S target seams: src/v2/reducer.ts (sealed-pledge conceal cond ~line 206), src/v2/blood-pact.ts, src/v2/gambit.ts (GAMBIT_SURCHARGE), src/v2/ai-player.ts choosePledge",
-    "Stage H target seams: src/v2/types.ts (PieceType/PlayerState handLimit/stance), src/v2/sequencer.ts (Dawn HAND_LIMIT->p.handLimit), src/v2/actions.ts (executeRecruit/new executeParley/piece-selector march)",
-    "sim-results/s20260622-n40/REPORT.md (latest LOCKED: SK-win 18.6%, tolls 0.74, oaths 5.79/3.25); PRIOR docs DESIGN-V2-OATHS / RESCUE-ECONOMY / DARK-ENGAGEMENT / ALGORITHM §9.1"
+    "PLAN: ~/.claude/plans/i-want-to-use-transient-quill.md (R3 build wave) + docs/DESIGN-V2-FOCUS-GROUP-R3.md §3 (Herald/stance)",
+    "Stage S (done): src/v2/reducer.ts isPledgeSealed + conceal cond, src/v2/ai-player.ts risk-aware gambit gate, src/v2/tunables.ts (SEALED_CORE_PLEDGE='gambit_claimant', GAMBIT_SELF_COVER_CARDS=4, DOOM_COST_PER_PLAYER=5), scripts/tune-sealed-pledge.mjs, tuning-log §sealed",
+    "Stage H target seams: src/v2/types.ts (PieceType 'herald' + PlayerState handLimit/stance/heraldNodeId), src/v2/sequencer.ts (Dawn HAND_LIMIT->p.handLimit), src/v2/actions.ts (executeRecruit/new executeParley/piece-selector march), src/v2/commands.ts ('PARLEY'), src/v2/ai-player.ts (heraldAffinity/parleyBias)",
+    "sim-results/s20260622-n40/REPORT.md (latest LOCKED: SK-win 21.3%, gambit-noG 14.3%, oaths 6.08/3.39, tolls 0.89); PRIOR docs DESIGN-V2-OATHS / RESCUE-ECONOMY / DARK-ENGAGEMENT / FOCUS-GROUP-R3 / ALGORITHM §9.1"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-23T09:59:42.678Z",
-    "commit": "fbbbfa8",
-    "sourceHash": "ff2853d7e17158204b68443333b800260201ccce9592e286e16e3c8638c0f7df",
+    "timestamp": "2026-06-23T11:12:37.876Z",
+    "commit": "30be37b",
+    "sourceHash": "664388139c91284bc80fcc68926b0e7aebe521f69f2f7918c2877409a7dd00e0",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 26,
-      "passed": 396,
+      "files": 27,
+      "passed": 401,
       "failed": 0,
       "status": "pass"
     }

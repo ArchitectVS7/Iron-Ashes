@@ -254,3 +254,33 @@ guards PASS, all_broken 2.3%, DK-kills 2.05. 396 tests. The `spr6` variant lande
 but broke ladder monotonicity (3p>2p), so the one-lever `toll1` won. Tolls fire only ~0.74/game (the AI
 mostly claims its own quadrant's Forge early, so few cross a rival's) — a modest positional layer, not a
 dominant mechanic; honest and in the sanity range. Gambit honest fire 28.5% unchanged (Stage S's job).
+
+## Stage S — Sealed Pledge + the Gambit fix (FOCUS-GROUP-R3 §3, R3 build wave 2/3)
+
+**What:** the over-firing Crown's Gambit (gambler-free honest fire 26.7%, > 10-20 band — open since 5a)
+finally fixed. Two parts: (1) **Sealed Pledge** (`SEALED_CORE_PLEDGE` 'off'→'gambit_claimant') — the
+named Gambit claimant's pledge is now concealed (reuses the blood_pact PLEDGE_COMMITTED machinery via a
+new `isPledgeSealed` helper). This is a HUMAN-facing drama feature and a sim no-op on its own (the
+deterministic AI never reads rivals' pledges). (2) the functional lever — a **risk-aware Gambit gate**
+(`GAMBIT_SELF_COVER_CARDS` 0→4): when a claimant's pledge will be sealed it can't count on rivals
+bailing it out, so the AI only seizes the Keystone if it holds ≥4 cards to self-defend → speculative
+thin-hand Gambits are suppressed. (Matches the MTG-judge's volunteer's-dilemma intent.)
+
+**Search (`scripts/tune-sealed-pledge.mjs`, 3 grids + 2-seed).** Tightening the gate fixes the gambit
+but RAISES SK-win (Gambits are a player win-path; suppressing them strengthens the dark), so the winner
+pairs the gate with a fine doom compensator. **LOCKED: `SEALED_CORE_PLEDGE`='gambit_claimant',
+`GAMBIT_SELF_COVER_CARDS`=4, `DOOM_COST_PER_PLAYER` 6→5.** Confirmation (s20260622-n40):
+
+| Metric | pre-S | Stage S LOCKED |
+|---|---|---|
+| Gambit fire (gambler-free, honest) | 26.7% | **14.3% ✅** (in 10-20 band) |
+| Gambit-victory share | ~29% | **19.0%** |
+| SK-win | 18.6% | **21.3% ✅** (2-seed 20.6%) |
+| guards / oaths / tolls / DK-kills | PASS / 5.79 / 0.74 / 2.05 | PASS / 6.08 / 0.89 / 2.35 |
+
+**This RESOLVES the long-standing gambit-nerf TODO** — sealing + the gate did it; `GAMBIT_SURCHARGE`
+stays 0.25 (no double-nerf). 401 tests. The all-matchups gambit fire (33.5%) still reads FAIL but is the
+gambler-archetype-inflated number; the honest gambler-free 14.3% is the real (in-band) result.
+SIDE-EFFECT: the `DOOM_COST_PER_PLAYER` 6→5 compensator shifted the per-count curve — now 2p 23.6 / 3p
+25.7 / 4p 14.6 (mildly non-monotonic; 3p edges 2p by ~2pp). Pooled in band + guards hold; the named
+ladder is "2p & 3p both hard, 4p the Carve-up" — accept, or restore strict monotonicity in a future tune.
