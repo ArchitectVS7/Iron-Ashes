@@ -26,9 +26,9 @@ import type { Command, PlayerAction } from './commands.js';
 import type { GameEvent } from './events.js';
 import type { GameState } from './types.js';
 import { applyCommand, type CommandResult } from './reducer.js';
-import { getPlayerPowerAtNode, getShadowkingPowerAtNode } from './combat.js';
+import { getPlayerPowerAtNode, getShadowkingPowerAtNode, chooseCombatCommit } from './combat.js';
 import { hasSKForcesAtNode, hasRivalAtNode, areAdjacent } from './actions.js';
-import { ASHED_TRAVERSE_EXTRA_COST, RESCUE_COST } from './tunables.js';
+import { ASHED_TRAVERSE_EXTRA_COST, COMBAT_COMMIT_MAX, RESCUE_COST, getTunables } from './tunables.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 
 // ─── Policy ───────────────────────────────────────────────────────
@@ -75,6 +75,12 @@ export interface AIPolicy {
   readonly gambitAmbition?: number;
   /** 0..1 — propensity to RESCUE an adjacent Broken ally when affordable. Neutral 0. */
   readonly rescueWillingness?: number;
+  /**
+   * 0..1 — propensity to HUNT the dark: march toward and STRIKE a beatable Death
+   * Knight (Stage 5-dark). Neutral 0 (baseline never hunts). The kill clears the
+   * forcing-function block AND claims the node, so hunters contest DK-held ground.
+   */
+  readonly darkHuntBias?: number;
   /**
    * 0..1 — propensity to CONTEST a live rival Crown's Gambit: march to the Keystone
    * and raid the claimant off it (a Gambit win ends the game, so this is urgent).
@@ -188,9 +194,64 @@ function claimValue(state: GameState, nodeId: string): number {
   const nodeDef = state.board.definition.nodes[nodeId];
   if (!nodeState || !nodeDef) return 0;
   if (nodeState.ashed || nodeState.owner !== null) return 0;
+  // The dark holds the ground (Stage 5-dark): a DK on the node blocks the claim, so
+  // it is not a CLAIM/MARCH target for any policy — hunters route to it via the Hunt
+  // path instead (and the kill itself claims it). Keeps the AI from proposing an
+  // illegal CLAIM the reducer would reject.
+  if (getTunables().DK_BLOCKS_CLAIM && nodeState.shadowkingForces.length > 0) return 0;
   if (nodeDef.tier === 'forge') return 3; // matches FORGE_WEIGHT — Forges drive the Crown
   if (nodeDef.tier === 'holding') return 1;
   return 0;
+}
+
+/**
+ * Can `playerIndex` WIN a STRIKE against the Shadowking force at `nodeId`? Mirrors
+ * the reducer's value-aware auto-commit (`chooseCombatCommit`): true iff base power
+ * plus the best affordable card commit strictly exceeds the SK force power. Fixes
+ * the old gate that compared base power ALONE (a power-3 Warlord never struck a
+ * power-4 DK even holding a winning card). Pure `f(state)`.
+ */
+function canStrikeWin(state: GameState, playerIndex: number, nodeId: string): boolean {
+  const skPower = getShadowkingPowerAtNode(state, nodeId);
+  if (skPower <= 0) return false;
+  const base = getPlayerPowerAtNode(state, playerIndex, nodeId);
+  const cards = chooseCombatCommit(state.players[playerIndex].hand, base, skPower, COMBAT_COMMIT_MAX);
+  const total = base + cards.reduce((s, v) => s + v, 0);
+  return total > skPower;
+}
+
+/**
+ * First legal step from the Warlord toward the nearest huntable Death Knight — one
+ * sitting on a claimable (unclaimed, living Holding/Forge) node, i.e. ground the
+ * dark is denying us. Returns null if none reachable (Stage 5-dark). BFS,
+ * ZoC-respecting, deterministic; the win check happens on arrival via `canStrikeWin`.
+ */
+function bestStepTowardHuntableDK(state: GameState, playerIndex: number): string | null {
+  const def = state.board.definition;
+  const start = state.players[playerIndex].warlordNodeId;
+  const visited = new Set<string>([start]);
+  const queue: Array<{ node: string; firstStep: string | null }> = [{ node: start, firstStep: null }];
+
+  const isHuntable = (nodeId: string): boolean => {
+    const ns = state.board.state.nodes[nodeId];
+    const nd = def.nodes[nodeId];
+    if (!ns || !nd) return false;
+    if (ns.shadowkingForces.length === 0) return false;
+    if (ns.ashed || ns.owner !== null) return false;
+    return nd.tier === 'holding' || nd.tier === 'forge';
+  };
+
+  while (queue.length > 0) {
+    const cur = queue.shift()!;
+    if (cur.firstStep !== null && isHuntable(cur.node)) return cur.firstStep;
+    for (const nb of def.nodes[cur.node].connections) {
+      if (visited.has(nb)) continue;
+      if (stepBlocked(state, playerIndex, nb)) continue;
+      visited.add(nb);
+      queue.push({ node: nb, firstStep: cur.firstStep ?? nb });
+    }
+  }
+  return null;
 }
 
 /** Banner cost to MARCH into `nodeId` (1, +extra if the node is ashed). */
@@ -411,6 +472,7 @@ function archetypeAction(
   const gambitAmbition = policy.gambitAmbition ?? 0;
   const rescueWillingness = policy.rescueWillingness ?? 0;
   const gambitContest = policy.gambitContest ?? 0;
+  const darkHunt = policy.darkHuntBias ?? 0;
   // A traitor sabotaging the table won't push the front back (it wants the doom).
   const sabotaging = (policy.saboteurPledgeSuppression ?? 0) > 0 && player.hasBloodPact;
 
@@ -452,10 +514,16 @@ function archetypeAction(
     }
   }
 
-  // 3. STRIKE favourable co-located Shadowking forces (front pushback / defense).
-  //    A sabotaging traitor skips this — it wants the dark to advance.
-  if (!sabotaging && hasSKForcesAtNode(state, here) && player.hand.length > 0) {
-    if (getPlayerPowerAtNode(state, playerIndex, here) >= getShadowkingPowerAtNode(state, here)) {
+  // 3. STRIKE a co-located Death Knight (Stage 5-dark). Fire when we can WIN
+  //    (cards-aware) AND either the dark is denying a claim we're standing on, or we
+  //    have the appetite to hunt. The kill clears the forcing-function block, claims
+  //    the node, and (if we trail) steers the dark at the leaders. Saboteurs skip it.
+  if (!sabotaging && hasSKForcesAtNode(state, here) && canStrikeWin(state, playerIndex, here)) {
+    const nd = state.board.definition.nodes[here];
+    const ns = state.board.state.nodes[here];
+    const blocksClaim = !!nd && (nd.tier === 'holding' || nd.tier === 'forge')
+      && !!ns && !ns.ashed && ns.owner === null;
+    if (blocksClaim || rng.float() < darkHunt) {
       return { type: 'STRIKE' };
     }
   }
@@ -463,6 +531,16 @@ function archetypeAction(
   // 4. GAMBIT — march toward the Keystone (gambler).
   if (gambitAmbition > 0 && here !== state.board.definition.keystoneId && rng.float() < gambitAmbition) {
     const step = firstStepTowardNode(state, playerIndex, state.board.definition.keystoneId);
+    if (step !== null && player.banners >= marchCost(state, step)) {
+      return { type: 'MARCH', targetNodeId: step };
+    }
+  }
+
+  // 4b. HUNT the dark — march toward the nearest Death Knight holding claimable
+  //     ground we want (Stage 5-dark). The arrival STRIKE (step 3 next turn) does
+  //     the win check; here we just close the distance.
+  if (darkHunt > 0 && rng.float() < darkHunt) {
+    const step = bestStepTowardHuntableDK(state, playerIndex);
     if (step !== null && player.banners >= marchCost(state, step)) {
       return { type: 'MARCH', targetNodeId: step };
     }

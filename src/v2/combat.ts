@@ -19,10 +19,47 @@
 
 import type { GameEvent } from './events.js';
 import type { GameState } from './types.js';
-import { BREAK_THRESHOLD, getTunables } from './tunables.js';
+import { BREAK_THRESHOLD, FORGE_WEIGHT, getTunables } from './tunables.js';
 import { applyPushback } from './blight.js';
 import { addGrudge } from './shadowking-policy.js';
 import { GRUDGE_PER_DK_KILL, GRUDGE_PER_FORGE_RECLAIM } from './tunables.js';
+
+// ─── Territory standing (Stage 5-dark) ────────────────────────────
+
+/**
+ * Living owned production for a seat (Forges weighted) — the single source of
+ * truth shared with `computeCrownHolder` / `computeTerritoryWinner`.
+ */
+function productionOf(state: GameState, seat: number): number {
+  let t = 0;
+  for (const [id, ns] of Object.entries(state.board.state.nodes)) {
+    if (ns.owner !== seat || ns.ashed) continue;
+    const tier = state.board.definition.nodes[id]?.tier;
+    if (tier === 'forge') t += FORGE_WEIGHT;
+    else if (tier === 'keep' || tier === 'holding') t += 1;
+  }
+  return t;
+}
+
+/**
+ * 0-based territory rank of a player (0 = leader). A player ranks ahead of another
+ * with more production, or equal production and a lower seat index (matches the
+ * §7.6 tiebreak). Broken players sink to the bottom (forfeit standing). Pure.
+ *
+ * Used by the asymmetric grudge Mark: only the leading seats pay the "the dark
+ * now hunts you" tax for wounding it; trailing seats hunt for free (catch-up).
+ */
+export function territoryRank(state: GameState, playerIndex: number): number {
+  const meBroken = state.players[playerIndex]?.isBroken === true;
+  const mine = meBroken ? -1 : productionOf(state, playerIndex);
+  let rank = 0;
+  for (const p of state.players) {
+    if (p.index === playerIndex) continue;
+    const theirs = p.isBroken ? -1 : productionOf(state, p.index);
+    if (theirs > mine || (theirs === mine && p.index < playerIndex)) rank++;
+  }
+  return rank;
+}
 
 // ─── Types ────────────────────────────────────────────────────────
 
@@ -330,8 +367,39 @@ export function applyCombatOutcome(
       // Pushback Blight on this node
       events.push(...applyPushback(state, nodeId, getTunables().PUSHBACK));
 
-      // Add grudge (heroic action)
-      events.push(...addGrudge(state, attackerIndex, GRUDGE_PER_DK_KILL, 'dk_kill'));
+      // Spoils of the breach (Stage 5-dark): clearing the dark off an unclaimed,
+      // living Holding/Forge CLAIMS it for free — heroism paid in the win currency.
+      // (The claim is what makes hunting rational; without it a player would just
+      //  claim around the DK. The forcing function — DKs block CLAIM — lives in
+      //  executeClaim, so the kill is the only way to take a DK-held node.)
+      const nodeDef = state.board.definition.nodes[nodeId];
+      const clearedNode = state.board.state.nodes[nodeId];
+      if (
+        getTunables().DK_KILL_CLAIMS_NODE &&
+        clearedNode && nodeDef &&
+        (nodeDef.tier === 'holding' || nodeDef.tier === 'forge') &&
+        !clearedNode.ashed && clearedNode.owner === null &&
+        clearedNode.shadowkingForces.length === 0
+      ) {
+        clearedNode.owner = attackerIndex;
+        events.push({
+          type: 'PLAYER_ACTED',
+          playerIndex: attackerIndex,
+          action: 'CLAIM',
+          details: { nodeId, tier: nodeDef.tier, viaDkKill: true },
+        });
+      }
+
+      // Asymmetric grudge Mark (Stage 5-dark): only the LEADING seats pay the "the
+      // dark now hunts you" tax for wounding it — trailing seats hunt for free. This
+      // makes dark-engagement a catch-up lever and keeps "leading is dangerous" honest.
+      if (territoryRank(state, attackerIndex) < getTunables().GRUDGE_MARK_TOP_N) {
+        events.push(...addGrudge(state, attackerIndex, GRUDGE_PER_DK_KILL, 'dk_kill'));
+        // If this is a Forge, also grudge for the reclaim (same standing gate).
+        if (nodeDef?.tier === 'forge') {
+          events.push(...addGrudge(state, attackerIndex, GRUDGE_PER_FORGE_RECLAIM, 'forge_reclaim'));
+        }
+      }
 
       // Voice line
       events.push({
@@ -339,12 +407,6 @@ export function applyCombatOutcome(
         line: 'So. You draw the blade. Noted.',
         trigger: 'dk_killed',
       });
-
-      // If this is a Forge, also pushback + grudge for reclaim
-      const nodeDef = state.board.definition.nodes[nodeId];
-      if (nodeDef?.tier === 'forge') {
-        events.push(...addGrudge(state, attackerIndex, GRUDGE_PER_FORGE_RECLAIM, 'forge_reclaim'));
-      }
     } else if (winner === 'no_result') {
       // Tie vs SK: cards returned (P1/A5)
       // Cards already discarded above — re-add them

@@ -105,6 +105,9 @@ describe('Actions System', () => {
       // Move player to a holding first
       state.players[0].warlordNodeId = 'holding-ne';
       state.board.state.nodes['holding-ne'].owner = null;
+      // Holdings are the dark's spawn seams (5-dark); clear the DK so this exercises
+      // the CLAIM mechanic, not the DK-blocks-claim forcing function.
+      state.board.state.nodes['holding-ne'].shadowkingForces = [];
 
       const result = executeClaim(state, 0);
       expect(state.board.state.nodes['holding-ne'].owner).toBe(0);
@@ -114,6 +117,7 @@ describe('Actions System', () => {
     it('costs 1 banner', () => {
       state.players[0].warlordNodeId = 'holding-ne';
       state.board.state.nodes['holding-ne'].owner = null;
+      state.board.state.nodes['holding-ne'].shadowkingForces = [];
       const initialBanners = state.players[0].banners;
 
       executeClaim(state, 0);
@@ -150,11 +154,21 @@ describe('Actions System', () => {
     it('throws if insufficient banners', () => {
       state.players[0].warlordNodeId = 'holding-ne';
       state.board.state.nodes['holding-ne'].owner = null;
+      state.board.state.nodes['holding-ne'].shadowkingForces = [];
       state.players[0].banners = 0;
 
       expect(() => {
         executeClaim(state, 0);
       }).toThrow('banner');
+    });
+
+    it('throws if a Death Knight holds the node (5-dark forcing function)', () => {
+      // Holdings are the dark's spawn seams, so holding-ne already has a DK on it.
+      state.players[0].warlordNodeId = 'holding-ne';
+      state.board.state.nodes['holding-ne'].owner = null;
+      state.players[0].banners = 3;
+      expect(state.board.state.nodes['holding-ne'].shadowkingForces.length).toBeGreaterThan(0);
+      expect(() => executeClaim(state, 0)).toThrow('Shadowking forces hold');
     });
   });
 

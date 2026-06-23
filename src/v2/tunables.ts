@@ -30,9 +30,11 @@ export const DK_START_COUNT = 2;
 
 /**
  * Per-player scaling of the Death Knight count (via `deathKnightCount()`):
- * `+ DK_PER_PLAYER * (playerCount - 3)`. Defaults to 0 (flat DK_START_COUNT ⇒
- * byte-identical). The search raises it to give the dark more force at high
- * player counts (5a: dark is out-numbered 2-DK-vs-4-Warlord at 4p).
+ * `+ DK_PER_PLAYER * (playerCount - 3)`. Stage 5-dark probed 0 → 1 to pressure 4p,
+ * but the retune REFUTED it: now that killing a DK pays (claims the node + pushback),
+ * a BIGGER army at high counts FEEDS the players rather than the dark (4p SK-win
+ * went *up*, not down, with fewer DKs). Kept FLAT at 0 — engagement comes from the
+ * other four 5-dark levers, not army size. (See DESIGN-V2-DARK-ENGAGEMENT + tuning-log §5-dark.)
  */
 export const DK_PER_PLAYER = 0;
 
@@ -128,13 +130,12 @@ export const DAWN_BLIGHT_ADVANCE = 1;
 
 /**
  * Base Blight spread from an un-averted strike (scaled by 1-ratio).
- * Stage 5c: 2 → 5. This sets how hard a LANDED strike hits; raising it is the
- * floor-lift that brought the pooled SK-win from 14% into the 18-22% band, and
- * (with the high doom base) is the only lever that cracks the 4p wall — at 4p
- * strikes are usually fully blocked (ratio≈1), so only when the high doomCost
- * lets one through does this damage register. See docs/handoff/stage5-tuning-log.md.
+ * Stage 5c: 2 → 5; Stage 5-dark retune: 5 → 4. This sets how hard a LANDED strike
+ * hits; it is the uniform doom-win lever. 5c raised it to lift pooled SK-win 14%→20%;
+ * the 5-dark engagement patch then over-strengthened the dark (23.9%), so the retune
+ * trimmed it to 4 to land pooled back at ~20% (2-seed stable). See stage5-tuning-log.md.
  */
-export const SPREAD_AMOUNT_BASE = 5;
+export const SPREAD_AMOUNT_BASE = 4;
 
 /** Extra banner cost to march through an ashed node (P0-3: traversable, not impassable). */
 export const ASHED_TRAVERSE_EXTRA_COST = 1;
@@ -158,6 +159,28 @@ export const GRUDGE_PER_FORGE_RECLAIM = 2;
 
 /** Grudge added per point of combat damage dealt to Shadowking forces (§5.6). */
 export const GRUDGE_PER_SK_WOUND = 1;
+
+// ─── Dark Engagement (Stage 5-dark — DESIGN-V2-DARK-ENGAGEMENT.md) ──
+// The fix for the dead grudge: make engaging the dark reachable, rewarded, and
+// necessary — flipping heroism from a pure cost (0.00 DK-kills) into a real play.
+
+/** A Death Knight on a node BLOCKS claiming it (the forcing function). */
+export const DK_BLOCKS_CLAIM = true;
+
+/**
+ * Killing a Death Knight on an unclaimed, living Holding/Forge CLAIMS it for the
+ * attacker for free ("spoils of the breach") — heroism paid in the win currency.
+ */
+export const DK_KILL_CLAIMS_NODE = true;
+
+/**
+ * DK-kill / Forge-reclaim grudge (becoming the villain's next target) applies ONLY
+ * when the attacker's territory rank is strictly below this (0 = leader). So the
+ * LEADING seats pay the "now it hunts you" tax while TRAILING seats hunt for free —
+ * a catch-up lever that keeps "leading is dangerous" honest (the MTG judge's lever).
+ * Set very high (≥ player count) to restore the old "always mark" behaviour.
+ */
+export const GRUDGE_MARK_TOP_N = 2;
 
 // ─── Pieces / Combat power ────────────────────────────────────────
 
@@ -322,6 +345,10 @@ export interface Tunables {
   readonly DAWN_BLIGHT_ADVANCE: number;
   readonly BLIGHT_TO_ASH: number;
   readonly PUSHBACK: number;
+  // ── Dark engagement (5-dark cluster) ──
+  readonly DK_BLOCKS_CLAIM: boolean;
+  readonly DK_KILL_CLAIMS_NODE: boolean;
+  readonly GRUDGE_MARK_TOP_N: number;
 }
 
 export const DEFAULT_TUNABLES: Tunables = Object.freeze({
@@ -329,6 +356,7 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   DOOM_COST_PER_PLAYER, DOOM_COST_PIVOT,
   DK_START_COUNT, DK_PER_PLAYER, DK_POWER,
   SPREAD_AMOUNT_BASE, DAWN_BLIGHT_ADVANCE, BLIGHT_TO_ASH, PUSHBACK,
+  DK_BLOCKS_CLAIM, DK_KILL_CLAIMS_NODE, GRUDGE_MARK_TOP_N,
 });
 
 let activeTunables: Tunables = DEFAULT_TUNABLES;
@@ -383,6 +411,9 @@ export const TUNABLES = Object.freeze({
   GRUDGE_PER_DK_KILL,
   GRUDGE_PER_FORGE_RECLAIM,
   GRUDGE_PER_SK_WOUND,
+  DK_BLOCKS_CLAIM,
+  DK_KILL_CLAIMS_NODE,
+  GRUDGE_MARK_TOP_N,
   WARLORD_POWER,
   COMBAT_COMMIT_MAX,
   RAID_DEFENSE_MARGIN,

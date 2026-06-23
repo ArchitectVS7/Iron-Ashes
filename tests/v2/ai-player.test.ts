@@ -150,6 +150,9 @@ describe('AI action policy', () => {
     state.board.state.nodes[holding].owner = null;
     state.board.state.nodes[holding].ashed = false;
     state.board.state.nodes[holding].blightLevel = 0;
+    // Holdings are the dark's spawn seams (5-dark); a DK there blocks the claim, so
+    // clear it to test CLAIM priority rather than the DK-blocks-claim forcing function.
+    state.board.state.nodes[holding].shadowkingForces = [];
     state.players[me].banners = 3;
     expect(chooseAction(state, me, 7)).toEqual({ type: 'CLAIM' });
   });

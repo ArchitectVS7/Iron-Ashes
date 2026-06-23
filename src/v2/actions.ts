@@ -209,6 +209,12 @@ export function executeClaim(
     throw new Error(`Cannot CLAIM: ${nodeId} is already owned by Player ${nodeState.owner + 1}`);
   }
 
+  // The dark holds the ground (Stage 5-dark forcing function): a Death Knight on the
+  // node blocks the claim — you must STRIKE it off first (which then claims it for you).
+  if (getTunables().DK_BLOCKS_CLAIM && hasSKForcesAtNode(state, nodeId)) {
+    throw new Error(`Cannot CLAIM: Shadowking forces hold ${nodeId}. Strike them off first.`);
+  }
+
   // Validate banners
   if (player.banners < 1) {
     throw new Error(`Cannot CLAIM: need 1 banner, have ${player.banners}`);

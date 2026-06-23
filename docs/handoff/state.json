@@ -1,24 +1,25 @@
 {
   "schemaVersion": 1,
   "currentStage": "5d",
-  "currentStageTitle": "Stage 5d — tune the rescue/break economy",
+  "currentStageTitle": "Stage 5d — rescue economy (after settling the per-count A/B fork; 5-dark done)",
   "status": "not-started",
-  "nextAction": "Stage 5d — raise rescues to 2-4/game (locked-defaults sim: 0.06/game). Diagnose with conditionalRescueRate first (5c locked sim: breaks 0.95/game, conditional-rescue 6.6% — SOME breaks happen but almost nobody rescues). Levers: lower RESCUE_COST (2->1) and/or raise AI rescueWillingness on cooperator/baseline/turtle archetypes; if breaks themselves are too rare, lower BREAK_THRESHOLD (6->4). These break/rescue levers are NOT yet in the Tunables seam — wire them (extend Tunables interface in tunables.ts + DEFAULT_TUNABLES + convert call sites) before sweeping, same pattern as 5c. Watch all_broken < ~5% (currently 2.4%) and keep SK-win 18-22% + guards. Use scripts/tune-5c.mjs as the search template (copy to tune-5d.mjs, swap the candidate grid). Record in stage5-tuning-log.md, lock winners into tunables.ts, re-run npm run sim, confirm, commit. NOTE: gambit gambler-free fire is 26.7% (above the 10-20 band) — a SMALL gambit nerf may be folded into 5d/5e (GAMBIT_SURCHARGE), but it is NOT a 5c regression. ESCALATED TO USER (see ROADMAP 5c box + tuning-log section 5c): per-count SK-win flatness (2p 35% / 4p 8%) is structurally unreachable by numbers — the user must decide whether to accept the monotonic co-op difficulty gradient or authorize a pledge/strike MECHANIC change before the 5f lock. Then 5e (Blood Pact accusation heuristic), 5f (2-seed lock + section 9 doc).",
+  "nextAction": "Stage 5-dark is DONE & LOCKED: the reconvened focus group (docs/DESIGN-V2-FOCUS-GROUP-R2.md) ruled the dormant DK-engagement pillar an inverted incentive; the patch (docs/DESIGN-V2-DARK-ENGAGEMENT.md) added the Hunt verb (AI darkHuntBias + cards-aware canStrikeWin + bestStepTowardHuntableDK), win-currency DK-kill auto-claim, asymmetric grudge Mark (GRUDGE_MARK_TOP_N=2, territoryRank), and DK-blocks-claim. Sim: DK-kills 0.00->2.05 (pillar alive); the patch over-strengthened the dark to 23.9%, so a coordinate-descent retune (scripts/tune-5dark.mjs, 2 seeds x 40) LOCKED SPREAD_AMOUNT_BASE 5->4 + DK_PER_PLAYER 1->0 (KEY FINDING: DK-army scaling BACKFIRES once kills pay — more rewarding DKs feed the players; the 40K panel hypothesis refuted). Confirmation sweep (sim-results/s20260622-n40): SK-win 20.5% PASS, per-count 30.9/21.8/8.9 (gradient 26.7->22.0pp, flatter), DK-kills 2.05, guards PASS, 2-seed stable (19.6%), rounds 11.93. Tests 379/379 green. NEXT (user's call): SETTLE THE PER-COUNT A/B FORK on this NEW data (FOCUS-GROUP-R2 §3: A=lock+name tiers Duel/Triumvirate/Carve-up, B=surgical marginal-pledge decay — the panel leaned A-with-naming after the dark-engagement fix lifted 3p/4p). THEN Stage 5d rescue economy (rescues still 0.07 — apply the SAME win-currency template per FOCUS-GROUP-R2 §4: a rescue must pay the rescuer in win-currency, not a soft favor; wire RESCUE_COST/BREAK_THRESHOLD into the seam). Gambit honest fire 25.2% (>10-20 band) is a separate 5d/5e item, NOT a 5-dark regression. Then 5e (Blood Pact accusation), 5f (2-seed lock + §9 doc).",
   "specRefs": [
-    "docs/handoff/stage5-tuning-log.md (the evidence trail) + ROADMAP §4 (5c-5f)",
-    "src/v2/tunables.ts (doomCost + Tunables seam), src/v2/sim/search.ts (runTunableCandidates), report.ts (tuningLoss/TARGETS)",
-    "sim-results/s20260622-n40/REPORT.md (the 5c LOCKED-defaults report: SK-win 20.2%, per-count 2p 34.6/3p 17.9/4p 7.9)",
-    "ROADMAP §4 (5c)"
+    "docs/DESIGN-V2-FOCUS-GROUP-R2.md (panel round-2 synthesis) + docs/DESIGN-V2-DARK-ENGAGEMENT.md (the mechanic spec)",
+    "docs/handoff/stage5-tuning-log.md §5-dark (the evidence trail + retune + the DK-scaling-backfires finding)",
+    "src/v2/tunables.ts (SPREAD_AMOUNT_BASE=4, DK_PER_PLAYER=0, DK_BLOCKS_CLAIM/DK_KILL_CLAIMS_NODE/GRUDGE_MARK_TOP_N), src/v2/ai-player.ts (darkHuntBias/canStrikeWin/bestStepTowardHuntableDK), src/v2/combat.ts (territoryRank + win-currency claim + asymmetric grudge)",
+    "sim-results/s20260622-n40/REPORT.md (the 5-dark LOCKED report: SK-win 20.5%, DK-kills 2.05, per-count 2p 30.9/3p 21.8/4p 8.9)",
+    "scripts/tune-5dark.mjs (the retune search), ROADMAP §4"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-22T22:18:36.027Z",
-    "commit": "1426600",
-    "sourceHash": "76e280bd0d24cf5f3e4c45c9bd5f369f28c0098355fd78e4b8f8763696d9405c",
+    "timestamp": "2026-06-23T01:11:14.128Z",
+    "commit": "55c60a8",
+    "sourceHash": "7fdc972dc3c9b18721772ff73b4e4d6ac18846b232f29d61655e41c9cbb0525c",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 22,
-      "passed": 373,
+      "files": 23,
+      "passed": 379,
       "failed": 0,
       "status": "pass"
     }

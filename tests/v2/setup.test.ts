@@ -13,7 +13,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { createGame } from '../../src/v2/setup.js';
-import { STARTING_HAND, DK_START_COUNT } from '../../src/v2/tunables.js';
+import { STARTING_HAND, deathKnightCount } from '../../src/v2/tunables.js';
 
 describe('createGame()', () => {
   describe('player count validation', () => {
@@ -139,9 +139,9 @@ describe('createGame()', () => {
   describe('Shadowking forces', () => {
     const state = createGame(4, 'competitive', 42);
 
-    it('places the correct number of Death Knights', () => {
+    it('places the correct number of Death Knights (player-count scaled, 5-dark)', () => {
       const dks = state.shadowking.forces.filter(f => f.type === 'death_knight');
-      expect(dks.length).toBe(DK_START_COUNT);
+      expect(dks.length).toBe(deathKnightCount(4));
     });
 
     it('forces are placed on the board', () => {

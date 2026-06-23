@@ -25,6 +25,7 @@ import {
   DK_MARCH_DISTANCE,
   GAMBIT_ADJACENT_STRIKE_MULT,
   SURGE_SPREAD_MULT,
+  deathKnightCount,
   getTunables,
 } from './tunables.js';
 import {
@@ -118,13 +119,16 @@ export function applyShadowkingStrike(
  * the rest of the game (only 2 DKs, no respawn) — a balance cliff. Called when an
  * Act escalates ("the noose tightens"). Deterministic: fixed seam order, unique ids.
  */
-export function respawnDeathKnights(state: GameState, targetCount: number = getTunables().DK_START_COUNT): GameEvent[] {
+export function respawnDeathKnights(state: GameState, targetCount?: number): GameEvent[] {
   const events: GameEvent[] = [];
+  // Default replenishes to the player-count-scaled army (Stage 5-dark) so the
+  // scaling holds after Act escalations, not just at setup.
+  const target = targetCount ?? deathKnightCount(state.players.length);
   const current = state.shadowking.forces.filter(f => f.type === 'death_knight').length;
   const seams = state.board.definition.blightEntrySeams.filter(s => !state.board.state.nodes[s]?.ashed);
   if (seams.length === 0) return events;
 
-  for (let i = current; i < targetCount; i++) {
+  for (let i = current; i < target; i++) {
     const seam = seams[i % seams.length];
     const force: ShadowkingForce = { id: `dk-r${state.round}-${i}`, type: 'death_knight', power: getTunables().DK_POWER, nodeId: seam };
     state.shadowking.forces.push({ ...force });

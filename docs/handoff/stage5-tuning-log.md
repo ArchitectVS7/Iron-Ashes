@@ -89,3 +89,60 @@ Decision: **KEEP** — 5c's primary targets (SK-win 18-22%, rounds 10-16) and bo
 are 2-seed-stable; 4p lifted from 1.9%→7.9% (as far as numbers allow). Per-count flatness reframed as
 a documented structural limitation. Next: 5d (rescue/break economy — breaks 0.95/game,
 conditional-rescue 6.6%; both must rise for 2-4 rescues/game).
+
+## 5-dark — Dark Engagement mechanic patch (the dead-grudge fix)
+
+**Trigger:** the reconvened 5-expert focus group (`DESIGN-V2-FOCUS-GROUP-R2.md`) ruled the dormant
+DK-engagement pillar (dkKills 0.00) a *structural inverted incentive*, not a number — and the user
+authorized a MECHANIC change before settling the per-count fork. Spec: `DESIGN-V2-DARK-ENGAGEMENT.md`.
+
+**Changes (five coupled):** (1) AI `darkHuntBias` knob + cards-aware `canStrikeWin` + `bestStepTowardHuntableDK`
+(the Hunt verb — the old gate compared base power only, so a power-3 Warlord never struck a power-4 DK);
+(2) killing a DK on an unclaimed Holding/Forge CLAIMS it free (win-currency payoff); (3) asymmetric
+grudge Mark — `GRUDGE_MARK_TOP_N=2`, only leading seats pay the "now it hunts you" tax (catch-up lever);
+(4) DKs block CLAIM (`DK_BLOCKS_CLAIM`, the forcing function); (5) `DK_PER_PLAYER` 0→1 + respawn scales
+with player count (revives the dead lever now that DKs are engaged).
+
+**Sim result (4200 games, s20260622-n40, vs 5c LOCKED):**
+| Metric | 5c | 5-dark | Note |
+|---|---|---|---|
+| **DK kills / game** | **0.00** | **1.88** | the pillar is alive |
+| SK win pooled | 20.2% | **23.9%** | now ABOVE band — needs a small retune down |
+| per-count SK win | 34.6 / 17.9 / 7.9 | **35.2 / 24.7 / 11.8** | gap 26.7pp→23.4pp; 3p +6.8, 4p +3.9 (2p ~flat) |
+| Gambit honest fire | 26.7% | 25.1% | drifting toward band, still high |
+| Endings (terr/doom/gambit) | 49.6 / 20.2 / 27.8 | 47.6 / 23.9 / 26.0 | less solitaire, more dark |
+| no-dominant (even seat) | 25.8% | 24.6% | PASS; archetype spread 4.6x→3.0x (narrower) |
+| Rescues / game | 0.06 | 0.06 | unchanged — that's 5d (same win-currency template applies) |
+
+Reading: the patch achieved its design goal — engaging the dark went from impossible to ~2/game, the
+per-count gradient compressed, and wins shifted off the quiet territory race. **Cost:** SK-win overshot
+to 23.9% (engagement + DK scaling added pressure) — a tuning residual, not a regression (suite green).
+
+### 5-dark retune (coordinate-descent via `scripts/tune-5dark.mjs`, LOCKED)
+Searched SPREAD_AMOUNT_BASE / DOOM_COST_PER_PLAYER / DK_PER_PLAYER to pull pooled SK-win back into band
+while preserving DK-kills + the narrowed gradient + guards. Two finalists, both in-band and 2-seed-stable:
+
+| candidate | pooled (s1/s2) | 2p/3p/4p | spread | dkKills | note |
+|---|---|---|---|---|---|
+| `spread4` (keep dkpp1) | 20.4 / 20.5 | 30.9/21.8/8.6 | 22.2 | 1.98 | one-lever |
+| **`spread4 + dkpp0`** ✅ | **20.4 / 19.6** | 30.9/21.8/8.9 | 22.1 | **2.05** | flatter, more engagement, lower loss on BOTH seeds |
+
+**LOCKED: `SPREAD_AMOUNT_BASE 5→4`, `DK_PER_PLAYER 1→0`.** Confirmation sweep (4200 games, s20260622-n40):
+SK-win **20.5% PASS**, rounds 11.93 PASS, **DK-kills 2.05**, per-count 30.9/21.8/8.9 (gradient 22.0pp vs
+5c's 26.7pp — flatter), guards PASS (even seat 25.6%, free-riding not rewarded), 2-seed stable (s13371337
+19.6%). Endings terr 50.7 / doom 20.5 / gambit 26.2.
+
+**KEY FINDING — DK-army scaling BACKFIRES once kills pay.** The 40K panelist's hypothesis (scale DKs with
+player count to pressure 4p) was REFUTED by the search: with DK_PER_PLAYER=1, 4p SK-win was *lower* than
+with =0, because more rewarding DKs = more free claims + pushback the players harvest. So the dead lever
+stays dead — engagement comes from the other four 5-dark levers (Hunt verb, win-currency claim, asymmetric
+grudge, DK-blocks-claim), not army size. The DK_PER_PLAYER seam stays wired (correct, tested) but at 0.
+
+Side notes (carry into 5d/5e, NOT 5-dark regressions): Gambit honest fire 25.2% (still > 10-20 band —
+the focus group said fix AFTER the dead pillars; drifted 26.7→25.2). Rescues 0.07 (still dormant — that's
+5d, same win-currency template applies). Turtle archetype 27.1→15.8% (passivity is riskier with a
+contesting dark; the no-dominant guard still holds, spread narrowed 4.6x→2.6x).
+
+Decision: **LOCK 5-dark.** The dead-grudge pillar is revived (DK-kills 0.00→2.05), SK-win is back in band
+and 2-seed-stable, the per-count gradient is flatter, and all guards hold. The per-count A/B fork
+(FOCUS-GROUP-R2 §3) is now decidable on this new data; rescues (5d) are next.

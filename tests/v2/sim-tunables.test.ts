@@ -45,15 +45,17 @@ describe('tunable seam', () => {
     expect(withTunables(tilted, () => doomCost('WHISPER', 4))).toBe(4); // ceil(3 + 1*(4-3)) = 4
   });
 
-  it('ships the Stage 5c locked doom curve (the tuned defaults)', () => {
+  it('ships the locked doom curve (5c) + the 5-dark retune spread', () => {
     expect(doomCost('WHISPER', 2)).toBe(1);    // 2p floors: ceil(6*2/4 + 6*(2-3)) = max(1, -3)
     expect(doomCost('WHISPER', 3)).toBe(5);    // pivot: ceil(6*3/4 + 0)
     expect(doomCost('WHISPER', 4)).toBe(12);   // ceil(6*4/4 + 6*1)
     expect(doomCost('RECKONING', 4)).toBe(18); // ceil(12*4/4 + 6*1)
-    expect(getTunables().SPREAD_AMOUNT_BASE).toBe(5);
+    expect(getTunables().SPREAD_AMOUNT_BASE).toBe(4); // 5c locked 5; 5-dark retune trimmed to 4
   });
 
-  it('deathKnightCount scales the dark army with player count when DK_PER_PLAYER>0 (5c lever)', () => {
+  it('deathKnightCount scales the dark army with player count when DK_PER_PLAYER>0', () => {
+    // Default is FLAT 2 (5-dark retune kept DK_PER_PLAYER=0 — scaling backfires once
+    // kills pay; see tuning-log §5-dark). The seam still scales when turned on.
     expect(deathKnightCount(2)).toBe(2); // default flat
     expect(deathKnightCount(4)).toBe(2);
     withTunables({ DK_PER_PLAYER: 1 }, () => {

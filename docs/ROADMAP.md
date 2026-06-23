@@ -196,6 +196,14 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     supply scales with player count, so co-op is inherently easier with more allies. Full 4p closure needs
     a MECHANIC change (pledge-effectiveness decay / super-linear strike threshold) — **escalated to user**,
     not a number. Evidence: `docs/handoff/stage5-tuning-log.md` §5c.
+  - [x] **5-dark. Dark Engagement mechanic patch + retune** — the reconvened focus group
+    (`DESIGN-V2-FOCUS-GROUP-R2.md`) ruled the dormant DK-engagement pillar an INVERTED incentive; the patch
+    (`DESIGN-V2-DARK-ENGAGEMENT.md`) added the Hunt verb (AI `darkHuntBias` + cards-aware `canStrikeWin`),
+    win-currency DK-kill auto-claim, asymmetric grudge Mark (`GRUDGE_MARK_TOP_N`, `territoryRank`), and
+    DK-blocks-claim. **DK-kills 0.00→2.05** (pillar alive); a retune (`scripts/tune-5dark.mjs`) LOCKED
+    `SPREAD_AMOUNT_BASE` 5→4 + `DK_PER_PLAYER` 1→0 (army scaling BACKFIRES once kills pay). **SK-win 20.5% ✅**
+    (band, 2-seed stable), per-count 30.9/21.8/8.9 (gradient 26.7→22.0pp, flatter), guards PASS, 379 tests.
+    The per-count A/B fork is now decidable on this data. Evidence: tuning-log §5-dark. *Completed 2026-06-22.*
   - [ ] **5d. Tune the rescue/break economy** — raise breaks + rescue uptake (BREAK_THRESHOLD, RESCUE_COST, AI
     rescueWillingness; consider engaging the dormant DKs) → rescues 2–4, all_broken < ~5%.
   - [ ] **5e. Blood Pact** — fix the chooseAccusation relative-gap heuristic + ACCUSATION knobs → accuracy ≥45%,
@@ -249,7 +257,11 @@ fresh, but the *foundations* are directly reusable.
    previous handover first), then read **`docs/handoff/state.json`** — the machine source of truth for
    status (`currentStage`, `nextAction`, `specRefs`, `invariants`, `gotchas`).
 2. Read this file (§2 locked decisions; §4 — the first unchecked box equals `state.currentStage`) and the
-   `specRefs` sections of `docs/DESIGN-V2-ALGORITHM.md`. (Right now: **Stage 5d — tune the rescue/break economy**.)
+   `specRefs` sections of `docs/DESIGN-V2-ALGORITHM.md`. (Right now: **Stage 5-dark — Dark Engagement mechanic
+   patch + retune COMPLETE & LOCKED** (`docs/DESIGN-V2-DARK-ENGAGEMENT.md`, `docs/DESIGN-V2-FOCUS-GROUP-R2.md`):
+   DK-kills 0.00→2.05, SK-win re-locked to 20.5% (band, 2-seed stable), per-count gradient flatter
+   (26.7→22.0pp), 379 tests green. **NEXT: settle the per-count A/B fork on the new data (FOCUS-GROUP-R2 §3),
+   THEN Stage 5d rescue economy (same win-currency template — rescues still 0.07).**)
 3. Build through the one `applyCommand` reducer; keep everything deterministic (§7); write tests as you go.
 4. **Definition of Done (enforced):** `npm run verify` exits 0 → update `state.json` + §4 box + §8
    changelog + the memory file → commit → `npm run handoff:check` exits 0. See `docs/AGENT-PROTOCOL.md`.
