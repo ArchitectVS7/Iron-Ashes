@@ -313,3 +313,18 @@ lock criterion is SK-band + gambit + guards, NOT strict win-rate parity (which c
 archetype identities drive stance choice). SPREAD=7 also means a half-blocked strike now reaches the ash
 cap (BLIGHT_TO_ASH) — a harder-hitting dark, offsetting the Herald pushback (a blight test was updated to
 reflect the cap). Per-count ladder stays non-monotonic (2p 19.6 / 3p 24.4 / 4p 16.1) — all counts credible.
+
+## Stage R — final both-modes re-baseline (R3 wave close-out)
+
+Confirmed the three R3 mechanics co-exist across BOTH modes at the locked tunables.
+- **Competitive** (s20260622-n40, 2-seed): SK-win 20.0% ✅, gambit-noG 17.0% ✅, rounds 12.2 ✅,
+  guards PASS; the layers all live — oaths 6.13/3.46, tolls 0.89, DK-kills 2.13, heralds 1.78/game
+  (59% political). (Carried items: rescues ~0.7 [capped, escalated], per-count ladder non-monotonic.)
+- **Blood Pact** (s20260622-n24-bp): runs clean (no R3 breakage). Traitor win 8.8%, exposure 87.0%,
+  accusations 1.60/game, accusation accuracy **54.3%** (already ≥45%). Traitor-win (want 12-20) +
+  exposure (want 40-70) are the PRE-EXISTING 5e tuning targets — unchanged in character by R3.
+
+The R3 build wave is COMPLETE. Remaining Phase 5: **5e** (Blood Pact `chooseAccusation` heuristic +
+ACCUSATION knobs → lift traitor win into 12-20, pull exposure into 40-70, keep accuracy ≥45) and **5f**
+(final 2-seed lock + the §9 doc: amend ROADMAP §2 "open in core" — sealed gambit-claimant ships — and
+document the three new mechanics + the named per-count ladder).
