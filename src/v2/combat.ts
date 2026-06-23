@@ -19,7 +19,7 @@
 
 import type { GameEvent } from './events.js';
 import type { GameState } from './types.js';
-import { BREAK_THRESHOLD, FORGE_WEIGHT, getTunables } from './tunables.js';
+import { FORGE_WEIGHT, getTunables } from './tunables.js';
 import { applyPushback } from './blight.js';
 import { addGrudge } from './shadowking-policy.js';
 import { GRUDGE_PER_DK_KILL, GRUDGE_PER_FORGE_RECLAIM } from './tunables.js';
@@ -454,7 +454,7 @@ export function checkBrokenState(state: GameState, playerIndex: number): GameEve
   const player = state.players[playerIndex];
 
   if (player.isBroken) return events; // Already Broken
-  if (player.wounds < BREAK_THRESHOLD) return events; // Not enough wounds
+  if (player.wounds < getTunables().BREAK_THRESHOLD) return events; // Not enough wounds
 
   // Enter Broken state
   player.isBroken = true;

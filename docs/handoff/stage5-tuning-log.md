@@ -154,3 +154,44 @@ identity ladder**: 2p **The Duel** / 3p **The Triumvirate** / 4p **The Carve-up*
 `DESIGN-V2-ALGORITHM.md` §9.1; the 5c escalation is now closed). Option B (marginal-pledge-effectiveness
 decay) is recorded but NOT built — it carries the proven 2p-explosion / dominance-flip risk and the
 gradient is no longer extreme. The pooled 18–22% SK-win target stands as the per-count contract.
+
+## 5d — Rescue/break economy (spec: DESIGN-V2-RESCUE-ECONOMY.md)
+
+**Problem:** rescues 0.07/game (target 2–4). Two coupled gates: (1) breaks ~1/game — wounds came ONLY
+from PvP raids (rare, negative-sum) + lost strikes; the dark ashed nodes but never wounded a warlord;
+(2) rescue paid a soft favor (the same inverted-currency disease as the grudge), and the AI could only
+rescue an *already-adjacent* broken ally.
+
+**Changes:** (a) `LANDED_STRIKE_WOUNDS` — the dark wounds its named target on a landed strike (the §5.4
+break-vector; "leading is dangerous" bites); (b) `RESCUE_TRIBUTE_BANNERS` — the rescued pays the rescuer
+a banner tribute (win-currency payoff); (c) AI `bestStepTowardBrokenAlly` rescue-seek verb + raised
+archetype `rescueWillingness`; (d) seam-wired `BREAK_THRESHOLD`, `RESCUE_COST`, `BROKEN_MAX_ROUNDS`.
+
+**Search (`scripts/tune-5d.mjs`, 3 grids + 2-seed confirm).** Coordinate descent over LANDED_STRIKE_WOUNDS
+× BREAK_THRESHOLD × BROKEN_MAX_ROUNDS × SPREAD × rescue(cost/tribute). **LOCKED: `LANDED_STRIKE_WOUNDS`
+0→2, `BROKEN_MAX_ROUNDS` 3→2, `RESCUE_COST` 2→1, `RESCUE_TRIBUTE_BANNERS` 0→2** (BREAK_THRESHOLD kept 6,
+SPREAD kept 4). Confirmation sweep (s20260622-n40):
+
+| Metric | pre-5d | 5d LOCKED |
+|---|---|---|
+| Rescues / game | 0.07 | **0.98** (per-count 2p 0.21 / 3p 0.88 / **4p 1.85**) |
+| Conditional rescue (rescues/break) | 7% | **51.5%** |
+| Breaks / game | 0.99 | 1.90 |
+| SK-win | 20.5% | **19.1% ✅** (2-seed stable 18.5%) |
+| all_broken | 2.6% | **2.9% ✅** (<5%) |
+| guards / DK-kills | PASS / 2.05 | PASS (even seat 26.0%) / 2.03 |
+
+**STRUCTURAL FINDING — pooled 2–4 rescues is capped by the all_broken<5% guardrail.** Two mechanisms:
+(1) breaking the leader makes the dark *thrash its steered front* (it abandons a half-ashed spoke when
+the Crown moves) → MORE breaks WEAKEN the dark below the 18% floor; (2) frequent breaks pile into
+mutual-loss (all_broken) draws faster than rescues can offset (baseline seats — 24% — never rescue, and
+not every break is reachable). The frontier: at rescues ~1.5, all_broken ~8% (FAIL); at rescues ~1.0,
+all_broken ~3% + SK in band (the lock). Proven across 3 grids. **Like the 5c per-count cap, the literal
+target is structurally unreachable inside the higher-priority guardrails.** BUT the per-count view shows
+the economy IS alive where it makes sense — 4p 1.85, 3p 0.88 (2p 0.21 is naturally low: rescuing your
+sole rival is rare). The pillar went from DEAD (0.07, cond-rescue 7%) to a live recurring beat (14×,
+cond-rescue 51%). Closing to pooled 2–4 needs a DESIGN change (don't end the game on all-broken / defer
+the broken-lands ash so rescue *protects the table*) — ESCALATED to the user.
+
+Side note (5e): gambit honest fire drifted 25.2→28.0% (still > 10–20 band) — the separate gambit item,
+not a rescue regression; fold a small GAMBIT_SURCHARGE nerf into 5e.

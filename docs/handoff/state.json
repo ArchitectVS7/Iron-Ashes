@@ -1,25 +1,25 @@
 {
   "schemaVersion": 1,
-  "currentStage": "5d",
-  "currentStageTitle": "Stage 5d — rescue economy (after settling the per-count A/B fork; 5-dark done)",
+  "currentStage": "5e",
+  "currentStageTitle": "Stage 5e — Blood Pact accusation heuristic (+ a small gambit nerf); 5d done",
   "status": "not-started",
-  "nextAction": "Stage 5-dark is DONE & LOCKED: the reconvened focus group (docs/DESIGN-V2-FOCUS-GROUP-R2.md) ruled the dormant DK-engagement pillar an inverted incentive; the patch (docs/DESIGN-V2-DARK-ENGAGEMENT.md) added the Hunt verb (AI darkHuntBias + cards-aware canStrikeWin + bestStepTowardHuntableDK), win-currency DK-kill auto-claim, asymmetric grudge Mark (GRUDGE_MARK_TOP_N=2, territoryRank), and DK-blocks-claim. Sim: DK-kills 0.00->2.05 (pillar alive); the patch over-strengthened the dark to 23.9%, so a coordinate-descent retune (scripts/tune-5dark.mjs, 2 seeds x 40) LOCKED SPREAD_AMOUNT_BASE 5->4 + DK_PER_PLAYER 1->0 (KEY FINDING: DK-army scaling BACKFIRES once kills pay — more rewarding DKs feed the players; the 40K panel hypothesis refuted). Confirmation sweep (sim-results/s20260622-n40): SK-win 20.5% PASS, per-count 30.9/21.8/8.9 (gradient 26.7->22.0pp, flatter), DK-kills 2.05, guards PASS, 2-seed stable (19.6%), rounds 11.93. Tests 379/379 green. The per-count A/B fork is RESOLVED (decision A — accept the gradient as a named identity ladder: 2p Duel / 3p Triumvirate / 4p Carve-up, canonized in DESIGN-V2-ALGORITHM.md §9.1; option B not built). NEXT: Stage 5d rescue economy (rescues still 0.07 — apply the SAME win-currency template per FOCUS-GROUP-R2 §4: a rescue must pay the rescuer in win-currency, not a soft favor; wire RESCUE_COST/BREAK_THRESHOLD into the seam). Gambit honest fire 25.2% (>10-20 band) is a separate 5d/5e item, NOT a 5-dark regression. Then 5e (Blood Pact accusation), 5f (2-seed lock + §9 doc).",
+  "nextAction": "Stage 5d (rescue economy) is DONE & LOCKED (spec docs/DESIGN-V2-RESCUE-ECONOMY.md). The rescue pillar was dead (0.07/game, conditional-rescue 7%) for the SAME inverted-currency reason as the grudge + breaks were too rare (the dark never wounded a warlord). Fix: LANDED_STRIKE_WOUNDS 0->2 (the dark wounds its named target = a Break-vector), RESCUE_TRIBUTE_BANNERS 0->2 (win-currency payoff), BROKEN_MAX_ROUNDS 3->2 (faster recovery), RESCUE_COST 2->1, + AI bestStepTowardBrokenAlly rescue-seek verb + raised archetype rescueWillingness; seam-wired BREAK_THRESHOLD/RESCUE_COST/BROKEN_MAX_ROUNDS. Search (scripts/tune-5d.mjs, 3 grids + 2-seed confirm). LOCKED result (sim-results/s20260622-n40): rescues 0.07->0.98/game (14x; per-count 4p 1.85 / 3p 0.88 / 2p 0.21), conditional-rescue 7%->51.5%, breaks 0.99->1.90, SK-win 19.1% PASS, all_broken 2.9% (<5%), guards PASS, 2-seed stable (18.5%), DK-kills 2.03 (5-dark intact). Tests 385/385 green. STRUCTURAL FINDING (escalated, like 5c): pooled 2-4 rescues is UNREACHABLE inside all_broken<5% — breaking the leader thrashes the dark's steered front (more breaks WEAKEN the dark below floor) AND piles into mutual-loss draws; safe frontier is ~1.0 rescues at ~3% all_broken. Economy is ALIVE at 3-4p; closing to 2-4 needs a DESIGN change (don't end on all-broken / defer broken-lands ash so rescue protects the table) -- USER decision. NEXT: Stage 5e -- fix the Blood Pact chooseAccusation relative-gap heuristic + ACCUSATION knobs (accuracy >=45%, <=2.5 accusations/game, traitor win 12-20%, exposure 40-70%); FOLD IN a small GAMBIT_SURCHARGE nerf (honest gambit fire 28.0%, > 10-20 band -- the long-standing separate item). Then 5f (2-seed lock + §9 doc + final validation).",
   "specRefs": [
-    "docs/DESIGN-V2-FOCUS-GROUP-R2.md (panel round-2 synthesis) + docs/DESIGN-V2-DARK-ENGAGEMENT.md (the mechanic spec)",
-    "docs/handoff/stage5-tuning-log.md §5-dark (the evidence trail + retune + the DK-scaling-backfires finding)",
-    "src/v2/tunables.ts (SPREAD_AMOUNT_BASE=4, DK_PER_PLAYER=0, DK_BLOCKS_CLAIM/DK_KILL_CLAIMS_NODE/GRUDGE_MARK_TOP_N), src/v2/ai-player.ts (darkHuntBias/canStrikeWin/bestStepTowardHuntableDK), src/v2/combat.ts (territoryRank + win-currency claim + asymmetric grudge)",
-    "sim-results/s20260622-n40/REPORT.md (the 5-dark LOCKED report: SK-win 20.5%, DK-kills 2.05, per-count 2p 30.9/3p 21.8/4p 8.9)",
-    "scripts/tune-5dark.mjs (the retune search), ROADMAP §4"
+    "docs/DESIGN-V2-RESCUE-ECONOMY.md (5d spec) + docs/handoff/stage5-tuning-log.md §5d (evidence + the all_broken<5% structural cap)",
+    "src/v2/tunables.ts 5d cluster (LANDED_STRIKE_WOUNDS=2, RESCUE_TRIBUTE_BANNERS=2, RESCUE_COST=1, BROKEN_MAX_ROUNDS=2; all in the Tunables seam), src/v2/sequencer.ts (landed-strike wound-vector), src/v2/actions.ts (rescue tribute), src/v2/ai-player.ts (bestStepTowardBrokenAlly)",
+    "sim-results/s20260622-n40/REPORT.md (5d LOCKED: rescues 0.98, SK-win 19.1%, all_broken 2.9%, per-count rescues 2p 0.21/3p 0.88/4p 1.85), scripts/tune-5d.mjs",
+    "PRIOR: docs/DESIGN-V2-DARK-ENGAGEMENT.md + DESIGN-V2-FOCUS-GROUP-R2.md (5-dark) + DESIGN-V2-ALGORITHM.md §9.1 (the named per-count ladder, fork decision A)",
+    "ROADMAP §4 (5d box done; 5e next)"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-23T01:11:14.128Z",
-    "commit": "55c60a8",
-    "sourceHash": "7fdc972dc3c9b18721772ff73b4e4d6ac18846b232f29d61655e41c9cbb0525c",
+    "timestamp": "2026-06-23T02:28:48.777Z",
+    "commit": "9b30703",
+    "sourceHash": "9132c733e58c784ba2ac79a3f4f56f261edfdc08276eb99d60f515b2f8c35d50",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 23,
-      "passed": 379,
+      "files": 24,
+      "passed": 385,
       "failed": 0,
       "status": "pass"
     }

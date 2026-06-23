@@ -25,7 +25,9 @@ import {
   PATIENCE_ON_BLOCK,
   PLEDGE_FAVOR_GRUDGE_REDUCTION,
   ROUND_CAP,
+  getTunables,
 } from './tunables.js';
+import { checkBrokenState } from './combat.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 import {
   applyDawnBlightAdvance,
@@ -178,6 +180,26 @@ export function resolvePledgePhase(state: GameState): SequencerResult {
   const strikeResult = applyShadowkingStrike(state, telegraph, ratio, pledgers);
   state = strikeResult.state;
   events.push(...strikeResult.events);
+
+  // ── The dark wounds its named target (Stage 5d break-vector) ──
+  // A landed strike now bloodies the warlord it hunts, not just the map — the §5.4
+  // "leading is dangerous / a beaten lord feeds the dark" loop. This is the main
+  // non-PvP source of Breaks (and thus of the rescue economy).
+  if (!averted) {
+    const dmg = Math.ceil((1 - ratio) * getTunables().LANDED_STRIKE_WOUNDS);
+    const tgt = telegraph.struckPlayerIndex;
+    const struck = tgt !== null ? state.players[tgt] : undefined;
+    if (dmg > 0 && struck && !struck.isBroken) {
+      struck.wounds += dmg;
+      events.push({
+        type: 'PLAYER_ACTED',
+        playerIndex: tgt as number,
+        action: 'PASS',
+        details: { darkWounds: dmg, reason: 'landed_strike' },
+      });
+      events.push(...checkBrokenState(state, tgt as number));
+    }
+  }
 
   // ── Reactive voice line (P0-5) ──
   if (averted) {

@@ -80,11 +80,23 @@ export const BREAK_THRESHOLD = 6;
 /** Extra banners per round while Broken (comeback subsidy, decays). */
 export const BROKEN_INCOME_BONUS = 2;
 
-/** Auto-recover to minimum strength after this many consecutive Broken rounds. */
-export const BROKEN_MAX_ROUNDS = 3;
+/**
+ * Auto-recover to minimum strength after this many consecutive Broken rounds.
+ * Stage 5d locked 3 → 2: with the dark now a break-vector, faster recovery keeps the
+ * extra Breaks from piling into all_broken (mutual-loss) draws.
+ */
+export const BROKEN_MAX_ROUNDS = 2;
 
-/** Card cost to Rescue an adjacent/co-located Broken ally. */
-export const RESCUE_COST = 2;
+/** Card cost to Rescue an adjacent/co-located Broken ally. Stage 5d locked 2 → 1 (cheaper). */
+export const RESCUE_COST = 1;
+
+/**
+ * Banners the rescued ally pays the rescuer on Rescue (Stage 5d win-currency payoff).
+ * The "strings" with teeth: rescue moves the rescuer's claim/march math THIS round, so
+ * it's a real political deal (bind a rival + take their banners), not charity. Stage 5d
+ * locked 0 → 2. [TUNABLE]
+ */
+export const RESCUE_TRIBUTE_BANNERS = 2;
 
 // ─── Game Clock ───────────────────────────────────────────────────
 
@@ -139,6 +151,18 @@ export const SPREAD_AMOUNT_BASE = 4;
 
 /** Extra banner cost to march through an ashed node (P0-3: traversable, not impassable). */
 export const ASHED_TRAVERSE_EXTRA_COST = 1;
+
+/**
+ * Wounds the dark deals its NAMED TARGET when a strike lands un-averted (Stage 5d
+ * break-vector): `ceil((1-ratio) * LANDED_STRIKE_WOUNDS)`. The dark's strikes ash
+ * nodes but never wounded a warlord, so breaks (and thus rescues) were starved and
+ * "leading is dangerous" / "a beaten lord feeds the dark" (§5.4) was dormant. This
+ * lets the dark break the leader it hunts. Stage 5d locked 0 → 2: the primary Break
+ * source that revives the rescue economy. COUNTERINTUITIVELY it WEAKENS the dark
+ * (breaking the leader thrashes its steered front), and pushes all_broken up, so 2 is
+ * the safe point that holds SK-win 18-22 + all_broken < 5%. See tuning-log §5d. [TUNABLE]
+ */
+export const LANDED_STRIKE_WOUNDS = 2;
 
 // ─── Grudge System ────────────────────────────────────────────────
 
@@ -349,6 +373,12 @@ export interface Tunables {
   readonly DK_BLOCKS_CLAIM: boolean;
   readonly DK_KILL_CLAIMS_NODE: boolean;
   readonly GRUDGE_MARK_TOP_N: number;
+  // ── Rescue / break economy (5d cluster) ──
+  readonly BREAK_THRESHOLD: number;
+  readonly RESCUE_COST: number;
+  readonly RESCUE_TRIBUTE_BANNERS: number;
+  readonly LANDED_STRIKE_WOUNDS: number;
+  readonly BROKEN_MAX_ROUNDS: number;
 }
 
 export const DEFAULT_TUNABLES: Tunables = Object.freeze({
@@ -357,6 +387,7 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   DK_START_COUNT, DK_PER_PLAYER, DK_POWER,
   SPREAD_AMOUNT_BASE, DAWN_BLIGHT_ADVANCE, BLIGHT_TO_ASH, PUSHBACK,
   DK_BLOCKS_CLAIM, DK_KILL_CLAIMS_NODE, GRUDGE_MARK_TOP_N,
+  BREAK_THRESHOLD, RESCUE_COST, RESCUE_TRIBUTE_BANNERS, LANDED_STRIKE_WOUNDS, BROKEN_MAX_ROUNDS,
 });
 
 let activeTunables: Tunables = DEFAULT_TUNABLES;
@@ -425,6 +456,8 @@ export const TUNABLES = Object.freeze({
   SURGE_SPREAD_MULT,
   GAMBIT_ADJACENT_STRIKE_MULT,
   RESCUE_DEBT_MIN_PLEDGE,
+  RESCUE_TRIBUTE_BANNERS,
+  LANDED_STRIKE_WOUNDS,
   SUSPICION_LOG_ROUNDS,
   AUDIT_COST,
   ACCUSATION_COOLDOWN_ROUNDS,

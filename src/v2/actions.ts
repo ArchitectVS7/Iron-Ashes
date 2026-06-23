@@ -21,9 +21,6 @@ import type { GameEvent } from './events.js';
 import type { GameState } from './types.js';
 import {
   ASHED_TRAVERSE_EXTRA_COST,
-  BREAK_THRESHOLD,
-  BROKEN_MAX_ROUNDS,
-  RESCUE_COST,
   RESCUE_DEBT_MIN_PLEDGE,
   WARLORD_POWER,
 } from './tunables.js';
@@ -428,9 +425,10 @@ export function executeRescue(
   }
 
   // Validate rescuer has enough cards
-  if (rescuer.hand.length < RESCUE_COST) {
+  const rescueCost = getTunables().RESCUE_COST;
+  if (rescuer.hand.length < rescueCost) {
     throw new Error(
-      `Cannot RESCUE: need ${RESCUE_COST} cards, have ${rescuer.hand.length}`
+      `Cannot RESCUE: need ${rescueCost} cards, have ${rescuer.hand.length}`
     );
   }
 
@@ -440,13 +438,22 @@ export function executeRescue(
   }
 
   // Execute: spend cards
-  rescuer.hand.splice(0, RESCUE_COST);
+  rescuer.hand.splice(0, rescueCost);
+
+  // Win-currency payoff (Stage 5d): the rescued ally pays the rescuer a banner tribute
+  // (capped at what they hold). Banners are the claim/march currency, so rescue moves
+  // the rescuer's win math THIS round — "strings with teeth", not charity.
+  const tribute = Math.min(getTunables().RESCUE_TRIBUTE_BANNERS, target.banners);
+  if (tribute > 0) {
+    target.banners -= tribute;
+    rescuer.banners += tribute;
+  }
 
   // Un-Break the target
   target.isBroken = false;
   target.brokenSince = null;
   target.brokenRoundsConsecutive = 0;
-  target.wounds = Math.floor(BREAK_THRESHOLD / 2); // Recover to half wounds
+  target.wounds = Math.floor(getTunables().BREAK_THRESHOLD / 2); // Recover to half wounds
 
   // Bind the one-round debt (§5.4): a forced minimum Pledge next round (enforced
   // in open modes) AND a withheld attack on the creditor (enforced in all modes).
@@ -463,7 +470,8 @@ export function executeRescue(
     action: 'RESCUE',
     details: {
       targetPlayerIndex,
-      cost: RESCUE_COST,
+      cost: rescueCost,
+      tribute,
       debt: 'forced_minimum_pledge',
       creditor: playerIndex,
       expiresRound: target.rescueDebt.expiresRound,
@@ -504,13 +512,13 @@ export function checkBrokenRecovery(state: GameState, playerIndex: number): Game
   const player = state.players[playerIndex];
 
   if (!player.isBroken) return events;
-  if (player.brokenRoundsConsecutive < BROKEN_MAX_ROUNDS) return events;
+  if (player.brokenRoundsConsecutive < getTunables().BROKEN_MAX_ROUNDS) return events;
 
   // Auto-recover to minimum strength
   player.isBroken = false;
   player.brokenSince = null;
   player.brokenRoundsConsecutive = 0;
-  player.wounds = Math.floor(BREAK_THRESHOLD / 2); // Minimum strength
+  player.wounds = Math.floor(getTunables().BREAK_THRESHOLD / 2); // Minimum strength
 
   events.push({
     type: 'PLAYER_ACTED',

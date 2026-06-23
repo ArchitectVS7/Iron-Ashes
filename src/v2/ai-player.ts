@@ -28,7 +28,7 @@ import type { GameState } from './types.js';
 import { applyCommand, type CommandResult } from './reducer.js';
 import { getPlayerPowerAtNode, getShadowkingPowerAtNode, chooseCombatCommit } from './combat.js';
 import { hasSKForcesAtNode, hasRivalAtNode, areAdjacent } from './actions.js';
-import { ASHED_TRAVERSE_EXTRA_COST, COMBAT_COMMIT_MAX, RESCUE_COST, getTunables } from './tunables.js';
+import { ASHED_TRAVERSE_EXTRA_COST, COMBAT_COMMIT_MAX, getTunables } from './tunables.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 
 // ─── Policy ───────────────────────────────────────────────────────
@@ -452,6 +452,34 @@ function rescuableAlly(state: GameState, playerIndex: number): number | null {
 }
 
 /**
+ * First legal step toward the nearest Broken player (to get adjacent and RESCUE),
+ * or null if none reachable (Stage 5d). Without this the AI could only rescue a
+ * Broken ally that happened to be adjacent; now it actively closes the distance.
+ * BFS, ZoC-respecting, deterministic.
+ */
+function bestStepTowardBrokenAlly(state: GameState, playerIndex: number): string | null {
+  const def = state.board.definition;
+  const start = state.players[playerIndex].warlordNodeId;
+  const visited = new Set<string>([start]);
+  const queue: Array<{ node: string; firstStep: string | null }> = [{ node: start, firstStep: null }];
+  while (queue.length > 0) {
+    const cur = queue.shift()!;
+    for (const nb of def.nodes[cur.node].connections) {
+      if (visited.has(nb)) continue;
+      if (stepBlocked(state, playerIndex, nb)) continue;
+      const firstStep = cur.firstStep ?? nb;
+      // A Broken ally standing on nb means stepping here makes us co-located → rescuable.
+      for (const p of state.players) {
+        if (p.index !== playerIndex && p.isBroken && p.warlordNodeId === nb) return firstStep;
+      }
+      visited.add(nb);
+      queue.push({ node: nb, firstStep });
+    }
+  }
+  return null;
+}
+
+/**
  * Knob-driven action for a non-default (archetype) policy. Every returned action
  * is validated legal here so the reducer never rejects it. Pure `f(state, seed)`.
  */
@@ -495,11 +523,18 @@ function archetypeAction(
     }
   }
 
-  // 1. RESCUE a Broken ally (cooperator).
-  if (rescueWillingness > 0 && player.hand.length >= RESCUE_COST) {
+  // 1. RESCUE a Broken ally (cooperator). If one is adjacent, rescue it; else close
+  //    the distance toward the nearest Broken player (Stage 5d rescue-seek verb).
+  if (rescueWillingness > 0 && player.hand.length >= getTunables().RESCUE_COST) {
     const ally = rescuableAlly(state, playerIndex);
     if (ally !== null && rng.float() < rescueWillingness) {
       return { type: 'RESCUE', targetPlayerIndex: ally };
+    }
+    if (ally === null && rng.float() < rescueWillingness) {
+      const step = bestStepTowardBrokenAlly(state, playerIndex);
+      if (step !== null && player.banners >= marchCost(state, step)) {
+        return { type: 'MARCH', targetNodeId: step };
+      }
     }
   }
 

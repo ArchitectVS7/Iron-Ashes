@@ -206,8 +206,14 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     `SPREAD_AMOUNT_BASE` 5→4 + `DK_PER_PLAYER` 1→0 (army scaling BACKFIRES once kills pay). **SK-win 20.5% ✅**
     (band, 2-seed stable), per-count 30.9/21.8/8.9 (gradient 26.7→22.0pp, flatter), guards PASS, 379 tests.
     The per-count A/B fork is now decidable on this data. Evidence: tuning-log §5-dark. *Completed 2026-06-22.*
-  - [ ] **5d. Tune the rescue/break economy** — raise breaks + rescue uptake (BREAK_THRESHOLD, RESCUE_COST, AI
-    rescueWillingness; consider engaging the dormant DKs) → rescues 2–4, all_broken < ~5%.
+  - [x] **5d. Tune the rescue/break economy** — gave the dark a break-vector (`LANDED_STRIKE_WOUNDS` 2 — it
+    wounds the leader it hunts), a win-currency rescue payoff (`RESCUE_TRIBUTE_BANNERS` 2), an AI rescue-seek
+    verb + faster recovery (`BROKEN_MAX_ROUNDS` 3→2) + cheaper rescue (`RESCUE_COST` 2→1). **Rescues 0.07→0.98/game
+    (14×; per-count 4p 1.85 / 3p 0.88 / 2p 0.21), conditional-rescue 7%→51.5%**, SK-win 19.1% ✅, all_broken 2.9% ✅,
+    guards PASS, 2-seed stable. ⚠️ **Pooled 2–4 is STRUCTURALLY CAPPED by all_broken<5%** (breaking the leader
+    thrashes the dark's front + piles into draws) — the economy is alive at 3–4p; closing to 2–4 needs a DESIGN
+    change (don't end on all-broken / defer broken-lands ash), **escalated to user**. Spec: `DESIGN-V2-RESCUE-ECONOMY.md`,
+    evidence `stage5-tuning-log.md` §5d. *Completed 2026-06-22.*
   - [ ] **5e. Blood Pact** — fix the chooseAccusation relative-gap heuristic + ACCUSATION knobs → accuracy ≥45%,
     ≤2.5 accusations/game, traitor win 12–20%, exposure 40–70%.
   - [ ] **5f. Final validation + lock** — 2-seed stability; all bands + guards + per-count + BP pass; LOCK
@@ -262,9 +268,11 @@ fresh, but the *foundations* are directly reusable.
    `specRefs` sections of `docs/DESIGN-V2-ALGORITHM.md`. (Right now: **Stage 5-dark — Dark Engagement mechanic
    patch + retune COMPLETE & LOCKED** (`docs/DESIGN-V2-DARK-ENGAGEMENT.md`, `docs/DESIGN-V2-FOCUS-GROUP-R2.md`):
    DK-kills 0.00→2.05, SK-win re-locked to 20.5% (band, 2-seed stable), per-count gradient flatter
-   (26.7→22.0pp), 379 tests green. The per-count A/B fork is **RESOLVED — decision A** (named identity
-   ladder, `DESIGN-V2-ALGORITHM.md` §9.1). **NEXT: Stage 5d rescue economy** (same win-currency template —
-   rescues still 0.07; gambit honest fire 25.2% is a separate 5d/5e item).)
+   (26.7→22.0pp). The per-count A/B fork is **RESOLVED — decision A** (named identity ladder, §9.1).
+   **Stage 5d rescue economy COMPLETE** (`DESIGN-V2-RESCUE-ECONOMY.md`): rescues 0.07→0.98/game (14×, alive
+   at 3–4p), SK-win 19.1% ✅, all_broken 2.9% ✅, guards PASS, 385 tests green; pooled 2–4 STRUCTURALLY CAPPED
+   by all_broken<5% (escalated). **NEXT: Stage 5e (Blood Pact accusation heuristic) + a small GAMBIT_SURCHARGE
+   nerf (honest gambit fire 28%, > band). Then 5f lock.**)
 3. Build through the one `applyCommand` reducer; keep everything deterministic (§7); write tests as you go.
 4. **Definition of Done (enforced):** `npm run verify` exits 0 → update `state.json` + §4 box + §8
    changelog + the memory file → commit → `npm run handoff:check` exits 0. See `docs/AGENT-PROTOCOL.md`.
