@@ -1,22 +1,26 @@
 # Iron Throne of Ashes — Roadmap & Resume Point
 
 > **READ THIS FIRST to resume work.** This is the single entry point that survives context clearing.
-> Last updated: 2026-06-21.
+> Last updated: 2026-06-23.
 
 ---
 
 ## 0. Where we are right now
 
-**The design phase is COMPLETE and stress-tested. The next action is Stage 3 (code scaffolding) —
-not started.** We have NOT written any new engine code yet; we have a full, hardened spec to build from.
+**Engine built; balance tuned through Stage 5 + the R3 mechanic wave; in a pre-5e cleanup.** The v2
+engine (`src/v2/`) is complete and green (406 v2 tests), balance locked + 2-seed-stable (SK-win ~20%,
+all §9 bands pass — the gambit judged on the gambler-free number). Three focus-group rounds shaped it:
+R1 (the ground-up redesign of the vibe-coded v1), R2 (the dark-engagement fix), R3 (the passion/
+complexity wave → Oaths/Ledger + Forge tolls + sealed gambit-pledge + Herald/stance, all locked).
 
-The short story: the shipped v1 ("Iron Throne of Ashes") was a vibe-coded mess — broken UI, an
-unreachable tutorial, 50 failing tests, and balance silently mutated by a broken ML bot. Rather than
-patch it, we ran a 5-expert design focus group and did a **ground-up redesign of the game itself**. The
-new design is settled, adversarially stress-tested, and documented. We are about to build the new engine.
+> **Authoritative current status = `docs/handoff/state.json` (machine-checked) + `docs/handoff/stage5-tuning-log.md`
+> (per-stage evidence).** Mechanic specs are the `DESIGN-V2-*.md` files; `DESIGN-V2-ALGORITHM.md` §§1–11 is
+> the CORE design but predates Stage 5 — its **§12** is the authoritative delta pointer to the locked
+> Stage-5 mechanics (folding §12 into the §§1–11 prose is a 5f task).
 
-**Immediate next action:** Stage 3a — scaffold the new engine (state shapes + a single `applyCommand`
-reducer + a pure phase sequencer + determinism tests), reusing only the safe foundations (§Reuse below).
+**Immediate next action:** finish the pre-5e cleanup (review findings → memory `iron-ashes-review-findings`),
+then **Stage 5e** (Blood Pact `chooseAccusation` heuristic + ACCUSATION knobs) → **5f** (final 2-seed lock +
+§§1–11 prose fold + §9 doc).
 
 ---
 
@@ -40,7 +44,7 @@ round as the dark's named target). No elimination (Broken = an active comeback e
 | Decision | Choice | Where |
 |---|---|---|
 | Doom model | **Doom IS the map** — Blight spreads node→node into permanent ash | ALGORITHM §2, §5.1 |
-| Pledge (replaces voting) | **Open live window in core; sealed in Blood Pact**; both resolve deterministically | ALGORITHM §4.2 |
+| Pledge (replaces voting) | **Open live window in core; sealed in Blood Pact**; both resolve deterministically. **AMENDED (Stage S):** the named Gambit claimant's pledge is also sealed in competitive (`SEALED_CORE_PLEDGE='gambit_claimant'`) — an owned partial reversal for the gambit dilemma | ALGORITHM §4.2 + §12 |
 | Win condition | **Contested Throne + Gambit** — territory baseline + telegraphed Keystone-hold sudden-win | ALGORITHM §6 |
 | Map | **Closing Ring with a steered front** — concentric, symmetric, 17 nodes, lateral mid-belt + Approach ZoC | ALGORITHM §2 |
 | Traitor | **Full hidden-role Blood Pact at launch**, built as a separable mode flag over a self-contained core | ALGORITHM §10 |

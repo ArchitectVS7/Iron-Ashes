@@ -15,7 +15,7 @@
 | Decision | Choice |
 |---|---|
 | Doom model | **Doom IS the map** — a spreading Blight burns nodes to permanent ash; the board shrinks. |
-| The Pledge (replaces voting) | **Mode-dependent visibility** — *open live window* in Layer A (competitive/co-op); *true-sealed* in Blood Pact. Both freeze and resolve deterministically at window close (§4.2). |
+| The Pledge (replaces voting) | **Mode-dependent visibility** — *open live window* in Layer A, *true-sealed* in Blood Pact. Both freeze + resolve deterministically (§4.2). **AMENDED (Stage S, §12):** the named **Gambit claimant's** pledge is now also sealed in competitive (`SEALED_CORE_PLEDGE='gambit_claimant'`) — a deliberate, owned reversal of "fully open in core" for the gambit volunteer's-dilemma. |
 | Traitor | **Full hidden-role mode at launch** — but built as a **separable mode flag** over a self-contained competitive core. |
 | Win condition (panel R2) | **Contested Throne + Gambit** — territory-lead baseline at a fixed round cap, PLUS a telegraphed sudden-win by holding the Keystone a full round as the dark's named target (§6). |
 | Map (panel R2) | **The Closing Ring with a steered front** — concentric, symmetric, 17 nodes; the hot front rotates toward the leader (§2). |
@@ -509,25 +509,27 @@ Target metrics (from old PRD, re-validate): Shadowking win rate **18–22%**, se
 2–4 rescue events/game, no dominant pledge line. **These are validated against the REAL rules and AI in
 the new sim — never against a stubbed greedy bot (see `docs/ML-SYSTEM-ANALYSIS.md`).**
 
-### 9.1 Player-count identity ladder (LOCKED decision — Stage 5)
-The Shadowking win-rate target (18–22%) is a **POOLED** target across player counts. Per-count win rate
-is a **monotonic gradient by design, not a defect to flatten**: the Pledge's blocking power scales with
-the number of allies, so co-op is inherently harder with fewer of them. After the Stage-5-dark
-engagement fix this reads **2p ~31% / 3p ~22% / 4p ~9%** — the dark is a credible threat at every count.
-This is shipped as a named **difficulty/identity ladder**, each a deliberately different texture:
+### 9.1 Player-count identity ladder (LOCKED decision — Stage 5; numbers refreshed after the R3 wave)
+The Shadowking win-rate target (18–22%) is a **POOLED** target across player counts; per-count win rate
+is a **gradient by design, not a defect to flatten** (the Pledge's blocking power scales with allies, so
+co-op is inherently easier with more of them). **CURRENT locked per-count (post-R3, s20260622-n40): 2p
+~19.6% / 3p ~24.4% / 4p ~16.1%.** ⚠️ NOTE: this is NO LONGER strictly monotonic — the Stage-S
+`DOOM_COST_PER_PLAYER` 6→5 compensator (the gambit-fix) lifted 3p above 2p, so **3p is now the dark's
+strongest count**, not 2p. The dark is a credible threat at every count (16–24%), which is the design
+intent; the original "2p hardest" framing below is superseded by the data — treat the tier *names* as
+flavor, not a monotonic-ordering claim. (A future tune could restore strict monotonicity; see tuning-log
+§sealed/§herald.)
 
 | Count | Name | Texture |
 |---|---|---|
-| 2 | **The Duel** | a brutal duel against a third party that may actually win — survival-horror stakes |
-| 3 | **The Triumvirate** | the balanced middle — the dark and the rivals both matter |
-| 4 | **The Carve-up** | the rivals are the danger; the dark is weather you weaponize (the grudge/steer) |
+| 2 | **The Duel** | a duel against a third party that may win — survival-horror stakes |
+| 3 | **The Triumvirate** | the balanced middle (currently the dark's strongest count) |
+| 4 | **The Carve-up** | the rivals are the danger; the dark is weather you weaponize (grudge/steer) |
 
-Decision history: the per-count flatness was escalated to the lead designer at Stage 5c (numbers alone
-can't flatten it without exploding 2p past 40% / flipping the dominance guard — proven across 5 grids).
-The reconvened focus group (`DESIGN-V2-FOCUS-GROUP-R2.md` §3) recommended **A — accept + name the
-tiers** once the dark-engagement fix lifted the middle. **Chosen: A.** The deferred surgical alternative
-(marginal-pledge-effectiveness decay, option B) is recorded but NOT built. Do not re-litigate without
-sign-off.
+Decision history: per-count flatness escalated at 5c (numbers alone can't flatten it without exploding 2p
+/ flipping the dominance guard — proven across 5 grids); focus group R2 §3 recommended **A — accept + name
+the tiers**; **Chosen: A** (the surgical option B, marginal-pledge decay, is recorded but NOT built). The
+Stage-S doom-tilt then shifted the shape to 3p-hardest. Do not re-litigate without sign-off.
 
 ---
 
@@ -562,3 +564,38 @@ Built on top of the sealed-pledge substrate; absent unless `mode === 'blood_pact
   actually solved? This must be proven before the design is trusted.
 - *(Resolved in panel R2: win condition = Contested Throne + Gambit, §6; map = the Closing Ring with a
   steered front, §2. Stress-test P0/P1 fixes folded in throughout.)*
+
+---
+
+## 12. Stage-5 mechanic additions (delta — AUTHORITATIVE POINTERS)
+
+> ⚠️ **§§1–11 above describe the core as designed; they predate the Stage-5 balance work and the
+> reconvened focus-group rounds R2/R3. The mechanics below are LOCKED in code but not yet folded into the
+> prose above. For these, the authoritative sources are the named spec docs + `src/v2/tunables.ts`
+> (the live `DEFAULT_TUNABLES`) + `docs/handoff/stage5-tuning-log.md` (the evidence). A cold-start agent
+> MUST read those, not assume §§1–11 are complete.**
+
+- **Dark engagement (5-dark)** — `docs/DESIGN-V2-DARK-ENGAGEMENT.md`. Players can HUNT the dark: killing a
+  Death Knight claims its node (win-currency) + adds grudge; the grudge is asymmetric (only leading seats
+  pay the "now it hunts you" tax — `GRUDGE_MARK_TOP_N`); DKs block CLAIM. Revived DK-kills 0→~2/game.
+- **Rescue/break economy (5d)** — `docs/DESIGN-V2-RESCUE-ECONOMY.md`. The dark WOUNDS its named target
+  (`LANDED_STRIKE_WOUNDS` — the §5.4 break-vector); rescue pays the rescuer a banner tribute. Rescues
+  ~0.07→~0.7 (pooled 2–4 is STRUCTURALLY CAPPED by all_broken<5% — §9 band re-stated; tuning-log §5d).
+- **Oaths + the Ledger** — `docs/DESIGN-V2-OATHS.md`. Public, breakable two-player pacts (SWEAR_OATH free /
+  BREAK_OATH consumes an action); non-aggression + a Dawn fealty dividend while sworn; the dark hunts
+  oathbreakers (the "Ledger" = the grudge array). Rescue auto-forges an Oath. ~6 sworn / ~3 broken per game.
+- **Forge-as-Gate tolls (Stage T)** — marching into a rival-owned Forge pays the owner a banner toll
+  (`FORGE_TOLL_COST`; sworn allies free). FOCUS-GROUP-R3 §4.
+- **Sealed Pledge + the gambit fix (Stage S)** — the named Gambit claimant's pledge is SEALED
+  (`SEALED_CORE_PLEDGE='gambit_claimant'`) — this **reverses the R1 "open live Pledge in core" pillar**
+  (§0/§4.2/§11 — those still say "open in core"; the reversal is owned here + in ROADMAP §2). NOTE: sealing
+  is a HUMAN-facing feature and a sim no-op; the actual gambit-fire fix is the risk-aware seize gate
+  (`GAMBIT_SELF_COVER_CARDS`). FOCUS-GROUP-R3 §3.
+- **Herald + political/martial stance (Stage H)** — RECRUIT a Herald = the political build (per-player
+  `handLimit` +`HERALD_HAND_BONUS`, −`HERALD_COMBAT_PENALTY` combat) vs default martial; PARLEY is a
+  non-card pushback vs the dark. MVP ABSTRACTS the literal lone-runner piece (deferred). FOCUS-GROUP-R3 §3.
+- **Tunable list (§9):** the original ~20 placeholders are superseded — `src/v2/tunables.ts`
+  `DEFAULT_TUNABLES` is the single source of truth for every lever + its locked value.
+
+**Remaining Phase 5:** 5e (Blood Pact `chooseAccusation` heuristic + ACCUSATION knobs) and 5f (final
+2-seed lock + folding §12 into the §§1–11 prose; amending §0/§4.2 for the sealed-pledge reversal).

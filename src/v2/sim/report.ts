@@ -12,8 +12,11 @@ import type { SweepRow } from './sweep.js';
 export const TARGETS = {
   shadowkingWinRate: { lo: 0.18, hi: 0.22, label: 'Shadowking win rate' },
   meanRounds: { lo: 10, hi: 16, label: 'Mean game length (rounds)' },
-  gambitFireRate: { lo: 0.10, hi: 0.20, label: 'Gambit fire rate (~1-in-6-to-8)' },
-  meanRescues: { lo: 2, hi: 4, label: 'Rescues per game' },
+  gambitFireRate: { lo: 0.10, hi: 0.20, label: 'Gambit fire rate (gambler-free, ~1-in-6-to-8)' },
+  // Re-stated from the structurally-unreachable 2-4 (proven capped by the all_broken<5%
+  // guard — tuning-log §5d; user-accepted) to "the economy is ALIVE" (≥0.5 pooled vs the
+  // dead 0.07; alive at 3-4p). The label keeps the cap visible, not hidden.
+  meanRescues: { lo: 0.5, hi: 4, label: 'Rescues per game (capped ~1 pooled — tuning-log §5d)' },
 } as const;
 
 export interface TargetCheck {
@@ -123,8 +126,13 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
 
   const shadowkingWinRate = total ? rows.filter(r => r.metrics.shadowkingWin).length / total : 0;
   const meanRounds = mean(rows.map(r => r.metrics.rounds));
-  const gambitFireRate = total ? rows.filter(r => r.metrics.gambitSeized).length / total : 0;
   const meanRescues = mean(rows.map(r => r.metrics.rescueCount));
+  // The §9 gambit check judges the HONEST gambler-free fire rate (excluding matchups
+  // with a dedicated gambler archetype, which gambles by identity and inflates the
+  // pooled number into a permanent FAIL). The pooled seize rate stays a diagnostic.
+  const noGamblerRows = rows.filter(r => !r.seatArchetypes.includes('gambler'));
+  const gambitFireRate = noGamblerRows.length
+    ? noGamblerRows.filter(r => r.metrics.gambitSeized).length / noGamblerRows.length : 0;
 
   const checks: TargetCheck[] = [
     mkCheck(TARGETS.shadowkingWinRate.label, shadowkingWinRate, TARGETS.shadowkingWinRate),

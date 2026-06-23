@@ -466,6 +466,11 @@ export function checkBrokenState(state: GameState, playerIndex: number): GameEve
   player.isBroken = true;
   player.brokenSince = state.round;
   player.brokenRoundsConsecutive = 0;
+
+  // Dissolve any Oath this player held (§ Oaths): a Broken lord can't honor a pact —
+  // stops the Dawn fealty dividend leaking to a downed player and frees the ally to
+  // act (no raid-shield by a corpse-state ally). Inline to avoid an actions↔combat cycle.
+  state.oaths = state.oaths.filter(o => o.a !== playerIndex && o.b !== playerIndex);
   player.crownHeld = false; // Forfeit Crown eligibility (P1 anti-exploit)
 
   events.push({
