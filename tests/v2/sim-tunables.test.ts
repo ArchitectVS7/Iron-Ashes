@@ -50,7 +50,7 @@ describe('tunable seam', () => {
     expect(doomCost('WHISPER', 3)).toBe(5);    // pivot: ceil(6*3/4 + 0)
     expect(doomCost('WHISPER', 4)).toBe(11);   // ceil(6*4/4 + 5*1) = 6 + 5
     expect(doomCost('RECKONING', 4)).toBe(17); // ceil(12*4/4 + 5*1) = 12 + 5
-    expect(getTunables().SPREAD_AMOUNT_BASE).toBe(5); // 5c 5 → 5-dark 4 → Oaths retune 5
+    expect(getTunables().SPREAD_AMOUNT_BASE).toBe(7); // 5c 5 → 5-dark 4 → Oaths 5 → Herald 7
   });
 
   it('deathKnightCount scales the dark army with player count when DK_PER_PLAYER>0', () => {

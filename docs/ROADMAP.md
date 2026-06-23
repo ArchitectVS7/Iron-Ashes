@@ -232,6 +232,13 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     open since 5a), gambit-win 28.9%→19.0%, SK-win 21.3% ✅, guards PASS, 2-seed stable, 401 tests.
     **Resolves the gambit-nerf TODO** (no GAMBIT_SURCHARGE change). Side-effect: per-count ladder mildly
     non-monotonic (2p 23.6 / 3p 25.7 / 4p 14.6). Evidence `stage5-tuning-log.md` §sealed. *Completed 2026-06-23.*
+  - [x] **Stage H — Herald + political/martial stance (R3 build wave 3/3)** — RECRUIT a Herald = the
+    political build (+hand cap / −combat power) vs default martial; PARLEY = a non-card pushback vs the dark.
+    Per-player `handLimit`, `combatPenalty`, `executeRecruit`/`executeParley`, AI heraldAffinity/parleyBias.
+    Re-tune: `SPREAD_AMOUNT_BASE` 5→7 + `HERALD_HAND_BONUS` 2→1 (Heralds weakened the dark to 14.8%; recovered
+    to **SK-win 20.0% ✅**). Build axis used (59% political, 1.78/game), gambit still 17.0% ✅, guards PASS,
+    2-seed stable, 406 tests. (Political/martial "parity" is confounded by archetype — see §herald.) MVP
+    defers the literal lone-runner piece. Evidence `stage5-tuning-log.md` §herald. *Completed 2026-06-23.*
   - [ ] **5e. Blood Pact** — fix the chooseAccusation relative-gap heuristic + ACCUSATION knobs → accuracy ≥45%,
     ≤2.5 accusations/game, traitor win 12–20%, exposure 40–70%.
   - [ ] **5f. Final validation + lock** — 2-seed stability; all bands + guards + per-count + BP pass; LOCK
@@ -290,10 +297,10 @@ fresh, but the *foundations* are directly reusable.
    **Stage 5d rescue economy COMPLETE** (rescues 0.07→~0.8/game; pooled 2–4 structurally capped, escalated).
    **Oaths + the Ledger (passion spine) COMPLETE** (`DESIGN-V2-OATHS.md`, `DESIGN-V2-FOCUS-GROUP-R3.md`):
    public breakable player Oaths + a villain that hunts oathbreakers; social density 0 → ~5.8 sworn/game.
-   **R3 build wave underway** (`~/.claude/plans/i-want-to-use-transient-quill.md`): **Stage T Forge-tolls
-   DONE** + **Stage S Sealed-Pledge/Gambit-fix DONE** (gambler-free gambit fire 26.7%→14.3% ✅, SK-win 21.3%,
-   401 tests). **NEXT: Stage H (Herald + political/martial stance — the big one), then a both-modes
-   re-baseline + resume 5e (Blood Pact) → 5f lock.**)
+   **R3 build wave COMPLETE** (`~/.claude/plans/i-want-to-use-transient-quill.md`): Stage T (Forge-tolls) +
+   Stage S (Sealed-Pledge/Gambit-fix, gambit 26.7%→17% ✅) + **Stage H (Herald + political/martial stance)
+   all DONE & LOCKED** — SK-win 20.0% ✅, build axis 59% political, 406 tests, 2-seed stable. **NEXT: Stage R
+   (final both-modes re-baseline — competitive ✓, run --bloodpact), then 5e (Blood Pact accusation) → 5f lock.**)
 3. Build through the one `applyCommand` reducer; keep everything deterministic (§7); write tests as you go.
 4. **Definition of Done (enforced):** `npm run verify` exits 0 → update `state.json` + §4 box + §8
    changelog + the memory file → commit → `npm run handoff:check` exits 0. See `docs/AGENT-PROTOCOL.md`.

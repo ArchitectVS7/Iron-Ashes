@@ -284,3 +284,32 @@ gambler-archetype-inflated number; the honest gambler-free 14.3% is the real (in
 SIDE-EFFECT: the `DOOM_COST_PER_PLAYER` 6→5 compensator shifted the per-count curve — now 2p 23.6 / 3p
 25.7 / 4p 14.6 (mildly non-monotonic; 3p edges 2p by ~2pp). Pooled in band + guards hold; the named
 ladder is "2p & 3p both hard, 4p the Carve-up" — accept, or restore strict monotonicity in a future tune.
+
+## Stage H — Herald + political/martial stance (FOCUS-GROUP-R3 §3, R3 build wave 3/3, the big re-tune)
+
+**What:** the build-identity axis. RECRUIT a Herald = commit to the POLITICAL stance (sticky):
+`+HERALD_HAND_BONUS` hand cap (deep hand) and `−HERALD_COMBAT_PENALTY` combat power (the "fighter off
+the board" tradeoff) — vs the default MARTIAL build (fat board). Plus PARLEY, a non-card pushback vs the
+dark (the Herald verb). Engine: per-player `handLimit` (sequencer Dawn `HAND_LIMIT`→`p.handLimit`),
+`combatPenalty` subtracted in `getPlayerPowerAtNode`, `executeRecruit`/`executeParley`, a 'PARLEY' action;
+AI `heraldAffinity`/`parleyBias` knobs (turtle/cooperator high → political; gambler/aggressor → martial).
+MVP abstracts the literal lone-runner Herald *piece* (deferred) — the stance + Parley capture the axis +
+the non-card verb without the piece-selector march refactor.
+
+**First sim (Herald defaults):** political build heavily adopted (59% of seats, 1.78 Heralds/game — the
+axis is ALIVE) but it destabilized the dark as the panel warned: SK-win fell to **14.8%** (Parley
+pushback + deep-hand political pledging, full-block 49.6%). Build win rate political 23.9% / martial 33.5%.
+
+**Search (`scripts/tune-herald.mjs`, 2 grids + 2-seed).** SK-win recovery needed a real dark buff. LOCKED
+**`SPREAD_AMOUNT_BASE` 5→7 + `HERALD_HAND_BONUS` 2→1** (kept `HERALD_COMBAT_PENALTY`=1 — the tradeoff —
+and `HERALD_PUSHBACK`=1 — the verb). Confirmation (s20260622-n40): SK-win **20.0% ✅** (2-seed 19.6%),
+gambler-free gambit **17.0% ✅** (the Stage-S fix survived), guards PASS, oaths 6.13/3.46, tolls 0.89,
+DK-kills 2.13, all_broken 2.0%, 406 tests. Heralds 1.78/game, political share 59%.
+
+**FINDING — the political/martial "parity" metric is CONFOUNDED.** Political seats win ~22.5% vs martial
+~31% (≈1.4×), but this reflects WHICH archetypes go political (the cautious turtle/cooperator) not a
+stance imbalance — the no-dominant-archetype guard passes and political is viable (not a trap). So the
+lock criterion is SK-band + gambit + guards, NOT strict win-rate parity (which can't be hit while
+archetype identities drive stance choice). SPREAD=7 also means a half-blocked strike now reaches the ash
+cap (BLIGHT_TO_ASH) — a harder-hitting dark, offsetting the Herald pushback (a blight test was updated to
+reflect the cap). Per-count ladder stays non-monotonic (2p 19.6 / 3p 24.4 / 4p 16.1) — all counts credible.

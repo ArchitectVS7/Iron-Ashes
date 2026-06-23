@@ -22,6 +22,7 @@ import {
   CARD_VALUE_MAX,
   CARD_VALUE_MIN,
   STARTING_HAND,
+  HAND_LIMIT,
   WARLORD_POWER,
   deathKnightCount,
   getTunables,
@@ -69,6 +70,9 @@ function createPlayerState(
     actionsRemaining: 0,
     warlordNodeId: keepNodeId,
     rescueDebt: null,
+    handLimit: HAND_LIMIT,
+    stance: 'martial',
+    combatPenalty: 0,
     hasBloodPact: false,
   };
 }

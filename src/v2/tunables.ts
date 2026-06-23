@@ -90,6 +90,19 @@ export const BROKEN_MAX_ROUNDS = 2;
 /** Card cost to Rescue an adjacent/co-located Broken ally. Stage 5d locked 2 → 1 (cheaper). */
 export const RESCUE_COST = 1;
 
+// ─── Herald / political-martial stance (§ Herald, FOCUS-GROUP-R3 §3) ──
+// Recruiting a Herald commits a player to the POLITICAL build: a bigger hand (more
+// pledge/combat fuel) for a weaker fighter (the "body off the board" tradeoff).
+/** Banner cost to RECRUIT a Herald (commit to the political stance). [TUNABLE] */
+export const HERALD_RECRUIT_COST = 2;
+/** Hand-cap bonus a Herald grants (deep-hand political build). Stage-H locked 2→1
+ * (deep pledging weakened the dark too much; +1 keeps the build viable). [TUNABLE] */
+export const HERALD_HAND_BONUS = 1;
+/** Combat-power penalty a Herald imposes (fewer fighters — the tradeoff). [TUNABLE] */
+export const HERALD_COMBAT_PENALTY = 1;
+/** Blight pushback a Herald's PARLEY applies to a nearby front (non-card anti-dark verb). [TUNABLE] */
+export const HERALD_PUSHBACK = 1;
+
 /**
  * Banners the rescued ally pays the rescuer on Rescue (Stage 5d win-currency payoff).
  * The "strings" with teeth: rescue moves the rescuer's claim/march math THIS round, so
@@ -165,12 +178,13 @@ export const DAWN_BLIGHT_ADVANCE = 1;
 
 /**
  * Base Blight spread from an un-averted strike (scaled by 1-ratio).
- * History: 5c 2→5; 5-dark retune 5→4; Oaths retune 4→5. The uniform doom-win lever.
- * The Oaths spine added a player banner economy (fealty dividends) that weakened the
- * dark to 15%, so the retune raised this back to 5 to land pooled SK-win ~19% (2-seed
- * stable). See stage5-tuning-log.md §oaths.
+ * History: 5c 2→5; 5-dark retune 5→4; Oaths retune 4→5; Stage-H retune 5→7. The uniform
+ * doom-win lever. Each social/positional layer (Oaths' fealty banners, then the Herald's
+ * Parley pushback + deep-hand political pledging) weakened the dark, so SPREAD was raised
+ * to compensate — Stage H needed 7 to recover SK-win to ~20% with Heralds active (2-seed
+ * stable). See stage5-tuning-log.md §oaths/§herald.
  */
-export const SPREAD_AMOUNT_BASE = 5;
+export const SPREAD_AMOUNT_BASE = 7;
 
 /** Extra banner cost to march through an ashed node (P0-3: traversable, not impassable). */
 export const ASHED_TRAVERSE_EXTRA_COST = 1;
@@ -438,6 +452,11 @@ export interface Tunables {
   // ── Sealed Pledge + gambit fix (Stage S) ──
   readonly SEALED_CORE_PLEDGE: 'off' | 'gambit_claimant' | 'all';
   readonly GAMBIT_SELF_COVER_CARDS: number;
+  // ── Herald / stance (Stage H) ──
+  readonly HERALD_RECRUIT_COST: number;
+  readonly HERALD_HAND_BONUS: number;
+  readonly HERALD_COMBAT_PENALTY: number;
+  readonly HERALD_PUSHBACK: number;
 }
 
 export const DEFAULT_TUNABLES: Tunables = Object.freeze({
@@ -449,6 +468,7 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   BREAK_THRESHOLD, RESCUE_COST, RESCUE_TRIBUTE_BANNERS, LANDED_STRIKE_WOUNDS, BROKEN_MAX_ROUNDS,
   OATH_DIVIDEND, OATH_DURATION, OATH_LOYALTY_BONUS, OATH_BREAK_BANNERS, GRUDGE_OATHBREAK,
   FORGE_TOLL_COST, SEALED_CORE_PLEDGE, GAMBIT_SELF_COVER_CARDS,
+  HERALD_RECRUIT_COST, HERALD_HAND_BONUS, HERALD_COMBAT_PENALTY, HERALD_PUSHBACK,
 });
 
 let activeTunables: Tunables = DEFAULT_TUNABLES;

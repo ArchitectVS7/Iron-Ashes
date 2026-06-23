@@ -634,15 +634,67 @@ export function executeRecruit(
   playerIndex: number,
 ): ActionResult {
   const events: GameEvent[] = [];
+  const player = state.players[playerIndex];
+  const t = getTunables();
 
-  // Stub — minimal piece economy per §2 scope note
+  // Recruit a Herald: commit to the POLITICAL stance (§ Herald). One-time, sticky.
+  if (player.stance === 'political') {
+    throw new Error('Cannot RECRUIT: already committed to the political stance');
+  }
+  if (player.banners < t.HERALD_RECRUIT_COST) {
+    throw new Error(`Cannot RECRUIT: need ${t.HERALD_RECRUIT_COST} banners, have ${player.banners}`);
+  }
+
+  player.banners -= t.HERALD_RECRUIT_COST;
+  player.stance = 'political';
+  player.handLimit += t.HERALD_HAND_BONUS;       // deep hand
+  player.combatPenalty += t.HERALD_COMBAT_PENALTY; // a fighter off the board
+
   events.push({
     type: 'PLAYER_ACTED',
     playerIndex,
     action: 'RECRUIT',
-    details: { note: 'Retinue recruitment not yet implemented (minimal pieces)' },
+    details: { stance: 'political', handLimit: player.handLimit, combatPenalty: player.combatPenalty },
   });
 
+  return { state, events, actionConsumed: true };
+}
+
+/** A node on/adjacent to the Warlord that the dark holds (blighted, not ashed), for PARLEY. */
+export function parleyTarget(state: GameState, playerIndex: number): string | null {
+  const here = state.players[playerIndex].warlordNodeId;
+  const candidates = [here, ...state.board.definition.nodes[here].connections];
+  for (const nodeId of candidates) {
+    const ns = state.board.state.nodes[nodeId];
+    if (ns && !ns.ashed && ns.blightLevel > 0) return nodeId;
+  }
+  return null;
+}
+
+/**
+ * PARLEY — the political player's Herald walks out to push back the dark WITHOUT
+ * spending a card (§ Herald, the non-card anti-dark verb): reduce blight on a nearby
+ * blighted front by HERALD_PUSHBACK. Requires the political stance + a front in reach.
+ */
+export function executeParley(
+  state: GameState,
+  playerIndex: number,
+): ActionResult {
+  const events: GameEvent[] = [];
+  if (state.players[playerIndex].stance !== 'political') {
+    throw new Error('Cannot PARLEY: only a political (Herald) player may parley the dark');
+  }
+  const target = parleyTarget(state, playerIndex);
+  if (target === null) {
+    throw new Error('Cannot PARLEY: no blighted front on or adjacent to the Warlord');
+  }
+  events.push(...applyPushback(state, target, getTunables().HERALD_PUSHBACK));
+  events.push({
+    type: 'PLAYER_ACTED',
+    playerIndex,
+    action: 'PARLEY',
+    details: { nodeId: target, pushback: getTunables().HERALD_PUSHBACK },
+  });
   return { state, events, actionConsumed: true };
 }
 

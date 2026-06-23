@@ -64,6 +64,14 @@ export interface SweepDiagnostics {
   readonly oathBreakShare: number;
   /** Mean Forge tolls paid per game (positional-leverage signal). */
   readonly tollsPerGame: number;
+  /** Mean Heralds recruited per game (§ Herald — political-build uptake). */
+  readonly heraldsPerGame: number;
+  /** Fraction of seats that finished in the political stance. */
+  readonly politicalSeatShare: number;
+  /** Win rate of political-stance seats (build-parity check). */
+  readonly politicalWinRate: number;
+  /** Win rate of martial-stance seats (build-parity check). */
+  readonly martialWinRate: number;
   /** Mean nodes ashed by game end (doom progress). */
   readonly meanAshedNodes: number;
   /** Fraction of pledge rounds that fully blocked the strike. */
@@ -89,6 +97,25 @@ export interface PerCountStats {
 }
 
 const mean = (xs: number[]): number => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
+
+/** Political/martial build split + per-build win rates (§ Herald build-parity check). */
+function stanceStats(rows: readonly SweepRow[]): { politicalSeatShare: number; politicalWinRate: number; martialWinRate: number } {
+  let polGames = 0, polWins = 0, marGames = 0, marWins = 0, seats = 0, polSeats = 0;
+  for (const r of rows) {
+    const stances = r.metrics.stancePerSeat ?? [];
+    for (let seat = 0; seat < stances.length; seat++) {
+      seats++;
+      const won = r.metrics.winner === seat ? 1 : 0;
+      if (stances[seat] === 'political') { polSeats++; polGames++; polWins += won; }
+      else { marGames++; marWins += won; }
+    }
+  }
+  return {
+    politicalSeatShare: seats ? polSeats / seats : 0,
+    politicalWinRate: polGames ? polWins / polGames : 0,
+    martialWinRate: marGames ? marWins / marGames : 0,
+  };
+}
 const inBand = (x: number, lo: number, hi: number): boolean => x >= lo && x <= hi;
 
 export function summarize(rows: readonly SweepRow[]): SweepSummary {
@@ -192,6 +219,8 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
     oathBreakShare: (totalOathsBroken + totalOathsMatured) > 0
       ? totalOathsBroken / (totalOathsBroken + totalOathsMatured) : 0,
     tollsPerGame: mean(rows.map(r => r.metrics.tollsPaid)),
+    heraldsPerGame: mean(rows.map(r => r.metrics.heraldsRecruited)),
+    ...stanceStats(rows),
     meanAshedNodes: mean(rows.map(r => r.metrics.ashedNodes)),
     pledgeFullBlockRate: totalPledgeRounds > 0 ? totalFullBlocks / totalPledgeRounds : 0,
     gambitSeizeRate: total ? rows.filter(r => r.metrics.gambitSeized).length / total : 0,
@@ -364,6 +393,8 @@ ${endRows}
 | DK kills per game | ${d.dkKillRate.toFixed(2)} | combat lethality vs the dark / pushback supply |
 | Oaths sworn / broken per game | ${d.oathsSwornPerGame.toFixed(2)} / ${d.oathsBrokenPerGame.toFixed(2)} | social density (sworn) + betrayal drama (${pct(d.oathBreakShare)} of oaths broken) |
 | Forge tolls per game | ${d.tollsPerGame.toFixed(2)} | chokepoint leverage (rival-Forge passage tax) |
+| Heralds/game · political share | ${d.heraldsPerGame.toFixed(2)} · ${pct(d.politicalSeatShare)} | build-identity uptake (§ Herald) |
+| Build win rate (political / martial) | ${pct(d.politicalWinRate)} / ${pct(d.martialWinRate)} | parity check — neither build should dominate |
 | Mean nodes ashed (doom progress) | ${d.meanAshedNodes.toFixed(2)} | how close the dark got |
 | Pledge full-block rate | ${pct(d.pledgeFullBlockRate)} | high ⇒ table over-blocks ⇒ dark too weak |
 

@@ -20,7 +20,6 @@ import {
   FORGE_WEIGHT,
   CARD_VALUE_MAX,
   CARD_VALUE_MIN,
-  HAND_LIMIT,
   PATIENCE_CAP,
   PATIENCE_ON_BLOCK,
   PLEDGE_FAVOR_GRUDGE_REDUCTION,
@@ -315,10 +314,10 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
   // 1b. Oath upkeep (§ Oaths): fealty dividend on fresh income, strain, maturity.
   events.push(...runOathUpkeep(state));
 
-  // 2. Draw cards up to hand limit (seeded deck, seat order — §7.8)
+  // 2. Draw cards up to each player's hand limit (per-player — a Herald raises it; §Herald).
   for (const playerIndex of state.turnOrder) {
     const p = state.players[playerIndex];
-    while (p.hand.length < HAND_LIMIT) {
+    while (p.hand.length < p.handLimit) {
       p.hand.push(rng.int(CARD_VALUE_MIN, CARD_VALUE_MAX));
     }
   }

@@ -227,6 +227,7 @@ import {
   executeRaid,
   executeRescue,
   executeRecruit,
+  executeParley,
   executeSwearOath,
   executeBreakOath,
 } from './actions.js';
@@ -426,6 +427,18 @@ function handlePlayerAction(
       }
       try {
         actionResult = executeAudit(state, playerIndex, action.targetPlayerIndex);
+      } catch (e: unknown) {
+        throw new InvalidCommandError(
+          { type: 'PLAYER_ACTION', playerIndex, action },
+          (e as Error).message,
+        );
+      }
+      break;
+    }
+
+    case 'PARLEY': {
+      try {
+        actionResult = executeParley(state, playerIndex);
       } catch (e: unknown) {
         throw new InvalidCommandError(
           { type: 'PLAYER_ACTION', playerIndex, action },

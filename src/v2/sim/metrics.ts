@@ -55,6 +55,12 @@ export interface GameMetrics {
   readonly oathsMatured: number;
   /** Forge tolls paid this game (§ tolls — positional-leverage signal). */
   readonly tollsPaid: number;
+  /** Heralds recruited this game (§ Herald — political-build uptake). */
+  readonly heraldsRecruited: number;
+  /** Parley actions this game (the non-card anti-dark verb). */
+  readonly parleyCount: number;
+  /** Each seat's final stance ('martial' | 'political') — for build-parity analysis. */
+  readonly stancePerSeat: readonly ('martial' | 'political')[];
   /** Nodes ashed by game end — the doom-progress proxy. */
   readonly ashedNodes: number;
   /** Rounds whose Pledge was resolved (denominator for the full-block rate). */
@@ -105,11 +111,15 @@ export function computeMetrics(state: GameState): GameMetrics {
   let oathsBroken = 0;
   let oathsMatured = 0;
   let tollsPaid = 0;
+  let heraldsRecruited = 0;
+  let parleyCount = 0;
   for (const e of state.actionLog) {
     if (e.type === 'PLAYER_ACTED') {
       if (e.action === 'RESCUE') rescueCount++;
       if (e.action === 'SWEAR_OATH') oathsSworn++;
       if (e.action === 'BREAK_OATH') oathsBroken++;
+      if (e.action === 'RECRUIT' && e.details?.stance === 'political') heraldsRecruited++;
+      if (e.action === 'PARLEY') parleyCount++;
       if (e.action === 'MARCH' && typeof e.details?.toll === 'number' && e.details.toll > 0) tollsPaid++;
       if (e.details?.oathMatured === true) oathsMatured++;
       if (e.details?.broken === true) brokenCount++;
@@ -156,6 +166,9 @@ export function computeMetrics(state: GameState): GameMetrics {
     oathsBroken,
     oathsMatured,
     tollsPaid,
+    heraldsRecruited,
+    parleyCount,
+    stancePerSeat: state.players.map(p => p.stance),
     ashedNodes,
     pledgeRounds,
     pledgeFullBlocks,

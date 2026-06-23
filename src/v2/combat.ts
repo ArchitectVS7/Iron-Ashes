@@ -125,6 +125,12 @@ export function getPlayerPowerAtNode(state: GameState, playerIndex: number, node
     }
   }
 
+  // Political stance (§ Herald): a recruited Herald is "a fighter off the board" —
+  // the player fights weaker. Only bites when it actually has a piece here.
+  if (power > 0) {
+    power = Math.max(0, power - (state.players[playerIndex]?.combatPenalty ?? 0));
+  }
+
   return power;
 }
 

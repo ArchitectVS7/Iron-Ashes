@@ -280,9 +280,10 @@ describe('Blight System', () => {
     });
 
     it('partial block reduces spread proportionally with ceil', () => {
-      // 50% block → ceil(0.5 * SPREAD_AMOUNT_BASE)
+      // 50% block → ceil(0.5 * SPREAD_AMOUNT_BASE), capped at BLIGHT_TO_ASH (a node
+      // can't exceed the ash threshold; overflow advances down the spoke).
       resolveStrike(state, 0.5, 0);
-      const expectedSpread = Math.ceil(0.5 * SPREAD_AMOUNT_BASE);
+      const expectedSpread = Math.min(Math.ceil(0.5 * SPREAD_AMOUNT_BASE), BLIGHT_TO_ASH);
       const spokePath = getSpokePath(state.board.definition, 0);
       const frontierNode = spokePath.find(
         id => state.board.state.nodes[id].blightLevel > 0

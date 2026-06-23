@@ -114,9 +114,11 @@ describe('Rescue/break economy (Stage 5d)', () => {
         s.activePlayerIndex = 0;
         s.players[0].banners = 3;
         s.players[2].isBroken = true;
-        // Pre-bind player 0 in an Oath so the (free) SWEAR step is skipped and this
-        // isolates the rescue-seek verb (cooperator is oath-willing by default).
+        // Pre-bind player 0 in an Oath (skip the free SWEAR step) and pre-set the
+        // political stance (skip the RECRUIT step; no blight ⇒ PARLEY is a no-op) so this
+        // isolates the rescue-seek verb (cooperator is oath/herald-willing by default).
         s.oaths.push({ a: 0, b: 1, swornRound: s.round, strain: 0 });
+        s.players[0].stance = 'political';
         const action = chooseAction(s, 0, seed, policyOf('cooperator'));
         if (action.type === 'MARCH') marchedTowardAlly++;
       }

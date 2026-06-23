@@ -149,6 +149,14 @@ export interface PlayerState {
   /** Active binding debt owed to a rescuer (§5.4), or null. */
   rescueDebt: RescueDebt | null;
 
+  // ── Herald / political-martial stance (§ Herald, FOCUS-GROUP-R3) ──
+  /** Per-player hand cap (init HAND_LIMIT; raised by recruiting a Herald). */
+  handLimit: number;
+  /** Build identity: 'martial' (default — fat board) vs 'political' (deep hand, weaker fighter). */
+  stance: 'martial' | 'political';
+  /** Combat-power penalty (the "fighter off the board" cost of the political stance). */
+  combatPenalty: number;
+
   // ── Blood Pact (Layer B) ──
   /** Whether this player holds the Blood Pact (traitor). */
   hasBloodPact: boolean;

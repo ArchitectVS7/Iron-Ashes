@@ -21,6 +21,7 @@ export type ActionType =
   | 'AUDIT'     // Reveal one opponent's last pledge (Blood Pact only, §10)
   | 'SWEAR_OATH' // Forge a public pact with a rival (§ Oaths) — free, no action point
   | 'BREAK_OATH' // Betray a sworn ally for a burst; climb the dark's Ledger (§ Oaths)
+  | 'PARLEY'    // Herald pushes back the dark without spending a card (§ Herald)
   | 'PASS';     // End actions early
 
 /** A player action with its parameters. */

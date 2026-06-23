@@ -27,7 +27,7 @@ import type { GameEvent } from './events.js';
 import type { GameState } from './types.js';
 import { applyCommand, type CommandResult } from './reducer.js';
 import { getPlayerPowerAtNode, getShadowkingPowerAtNode, chooseCombatCommit } from './combat.js';
-import { hasSKForcesAtNode, hasRivalAtNode, areAdjacent, findOath, areSworn } from './actions.js';
+import { hasSKForcesAtNode, hasRivalAtNode, areAdjacent, findOath, areSworn, parleyTarget } from './actions.js';
 import { ASHED_TRAVERSE_EXTRA_COST, COMBAT_COMMIT_MAX, getTunables } from './tunables.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 
@@ -86,6 +86,10 @@ export interface AIPolicy {
    * ≥0.5 pays/charges through; <0.5 routes around (skips the tolled step). Neutral 0.
    */
   readonly forgeValuation?: number;
+  /** 0..1 — propensity to RECRUIT a Herald (commit to the political/deep-hand build). Neutral 0. */
+  readonly heraldAffinity?: number;
+  /** 0..1 — propensity to PARLEY (Herald pushback vs the dark) when political. Neutral 0. */
+  readonly parleyBias?: number;
   /** 0..1 — propensity to SWEAR an Oath with an oath-free rival (§ Oaths). Neutral 0. */
   readonly oathWillingness?: number;
   /**
@@ -549,6 +553,8 @@ function archetypeAction(
   const gambitContest = policy.gambitContest ?? 0;
   const darkHunt = policy.darkHuntBias ?? 0;
   const forgeValuation = policy.forgeValuation ?? 0;
+  const heraldAffinity = policy.heraldAffinity ?? 0;
+  const parleyBias = policy.parleyBias ?? 0;
   const oathWillingness = policy.oathWillingness ?? 0;
   const oathLoyalty = policy.oathLoyalty ?? 1;
   // A traitor sabotaging the table won't push the front back (it wants the doom).
@@ -568,6 +574,20 @@ function archetypeAction(
   if (oathWillingness > 0 && myOath === null && !player.isBroken && rng.float() < oathWillingness) {
     const ally = oathTargetFor(state, playerIndex);
     if (ally !== null) return { type: 'SWEAR_OATH', targetPlayerIndex: ally };
+  }
+
+  // 0c. RECRUIT a Herald — commit to the political/deep-hand build (§ Herald). Sticky,
+  //     consumes an action; only once, when affordable.
+  if (heraldAffinity > 0 && player.stance !== 'political' && !player.isBroken
+      && player.banners >= getTunables().HERALD_RECRUIT_COST && rng.float() < heraldAffinity) {
+    return { type: 'RECRUIT' };
+  }
+
+  // 0d. PARLEY — the political player pushes back the dark without a card (§ Herald),
+  //     when a blighted front is on/adjacent to the Warlord.
+  if (parleyBias > 0 && player.stance === 'political' && !sabotaging
+      && parleyTarget(state, playerIndex) !== null && rng.float() < parleyBias) {
+    return { type: 'PARLEY' };
   }
 
   // 0. CONTEST a live rival Gambit — a Gambit win ends the game, so this is the
