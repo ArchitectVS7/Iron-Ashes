@@ -146,3 +146,11 @@ contesting dark; the no-dominant guard still holds, spread narrowed 4.6x→2.6x)
 Decision: **LOCK 5-dark.** The dead-grudge pillar is revived (DK-kills 0.00→2.05), SK-win is back in band
 and 2-seed-stable, the per-count gradient is flatter, and all guards hold. The per-count A/B fork
 (FOCUS-GROUP-R2 §3) is now decidable on this new data; rescues (5d) are next.
+
+### Per-count A/B fork — RESOLVED (2026-06-22): decision A (lock + name the tiers)
+With the dark-engagement fix landed (per-count 2p 30.9 / 3p 21.8 / 4p 8.9, gradient 22.0pp, dark credible
+at every count), the lead designer chose **A — accept the monotonic gradient and ship it as a named
+identity ladder**: 2p **The Duel** / 3p **The Triumvirate** / 4p **The Carve-up** (canonized in
+`DESIGN-V2-ALGORITHM.md` §9.1; the 5c escalation is now closed). Option B (marginal-pledge-effectiveness
+decay) is recorded but NOT built — it carries the proven 2p-explosion / dominance-flip risk and the
+gradient is no longer extreme. The pooled 18–22% SK-win target stands as the per-count contract.

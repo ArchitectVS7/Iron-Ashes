@@ -195,7 +195,9 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     unreachable by numbers** (2p 34.6 / 3p 17.9 / 4p 7.9 — proven across 5 grids / ~120k games): pledge
     supply scales with player count, so co-op is inherently easier with more allies. Full 4p closure needs
     a MECHANIC change (pledge-effectiveness decay / super-linear strike threshold) — **escalated to user**,
-    not a number. Evidence: `docs/handoff/stage5-tuning-log.md` §5c.
+    not a number. Evidence: `docs/handoff/stage5-tuning-log.md` §5c. **→ RESOLVED after 5-dark (decision A):
+    accept the (now-flatter) gradient as a named identity ladder — 2p Duel / 3p Triumvirate / 4p Carve-up
+    (`DESIGN-V2-ALGORITHM.md` §9.1). Option B not built.**
   - [x] **5-dark. Dark Engagement mechanic patch + retune** — the reconvened focus group
     (`DESIGN-V2-FOCUS-GROUP-R2.md`) ruled the dormant DK-engagement pillar an INVERTED incentive; the patch
     (`DESIGN-V2-DARK-ENGAGEMENT.md`) added the Hunt verb (AI `darkHuntBias` + cards-aware `canStrikeWin`),
@@ -260,8 +262,9 @@ fresh, but the *foundations* are directly reusable.
    `specRefs` sections of `docs/DESIGN-V2-ALGORITHM.md`. (Right now: **Stage 5-dark — Dark Engagement mechanic
    patch + retune COMPLETE & LOCKED** (`docs/DESIGN-V2-DARK-ENGAGEMENT.md`, `docs/DESIGN-V2-FOCUS-GROUP-R2.md`):
    DK-kills 0.00→2.05, SK-win re-locked to 20.5% (band, 2-seed stable), per-count gradient flatter
-   (26.7→22.0pp), 379 tests green. **NEXT: settle the per-count A/B fork on the new data (FOCUS-GROUP-R2 §3),
-   THEN Stage 5d rescue economy (same win-currency template — rescues still 0.07).**)
+   (26.7→22.0pp), 379 tests green. The per-count A/B fork is **RESOLVED — decision A** (named identity
+   ladder, `DESIGN-V2-ALGORITHM.md` §9.1). **NEXT: Stage 5d rescue economy** (same win-currency template —
+   rescues still 0.07; gambit honest fire 25.2% is a separate 5d/5e item).)
 3. Build through the one `applyCommand` reducer; keep everything deterministic (§7); write tests as you go.
 4. **Definition of Done (enforced):** `npm run verify` exits 0 → update `state.json` + §4 box + §8
    changelog + the memory file → commit → `npm run handoff:check` exits 0. See `docs/AGENT-PROTOCOL.md`.

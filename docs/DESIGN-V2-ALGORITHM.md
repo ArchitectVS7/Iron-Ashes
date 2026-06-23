@@ -509,6 +509,26 @@ Target metrics (from old PRD, re-validate): Shadowking win rate **18–22%**, se
 2–4 rescue events/game, no dominant pledge line. **These are validated against the REAL rules and AI in
 the new sim — never against a stubbed greedy bot (see `docs/ML-SYSTEM-ANALYSIS.md`).**
 
+### 9.1 Player-count identity ladder (LOCKED decision — Stage 5)
+The Shadowking win-rate target (18–22%) is a **POOLED** target across player counts. Per-count win rate
+is a **monotonic gradient by design, not a defect to flatten**: the Pledge's blocking power scales with
+the number of allies, so co-op is inherently harder with fewer of them. After the Stage-5-dark
+engagement fix this reads **2p ~31% / 3p ~22% / 4p ~9%** — the dark is a credible threat at every count.
+This is shipped as a named **difficulty/identity ladder**, each a deliberately different texture:
+
+| Count | Name | Texture |
+|---|---|---|
+| 2 | **The Duel** | a brutal duel against a third party that may actually win — survival-horror stakes |
+| 3 | **The Triumvirate** | the balanced middle — the dark and the rivals both matter |
+| 4 | **The Carve-up** | the rivals are the danger; the dark is weather you weaponize (the grudge/steer) |
+
+Decision history: the per-count flatness was escalated to the lead designer at Stage 5c (numbers alone
+can't flatten it without exploding 2p past 40% / flipping the dominance guard — proven across 5 grids).
+The reconvened focus group (`DESIGN-V2-FOCUS-GROUP-R2.md` §3) recommended **A — accept + name the
+tiers** once the dark-engagement fix lifted the middle. **Chosen: A.** The deferred surgical alternative
+(marginal-pledge-effectiveness decay, option B) is recorded but NOT built. Do not re-litigate without
+sign-off.
+
 ---
 
 ## 10. Layer B — Hidden-traitor (Blood Pact) [mode flag]

@@ -99,6 +99,11 @@ because the fix changes the inputs to this very decision."**
 **Synthesized recommendation: defer A-vs-B.** Implement §2 first, re-measure, then decide — A (lock +
 name the tiers) if the gap narrows, surgical-B (marginal-pledge decay) only if it doesn't.
 
+> **RESOLVED (2026-06-22): decision A.** After the §2 dark-engagement patch landed (per-count lifted to
+> ~31/22/9, gradient 26.7→22.0pp, dark credible at every count), the lead designer chose **A — accept +
+> name the tiers**: 2p **The Duel** / 3p **The Triumvirate** / 4p **The Carve-up** (canonized in
+> `DESIGN-V2-ALGORITHM.md` §9.1). Option B (marginal-pledge decay) is recorded, not built.
+
 ## 4. The other dormant pillar — rescue (this is Stage 5d)
 
 Three panelists (board, DM, judge) independently noted rescue-with-strings (0.06/game) is the **same
