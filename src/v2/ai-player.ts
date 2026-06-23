@@ -27,7 +27,7 @@ import type { GameEvent } from './events.js';
 import type { GameState } from './types.js';
 import { applyCommand, type CommandResult } from './reducer.js';
 import { getPlayerPowerAtNode, getShadowkingPowerAtNode, chooseCombatCommit } from './combat.js';
-import { hasSKForcesAtNode, hasRivalAtNode, areAdjacent } from './actions.js';
+import { hasSKForcesAtNode, hasRivalAtNode, areAdjacent, findOath, areSworn } from './actions.js';
 import { ASHED_TRAVERSE_EXTRA_COST, COMBAT_COMMIT_MAX, getTunables } from './tunables.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 
@@ -81,6 +81,13 @@ export interface AIPolicy {
    * forcing-function block AND claims the node, so hunters contest DK-held ground.
    */
   readonly darkHuntBias?: number;
+  /** 0..1 — propensity to SWEAR an Oath with an oath-free rival (§ Oaths). Neutral 0. */
+  readonly oathWillingness?: number;
+  /**
+   * 0..1 — loyalty to a sworn Oath: 1 = honor to maturity, low = BREAK when able for
+   * the banner burst (climbing the dark's Ledger). Neutral undefined ⇒ never breaks.
+   */
+  readonly oathLoyalty?: number;
   /**
    * 0..1 — propensity to CONTEST a live rival Crown's Gambit: march to the Keystone
    * and raid the claimant off it (a Gambit win ends the game, so this is urgent).
@@ -479,6 +486,15 @@ function bestStepTowardBrokenAlly(state: GameState, playerIndex: number): string
   return null;
 }
 
+/** Lowest-index oath-free, non-Broken rival to swear an Oath with, or null. */
+function oathTargetFor(state: GameState, playerIndex: number): number | null {
+  for (const p of state.players) {
+    if (p.index === playerIndex || p.isBroken) continue;
+    if (findOath(state, p.index) === null) return p.index;
+  }
+  return null;
+}
+
 /**
  * Knob-driven action for a non-default (archetype) policy. Every returned action
  * is validated legal here so the reducer never rejects it. Pure `f(state, seed)`.
@@ -501,8 +517,26 @@ function archetypeAction(
   const rescueWillingness = policy.rescueWillingness ?? 0;
   const gambitContest = policy.gambitContest ?? 0;
   const darkHunt = policy.darkHuntBias ?? 0;
+  const oathWillingness = policy.oathWillingness ?? 0;
+  const oathLoyalty = policy.oathLoyalty ?? 1;
   // A traitor sabotaging the table won't push the front back (it wants the doom).
   const sabotaging = (policy.saboteurPledgeSuppression ?? 0) > 0 && player.hasBloodPact;
+
+  // 0a. BREAK_OATH — a treacherous holder betrays for the banner burst (then the dark
+  //     hunts the traitor). Only once the Oath has been held across a Dawn.
+  const myOath = findOath(state, playerIndex);
+  if (myOath !== null && state.round > myOath.swornRound && oathLoyalty < 1
+      && rng.float() < (1 - oathLoyalty) * 0.5) {
+    return { type: 'BREAK_OATH' };
+  }
+
+  // 0b. SWEAR_OATH — forge a pact with an oath-free rival. FREE (no action point), so
+  //     it doesn't compete with the real turn; the loop proceeds after swearing.
+  //     (A Broken player can't swear — guard so we never propose an illegal action.)
+  if (oathWillingness > 0 && myOath === null && !player.isBroken && rng.float() < oathWillingness) {
+    const ally = oathTargetFor(state, playerIndex);
+    if (ally !== null) return { type: 'SWEAR_OATH', targetPlayerIndex: ally };
+  }
 
   // 0. CONTEST a live rival Gambit — a Gambit win ends the game, so this is the
   //    most urgent thing on the board. Raid the claimant off the Keystone if
@@ -513,7 +547,8 @@ function archetypeAction(
     if (rng.float() < gambitContest) {
       const ks = state.board.definition.keystoneId;
       if (here === ks && hasRivalAtNode(state, playerIndex, here) === gambit.claimant
-          && !raidDebtBlocked(state, playerIndex, gambit.claimant)) {
+          && !raidDebtBlocked(state, playerIndex, gambit.claimant)
+          && !areSworn(state, playerIndex, gambit.claimant)) {
         return { type: 'RAID', targetPlayerIndex: gambit.claimant };
       }
       const step = firstStepTowardNode(state, playerIndex, ks);
@@ -538,9 +573,11 @@ function archetypeAction(
     }
   }
 
-  // 2. RAID a co-located rival we can beat (aggressor / opportunist).
+  // 2. RAID a co-located rival we can beat (aggressor / opportunist). Sworn allies
+  //    are off-limits (BREAK_OATH first) — guard so we never propose an illegal RAID.
   const rival = hasRivalAtNode(state, playerIndex, here);
-  if (rival !== null && aggression > 0 && !raidDebtBlocked(state, playerIndex, rival)) {
+  if (rival !== null && aggression > 0 && !raidDebtBlocked(state, playerIndex, rival)
+      && !areSworn(state, playerIndex, rival)) {
     const mine = getPlayerPowerAtNode(state, playerIndex, here);
     const theirs = getPlayerPowerAtNode(state, rival, here);
     if (mine >= theirs) {

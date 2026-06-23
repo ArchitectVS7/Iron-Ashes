@@ -18,7 +18,8 @@
  */
 
 import type { GameEvent } from './events.js';
-import type { GameState } from './types.js';
+import type { GameState, Oath } from './types.js';
+import { addGrudge } from './shadowking-policy.js';
 import {
   ASHED_TRAVERSE_EXTRA_COST,
   RESCUE_DEBT_MIN_PLEDGE,
@@ -316,6 +317,13 @@ export function executeRaid(
     );
   }
 
+  // Oath (§ Oaths): sworn allies cannot RAID each other — you must BREAK_OATH first.
+  if (areSworn(state, playerIndex, defenderIndex)) {
+    throw new Error(
+      `Cannot RAID Player ${defenderIndex + 1}: you are sworn by an Oath. Break it first.`,
+    );
+  }
+
   // Validate attacker cards
   const atkHandCopy = [...player.hand];
   for (const card of attackerCards) {
@@ -478,7 +486,124 @@ export function executeRescue(
     },
   });
 
+  // Rescue is the dramatic, earned Oath (§ Oaths): the rescued is Sworn to the
+  // rescuer — if both are oath-free (one slot each; skip if either is already sworn).
+  if (findOath(state, playerIndex) === null && findOath(state, targetPlayerIndex) === null) {
+    events.push(...forgeOath(state, playerIndex, targetPlayerIndex, 'rescue'));
+  }
+
   return { state, events, actionConsumed: true };
+}
+
+// ─── Oaths (§ Oaths) ──────────────────────────────────────────────
+
+/** This player's active Oath, or null. */
+export function findOath(state: GameState, playerIndex: number): Oath | null {
+  return state.oaths.find(o => o.a === playerIndex || o.b === playerIndex) ?? null;
+}
+
+/** Are these two players bound by an Oath? */
+export function areSworn(state: GameState, x: number, y: number): boolean {
+  return state.oaths.some(o => (o.a === x && o.b === y) || (o.a === y && o.b === x));
+}
+
+/** Create an Oath between two players (low seat first) and emit the event. */
+function forgeOath(state: GameState, x: number, y: number, via: string): GameEvent[] {
+  const a = Math.min(x, y);
+  const b = Math.max(x, y);
+  state.oaths.push({ a, b, swornRound: state.round, strain: 0 });
+  return [{
+    type: 'PLAYER_ACTED',
+    playerIndex: x,
+    action: 'SWEAR_OATH',
+    details: { with: y, via },
+  }];
+}
+
+/**
+ * SWEAR_OATH — forge a public pact with a rival (§ Oaths). FREE (no action point):
+ * the cost is the betrayal risk, not tempo. Legal iff both are non-Broken, distinct,
+ * and each oath-free (one Oath per player).
+ */
+export function executeSwearOath(
+  state: GameState,
+  playerIndex: number,
+  targetIndex: number,
+): ActionResult {
+  if (targetIndex === playerIndex) throw new Error('Cannot SWEAR_OATH with yourself');
+  const me = state.players[playerIndex];
+  const them = state.players[targetIndex];
+  if (!them) throw new Error(`Cannot SWEAR_OATH: no Player ${targetIndex + 1}`);
+  if (me.isBroken || them.isBroken) throw new Error('Cannot SWEAR_OATH while either is Broken');
+  if (findOath(state, playerIndex) !== null) throw new Error('Cannot SWEAR_OATH: you already hold an Oath');
+  if (findOath(state, targetIndex) !== null) throw new Error(`Cannot SWEAR_OATH: Player ${targetIndex + 1} already holds an Oath`);
+
+  const events = forgeOath(state, playerIndex, targetIndex, 'swear');
+  return { state, events, actionConsumed: false }; // free declaration
+}
+
+/**
+ * BREAK_OATH — betray a sworn ally (§ Oaths). Consumes an action (a deliberate stab).
+ * The breaker seizes a banner burst and is freed to RAID the ex-ally, but climbs the
+ * dark's Ledger (grudge) — the villain hunts the traitor.
+ */
+export function executeBreakOath(
+  state: GameState,
+  playerIndex: number,
+): ActionResult {
+  const oath = findOath(state, playerIndex);
+  if (oath === null) throw new Error('Cannot BREAK_OATH: you hold no Oath');
+  // No same-round swear→break farming: an Oath must be held across at least one Dawn.
+  if (state.round <= oath.swornRound) throw new Error('Cannot BREAK_OATH the round you swore it');
+  const betrayed = oath.a === playerIndex ? oath.b : oath.a;
+
+  // Dissolve the pact.
+  state.oaths = state.oaths.filter(o => o !== oath);
+
+  const t = getTunables();
+  state.players[playerIndex].banners += t.OATH_BREAK_BANNERS; // seize the moment
+
+  const events: GameEvent[] = [{
+    type: 'PLAYER_ACTED',
+    playerIndex,
+    action: 'BREAK_OATH',
+    details: { betrayed, banners: t.OATH_BREAK_BANNERS },
+  }];
+  // Climb the Ledger — the dark now hunts the traitor (the betrayed's Vendetta).
+  events.push(...addGrudge(state, playerIndex, t.GRUDGE_OATHBREAK, 'oathbreak'));
+  events.push({ type: 'SK_VOICE_LINE', line: 'An oath broken. Such a sweet smell. I follow it.', trigger: 'oathbreak' });
+
+  return { state, events, actionConsumed: true };
+}
+
+/**
+ * Dawn upkeep for Oaths (§ Oaths): pay each sworn player the fealty dividend, tick
+ * strain, and mature (dissolve with a loyalty bonus) any Oath that has reached
+ * OATH_DURATION. Called from the Dawn phase after banner income is generated.
+ */
+export function runOathUpkeep(state: GameState): GameEvent[] {
+  const events: GameEvent[] = [];
+  const t = getTunables();
+  const survivors: Oath[] = [];
+  for (const oath of state.oaths) {
+    state.players[oath.a].banners += t.OATH_DIVIDEND; // fealty dividend
+    state.players[oath.b].banners += t.OATH_DIVIDEND;
+    oath.strain += 1;
+    if (oath.strain >= t.OATH_DURATION) {
+      state.players[oath.a].banners += t.OATH_LOYALTY_BONUS; // honored to the end
+      state.players[oath.b].banners += t.OATH_LOYALTY_BONUS;
+      events.push({
+        type: 'PLAYER_ACTED',
+        playerIndex: oath.a,
+        action: 'PASS',
+        details: { oathMatured: true, a: oath.a, b: oath.b },
+      });
+    } else {
+      survivors.push(oath);
+    }
+  }
+  state.oaths = survivors;
+  return events;
 }
 
 /**

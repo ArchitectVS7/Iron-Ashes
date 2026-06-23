@@ -56,6 +56,12 @@ export interface SweepDiagnostics {
   readonly conditionalRescueRate: number;
   /** Mean Death Knights killed per game (combat lethality vs the dark). */
   readonly dkKillRate: number;
+  /** Mean Oaths sworn per game (the social-density signal). */
+  readonly oathsSwornPerGame: number;
+  /** Mean Oaths broken per game (betrayal drama). */
+  readonly oathsBrokenPerGame: number;
+  /** Fraction of resolved Oaths that ended in betrayal (broken / (broken+matured)). */
+  readonly oathBreakShare: number;
   /** Mean nodes ashed by game end (doom progress). */
   readonly meanAshedNodes: number;
   /** Fraction of pledge rounds that fully blocked the strike. */
@@ -173,10 +179,16 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
     };
   }
 
+  const totalOathsBroken = sum(r => r.metrics.oathsBroken);
+  const totalOathsMatured = sum(r => r.metrics.oathsMatured);
   const diagnostics: SweepDiagnostics = {
     breakRatePerGame: mean(rows.map(r => r.metrics.brokenCount)),
     conditionalRescueRate: totalBreaks > 0 ? totalRescues / totalBreaks : 0,
     dkKillRate: mean(rows.map(r => r.metrics.dkKills)),
+    oathsSwornPerGame: mean(rows.map(r => r.metrics.oathsSworn)),
+    oathsBrokenPerGame: mean(rows.map(r => r.metrics.oathsBroken)),
+    oathBreakShare: (totalOathsBroken + totalOathsMatured) > 0
+      ? totalOathsBroken / (totalOathsBroken + totalOathsMatured) : 0,
     meanAshedNodes: mean(rows.map(r => r.metrics.ashedNodes)),
     pledgeFullBlockRate: totalPledgeRounds > 0 ? totalFullBlocks / totalPledgeRounds : 0,
     gambitSeizeRate: total ? rows.filter(r => r.metrics.gambitSeized).length / total : 0,
@@ -347,6 +359,7 @@ ${endRows}
 | Breaks per game | ${d.breakRatePerGame.toFixed(2)} | rescue target is gated on this |
 | Conditional rescue rate (rescues / break) | ${pct(d.conditionalRescueRate)} | ~0 with breaks present ⇒ nobody bothers; low breaks ⇒ raise lethality |
 | DK kills per game | ${d.dkKillRate.toFixed(2)} | combat lethality vs the dark / pushback supply |
+| Oaths sworn / broken per game | ${d.oathsSwornPerGame.toFixed(2)} / ${d.oathsBrokenPerGame.toFixed(2)} | social density (sworn) + betrayal drama (${pct(d.oathBreakShare)} of oaths broken) |
 | Mean nodes ashed (doom progress) | ${d.meanAshedNodes.toFixed(2)} | how close the dark got |
 | Pledge full-block rate | ${pct(d.pledgeFullBlockRate)} | high ⇒ table over-blocks ⇒ dark too weak |
 

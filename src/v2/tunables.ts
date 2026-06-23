@@ -142,12 +142,12 @@ export const DAWN_BLIGHT_ADVANCE = 1;
 
 /**
  * Base Blight spread from an un-averted strike (scaled by 1-ratio).
- * Stage 5c: 2 → 5; Stage 5-dark retune: 5 → 4. This sets how hard a LANDED strike
- * hits; it is the uniform doom-win lever. 5c raised it to lift pooled SK-win 14%→20%;
- * the 5-dark engagement patch then over-strengthened the dark (23.9%), so the retune
- * trimmed it to 4 to land pooled back at ~20% (2-seed stable). See stage5-tuning-log.md.
+ * History: 5c 2→5; 5-dark retune 5→4; Oaths retune 4→5. The uniform doom-win lever.
+ * The Oaths spine added a player banner economy (fealty dividends) that weakened the
+ * dark to 15%, so the retune raised this back to 5 to land pooled SK-win ~19% (2-seed
+ * stable). See stage5-tuning-log.md §oaths.
  */
-export const SPREAD_AMOUNT_BASE = 4;
+export const SPREAD_AMOUNT_BASE = 5;
 
 /** Extra banner cost to march through an ashed node (P0-3: traversable, not impassable). */
 export const ASHED_TRAVERSE_EXTRA_COST = 1;
@@ -157,12 +157,12 @@ export const ASHED_TRAVERSE_EXTRA_COST = 1;
  * break-vector): `ceil((1-ratio) * LANDED_STRIKE_WOUNDS)`. The dark's strikes ash
  * nodes but never wounded a warlord, so breaks (and thus rescues) were starved and
  * "leading is dangerous" / "a beaten lord feeds the dark" (§5.4) was dormant. This
- * lets the dark break the leader it hunts. Stage 5d locked 0 → 2: the primary Break
- * source that revives the rescue economy. COUNTERINTUITIVELY it WEAKENS the dark
- * (breaking the leader thrashes its steered front), and pushes all_broken up, so 2 is
- * the safe point that holds SK-win 18-22 + all_broken < 5%. See tuning-log §5d. [TUNABLE]
+ * lets the dark break the leader it hunts. 5d locked 0 → 2 (the primary Break source
+ * that revives the rescue economy); the Oaths retune raised it 2 → 3 — Oath
+ * non-aggression cut PvP Breaks, so a harder dark-wound restores breaks/rescues. See
+ * tuning-log §5d + §oaths. [TUNABLE]
  */
-export const LANDED_STRIKE_WOUNDS = 2;
+export const LANDED_STRIKE_WOUNDS = 3;
 
 // ─── Grudge System ────────────────────────────────────────────────
 
@@ -183,6 +183,20 @@ export const GRUDGE_PER_FORGE_RECLAIM = 2;
 
 /** Grudge added per point of combat damage dealt to Shadowking forces (§5.6). */
 export const GRUDGE_PER_SK_WOUND = 1;
+
+// ─── Oaths (the passion spine — DESIGN-V2-OATHS.md) ───────────────
+// Public, breakable two-player pacts. Kept OFF the card economy (banners + grudge).
+
+/** Banners each sworn player gains at Dawn while an Oath is active (fealty dividend). */
+export const OATH_DIVIDEND = 1;
+/** Rounds of strain until an Oath matures (dissolves with a loyalty bonus). */
+export const OATH_DURATION = 3;
+/** Banners each sworn player gains when an Oath matures honored to the end. */
+export const OATH_LOYALTY_BONUS = 2;
+/** Banner burst the breaker seizes on betrayal (BREAK_OATH). */
+export const OATH_BREAK_BANNERS = 2;
+/** Grudge added to an oathbreaker — the dark hunts the traitor (the Ledger). */
+export const GRUDGE_OATHBREAK = 3;
 
 // ─── Dark Engagement (Stage 5-dark — DESIGN-V2-DARK-ENGAGEMENT.md) ──
 // The fix for the dead grudge: make engaging the dark reachable, rewarded, and
@@ -379,6 +393,12 @@ export interface Tunables {
   readonly RESCUE_TRIBUTE_BANNERS: number;
   readonly LANDED_STRIKE_WOUNDS: number;
   readonly BROKEN_MAX_ROUNDS: number;
+  // ── Oaths (passion spine) ──
+  readonly OATH_DIVIDEND: number;
+  readonly OATH_DURATION: number;
+  readonly OATH_LOYALTY_BONUS: number;
+  readonly OATH_BREAK_BANNERS: number;
+  readonly GRUDGE_OATHBREAK: number;
 }
 
 export const DEFAULT_TUNABLES: Tunables = Object.freeze({
@@ -388,6 +408,7 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   SPREAD_AMOUNT_BASE, DAWN_BLIGHT_ADVANCE, BLIGHT_TO_ASH, PUSHBACK,
   DK_BLOCKS_CLAIM, DK_KILL_CLAIMS_NODE, GRUDGE_MARK_TOP_N,
   BREAK_THRESHOLD, RESCUE_COST, RESCUE_TRIBUTE_BANNERS, LANDED_STRIKE_WOUNDS, BROKEN_MAX_ROUNDS,
+  OATH_DIVIDEND, OATH_DURATION, OATH_LOYALTY_BONUS, OATH_BREAK_BANNERS, GRUDGE_OATHBREAK,
 });
 
 let activeTunables: Tunables = DEFAULT_TUNABLES;
@@ -445,6 +466,11 @@ export const TUNABLES = Object.freeze({
   DK_BLOCKS_CLAIM,
   DK_KILL_CLAIMS_NODE,
   GRUDGE_MARK_TOP_N,
+  OATH_DIVIDEND,
+  OATH_DURATION,
+  OATH_LOYALTY_BONUS,
+  OATH_BREAK_BANNERS,
+  GRUDGE_OATHBREAK,
   WARLORD_POWER,
   COMBAT_COMMIT_MAX,
   RAID_DEFENSE_MARGIN,

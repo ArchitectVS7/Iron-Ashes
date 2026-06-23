@@ -208,6 +208,7 @@ export function createGame(
     gameEndReason: null,
     winner: null,
     gambit: null,
+    oaths: [],
 
     bloodPactHolder,
     bloodPactExposed: false,

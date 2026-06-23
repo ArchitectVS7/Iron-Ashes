@@ -214,6 +214,13 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     thrashes the dark's front + piles into draws) — the economy is alive at 3–4p; closing to 2–4 needs a DESIGN
     change (don't end on all-broken / defer broken-lands ash), **escalated to user**. Spec: `DESIGN-V2-RESCUE-ECONOMY.md`,
     evidence `stage5-tuning-log.md` §5d. *Completed 2026-06-22.*
+  - [x] **Oaths + the Ledger (the passion spine)** — the reconvened panel's 3rd session
+    (`DESIGN-V2-FOCUS-GROUP-R3.md`) diagnosed "sound but emotionally thin"; built public, breakable
+    **Oaths** between players + a villain that **remembers betrayal** (the Ledger = grudge; oathbreaking
+    makes the dark hunt the traitor), absorbing Rescue. Spec `DESIGN-V2-OATHS.md`. **Social density 0 →
+    5.82 oaths sworn + 3.27 betrayals/game** (exceeds v1's ~5 vassal events); retune (`SPREAD_AMOUNT_BASE`
+    4→5, `LANDED_STRIKE_WOUNDS` 2→3 + loyalty nudge) held **SK-win 18.7% ✅**, all_broken 2.3% ✅, guards
+    PASS, 2-seed stable, 392 tests. Evidence `stage5-tuning-log.md` §oaths. *Completed 2026-06-22.*
   - [ ] **5e. Blood Pact** — fix the chooseAccusation relative-gap heuristic + ACCUSATION knobs → accuracy ≥45%,
     ≤2.5 accusations/game, traitor win 12–20%, exposure 40–70%.
   - [ ] **5f. Final validation + lock** — 2-seed stability; all bands + guards + per-count + BP pass; LOCK
@@ -269,10 +276,12 @@ fresh, but the *foundations* are directly reusable.
    patch + retune COMPLETE & LOCKED** (`docs/DESIGN-V2-DARK-ENGAGEMENT.md`, `docs/DESIGN-V2-FOCUS-GROUP-R2.md`):
    DK-kills 0.00→2.05, SK-win re-locked to 20.5% (band, 2-seed stable), per-count gradient flatter
    (26.7→22.0pp). The per-count A/B fork is **RESOLVED — decision A** (named identity ladder, §9.1).
-   **Stage 5d rescue economy COMPLETE** (`DESIGN-V2-RESCUE-ECONOMY.md`): rescues 0.07→0.98/game (14×, alive
-   at 3–4p), SK-win 19.1% ✅, all_broken 2.9% ✅, guards PASS, 385 tests green; pooled 2–4 STRUCTURALLY CAPPED
-   by all_broken<5% (escalated). **NEXT: Stage 5e (Blood Pact accusation heuristic) + a small GAMBIT_SURCHARGE
-   nerf (honest gambit fire 28%, > band). Then 5f lock.**)
+   **Stage 5d rescue economy COMPLETE** (rescues 0.07→~0.8/game; pooled 2–4 structurally capped, escalated).
+   **Oaths + the Ledger (passion spine) COMPLETE** (`DESIGN-V2-OATHS.md`, `DESIGN-V2-FOCUS-GROUP-R3.md`):
+   public breakable player Oaths + a villain that hunts oathbreakers; **social density 0 → 5.82 sworn + 3.27
+   betrayals/game**, SK-win re-locked 18.7% ✅, all_broken 2.3% ✅, guards PASS, 2-seed stable, 392 tests.
+   **NEXT: Stage 5e (Blood Pact accusation heuristic) + a small GAMBIT_SURCHARGE nerf (honest gambit fire 28%,
+   > band). Then 5f lock.**)
 3. Build through the one `applyCommand` reducer; keep everything deterministic (§7); write tests as you go.
 4. **Definition of Done (enforced):** `npm run verify` exits 0 → update `state.json` + §4 box + §8
    changelog + the memory file → commit → `npm run handoff:check` exits 0. See `docs/AGENT-PROTOCOL.md`.

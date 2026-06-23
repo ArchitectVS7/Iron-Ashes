@@ -47,6 +47,12 @@ export interface GameMetrics {
   // ── Stage 5 diagnostics (so tuning isn't blind) ──
   /** Death Knights killed (STRIKE wins) — combat lethality vs the dark + pushback supply. */
   readonly dkKills: number;
+  /** Oaths sworn this game (§ Oaths — the social-density signal). */
+  readonly oathsSworn: number;
+  /** Oaths broken this game (betrayal — the drama signal). */
+  readonly oathsBroken: number;
+  /** Oaths matured honored to the end. */
+  readonly oathsMatured: number;
   /** Nodes ashed by game end — the doom-progress proxy. */
   readonly ashedNodes: number;
   /** Rounds whose Pledge was resolved (denominator for the full-block rate). */
@@ -93,9 +99,15 @@ export function computeMetrics(state: GameState): GameMetrics {
   let dkKills = 0;
   let pledgeRounds = 0;
   let pledgeFullBlocks = 0;
+  let oathsSworn = 0;
+  let oathsBroken = 0;
+  let oathsMatured = 0;
   for (const e of state.actionLog) {
     if (e.type === 'PLAYER_ACTED') {
       if (e.action === 'RESCUE') rescueCount++;
+      if (e.action === 'SWEAR_OATH') oathsSworn++;
+      if (e.action === 'BREAK_OATH') oathsBroken++;
+      if (e.details?.oathMatured === true) oathsMatured++;
       if (e.details?.broken === true) brokenCount++;
       if (e.details?.gambitSeized === true) gambitSeized = true;
     } else if (e.type === 'ACCUSATION_RESOLVED') {
@@ -136,6 +148,9 @@ export function computeMetrics(state: GameState): GameMetrics {
     accusationsResolved,
     accusationsCorrect,
     dkKills,
+    oathsSworn,
+    oathsBroken,
+    oathsMatured,
     ashedNodes,
     pledgeRounds,
     pledgeFullBlocks,

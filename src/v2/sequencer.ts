@@ -42,6 +42,7 @@ import {
 } from './shadowking-policy.js';
 import {
   checkBrokenRecovery,
+  runOathUpkeep,
 } from './actions.js';
 import {
   evaluateGambitAtDawn,
@@ -310,6 +311,9 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
   for (const p of state.players) {
     p.banners = generateBannersForPlayer(state, p.index);
   }
+
+  // 1b. Oath upkeep (§ Oaths): fealty dividend on fresh income, strain, maturity.
+  events.push(...runOathUpkeep(state));
 
   // 2. Draw cards up to hand limit (seeded deck, seat order — §7.8)
   for (const playerIndex of state.turnOrder) {

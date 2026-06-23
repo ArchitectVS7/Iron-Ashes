@@ -227,6 +227,8 @@ import {
   executeRaid,
   executeRescue,
   executeRecruit,
+  executeSwearOath,
+  executeBreakOath,
 } from './actions.js';
 import {
   executeAudit,
@@ -408,6 +410,36 @@ function handlePlayerAction(
       }
       try {
         actionResult = executeAudit(state, playerIndex, action.targetPlayerIndex);
+      } catch (e: unknown) {
+        throw new InvalidCommandError(
+          { type: 'PLAYER_ACTION', playerIndex, action },
+          (e as Error).message,
+        );
+      }
+      break;
+    }
+
+    case 'SWEAR_OATH': {
+      if (action.targetPlayerIndex === undefined || action.targetPlayerIndex === null) {
+        throw new InvalidCommandError(
+          { type: 'PLAYER_ACTION', playerIndex, action },
+          'SWEAR_OATH requires a targetPlayerIndex',
+        );
+      }
+      try {
+        actionResult = executeSwearOath(state, playerIndex, action.targetPlayerIndex);
+      } catch (e: unknown) {
+        throw new InvalidCommandError(
+          { type: 'PLAYER_ACTION', playerIndex, action },
+          (e as Error).message,
+        );
+      }
+      break;
+    }
+
+    case 'BREAK_OATH': {
+      try {
+        actionResult = executeBreakOath(state, playerIndex);
       } catch (e: unknown) {
         throw new InvalidCommandError(
           { type: 'PLAYER_ACTION', playerIndex, action },

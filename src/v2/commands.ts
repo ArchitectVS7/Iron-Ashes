@@ -19,6 +19,8 @@ export type ActionType =
   | 'RESCUE'    // Un-Break a co-located/adjacent ally (§5.4)
   | 'RECRUIT'   // Recruit a retinue piece
   | 'AUDIT'     // Reveal one opponent's last pledge (Blood Pact only, §10)
+  | 'SWEAR_OATH' // Forge a public pact with a rival (§ Oaths) — free, no action point
+  | 'BREAK_OATH' // Betray a sworn ally for a burst; climb the dark's Ledger (§ Oaths)
   | 'PASS';     // End actions early
 
 /** A player action with its parameters. */

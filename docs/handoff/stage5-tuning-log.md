@@ -195,3 +195,44 @@ the broken-lands ash so rescue *protects the table*) — ESCALATED to the user.
 
 Side note (5e): gambit honest fire drifted 25.2→28.0% (still > 10–20 band) — the separate gambit item,
 not a rescue regression; fold a small GAMBIT_SURCHARGE nerf into 5e.
+
+## Oaths + Ledger — the passion spine (spec: DESIGN-V2-OATHS.md)
+
+**Trigger:** the reconvened panel's 3rd session (`DESIGN-V2-FOCUS-GROUP-R3.md`) diagnosed the game as
+"sound but emotionally thin — no relationship between two players ever persists or can be betrayed." The
+convergent 3/5 headline: a public, breakable **Oath** between players, enforced by a villain that
+**remembers** (the **Ledger** = the existing grudge array; oathbreaking climbs it, so the dark hunts
+traitors). Absorbs Rescue (a rescue auto-forges an Oath). Kept OFF the card economy (banners + grudge).
+
+**Build:** new `state.oaths[]`, `SWEAR_OATH` (free) / `BREAK_OATH` (consumes an action; +banner burst,
++grudge, no same-round farming) actions, Dawn upkeep (fealty dividend + strain + maturity bonus),
+non-aggression between sworn allies, rescue auto-swear; AI `oathWillingness`/`oathLoyalty` knobs +
+`bestStepTowardBrokenAlly`-style swear/break loop; oath metrics in the sim. 5 oath tunables wired.
+
+**First sim (defaults):** oaths sworn **6.58/game**, broken **4.24** — the social density landed
+(exceeds v1's ~5 vassal events/game). BUT the banner dividends + non-aggression weakened the dark to
+**15.4%** (below floor) and the 72% break share was too cynical.
+
+**Retune (`scripts/tune-oaths.mjs`, 3 grids + 2-seed confirm):** raised archetype loyalty (opportunist
+0.3→0.5, saboteur 0.2→0.45, aggressor 0.3→0.45) for a healthier ~50–64% break share; searched the
+dark-strength + oath-economy levers. **LOCKED: `SPREAD_AMOUNT_BASE` 4→5 + `LANDED_STRIKE_WOUNDS` 2→3**
+(Oath non-aggression cut PvP Breaks, so a harder dark-wound restores breaks/rescues). The div0 and gob1
+variants failed a guard on a 2nd seed; `spr5 w3` was the only finalist in-band AND guards-PASS on BOTH.
+
+**Confirmation sweep (s20260622-n40):**
+| Metric | pre-Oaths | Oaths LOCKED |
+|---|---|---|
+| Oaths sworn / broken per game | 0 / 0 | **5.82 / 3.27** (63.9% break) |
+| SK-win | 20.5% (5d) | **18.7% ✅** (2-seed stable 19.3%) |
+| Rescues / game | 0.98 (5d) | 0.81 (Oaths cut PvP breaks; rescue auto-forges Oaths) |
+| Breaks / game | 1.90 | 1.65 |
+| all_broken / DK-kills | 2.9% / 2.03 | **2.3% ✅** / 2.05 (5-dark intact) |
+| guards (even seat / free-rider) | PASS | PASS (26.3% / not rewarded) |
+
+Reading: the passion goal is **met** — the table now forms ~6 alliances and ~3 betrayals per game, the
+villain hunts oathbreakers (the Ledger), and Rescue is absorbed as the dramatic earned Oath. SK-win is
+back in band and 2-seed-stable; all guards hold. Side note (5e): gambit honest fire 28.4% (still > band)
+— the long-standing separate item, fold a small GAMBIT_SURCHARGE nerf into 5e.
+
+Decision: **LOCK Oaths.** The convergent passion spine ships; the per-count ladder + 18–22% band + the
+no-dominant/free-rider guards all hold. Next: 5e (Blood Pact accusation + the gambit nerf), then 5f.

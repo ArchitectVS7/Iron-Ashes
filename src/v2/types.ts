@@ -211,6 +211,22 @@ export interface RescueDebt {
   readonly expiresRound: number;
 }
 
+/**
+ * An Oath — a public, breakable two-player pact (§ Oaths). Symmetric (a < b).
+ * While active the two cannot RAID each other and earn a Dawn fealty dividend;
+ * it matures (dissolves with a loyalty bonus) after OATH_DURATION rounds, or is
+ * BROKEN for a banner burst at the cost of climbing the dark's Ledger (grudge).
+ */
+export interface Oath {
+  /** The two sworn players, low seat index first (a < b). */
+  readonly a: number;
+  readonly b: number;
+  /** Round the Oath was sworn. */
+  readonly swornRound: number;
+  /** Strain accrued — ticks each Dawn; at OATH_DURATION the Oath matures. */
+  strain: number;
+}
+
 // ─── Blood Pact / Accusation (Layer B, §10) ──────────────────────
 
 /** One player's vote in an active accusation. */
@@ -333,6 +349,9 @@ export interface GameState {
 
   /** Active Gambit state, or null if no Gambit is live. */
   gambit: GambitState | null;
+
+  /** Active Oaths — public, breakable two-player pacts (§ Oaths). Each player in ≤1. */
+  oaths: Oath[];
 
   // ── Blood Pact (Layer B) ──
   /** Player index holding the Blood Pact, or null (Layer A). */
