@@ -62,6 +62,8 @@ export interface SweepDiagnostics {
   readonly oathsBrokenPerGame: number;
   /** Fraction of resolved Oaths that ended in betrayal (broken / (broken+matured)). */
   readonly oathBreakShare: number;
+  /** Mean Forge tolls paid per game (positional-leverage signal). */
+  readonly tollsPerGame: number;
   /** Mean nodes ashed by game end (doom progress). */
   readonly meanAshedNodes: number;
   /** Fraction of pledge rounds that fully blocked the strike. */
@@ -189,6 +191,7 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
     oathsBrokenPerGame: mean(rows.map(r => r.metrics.oathsBroken)),
     oathBreakShare: (totalOathsBroken + totalOathsMatured) > 0
       ? totalOathsBroken / (totalOathsBroken + totalOathsMatured) : 0,
+    tollsPerGame: mean(rows.map(r => r.metrics.tollsPaid)),
     meanAshedNodes: mean(rows.map(r => r.metrics.ashedNodes)),
     pledgeFullBlockRate: totalPledgeRounds > 0 ? totalFullBlocks / totalPledgeRounds : 0,
     gambitSeizeRate: total ? rows.filter(r => r.metrics.gambitSeized).length / total : 0,
@@ -360,6 +363,7 @@ ${endRows}
 | Conditional rescue rate (rescues / break) | ${pct(d.conditionalRescueRate)} | ~0 with breaks present ⇒ nobody bothers; low breaks ⇒ raise lethality |
 | DK kills per game | ${d.dkKillRate.toFixed(2)} | combat lethality vs the dark / pushback supply |
 | Oaths sworn / broken per game | ${d.oathsSwornPerGame.toFixed(2)} / ${d.oathsBrokenPerGame.toFixed(2)} | social density (sworn) + betrayal drama (${pct(d.oathBreakShare)} of oaths broken) |
+| Forge tolls per game | ${d.tollsPerGame.toFixed(2)} | chokepoint leverage (rival-Forge passage tax) |
 | Mean nodes ashed (doom progress) | ${d.meanAshedNodes.toFixed(2)} | how close the dark got |
 | Pledge full-block rate | ${pct(d.pledgeFullBlockRate)} | high ⇒ table over-blocks ⇒ dark too weak |
 

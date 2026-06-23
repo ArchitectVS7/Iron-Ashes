@@ -81,6 +81,11 @@ export interface AIPolicy {
    * forcing-function block AND claims the node, so hunters contest DK-held ground.
    */
   readonly darkHuntBias?: number;
+  /**
+   * 0..1 — willingness to pay a Forge toll to charge through a rival's gate (§ tolls).
+   * ≥0.5 pays/charges through; <0.5 routes around (skips the tolled step). Neutral 0.
+   */
+  readonly forgeValuation?: number;
   /** 0..1 — propensity to SWEAR an Oath with an oath-free rival (§ Oaths). Neutral 0. */
   readonly oathWillingness?: number;
   /**
@@ -266,6 +271,32 @@ function marchCost(state: GameState, nodeId: string): number {
   return 1 + (state.board.state.nodes[nodeId]?.ashed ? ASHED_TRAVERSE_EXTRA_COST : 0);
 }
 
+/** Forge-as-Gate toll `playerIndex` owes to march INTO `nodeId` (0 if none); mirrors executeMarch. */
+function forgeToll(state: GameState, playerIndex: number, nodeId: string): number {
+  const t = getTunables().FORGE_TOLL_COST;
+  if (t <= 0) return 0;
+  const ns = state.board.state.nodes[nodeId];
+  const def = state.board.definition.nodes[nodeId];
+  if (def?.tier !== 'forge' || !ns || ns.ashed) return 0;
+  if (ns.owner === null || ns.owner === playerIndex) return 0;
+  if (areSworn(state, playerIndex, ns.owner)) return 0;
+  return t;
+}
+
+/** Total banners to MARCH into `nodeId` (march cost + any Forge toll) — keeps the AI's affordability honest. */
+function marchCostFor(state: GameState, playerIndex: number, nodeId: string): number {
+  return marchCost(state, nodeId) + forgeToll(state, playerIndex, nodeId);
+}
+
+/**
+ * Will this archetype pay a Forge toll to take `step`? High `forgeValuation` charges through
+ * the gate; low routes around (skips the tolled step). Free steps are always acceptable, so
+ * at FORGE_TOLL_COST=0 this is a no-op (byte-identical default).
+ */
+function tollAcceptable(state: GameState, playerIndex: number, nodeId: string, forgeValuation: number): boolean {
+  return forgeToll(state, playerIndex, nodeId) === 0 || forgeValuation >= 0.5;
+}
+
 /**
  * Can `playerIndex` step from `fromId` into `toId` without hitting a hard wall?
  * Mirrors the reducer's Zone-of-Control rule: a held/garrisoned Approach can't be
@@ -386,7 +417,7 @@ function baselineAction(state: GameState, playerIndex: number, seed: number): Pl
   // 3. MARCH toward the best reachable claimable node, if affordable.
   const rng = decisionRng(state, playerIndex, seed, 1 + player.actionsRemaining);
   const step = bestStepToward(state, playerIndex, rng);
-  if (step !== null && player.banners >= marchCost(state, step)) {
+  if (step !== null && player.banners >= marchCostFor(state, playerIndex, step)) {
     return { type: 'MARCH', targetNodeId: step };
   }
 
@@ -517,6 +548,7 @@ function archetypeAction(
   const rescueWillingness = policy.rescueWillingness ?? 0;
   const gambitContest = policy.gambitContest ?? 0;
   const darkHunt = policy.darkHuntBias ?? 0;
+  const forgeValuation = policy.forgeValuation ?? 0;
   const oathWillingness = policy.oathWillingness ?? 0;
   const oathLoyalty = policy.oathLoyalty ?? 1;
   // A traitor sabotaging the table won't push the front back (it wants the doom).
@@ -552,7 +584,8 @@ function archetypeAction(
         return { type: 'RAID', targetPlayerIndex: gambit.claimant };
       }
       const step = firstStepTowardNode(state, playerIndex, ks);
-      if (step !== null && player.banners >= marchCost(state, step)) {
+      if (step !== null && player.banners >= marchCostFor(state, playerIndex, step)
+            && tollAcceptable(state, playerIndex, step, forgeValuation)) {
         return { type: 'MARCH', targetNodeId: step };
       }
     }
@@ -567,7 +600,8 @@ function archetypeAction(
     }
     if (ally === null && rng.float() < rescueWillingness) {
       const step = bestStepTowardBrokenAlly(state, playerIndex);
-      if (step !== null && player.banners >= marchCost(state, step)) {
+      if (step !== null && player.banners >= marchCostFor(state, playerIndex, step)
+            && tollAcceptable(state, playerIndex, step, forgeValuation)) {
         return { type: 'MARCH', targetNodeId: step };
       }
     }
@@ -603,7 +637,8 @@ function archetypeAction(
   // 4. GAMBIT — march toward the Keystone (gambler).
   if (gambitAmbition > 0 && here !== state.board.definition.keystoneId && rng.float() < gambitAmbition) {
     const step = firstStepTowardNode(state, playerIndex, state.board.definition.keystoneId);
-    if (step !== null && player.banners >= marchCost(state, step)) {
+    if (step !== null && player.banners >= marchCostFor(state, playerIndex, step)
+          && tollAcceptable(state, playerIndex, step, forgeValuation)) {
       return { type: 'MARCH', targetNodeId: step };
     }
   }
@@ -613,7 +648,8 @@ function archetypeAction(
   //     the win check; here we just close the distance.
   if (darkHunt > 0 && rng.float() < darkHunt) {
     const step = bestStepTowardHuntableDK(state, playerIndex);
-    if (step !== null && player.banners >= marchCost(state, step)) {
+    if (step !== null && player.banners >= marchCostFor(state, playerIndex, step)
+          && tollAcceptable(state, playerIndex, step, forgeValuation)) {
       return { type: 'MARCH', targetNodeId: step };
     }
   }
@@ -621,7 +657,8 @@ function archetypeAction(
   // 5. HUNT — march toward the nearest rival (aggressor who prefers combat to claiming).
   if (aggression > 0 && claimVsRaid < 0.5 && rival === null && rng.float() < aggression) {
     const step = firstStepTowardNearestRival(state, playerIndex);
-    if (step !== null && player.banners >= marchCost(state, step)) {
+    if (step !== null && player.banners >= marchCostFor(state, playerIndex, step)
+          && tollAcceptable(state, playerIndex, step, forgeValuation)) {
       return { type: 'MARCH', targetNodeId: step };
     }
   }
@@ -634,7 +671,8 @@ function archetypeAction(
   // 7. MARCH toward the best reachable claimable node. A defender only expands to a
   //    directly-adjacent claimable (the first step IS the prize); otherwise it holds.
   const step = bestStepToward(state, playerIndex, rng);
-  if (step !== null && player.banners >= marchCost(state, step)) {
+  if (step !== null && player.banners >= marchCostFor(state, playerIndex, step)
+        && tollAcceptable(state, playerIndex, step, forgeValuation)) {
     if (defensiveness >= 0.7 && claimValue(state, step) <= 0) {
       return { type: 'PASS' }; // hold position rather than march out
     }

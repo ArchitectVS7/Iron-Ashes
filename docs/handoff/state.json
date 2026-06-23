@@ -1,25 +1,25 @@
 {
   "schemaVersion": 1,
   "currentStage": "5e",
-  "currentStageTitle": "Stage 5e — Blood Pact accusation heuristic (+ a small gambit nerf); 5d done",
-  "status": "not-started",
-  "nextAction": "DONE & LOCKED: Stage 5d (rescue economy) AND the Oaths + Ledger passion spine. OATHS (spec docs/DESIGN-V2-OATHS.md, from the panel's 3rd session docs/DESIGN-V2-FOCUS-GROUP-R3.md): the game was 'sound but emotionally thin' (no player relationship persists or can be betrayed). Built public, breakable two-player OATHS (state.oaths[], SWEAR_OATH free / BREAK_OATH consumes-action, Dawn fealty dividend + maturity bonus, non-aggression between sworn, no same-round break-farming) + the LEDGER (= the existing grudge array; oathbreaking adds GRUDGE_OATHBREAK so the dark hunts the traitor) + Rescue auto-forges an Oath. AI oathWillingness/oathLoyalty knobs. Kept OFF the card economy (banners+grudge). First sim: oaths sworn 6.58/broken 4.24 but dark weakened to 15.4%; RETUNE (scripts/tune-oaths.mjs, 2-seed) LOCKED SPREAD_AMOUNT_BASE 4->5 + LANDED_STRIKE_WOUNDS 2->3 + an archetype loyalty nudge. CONFIRMATION (sim-results/s20260622-n40): oaths sworn 5.82/broken 3.27 per game (social density 0->~6, exceeds v1's ~5 vassal events), SK-win 18.7% PASS (2-seed stable 19.3%), all_broken 2.3%, guards PASS (even seat 26.3%, free-riding not rewarded), DK-kills 2.05 (5-dark intact), rescues 0.81. Tests 392/392 green. (5d earlier: rescues 0.07->~0.9/game; pooled 2-4 STRUCTURALLY CAPPED by all_broken<5% -- escalated; closing to 2-4 needs a design change, USER decision still open.) NEXT: Stage 5e -- fix Blood Pact chooseAccusation heuristic + ACCUSATION knobs (accuracy >=45%, <=2.5/game, traitor win 12-20%, exposure 40-70%); FOLD IN a small GAMBIT_SURCHARGE nerf (honest gambit fire 28.4%, > 10-20 band). Then 5f (final 2-seed lock + §9 doc). NOTE the panel's deferred FOCUS-GROUP-R3 ideas (the Herald non-card verb + political/martial stance; sealed core Pledge; Forge-gate tolls) are sequenced AFTER this spine if the user wants more.",
+  "currentStageTitle": "R3 build wave (Stage S sealed-pledge → Stage H Herald) THEN 5e Blood Pact",
+  "status": "in-progress",
+  "nextAction": "R3 BUILD WAVE in progress (plan: ~/.claude/plans/i-want-to-use-transient-quill.md; from panel round-3 docs/DESIGN-V2-FOCUS-GROUP-R3.md). Building three deferred panel mechanics smallest-first, each re-tuned + 2-seed-locked, then a both-modes re-baseline, then resume 5e/5f. ** Stage T (Forge-as-Gate tolls) DONE & LOCKED**: marching into a rival-owned living Forge pays the owner FORGE_TOLL_COST banners (sworn-exempt; toll-aware AI marchCostFor + forgeValuation knob). LOCKED FORGE_TOLL_COST 0->1; sim: tolls 0.74/game, SK-win 18.6% PASS (2-seed 19.4%), monotonic ladder (2p 22.8>3p 21.5>4p 11.6), guards PASS, oaths intact (5.79/3.25), 396 tests. Evidence stage5-tuning-log.md §tolls. **NEXT = Stage S (Sealed gambit-claimant Pledge + gambit fix):** generalize the blood_pact conceal condition (reducer.ts PLEDGE_COMMITTED vs PLEDGE_SUBMITTED) to isPledgeSealed + a SEALED_CORE_PLEDGE tunable ('off'|'all'|'gambit_claimant', default 'off'); AI pledgeUnderUncertainty knob; tune-sealed-pledge.mjs targeting gambitFireRateNoGambler 28.5%->10-20 (this RESOLVES the long-standing gambit-nerf TODO: sealing OR GAMBIT_SURCHARGE, never both). **THEN Stage H (Herald + political/martial stance, MVP, the big re-tune), THEN Stage R (both-modes re-baseline) + 5e (Blood Pact accusation: accuracy>=45%, <=2.5/game, traitor win 12-20%, exposure 40-70%) + 5f (final lock + §9 doc, amend ROADMAP §2 open-pledge decision).** (Note: rescues ~0.78 pooled 2-4 STRUCTURALLY CAPPED by all_broken<5%, escalated; Herald may push it lower — decide at Stage H.)",
   "specRefs": [
-    "docs/DESIGN-V2-OATHS.md (the spine spec) + docs/DESIGN-V2-FOCUS-GROUP-R3.md (panel round-3 synthesis) + docs/handoff/stage5-tuning-log.md §oaths",
-    "src/v2/types.ts (Oath + GameState.oaths), src/v2/actions.ts (executeSwearOath/executeBreakOath/runOathUpkeep/findOath/areSworn + raid block + rescue auto-swear), src/v2/sequencer.ts (Dawn oath upkeep), src/v2/ai-player.ts (oathWillingness/oathLoyalty), src/v2/tunables.ts (5 OATH_* levers + SPREAD_AMOUNT_BASE=5, LANDED_STRIKE_WOUNDS=3)",
-    "sim-results/s20260622-n40/REPORT.md (Oaths LOCKED: sworn 5.82/broken 3.27, SK-win 18.7%, all_broken 2.3%), scripts/tune-oaths.mjs",
-    "PRIOR: docs/DESIGN-V2-RESCUE-ECONOMY.md (5d) + DESIGN-V2-DARK-ENGAGEMENT.md (5-dark) + DESIGN-V2-ALGORITHM.md §9.1 (per-count ladder, fork A)",
-    "ROADMAP §4 (5d + Oaths boxes done; 5e next)"
+    "PLAN: ~/.claude/plans/i-want-to-use-transient-quill.md (the R3 build wave) + docs/DESIGN-V2-FOCUS-GROUP-R3.md §3-4 (the deferred ideas)",
+    "Stage T (done): src/v2/actions.ts executeMarch toll branch, src/v2/ai-player.ts (forgeValuation/forgeToll/marchCostFor/tollAcceptable), tunables FORGE_TOLL_COST=1, scripts/tune-tolls.mjs, tuning-log §tolls",
+    "Stage S target seams: src/v2/reducer.ts (sealed-pledge conceal cond ~line 206), src/v2/blood-pact.ts, src/v2/gambit.ts (GAMBIT_SURCHARGE), src/v2/ai-player.ts choosePledge",
+    "Stage H target seams: src/v2/types.ts (PieceType/PlayerState handLimit/stance), src/v2/sequencer.ts (Dawn HAND_LIMIT->p.handLimit), src/v2/actions.ts (executeRecruit/new executeParley/piece-selector march)",
+    "sim-results/s20260622-n40/REPORT.md (latest LOCKED: SK-win 18.6%, tolls 0.74, oaths 5.79/3.25); PRIOR docs DESIGN-V2-OATHS / RESCUE-ECONOMY / DARK-ENGAGEMENT / ALGORITHM §9.1"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-23T03:51:04.930Z",
-    "commit": "e0b01e9",
-    "sourceHash": "df14042aa478dcc009f25430a0e27520ff1c44790949fc4720b43a21c8a66858",
+    "timestamp": "2026-06-23T09:59:42.678Z",
+    "commit": "fbbbfa8",
+    "sourceHash": "ff2853d7e17158204b68443333b800260201ccce9592e286e16e3c8638c0f7df",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 25,
-      "passed": 392,
+      "files": 26,
+      "passed": 396,
       "failed": 0,
       "status": "pass"
     }

@@ -221,6 +221,10 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     5.82 oaths sworn + 3.27 betrayals/game** (exceeds v1's ~5 vassal events); retune (`SPREAD_AMOUNT_BASE`
     4→5, `LANDED_STRIKE_WOUNDS` 2→3 + loyalty nudge) held **SK-win 18.7% ✅**, all_broken 2.3% ✅, guards
     PASS, 2-seed stable, 392 tests. Evidence `stage5-tuning-log.md` §oaths. *Completed 2026-06-22.*
+  - [x] **Stage T — Forge-as-Gate tolls (R3 build wave 1/3)** — marching into a rival-owned Forge pays a
+    banner toll to the owner (the chokepoint tax; sworn allies free). `FORGE_TOLL_COST` 0→1 + AI
+    `forgeValuation`. Tolls 0.74/game, SK-win 18.6% ✅, monotonic ladder, guards PASS, 396 tests. Spec
+    `DESIGN-V2-FOCUS-GROUP-R3.md` §4, evidence `stage5-tuning-log.md` §tolls. *Completed 2026-06-23.*
   - [ ] **5e. Blood Pact** — fix the chooseAccusation relative-gap heuristic + ACCUSATION knobs → accuracy ≥45%,
     ≤2.5 accusations/game, traitor win 12–20%, exposure 40–70%.
   - [ ] **5f. Final validation + lock** — 2-seed stability; all bands + guards + per-count + BP pass; LOCK
@@ -278,10 +282,11 @@ fresh, but the *foundations* are directly reusable.
    (26.7→22.0pp). The per-count A/B fork is **RESOLVED — decision A** (named identity ladder, §9.1).
    **Stage 5d rescue economy COMPLETE** (rescues 0.07→~0.8/game; pooled 2–4 structurally capped, escalated).
    **Oaths + the Ledger (passion spine) COMPLETE** (`DESIGN-V2-OATHS.md`, `DESIGN-V2-FOCUS-GROUP-R3.md`):
-   public breakable player Oaths + a villain that hunts oathbreakers; **social density 0 → 5.82 sworn + 3.27
-   betrayals/game**, SK-win re-locked 18.7% ✅, all_broken 2.3% ✅, guards PASS, 2-seed stable, 392 tests.
-   **NEXT: Stage 5e (Blood Pact accusation heuristic) + a small GAMBIT_SURCHARGE nerf (honest gambit fire 28%,
-   > band). Then 5f lock.**)
+   public breakable player Oaths + a villain that hunts oathbreakers; social density 0 → ~5.8 sworn/game.
+   **R3 build wave underway** (`docs/i-want-to-use-transient-quill.md` plan): **Stage T Forge-tolls DONE**
+   (`FORGE_TOLL_COST`=1, tolls 0.74/game, SK-win 18.6% ✅, 396 tests). **NEXT: Stage S (sealed
+   gambit-claimant Pledge + the gambit fix — honest gambit fire 28%), then Stage H (Herald + political/martial
+   stance), then a both-modes re-baseline + resume 5e (Blood Pact) → 5f lock.**)
 3. Build through the one `applyCommand` reducer; keep everything deterministic (§7); write tests as you go.
 4. **Definition of Done (enforced):** `npm run verify` exits 0 → update `state.json` + §4 box + §8
    changelog + the memory file → commit → `npm run handoff:check` exits 0. See `docs/AGENT-PROTOCOL.md`.

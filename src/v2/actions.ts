@@ -109,18 +109,33 @@ export function executeMarch(
 
   // Compute cost
   const targetNodeState = state.board.state.nodes[targetNodeId];
+  const targetDef = state.board.definition.nodes[targetNodeId];
   let cost = 1;
   if (targetNodeState?.ashed) {
     cost += ASHED_TRAVERSE_EXTRA_COST;
   }
 
-  // Validate banners
-  if (player.banners < cost) {
-    throw new Error(`Cannot MARCH: need ${cost} banners, have ${player.banners}`);
+  // Forge-as-Gate toll (§ tolls): marching INTO a rival-owned, living Forge pays the
+  // owner a toll, in the open — the chokepoint tax that makes holding a Forge leverage.
+  // Sworn allies pass free (Oath non-aggression).
+  let toll = 0;
+  let tollOwner: number | null = null;
+  if (
+    getTunables().FORGE_TOLL_COST > 0 && targetDef?.tier === 'forge' &&
+    targetNodeState && targetNodeState.owner !== null &&
+    targetNodeState.owner !== playerIndex && !targetNodeState.ashed &&
+    !areSworn(state, playerIndex, targetNodeState.owner)
+  ) {
+    toll = getTunables().FORGE_TOLL_COST;
+    tollOwner = targetNodeState.owner;
+  }
+
+  // Validate banners (march cost + any Forge toll)
+  if (player.banners < cost + toll) {
+    throw new Error(`Cannot MARCH: need ${cost + toll} banners (cost ${cost} + toll ${toll}), have ${player.banners}`);
   }
 
   // Zone-of-Control check: if target is an Approach held by a rival, must STRIKE/RAID
-  const targetDef = state.board.definition.nodes[targetNodeId];
   if (targetDef?.tier === 'approach') {
     const rivalAtApproach = hasRivalAtNode(state, playerIndex, targetNodeId);
     if (rivalAtApproach !== null) {
@@ -138,6 +153,11 @@ export function executeMarch(
 
   // Execute
   player.banners -= cost;
+  // Pay the Forge toll to the owner (zero-sum banner transfer, in the open).
+  if (tollOwner !== null && toll > 0) {
+    player.banners -= toll;
+    state.players[tollOwner].banners += toll;
+  }
 
   // Move Warlord
   // Remove from old node's pieces
@@ -165,7 +185,7 @@ export function executeMarch(
     type: 'PLAYER_ACTED',
     playerIndex,
     action: 'MARCH',
-    details: { from: currentNodeId, to: targetNodeId, cost },
+    details: { from: currentNodeId, to: targetNodeId, cost, toll, paidTo: tollOwner },
   });
 
   // Check if player just marched onto the Keystone (§6 — Gambit seize)

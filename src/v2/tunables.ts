@@ -153,6 +153,16 @@ export const SPREAD_AMOUNT_BASE = 5;
 export const ASHED_TRAVERSE_EXTRA_COST = 1;
 
 /**
+ * Banner toll paid to a rival when marching INTO a Forge they own (§ tolls — the
+ * Forge-as-Gate chokepoint tax). Forges are the mid-belt chokepoints (every Keep→Keystone
+ * path crosses exactly one), so this makes holding a Forge real leverage and taxes the
+ * front-runner heading for the center. Sworn allies pass free. Stage-T locked 0 → 1
+ * (2-seed stable: SK-win 18.6/19.4%, tolls ~0.74/game, monotonic per-count ladder
+ * preserved, guards PASS). See stage5-tuning-log.md §tolls. [TUNABLE]
+ */
+export const FORGE_TOLL_COST = 1;
+
+/**
  * Wounds the dark deals its NAMED TARGET when a strike lands un-averted (Stage 5d
  * break-vector): `ceil((1-ratio) * LANDED_STRIKE_WOUNDS)`. The dark's strikes ash
  * nodes but never wounded a warlord, so breaks (and thus rescues) were starved and
@@ -399,6 +409,8 @@ export interface Tunables {
   readonly OATH_LOYALTY_BONUS: number;
   readonly OATH_BREAK_BANNERS: number;
   readonly GRUDGE_OATHBREAK: number;
+  // ── Forge tolls (Stage T) ──
+  readonly FORGE_TOLL_COST: number;
 }
 
 export const DEFAULT_TUNABLES: Tunables = Object.freeze({
@@ -409,6 +421,7 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   DK_BLOCKS_CLAIM, DK_KILL_CLAIMS_NODE, GRUDGE_MARK_TOP_N,
   BREAK_THRESHOLD, RESCUE_COST, RESCUE_TRIBUTE_BANNERS, LANDED_STRIKE_WOUNDS, BROKEN_MAX_ROUNDS,
   OATH_DIVIDEND, OATH_DURATION, OATH_LOYALTY_BONUS, OATH_BREAK_BANNERS, GRUDGE_OATHBREAK,
+  FORGE_TOLL_COST,
 });
 
 let activeTunables: Tunables = DEFAULT_TUNABLES;
@@ -457,6 +470,7 @@ export const TUNABLES = Object.freeze({
   DAWN_BLIGHT_ADVANCE,
   SPREAD_AMOUNT_BASE,
   ASHED_TRAVERSE_EXTRA_COST,
+  FORGE_TOLL_COST,
   GRUDGE_DECAY_RATE,
   GRUDGE_HEROIC_DECAY_RATE,
   GRUDGE_CAP,

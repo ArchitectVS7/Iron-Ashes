@@ -236,3 +236,21 @@ back in band and 2-seed-stable; all guards hold. Side note (5e): gambit honest f
 
 Decision: **LOCK Oaths.** The convergent passion spine ships; the per-count ladder + 18–22% band + the
 no-dominant/free-rider guards all hold. Next: 5e (Blood Pact accusation + the gambit nerf), then 5f.
+
+## Stage T — Forge-as-Gate tolls (FOCUS-GROUP-R3 §4, the R3 build wave)
+
+**What:** marching INTO a rival-owned, living Forge pays the owner a banner toll, in the open — the
+chokepoint tax (every Keep→Keystone path crosses exactly one Forge), taxing the front-runner heading for
+the center. Sworn allies pass free. Engine in `executeMarch` (toll-aware affordability + zero-sum
+transfer, mirrors the rescue-tribute); AI `forgeValuation` knob (≥0.5 charges through, <0.5 routes
+around — toll-aware `marchCostFor` keeps every march proposal affordable so the reducer never rejects
+one); `tollsPaid` metric.
+
+**Search (`scripts/tune-tolls.mjs`, 2-seed):** tolls barely move SK-win (banner transfers are zero-sum;
+the friction is mild). LOCKED **`FORGE_TOLL_COST` 0 → 1** (SPREAD kept 5 — no compensator needed).
+Confirmation (s20260622-n40): SK-win **18.6% ✅** (2-seed 19.4%), tolls **0.74/game** (chokepoint
+leverage live), oaths intact (5.79/3.25), per-count ladder monotonic (2p 22.8 > 3p 21.5 > 4p 11.6),
+guards PASS, all_broken 2.3%, DK-kills 2.05. 396 tests. The `spr6` variant landed SK more central (20.4%)
+but broke ladder monotonicity (3p>2p), so the one-lever `toll1` won. Tolls fire only ~0.74/game (the AI
+mostly claims its own quadrant's Forge early, so few cross a rival's) — a modest positional layer, not a
+dominant mechanic; honest and in the sanity range. Gambit honest fire 28.5% unchanged (Stage S's job).

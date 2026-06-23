@@ -53,6 +53,8 @@ export interface GameMetrics {
   readonly oathsBroken: number;
   /** Oaths matured honored to the end. */
   readonly oathsMatured: number;
+  /** Forge tolls paid this game (§ tolls — positional-leverage signal). */
+  readonly tollsPaid: number;
   /** Nodes ashed by game end — the doom-progress proxy. */
   readonly ashedNodes: number;
   /** Rounds whose Pledge was resolved (denominator for the full-block rate). */
@@ -102,11 +104,13 @@ export function computeMetrics(state: GameState): GameMetrics {
   let oathsSworn = 0;
   let oathsBroken = 0;
   let oathsMatured = 0;
+  let tollsPaid = 0;
   for (const e of state.actionLog) {
     if (e.type === 'PLAYER_ACTED') {
       if (e.action === 'RESCUE') rescueCount++;
       if (e.action === 'SWEAR_OATH') oathsSworn++;
       if (e.action === 'BREAK_OATH') oathsBroken++;
+      if (e.action === 'MARCH' && typeof e.details?.toll === 'number' && e.details.toll > 0) tollsPaid++;
       if (e.details?.oathMatured === true) oathsMatured++;
       if (e.details?.broken === true) brokenCount++;
       if (e.details?.gambitSeized === true) gambitSeized = true;
@@ -151,6 +155,7 @@ export function computeMetrics(state: GameState): GameMetrics {
     oathsSworn,
     oathsBroken,
     oathsMatured,
+    tollsPaid,
     ashedNodes,
     pledgeRounds,
     pledgeFullBlocks,
