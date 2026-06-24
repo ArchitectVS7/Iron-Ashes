@@ -26,9 +26,9 @@ const matchups = bloodPactMatchups();
 
 // 3D grid: SABOTEUR_COVER (bluff) × ACCUSE_MIN_SCORE (evidence bar) × BLOOD_PACT_SPREAD_BONUS
 // (the dark burns hotter with a traitor → gives the traitor a doom path). All tunables.
-const COVERS = [0.742, 0.745, 0.748, 0.752];
-const BARS = [4];
-const BONUSES = [1];
+const COVERS = [0.40, 0.55, 0.70];
+const BARS = [3, 4];
+const BONUSES = [2, 3];
 
 const pct = x => (x * 100).toFixed(1).padStart(5);
 console.log(`\n=== Stage 5e Blood Pact (3D: cover × bar × dark-bonus) === baseSeed=${baseSeed} seeds=${seedCount} matchups=${matchups.length}`);

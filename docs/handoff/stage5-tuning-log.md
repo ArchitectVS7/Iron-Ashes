@@ -535,3 +535,33 @@ margin on both. The dynamic (with the buffed dark self-dooming, the traitor wins
 and low-exposure move together) makes a cleaner mid-band lock need a fractional dark bonus or a
 win/exposure-decoupling mechanic — a deeper change escalated for 5f/the user, not blindly ground here.
 Net: traitor win 7.8%→20% (a REAL threat), exposure 87%→70%, accuracy 54%→71%. A vastly better game.
+
+---
+
+## §5f — Final lock + §9 doc (PHASE 5 COMPLETE)
+
+**Definitive both-modes 2-seed lock (s20260622 + s13371337, ×40):**
+- **Competitive §9 — all PASS:** SK-win **20.2 / 20.0%**, rounds **12.2**, gambit-free **13.5%**,
+  rescues **0.72 / 0.75**/game, even-seat share **26.6 / 26.7%** (no dominant), free-riding NOT rewarded.
+  Per-count all credible (§9.1).
+- **Blood Pact §10:** traitor win **20.0 / 20.3%**, exposure **69.7 / 71.1%**, accuracy **71.5 / 70.1%**,
+  **0.97 / 1.01** accusations/game.
+
+**The 5e residual — resolved as an accepted frontier (no deferred debt).** Per the "fix issues first"
+norm I did NOT just accept the jointly-tight BP win/exposure — I built the principled fix and tested it:
+a **sabotage-GATED dark bonus** (the +1 Dawn march fires only on rounds the traitor pledged low/none, so
+winning would require detectable sabotage → decouple win from mere hiding). **It was strictly WORSE**
+(3D sweep: sabotage then cost exposure AND was the only doom path → the traitor was over-exposed at low
+cover (98%) or under-dooming at high cover (win 9%); win never reached 12–20). Reverted to the flat
+bonus. CONCLUSION: the flat-bonus frontier (win ~20 / exposure ~70 / accuracy ~71) is the achievable
+optimum; the win↔exposure coupling is a genuine structural property (with a buffed dark the traitor wins
+by surviving), not a tuning miss. Both BP headline bands hug their ceilings; seed 1 lands all four, seed 2
+is +0.3pp(win)/+1.1pp(expose) over. Documented in ALGORITHM §9/§10. This is a good game: a real ~1-in-5
+hidden traitor, usually caught, with skillful (~71%) deduction.
+
+**§9 doc pass:** ALGORITHM §9 marked FINAL — `src/v2/tunables.ts` `DEFAULT_TUNABLES` is the single
+source of truth; the validated competitive + Blood Pact metrics are recorded inline; the BP structural
+note is folded into §9/§10. The header `[TUNABLE] placeholder` banner is retired.
+
+**PHASE 5 (balance) COMPLETE.** Next: Phase 6 — human playtest (docs/human-playtest-checklist.md) +
+UI launch readiness. The v2 engine + balance are done, locked, and 2-seed-stable. 417 tests green.

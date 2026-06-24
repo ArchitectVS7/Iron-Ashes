@@ -5,7 +5,9 @@
 > below; P2 legibility items live in that punch list for Stage-3 UI work.
 > Date: 2026-06-21
 > Builds on: `docs/DESIGN-V2-FOCUS-GROUP.md` (Stage 1).
-> All balance numbers are **[TUNABLE]** placeholders — Stage 5 (ML) sets the final values.
+> Balance numbers: **Stage 5 (sim tuning) is COMPLETE** — final locked values live in
+> `src/v2/tunables.ts` (`DEFAULT_TUNABLES`); §9 records the validated metrics. (Original PRD numbers
+> in §§1–8 are design-time placeholders; trust tunables.ts.)
 > Working title: **Iron Throne of Ashes** — *"Save the world, or take it."*
 
 ---
@@ -568,7 +570,15 @@ wait. This converts the territory race's "turtle-to-cap" line from dominant into
 
 ---
 
-## 9. Tunable parameters (Stage 5 / ML sets these)
+## 9. Tunable parameters — FINAL (Stage 5 complete; locked + 2-seed stable)
+
+> **STATUS: Phase 5 (balance) COMPLETE & LOCKED (Stage 5f, 2026-06-24).** The values below were tuned
+> over the REAL reducer + REAL AI (deterministic Monte-Carlo, `npm run sim`) and locked 2-seed-stable
+> across 2/3/4p, both modes. `src/v2/tunables.ts` `DEFAULT_TUNABLES` is the SINGLE SOURCE OF TRUTH for
+> every lever's locked value; `docs/handoff/stage5-tuning-log.md` is the full evidence trail
+> (§5a–§5c, §5-dark, §5d, §Oaths, §tolls/§sealed/§herald, §C2/§A/§M/§B/§HL/§R2, §5e/§5f). The lists
+> below are the design-time menu; trust tunables.ts for current values.
+
 `STARTING_HAND, HAND_LIMIT, ACTIONS_NORMAL, ACTIONS_BROKEN, DK_START_COUNT, DK_POWER, BLIGHT_POWER,
 BLIGHT_TO_ASH, PUSHBACK, doomCost C(Act, playerCount), CROWN_PLEDGE_DISCOUNT, FULL_BLOCK_THRESHOLD,
 PATIENCE_ON_BLOCK / patience cap, FORGE_WEIGHT, BREAK_THRESHOLD, BROKEN_INCOME_BONUS, BROKEN_MAX_ROUNDS,
@@ -580,11 +590,24 @@ Stage-5 additions (the folded mechanics): `GRUDGE_MARK_TOP_N` (asymmetric DK-hun
 `DEFAULT_TUNABLES` is the single source of truth** for every lever's locked value (§12).
 Target Gambit frequency: it should actually fire in ~1-in-6-to-8 games **[TUNABLE]** — rare enough to be
 an event, common enough that its *threat* shapes negotiation every game (board designer).
-Target metrics (from old PRD, re-validate): Shadowking win rate **18–22%**, session **10–16 rounds**,
-~0.5–4 rescue events/game (the original 2–4 is STRUCTURALLY CAPPED near ~1 pooled by the all_broken
-guardrail — band re-stated in `sim/report.ts`; see tuning-log §5d), no dominant pledge line.
-**These are validated against the REAL rules and AI in
-the new sim — never against a stubbed greedy bot (see `docs/ML-SYSTEM-ANALYSIS.md`).**
+Stage-5e additions: `SABOTEUR_COVER` (the traitor's cover-vs-sabotage bluff), `ACCUSE_MIN_SCORE` (the
+loyalists' evidence bar), `BLOOD_PACT_SPREAD_BONUS` (the dark burns hotter under a Pact — the traitor's
+doom path, mode-gated). `BAILOUT_BASE_PCT` (Stage B — the sealed-pledge volunteer's dilemma).
+
+**FINAL validated metrics (2-seed ×40, both modes — see tuning-log §5f):**
+- **Competitive §9:** Shadowking win **20.2 / 20.0%** (band 18–22 ✅), session **12.2 rounds** (10–16 ✅),
+  gambit fire (gambler-free) **13.5%** (~1-in-6-to-8 ✅), rescues **0.72 / 0.75**/game (band re-stated
+  0.5–4 — the original 2–4 is STRUCTURALLY CAPPED near ~1 by the all_broken guardrail, tuning-log §5d),
+  no-dominant-strategy **✅** (even seat share ~26.6%), free-riding NOT rewarded **✅**. Per-count all
+  credible (§9.1). Every mechanic fires live (oaths, tolls, DK-hunt, Heralds, Oath-rescue).
+- **Blood Pact §10:** traitor win **20.0 / 20.3%** (target 12–20 — at the ceiling), exposure
+  **69.7 / 71.1%** (target 40–70 — at the ceiling), accusation accuracy **71.5 / 70.1%** (≥45 ✅, well
+  above the ~30 random floor), **~1.0** accusation/game (≤2.5 ✅). STRUCTURAL NOTE: traitor win and
+  exposure are JOINTLY tight (the cover lever crosses both ceilings together — with a buffed dark the
+  traitor wins by surviving, so win and low-exposure move together); both hug their upper bounds. A
+  sabotage-GATED dark bonus was tried (§5f) to decouple them and was strictly worse. The frontier is a
+  good game — a real ~1-in-5 traitor, usually caught, with skillful (~71%) deduction.
+**All validated against the REAL rules and AI in the new sim — never a stubbed greedy bot.**
 
 ### 9.1 Player-count identity ladder (LOCKED decision — Stage 5; numbers refreshed after the R3 wave)
 The Shadowking win-rate target (18–22%) is a **POOLED** target across player counts; per-count win rate

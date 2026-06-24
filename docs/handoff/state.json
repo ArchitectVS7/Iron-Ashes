@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "currentStage": "5f",
-  "currentStageTitle": "Stage 5f — final 2-seed lock + §9 doc (5e Blood Pact DONE; Phase 5 nearly complete)",
+  "currentStage": "6",
+  "currentStageTitle": "Phase 6 — human playtest + launch readiness (PHASE 5 BALANCE COMPLETE & LOCKED)",
   "status": "not-started",
-  "nextAction": "STAGE 5e (Blood Pact accusation) DONE + locked (plan ~/.claude/plans/stage-5e-blood-pact.md; tuning-log §5e). Built the hidden-traitor game into a real bluff + real gamble: (1) the traitor's COVER-vs-SABOTAGE dilemma (SABOTEUR_COVER=0.745 — pledge 'medium' to pass as loyal vs suppress to feed the dark); (2) BLOOD_PACT_SPREAD_BONUS=1 — the dark burns hotter under a Pact (+1 Dawn march), the traitor's real doom path (mode-gated; competitive byte-identical, SK-win 20.2% unchanged); (3) ACCUSE_MIN_SCORE=4 evidence bar + a SHARPENED suspicion signal (only 'none' counts — 'low' is honest thrift; counting it put accuracy below random); (4) ACCUSATION_WRONG_PENALTY 1->2 (human-facing gamble; the Audit + this penalty are sim-inert → human-playtest-checklist §3). RESULT (2-seed ×40): traitor win 7.8%->20.0/20.3%, exposure 86.9%->69.7/71.1%, accuracy 53.7%->71.5/70.1%, accusations 1.62->~1.0/game. 417 tests. RESIDUAL (escalated to 5f/user): win + exposure are JOINTLY tight (the cover lever crosses both ~20-win / ~70-expose edges together) — seed1 lands all four bands, seed2 is +0.3pp(win)/+1.1pp(expose) over; a cleaner mid-band lock needs a fractional dark bonus or a win/exposure-decoupling mechanic. **NEXT = Stage 5f: final both-modes 2-seed lock + the §9 doc pass (fold the per-stage tuning-log into ALGORITHM §9 prose) — Phase 5 (balance) COMPLETE.** Human-only validations remain on docs/human-playtest-checklist.md.",
+  "nextAction": "**PHASE 5 (balance) COMPLETE & LOCKED (Stage 5f, tuning-log §5f).** Final both-modes 2-seed lock: competitive SK-win 20.2/20.0%, rounds 12.2, gambit-free 13.5%, rescues 0.72/0.75, even-share 26.6/26.7%, free-rider OK, per-count credible — ALL §9 bands + guards PASS. Blood Pact: traitor win 20.0/20.3%, exposure 69.7/71.1%, accuracy 71.5/70.1%, ~1.0 accusation/game. ALGORITHM §9 marked FINAL (tunables.ts = single source of truth); §header placeholder banner retired. 417 tests, 2-seed stable. The full v2 arc is DONE: idea→algorithm→engine(3a-3f)→sim(4a-4g)→balance(5a-5c/5-dark/5d/Oaths/R3 tolls+sealed+Herald/close-loose-ends C1-HL+R2/5e/5f). ONE accepted structural residual (documented, not debt): BP traitor win+exposure jointly hug their ceilings — a sabotage-gated decouple was BUILT + TESTED in 5f and was strictly worse, so the flat-bonus frontier (real ~1-in-5 traitor, usually caught, ~71% deduction) is the accepted optimum. **NEXT = Phase 6: human playtest (docs/human-playtest-checklist.md — sealed-pledge dilemma, 30-45min length, Herald-runner tension, the accusation gamble+Audit) + verify the src/ui-v2 UI surfaces every Stage-5 mechanic (Oaths, tolls, Herald piece+capture, Parley, Pledge/accusation flow). Record verdicts back into the DESIGN-V2-*.md docs.** No further sim tuning is pending.",
   "specRefs": [
     "PLAN: ~/.claude/plans/i-want-to-use-transient-quill.md (R3 build wave, all 3 stages done) + docs/handoff/stage5-tuning-log.md §tolls/§sealed/§herald",
     "Stage H (done): src/v2/types.ts (PlayerState handLimit/stance/combatPenalty), src/v2/setup.ts (init), src/v2/sequencer.ts (Dawn p.handLimit), src/v2/combat.ts (combatPenalty in getPlayerPowerAtNode), src/v2/actions.ts (executeRecruit/executeParley/parleyTarget), src/v2/commands.ts ('PARLEY'), src/v2/ai-player.ts (heraldAffinity/parleyBias steps), src/v2/sim/{metrics,report}.ts (herald metrics + stance parity), scripts/tune-herald.mjs",
@@ -11,9 +11,9 @@
     "sim-results/s20260622-n40/REPORT.md (latest LOCKED competitive: SK-win 20.0%, gambit-noG 17.0%, oaths 6.13/3.46, tolls 0.89, heralds 1.78/59% political); PRIOR docs DESIGN-V2-OATHS / RESCUE-ECONOMY / DARK-ENGAGEMENT / FOCUS-GROUP-R2/R3 / ALGORITHM §9.1"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-24T11:20:43.780Z",
-    "commit": "cee6651",
-    "sourceHash": "d6d83ba330649efce1a93683c31e7078c39abb2da827c2731a360dbe866cb593",
+    "timestamp": "2026-06-24T14:56:09.968Z",
+    "commit": "963c1b5",
+    "sourceHash": "f52185ddcd56000b345a4071d2fe22a1a2f09b6e8b1bb326a38c5f48def68f73",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {

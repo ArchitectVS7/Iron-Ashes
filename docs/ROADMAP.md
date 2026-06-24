@@ -257,8 +257,17 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     a mode-gated dark doom-path (`BLOOD_PACT_SPREAD_BONUS`), the evidence bar (`ACCUSE_MIN_SCORE`) + a
     'none'-only suspicion signal. Traitor win 7.8%→~20%, exposure 87%→~70%, accuracy 54%→~71%, ≤1
     accusation/game. Residual: win+exposure jointly tight (hug ceilings) — escalated to 5f.
-  - [ ] **5f. Final validation + lock** — 2-seed stability; all bands + guards + per-count + BP pass; LOCK
-    values; update `DESIGN-V2-ALGORITHM.md §9` placeholder → FINAL + the AI-ceiling/human-playtest caveat.
+  - [x] **5f. Final validation + lock** — DONE (2026-06-24, tuning-log §5f). Both-modes 2-seed lock:
+    competitive SK-win 20.2/20.0%, rounds 12.2, gambit-free 13.5%, rescues 0.72/0.75, guards + per-count
+    all PASS; Blood Pact traitor win 20.0/20.3%, exposure 69.7/71.1%, accuracy 71.5/70.1%, ~1 accusation/
+    game. ALGORITHM §9 marked FINAL (tunables.ts = source of truth). **Phase 5 (balance) COMPLETE.** The
+    one structural residual (BP win+exposure jointly hug their ceilings; a sabotage-gated decouple was
+    tried and was worse) is documented in §9/§10 — accepted as the frontier.
+  - [ ] **6. Human playtest + launch readiness** — the sim validated incentives; humans must validate
+    the FELT experience. Walk `docs/human-playtest-checklist.md` (sealed-pledge dilemma, 30–45 min length,
+    Herald-runner tension, the Blood Pact accusation gamble + Audit) and verify the `src/ui-v2/` UI
+    surfaces every Stage-5 mechanic (Oaths, tolls, Herald piece + capture, Parley, the Pledge/accusation
+    flow). Record verdicts back into the DESIGN-V2-*.md docs + state.json.
 
 ---
 

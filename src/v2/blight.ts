@@ -357,7 +357,13 @@ export function applyDawnBlightAdvance(
   const events: GameEvent[] = [];
   // In Blood Pact the dark marches toward the Keystone faster (§5e — the pact feeds it). This
   // is the real doom driver (the Dawn march down the spoke), giving the hidden traitor a path
-  // to the doom_complete win. Competitive = +0 (untouched).
+  // to the doom_complete win. Competitive = +0 (untouched, byte-identical).
+  //
+  // §5f note: a sabotage-GATED variant (bonus only on rounds the traitor pledged low/none) was
+  // tried to decouple the jointly-tight win/exposure bands — it was strictly WORSE (sabotage then
+  // cost exposure AND was the only doom path, so the traitor was either over-exposed at low cover
+  // or under-dooming at high cover; win never reached 12-20). The flat bonus is the frontier;
+  // the win/exposure coupling is a documented structural reality (tuning-log §5e/§5f).
   const advance = getTunables().DAWN_BLIGHT_ADVANCE +
     (state.mode === 'blood_pact' ? getTunables().BLOOD_PACT_SPREAD_BONUS : 0);
   events.push(...advanceBlightOnSpoke(state, steerQuadrant, advance, 'dawn'));
