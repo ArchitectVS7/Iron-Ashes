@@ -470,3 +470,27 @@ HERALD_RECRUIT_COST=4.**
 **2-seed ×40:** SK-win 20.3% / 19.x%, gambit-free ~14–15%, rounds 12.2, rescues ~0.7, heralds ~2.8/game,
 captures ~1.4/game (interception drama live), guards PASS. Ladder shifted back to **3p-hardest** (all
 counts credible 16–24) — the per-count shape moves with each mechanic; §9.1 updated.
+
+---
+
+## §R2 — Final both-modes re-baseline (close-loose-ends wave COMPLETE)
+
+Proves the five wave stages (A all-broken / M oath-merge / B bail-out / HL Herald-piece, on the
+C1/C2 base) COEXIST — the per-stage locks each held in isolation; this confirms them together.
+
+**Competitive (s20260622-n40), all §9 bands PASS + guards:**
+- SK-win **20.2%**, rounds 12.20, gambit-free **13.5%**, rescues 0.72. Even-seat share 26.6% (no
+  dominant), free-riding NOT rewarded (winners 2.62 vs field 3.00).
+- Per-count all credible: 2p 19.9 / 3p 23.6 / 4p 17.0. All-broken share of SK wins 13.1% (assault
+  dominates). Endings: territory 61.2 / gambit 18.7 / doom 17.5 / all_broken 2.6%.
+- Every mechanic live: oaths 6.42/3.20, tolls 0.80, DK-kills 2.05, heralds 2.80 (political 46.3%),
+  Herald captures 1.41/game, build win political 24.5 / martial 28.4 (parity, archetype-confounded).
+- Session proxy (C2): 85.9 decisions/game · 7.16/round (informational; for a human 30–45 min check).
+- 2-seed stability confirmed at the HL lock (SK 20.2 / 20.0).
+
+**Blood Pact (s20260622-n40-bp, 360 games):** runs CLEAN (terminates, saboteur + deduction surface
+exercised, no crash). Traitor win 7.8% / exposure 86.9% / accuracy 53.7% / 1.62 accusations per game —
+UNCHANGED in character (the wave didn't touch BP accusation balance). These are the **Stage 5e** targets
+(traitor win → 12–20, exposure → 40–70) — the next stage, not a wave regression.
+
+**Verdict: the close-loose-ends wave is COMPLETE and locked.** Resume Phase 5 at 5e.

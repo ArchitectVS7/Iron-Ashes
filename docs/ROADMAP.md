@@ -18,9 +18,16 @@ complexity wave → Oaths/Ledger + Forge tolls + sealed gambit-pledge + Herald/s
 > the CORE design but predates Stage 5 — its **§12** is the authoritative delta pointer to the locked
 > Stage-5 mechanics (folding §12 into the §§1–11 prose is a 5f task).
 
-**Immediate next action:** finish the pre-5e cleanup (review findings → memory `iron-ashes-review-findings`),
-then **Stage 5e** (Blood Pact `chooseAccusation` heuristic + ACCUSATION knobs) → **5f** (final 2-seed lock +
-§§1–11 prose fold + §9 doc).
+The **close-loose-ends wave is COMPLETE** (plan `~/.claude/plans/close-loose-ends.md`; tuning-log
+§C2/§A/§M/§B/§HL/§R2): the user's "fix issues first, no deferred debt" norm (now in `CLAUDE.md`) drove
+closing the whole review backlog + the open design forks before Phase 5e — C1 doc-fold, C2 (fixed an
+un-injectable load-bearing-tunable seam bug), A (all_broken = Shadowking win), M (rescue-debt → one Oath),
+B (sealed-pledge validated via a bail-out AI channel), HL (the literal Herald lone-runner piece). R2
+re-baseline: competitive ALL §9 bands PASS (SK-win 20.2%, 2-seed 20.2/20.0, 413 tests); blood-pact clean.
+
+**Immediate next action:** **Stage 5e** — Blood Pact `chooseAccusation` heuristic + ACCUSATION knobs
+(traitor win 7.8% → 12–20, exposure 86.9% → 40–70, keep accuracy 53.7% ≥45 + ≤2.5 accusations/game) →
+**5f** (final 2-seed lock + §9 doc). Human-only validations remain on `docs/human-playtest-checklist.md`.
 
 ---
 
