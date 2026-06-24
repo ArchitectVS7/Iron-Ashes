@@ -314,10 +314,8 @@ export const SURGE_SPREAD_MULT = 2;
  */
 export const GAMBIT_ADJACENT_STRIKE_MULT = 1;
 
-// ─── Rescue binding debt (§5.4) ───────────────────────────────────
-
-/** Forced minimum Pledge a rescued debtor must make next round (open modes). */
-export const RESCUE_DEBT_MIN_PLEDGE = 2;
+// (Rescue binding debt RETIRED in Stage M — a rescue now forges a single Oath; the
+//  Oath's non-aggression replaces the debt's withheld-attack + forced-pledge teeth.)
 
 // ─── Layer B — Blood Pact (§10) ──────────────────────────────────
 
@@ -464,7 +462,6 @@ export interface Tunables {
   readonly DK_MARCH_DISTANCE: number;
   readonly SURGE_SPREAD_MULT: number;
   readonly GAMBIT_ADJACENT_STRIKE_MULT: number;
-  readonly RESCUE_DEBT_MIN_PLEDGE: number;
 }
 
 export const DEFAULT_TUNABLES: Tunables = Object.freeze({
@@ -478,7 +475,7 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   FORGE_TOLL_COST, SEALED_CORE_PLEDGE, GAMBIT_SELF_COVER_CARDS,
   HERALD_RECRUIT_COST, HERALD_HAND_BONUS, HERALD_COMBAT_PENALTY, HERALD_PUSHBACK,
   PLEDGE_SHIELD_AMOUNT, PLEDGE_FAVOR_GRUDGE_REDUCTION,
-  DK_MARCH_DISTANCE, SURGE_SPREAD_MULT, GAMBIT_ADJACENT_STRIKE_MULT, RESCUE_DEBT_MIN_PLEDGE,
+  DK_MARCH_DISTANCE, SURGE_SPREAD_MULT, GAMBIT_ADJACENT_STRIKE_MULT,
 });
 
 let activeTunables: Tunables = DEFAULT_TUNABLES;
@@ -552,7 +549,6 @@ export const TUNABLES = Object.freeze({
   DK_MARCH_DISTANCE,
   SURGE_SPREAD_MULT,
   GAMBIT_ADJACENT_STRIKE_MULT,
-  RESCUE_DEBT_MIN_PLEDGE,
   RESCUE_TRIBUTE_BANNERS,
   LANDED_STRIKE_WOUNDS,
   SUSPICION_LOG_ROUNDS,

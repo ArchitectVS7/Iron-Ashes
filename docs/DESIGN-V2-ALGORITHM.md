@@ -269,8 +269,8 @@ function actionPhase(state):
         //   RAID       : initiate combat vs a co-located rival (§5.3)
         //   STRIKE     : initiate combat vs a co-located Shadowking force (§5.3) — killing a DK pushes back
         //                the Blight AND claims the DK's node for the killer (§5.4/§5.6)
-        //   RESCUE     : un-Break a co-located/adjacent ally for a banner tribute + binding debt; auto-forges
-        //                an Oath (§5.4)
+        //   RESCUE     : un-Break a co-located/adjacent ally for a banner tribute; forges an Oath
+        //                — the single merged bond (§5.4/§M)
         //   SWEAR_OATH : forge a public non-aggression pact with another player — FREE (no action/banner cost);
         //                pays both a Dawn fealty dividend while sworn (§5.4)
         //   BREAK_OATH : renounce a standing Oath — consumes an ACTION; the dark hunts oathbreakers (§5.4)
@@ -377,20 +377,21 @@ function combat(attacker, defender):
   verb they *initiate* (not just "lost lands feed the front") — design one in Stage 3 (DM note).
 - **Recovery cap:** auto-recovers to minimum strength after `BROKEN_MAX_ROUNDS` **[TUNABLE]** — no
   permanent kingmaker-hostage (judge's fix).
-- **Rescue:** an active Warlord spends `RESCUE_COST` cards to un-Break an ally, in exchange for a
-  **binding one-round debt** AND a **banner tribute paid back to the rescuer** (5d — so rescue is a
-  positive-sum bid, not pure charity). The obligation set is: a forced **minimum Pledge contribution**, a
-  **withheld attack** (named target, one round), or **claim support** — enforced on **public actions
-  only** (a sealed/secret pledge amount can't police a debt; the forced-minimum is applied transparently).
-  No "vote" obligation (voting was replaced by the Pledge). Breaking the debt incurs a penalty
-  **[TUNABLE]**. **A rescue auto-forges an Oath** (below) between rescuer and rescued. **Rescue volume is
-  STRUCTURALLY CAPPED** — pooled across 2–4p it sits near ~0.7/game, held down by the `all_broken < 5%`
-  guardrail (you can only rescue someone the dark/rivals actually broke; §9 band, tuning-log §5d).
+- **Rescue (§M — forges ONE bond):** an active Warlord spends `RESCUE_COST` cards to un-Break an ally,
+  paying themselves a **banner tribute** (5d — so rescue is a positive-sum bid, not pure charity) and
+  **forging an Oath** (below) between rescuer and rescued. The Oath IS the obligation — its
+  **non-aggression** withholds the rescued's attack on their saviour, and the dark **hunts oathbreakers**,
+  so turning on a rescuer pays the Ledger. (The earlier separate "rescue debt" — a forced-minimum-Pledge
+  + withheld-attack object — was RETIRED in Stage M: two overlapping bonds on one action were folded into
+  the single Oath. The tribute remains as the always-present string when an Oath can't form, e.g. either
+  party is already sworn.) **Rescue volume is STRUCTURALLY CAPPED** — pooled across 2–4p it sits near
+  ~0.8/game, held down by the same break-supply the all_broken win-path feeds on (you can only rescue
+  someone the dark/rivals actually broke; §9 band, tuning-log §5d).
 - **Oaths + the Ledger (`docs/DESIGN-V2-OATHS.md`):** public, breakable two-player pacts. **SWEAR_OATH is
   free** (§4.3); while sworn, the pair has **non-aggression** (no RAID between them, Forge tolls waived
   §2/§4.3) and each draws a **Dawn fealty dividend**. **BREAK_OATH consumes an action**, and **the dark
   hunts oathbreakers** — the "**Ledger**" is the grudge array (§5.6): renouncing an oath marks you. Typical
-  table: ~6 sworn / ~3 broken per game. Oaths are the cooperative spine the Rescue debt and the Forge-toll
+  table: ~6 sworn / ~3 broken per game. Oaths are the cooperative spine the rescue bond and the Forge-toll
   exemptions both hang off.
 - **All-broken (§A):** if all active Warlords are Broken simultaneously → `all_broken`, a **Shadowking
   win by attrition** (not a draw — see §6 Loss).

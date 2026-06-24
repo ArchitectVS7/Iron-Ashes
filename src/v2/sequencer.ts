@@ -328,10 +328,6 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
       p.brokenRoundsConsecutive++;
       events.push(...checkBrokenRecovery(state, p.index));
     }
-    // Clear a rescue debt once its obligation round has been played (§5.4).
-    if (p.rescueDebt && state.round >= p.rescueDebt.expiresRound) {
-      p.rescueDebt = null;
-    }
   }
 
   // 4. Anti-turtle Blight advance + Act escalation (§5.1, §5.5)

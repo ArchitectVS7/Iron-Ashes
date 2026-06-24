@@ -11,7 +11,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { createGame } from '../../src/v2/setup.js';
-import { applyCommand, InvalidCommandError } from '../../src/v2/reducer.js';
+import { applyCommand } from '../../src/v2/reducer.js';
 import {
   spreadShieldedOnSpoke,
   advanceBlightOnNode,
@@ -22,13 +22,14 @@ import {
   computeTerritoryWinner,
   getPlayerPowerAtNode,
   executeRaid,
+  executeRescue,
 } from '../../src/v2/index.js';
+import { areSworn } from '../../src/v2/actions.js';
 import {
   WARLORD_POWER,
   FORGE_WEIGHT,
   PLEDGE_FAVOR_GRUDGE_REDUCTION,
   PLEDGE_SHIELD_AMOUNT,
-  RESCUE_DEBT_MIN_PLEDGE,
   withTunables,
 } from '../../src/v2/tunables.js';
 import type { Command } from '../../src/v2/commands.js';
@@ -242,28 +243,10 @@ describe('Shadowking effect table (§5.6)', () => {
   });
 });
 
-// ─── Rescue binding debt (§5.4) ───────────────────────────────────
+// ─── Rescue → a single Oath (§M — the rescue-debt is retired) ──────
 
-describe('Rescue binding debt (§5.4)', () => {
-  function pledgePhase(mode: 'competitive' | 'blood_pact'): GameState {
-    let state = createGame(4, mode, 42, mode === 'blood_pact' ? 4 : 1);
-    state = apply(state, { type: 'ADVANCE_PHASE' }); // → PLEDGE
-    state.players[0].rescueDebt = { creditor: 1, forcedMinPledge: RESCUE_DEBT_MIN_PLEDGE, expiresRound: state.round };
-    return state;
-  }
-
-  it('enforces the forced-minimum Pledge in open (competitive) mode', () => {
-    const state = pledgePhase('competitive');
-    expect(() => apply(state, { type: 'SUBMIT_PLEDGE', playerIndex: 0, amount: 1 })).toThrow(InvalidCommandError);
-    expect(() => apply(state, { type: 'SUBMIT_PLEDGE', playerIndex: 0, amount: RESCUE_DEBT_MIN_PLEDGE })).not.toThrow();
-  });
-
-  it('does NOT enforce the forced-minimum in Blood Pact (sealed pledges)', () => {
-    const state = pledgePhase('blood_pact');
-    expect(() => apply(state, { type: 'SUBMIT_PLEDGE', playerIndex: 0, amount: 0 })).not.toThrow();
-  });
-
-  it('forbids a debtor from attacking their creditor (withheld attack)', () => {
+describe('Rescue forges ONE bond — an Oath (§M)', () => {
+  it('a rescue swears the rescuer and rescued into an Oath (no separate debt)', () => {
     let state = createGame(4, 'competitive', 42);
     state = apply(state, { type: 'ADVANCE_PHASE' });
     for (const p of state.players) state = apply(state, { type: 'SUBMIT_PLEDGE', playerIndex: p.index, amount: 0 });
@@ -271,24 +254,12 @@ describe('Rescue binding debt (§5.4)', () => {
     const node = state.board.definition.holdingIds[0];
     placeWarlord(state, 0, node);
     placeWarlord(state, 1, node);
-    state.players[0].rescueDebt = { creditor: 1, forcedMinPledge: 2, expiresRound: state.round + 1 };
-    expect(() => executeRaid(state, 0, 1, [], [])).toThrow(/rescue debt/i);
-  });
-
-  it('clears the debt at the Dawn of its obligation round', () => {
-    let state = createGame(4, 'competitive', 42);
-    state.players[0].rescueDebt = { creditor: 1, forcedMinPledge: 2, expiresRound: 1 };
-    state = apply(state, { type: 'ADVANCE_PHASE' }); // → PLEDGE
-    for (const p of state.players) {
-      state = apply(state, { type: 'SUBMIT_PLEDGE', playerIndex: p.index, amount: p.index === 0 ? 2 : 0 });
-    }
-    state = apply(state, { type: 'ADVANCE_PHASE' }); // → ACTION
-    for (const idx of state.turnOrder) {
-      if (state.phase === 'ACTION' && state.activePlayerIndex === idx) {
-        state = apply(state, { type: 'PLAYER_ACTION', playerIndex: idx, action: { type: 'PASS' } });
-      }
-    }
-    state = apply(state, { type: 'ADVANCE_PHASE' }); // → DAWN → next THREAT
-    expect(state.players[0].rescueDebt).toBeNull();
+    state.players[1].isBroken = true;
+    state.players[1].brokenSince = state.round;
+    executeRescue(state, 0, 1);
+    // The merged bond is an Oath between 0 and 1 — and a sworn pair cannot RAID each other,
+    // which is what used to be the rescue-debt's "withheld attack".
+    expect(areSworn(state, 0, 1)).toBe(true);
+    expect(() => executeRaid(state, 0, 1, [], [])).toThrow(/sworn/i);
   });
 });

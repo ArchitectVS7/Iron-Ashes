@@ -191,14 +191,6 @@ export function choosePledge(
     amount = Math.min(amount, Math.floor(amount * (1 - suppression)));
   }
 
-  // Honor an active Rescue debt (§5.4): in open modes the reducer ENFORCES a
-  // forced-minimum pledge, so never return below it — else applyCommand rejects
-  // this pledge. (Baseline games never create a debt, so this is inert for DEFAULT.)
-  const debt = player.rescueDebt;
-  if (debt && state.mode !== 'blood_pact' && state.round <= debt.expiresRound) {
-    return Math.max(amount, Math.min(debt.forcedMinPledge, handSize));
-  }
-
   return amount;
 }
 
@@ -435,12 +427,6 @@ function baselineAction(state: GameState, playerIndex: number, seed: number): Pl
 
 // ─── Archetype action logic (Stage 4b — knob-driven, non-default policies) ──
 
-/** Does this player owe `rival` a rescue debt that forbids attacking them? */
-function raidDebtBlocked(state: GameState, playerIndex: number, rival: number): boolean {
-  const debt = state.players[playerIndex].rescueDebt;
-  return !!debt && debt.creditor === rival && state.round <= debt.expiresRound;
-}
-
 /** Is `rival` the current leader (Crown holder)? */
 function isLeader(state: GameState, rival: number): boolean {
   return state.crownHolder === rival || state.players[rival]?.crownHeld === true;
@@ -603,7 +589,6 @@ function archetypeAction(
     if (rng.float() < gambitContest) {
       const ks = state.board.definition.keystoneId;
       if (here === ks && hasRivalAtNode(state, playerIndex, here) === gambit.claimant
-          && !raidDebtBlocked(state, playerIndex, gambit.claimant)
           && !areSworn(state, playerIndex, gambit.claimant)) {
         return { type: 'RAID', targetPlayerIndex: gambit.claimant };
       }
@@ -634,8 +619,7 @@ function archetypeAction(
   // 2. RAID a co-located rival we can beat (aggressor / opportunist). Sworn allies
   //    are off-limits (BREAK_OATH first) — guard so we never propose an illegal RAID.
   const rival = hasRivalAtNode(state, playerIndex, here);
-  if (rival !== null && aggression > 0 && !raidDebtBlocked(state, playerIndex, rival)
-      && !areSworn(state, playerIndex, rival)) {
+  if (rival !== null && aggression > 0 && !areSworn(state, playerIndex, rival)) {
     const mine = getPlayerPowerAtNode(state, playerIndex, here);
     const theirs = getPlayerPowerAtNode(state, rival, here);
     if (mine >= theirs) {

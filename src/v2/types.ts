@@ -146,9 +146,6 @@ export interface PlayerState {
   /** Node ID of this player's Warlord piece. */
   warlordNodeId: string;
 
-  /** Active binding debt owed to a rescuer (§5.4), or null. */
-  rescueDebt: RescueDebt | null;
-
   // ── Herald / political-martial stance (§ Herald, FOCUS-GROUP-R3) ──
   /** Per-player hand cap (init HAND_LIMIT; raised by recruiting a Herald). */
   handLimit: number;
@@ -205,18 +202,6 @@ export interface PledgeEntry {
   readonly amount: number;
   /** Classified tier for Suspicion Log. */
   readonly tier: PledgeTier;
-}
-
-// ─── Rescue debt (§5.4) ───────────────────────────────────────────
-
-/** The binding one-round obligation a rescued Warlord owes their rescuer (§5.4). */
-export interface RescueDebt {
-  /** The rescuer this debt is owed to. */
-  readonly creditor: number;
-  /** Forced minimum Pledge the debtor must make (enforced in open modes). */
-  readonly forcedMinPledge: number;
-  /** Round (inclusive) through which the debt binds; cleared at that round's Dawn. */
-  readonly expiresRound: number;
 }
 
 /**

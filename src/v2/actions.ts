@@ -328,15 +328,8 @@ export function executeRaid(
     throw new Error(`Cannot RAID: Player ${defenderIndex + 1} is not at ${nodeId}`);
   }
 
-  // Rescue debt (§5.4): a debtor may not attack their creditor while the debt binds.
-  const debt = player.rescueDebt;
-  if (debt && debt.creditor === defenderIndex && state.round <= debt.expiresRound) {
-    throw new Error(
-      `Cannot RAID: you owe Player ${defenderIndex + 1} a rescue debt (withheld attack) until round ${debt.expiresRound}`,
-    );
-  }
-
   // Oath (§ Oaths): sworn allies cannot RAID each other — you must BREAK_OATH first.
+  // (A rescue forges such an Oath — §M — so this also covers "don't stab your rescuer".)
   if (areSworn(state, playerIndex, defenderIndex)) {
     throw new Error(
       `Cannot RAID Player ${defenderIndex + 1}: you are sworn by an Oath. Break it first.`,
@@ -482,14 +475,16 @@ export function executeRescue(
   target.brokenRoundsConsecutive = 0;
   target.wounds = Math.floor(getTunables().BREAK_THRESHOLD / 2); // Recover to half wounds
 
-  // Bind the one-round debt (§5.4): a forced minimum Pledge next round (enforced
-  // in open modes) AND a withheld attack on the creditor (enforced in all modes).
-  // Cleared at the Dawn of the obligation round.
-  target.rescueDebt = {
-    creditor: playerIndex,
-    forcedMinPledge: getTunables().RESCUE_DEBT_MIN_PLEDGE,
-    expiresRound: state.round + 1,
-  };
+  // Rescue forges ONE bond — the dramatic, earned Oath (§ Oaths, §M). It replaces the
+  // old separate rescue-debt: the Oath's non-aggression already withholds the rescued's
+  // attack on the rescuer, and the dark hunts oathbreakers, so a saved player who turns on
+  // their saviour pays the Ledger. (One slot each — forms only if both are oath-free; the
+  // banner tribute above is the always-present "string" when an Oath can't form.)
+  let oathForged = false;
+  if (findOath(state, playerIndex) === null && findOath(state, targetPlayerIndex) === null) {
+    events.push(...forgeOath(state, playerIndex, targetPlayerIndex, 'rescue'));
+    oathForged = true;
+  }
 
   events.push({
     type: 'PLAYER_ACTED',
@@ -499,17 +494,9 @@ export function executeRescue(
       targetPlayerIndex,
       cost: rescueCost,
       tribute,
-      debt: 'forced_minimum_pledge',
-      creditor: playerIndex,
-      expiresRound: target.rescueDebt.expiresRound,
+      bond: oathForged ? 'oath' : 'none',
     },
   });
-
-  // Rescue is the dramatic, earned Oath (§ Oaths): the rescued is Sworn to the
-  // rescuer — if both are oath-free (one slot each; skip if either is already sworn).
-  if (findOath(state, playerIndex) === null && findOath(state, targetPlayerIndex) === null) {
-    events.push(...forgeOath(state, playerIndex, targetPlayerIndex, 'rescue'));
-  }
 
   return { state, events, actionConsumed: true };
 }

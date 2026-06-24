@@ -391,3 +391,22 @@ decreasing), restoring the ORIGINAL "The Duel = survival-horror, hardest" intent
 doom-tilt had inverted to 3p-hardest. §9.1 reframed accordingly. RESCUE CAP UNCHANGED: this fixes the
 ENDING quality, it does not lift the structural ~1-rescue cap (the user chose the SK-win ending over
 the claw-back that would have).
+
+---
+
+## §M — Merge rescue-debt into a single Oath (close-loose-ends wave)
+
+**Why.** A rescue created TWO overlapping bonds — a `rescueDebt` (forced-min-Pledge + withheld-attack
+on the creditor) AND an auto-forged Oath. Four rules for one hug; R3's intent was Oaths as the ONE
+social spine.
+
+**Change.** Rescue now forges only an **Oath**; `rescueDebt` is fully retired (type, state field, init,
+the reducer forced-min-Pledge gate, the AI choosePledge floor + raidDebtBlocked helper, the Dawn debt
+clear, the `RESCUE_DEBT_MIN_PLEDGE` tunable). The Oath's non-aggression replaces the withheld-attack
+(a sworn pair can't RAID — covers "don't stab your rescuer"); the banner tribute stays as the
+always-present string when an Oath can't form (one slot each). `actions.test`/`mechanics-3f` updated:
+the old 4 debt-enforcement tests → 1 "rescue forges an Oath" test.
+
+**Balance.** Neutral — dropping the rarely-fired forced-min-Pledge moved nothing material. 2-seed ×40:
+SK-win **20.5% / 20.1%**, gambit-free 18.1/18.2%, rounds 12.2, rescues **0.84 / 0.83** (unchanged),
+guards PASS. No re-tune required.

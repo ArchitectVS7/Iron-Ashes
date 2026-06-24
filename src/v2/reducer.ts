@@ -178,19 +178,6 @@ function handleSubmitPledge(
     );
   }
 
-  // Rescue debt (§5.4): a debtor owes a forced minimum Pledge, enforced on PUBLIC
-  // pledges only — in Blood Pact the amount is sealed and can't police a debt.
-  const debt = player.rescueDebt;
-  if (debt && state.mode !== 'blood_pact' && state.round <= debt.expiresRound) {
-    const required = Math.min(debt.forcedMinPledge, player.hand.length);
-    if (amount < required) {
-      throw new InvalidCommandError(
-        { type: 'SUBMIT_PLEDGE', playerIndex, amount },
-        `Rescue debt: you owe Player ${debt.creditor + 1} a minimum pledge of ${required} this round`,
-      );
-    }
-  }
-
   // Classify tier
   const tier = classifyPledgeTier(amount, player.hand.length);
 

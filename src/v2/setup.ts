@@ -69,7 +69,6 @@ function createPlayerState(
     wounds: 0,
     actionsRemaining: 0,
     warlordNodeId: keepNodeId,
-    rescueDebt: null,
     handLimit: HAND_LIMIT,
     stance: 'martial',
     combatPenalty: 0,
