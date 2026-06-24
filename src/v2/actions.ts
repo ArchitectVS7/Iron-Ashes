@@ -10,7 +10,7 @@
  *   RAID    — initiate combat vs a co-located rival (§5.3)
  *   STRIKE  — initiate combat vs a co-located Shadowking force (§5.3)
  *   RESCUE  — un-Break a co-located/adjacent ally (§5.4)
- *   RECRUIT — recruit a retinue piece (stub for now)
+ *   RECRUIT — recruit a Herald → the political-stance build (§Herald)
  *   PASS    — end actions early
  *
  * Zone-of-Control (P0-2): enemy entering a held Approach must STRIKE/RAID
@@ -627,7 +627,9 @@ export function runOathUpkeep(state: GameState): GameEvent[] {
 }
 
 /**
- * RECRUIT — recruit a retinue piece (stub — minimal piece types for now).
+ * RECRUIT — recruit a Herald: raises this player's hand limit (+HERALD_HAND_BONUS) and
+ * lowers combat (−HERALD_COMBAT_PENALTY) → the deep-hand political build vs the martial default
+ * (§Herald). Herald-only by design today (not a stub — the piece roster is deliberately minimal).
  */
 export function executeRecruit(
   state: GameState,

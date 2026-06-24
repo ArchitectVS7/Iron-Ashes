@@ -52,6 +52,26 @@ not covered by the Vitest suite — verify UI changes by running the app.
 4. **Voting Phase resolves before any player action phase.** Not configurable.
 5. **All game randomness goes through `SeededRandom`.** Never use `Math.random()`.
 
+## Engineering Principles — No Deferred Debt (Non-Negotiable)
+
+**Fix issues first; do not accumulate technical debt while building more features.** "Fixing
+issues first" is the norm — close the loose ends before the next feature stage.
+
+1. **Resolve or record — never carry vague deferrals.** Every open risk, unvalidated assumption,
+   or known gap is either fixed now or written down as a *dated, owned decision* in `docs/ROADMAP.md`,
+   `docs/handoff/state.json` `openRisks`, or a `docs/DESIGN-V2-*.md` doc. A deferral that lives only
+   in a code comment (or only in someone's head) does not exist — surface it.
+2. **No hidden/unvalidated mechanics.** A shipped mechanic the sim can't exercise (a "human-only"
+   feature) must be labeled UNTESTED in the spec and added to `docs/human-playtest-checklist.md`.
+   Prefer giving the sim a way to measure it (an AI knob) over shipping an unmeasured assumption.
+3. **No stale comments.** When behavior changes, fix the comments that describe it in the same
+   change. A comment that says "stub"/"for now"/"byte-identical" must still be true.
+4. **Pre-commit/CI checks are sacred** (see the global rules): never `--no-verify`; a failure found
+   in your session is yours to fix, "pre-existing" is not an excuse; "clean to commit" = zero
+   failing tests.
+5. **Fix-first ordering.** Front-load zero-risk debt paydown (docs, comments, measurement
+   instruments) before balance-moving work, so each later regression is attributable to one change.
+
 ## Commands
 
 - `npm run dev` — Vite dev server for the `src/ui/` frontend

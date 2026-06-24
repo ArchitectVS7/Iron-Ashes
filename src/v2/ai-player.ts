@@ -294,8 +294,9 @@ function marchCostFor(state: GameState, playerIndex: number, nodeId: string): nu
 
 /**
  * Will this archetype pay a Forge toll to take `step`? High `forgeValuation` charges through
- * the gate; low routes around (skips the tolled step). Free steps are always acceptable, so
- * at FORGE_TOLL_COST=0 this is a no-op (byte-identical default).
+ * the gate; low routes around (skips the tolled step). Free steps are always acceptable. (When
+ * the toll is 0 — e.g. a sworn ally or FORGE_TOLL_COST=0 — every step is free, so this collapses
+ * to "always acceptable"; it is NOT a balance no-op now that FORGE_TOLL_COST is locked at 1.)
  */
 function tollAcceptable(state: GameState, playerIndex: number, nodeId: string, forgeValuation: number): boolean {
   return forgeToll(state, playerIndex, nodeId) === 0 || forgeValuation >= 0.5;
@@ -376,9 +377,12 @@ function bestStepToward(state: GameState, playerIndex: number, rng: SeededRandom
  * Decide a single ACTION for player `playerIndex`. Called repeatedly by
  * `runAITurn` until the player passes or runs out of actions.
  *
- * The DEFAULT policy takes the untouched economic baseline (`baselineAction`),
- * guaranteed byte-identical via a referential-identity guard. Archetype policies
- * (Stage 4b) get the knob-driven `archetypeAction`. Both are pure `f(state, seed)`
+ * The DEFAULT policy (DEFAULT_AI_POLICY by reference) takes the untouched economic baseline
+ * (`baselineAction`); archetype policies (Stage 4b) get the knob-driven `archetypeAction`. The
+ * referential-identity guard guarantees byte-identical *AI POLICY* selection for the default —
+ * it does NOT mean the baseline *game* matches any pre-Stage-5 build (engine tunables like
+ * SPREAD_AMOUNT_BASE / LANDED_STRIKE_WOUNDS / FORGE_TOLL_COST are live for all games, incl.
+ * all-baseline; see state.json "BYTE-IDENTICAL SCOPE"). Both paths are pure `f(state, seed)`
  * and return only LEGAL actions (so the reducer never rejects an AI command).
  */
 export function chooseAction(

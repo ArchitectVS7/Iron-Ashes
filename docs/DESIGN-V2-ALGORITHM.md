@@ -70,7 +70,10 @@ shrinks toward the center). **17 nodes** — one over the ~16 budget to preserve
 - **Forges (4, mid-belt)** — one per quadrant, high-value (3 income); reclaiming/holding one **pushes the
   Blight front back** down that spoke (§5.1). **Lateral mid-belt ring (stress-test P0-2):** each Forge
   also links to its two neighbor Forges (a 4-cycle, +4 edges / 0 nodes) — so Forges are rival-contested,
-  flanking exists, and the front can spill sideways. The prime contested objectives.
+  flanking exists, and the front can spill sideways. The prime contested objectives. **Forge-as-Gate toll
+  (Stage T):** marching into a rival-owned, *living* Forge pays the owner a banner toll (`FORGE_TOLL_COST`)
+  — so holding a Forge taxes enemy movement through your quadrant. **Sworn allies (an Oath, §5.4) pass
+  free.** See §4.3 MARCH.
 - **Keeps (4, outer corners)** — Warlord homes, pre-claimed, rotationally symmetric; cannot be ashed
   until their owner is Broken.
 - **Holdings (4, outer edges)** — claimable land (1 income) seeding the early land-grab.
@@ -86,8 +89,16 @@ shrinks toward the center). **17 nodes** — one over the ~16 budget to preserve
 ### Pieces
 - **Warlord (leader piece)** — 1 per player; cannot be destroyed; its node is "where you act from."
 - **Retinue pieces** — recruited; add combat strength and let you act in more than one place. **[scope: start minimal — 1–2 piece types — and add roles only once the loop proves fun.]**
+- **Herald (recruited, the political build — Stage H — FOCUS-GROUP-R3 §3)** — RECRUIT a Herald and a
+  Warlord trades steel for words: `+HERALD_HAND_BONUS` to that player's `handLimit` and
+  `−HERALD_COMBAT_PENALTY` to combat — the **political** alternative to the **martial** default. Unlocks
+  PARLEY, a non-card pushback against the dark (§4.3). MVP abstracts the literal lone-runner piece (the
+  on-map courier is deferred).
 - **Shadowking forces:**
   - **Death Knights** — mobile spear-tip; raid deep toward the Crown; strength `DK_POWER` **[TUNABLE]**.
+    **A DK sitting on a node BLOCKS CLAIM there** — and **killing a DK (via STRIKE/Last Stand) claims its
+    node for the killer** (win-currency, not just front-pushback — §5.4, §5.6). They are objectives to
+    HUNT, not just threats to survive.
   - **Blight** — the static, spreading tide; converts nodes toward ash; strength `BLIGHT_POWER` **[TUNABLE]**.
 
 ### Cards & resources
@@ -178,6 +189,14 @@ window close and resolves deterministically; **true-sealed** in Blood Pact (hidd
 reveal — the traitor hides a thin pledge in the noise). Determinism is identical either way: the frozen
 vector is resolved in fixed seat order against pre-reveal state.
 
+> **AMENDED (Stage S — FOCUS-GROUP-R3 §3):** the "open in core" rule above is no longer
+> absolute. The named **Gambit claimant's** pledge is now **SEALED even in competitive**
+> (`SEALED_CORE_PLEDGE='gambit_claimant'`) — a deliberate, owned reversal of the R1 "fully open live
+> Pledge in core" pillar, so the gambit volunteer can't be perfectly read while exposed. Sealing is a
+> **HUMAN-facing** legibility change and a **sim no-op**; the actual gambit-fire balance fix is the
+> **risk-aware seize gate** (`GAMBIT_SELF_COVER_CARDS` — a player won't seize the throne without enough
+> cover cards banked). FOCUS-GROUP-R3 §3.
+
 ```
 function pledgePhase(state):
   C = state.shadowking.telegraph.doomCost
@@ -243,13 +262,21 @@ function actionPhase(state):
         a = chooseAction(p)                      // human click / AI
         apply(a)                                 // via single applyCommand reducer (Stage 3)
         // legal actions:
-        //   MARCH    : move a piece 1 node (cost 1 banner)
-        //   CLAIM    : claim current unclaimed Holding/Forge (cost 1 banner)
-        //   RAID     : initiate combat vs a co-located rival (§5.3)
-        //   STRIKE   : initiate combat vs a co-located Shadowking force (§5.3) — killing a DK pushes back the Blight
-        //   RESCUE   : un-Break a co-located/adjacent ally for a binding debt (§5.4)
-        //   RECRUIT  : reveal/recruit a retinue piece (if a recruiter is present)
-        //   PASS     : end actions
+        //   MARCH      : move a piece 1 node (cost 1 banner). Marching into a rival-owned LIVING Forge
+        //                also pays the owner FORGE_TOLL_COST banners (Stage T); a SWORN ally passes free.
+        //   CLAIM      : claim current unclaimed Holding/Forge (cost 1 banner). BLOCKED if a Death Knight
+        //                sits the node (kill it first — §5.6).
+        //   RAID       : initiate combat vs a co-located rival (§5.3)
+        //   STRIKE     : initiate combat vs a co-located Shadowking force (§5.3) — killing a DK pushes back
+        //                the Blight AND claims the DK's node for the killer (§5.4/§5.6)
+        //   RESCUE     : un-Break a co-located/adjacent ally for a banner tribute + binding debt; auto-forges
+        //                an Oath (§5.4)
+        //   SWEAR_OATH : forge a public non-aggression pact with another player — FREE (no action/banner cost);
+        //                pays both a Dawn fealty dividend while sworn (§5.4)
+        //   BREAK_OATH : renounce a standing Oath — consumes an ACTION; the dark hunts oathbreakers (§5.4)
+        //   RECRUIT    : reveal/recruit a retinue piece, or a HERALD (the political build — §2)
+        //   PARLEY     : a Herald-enabled, non-card pushback against the dark (§2)
+        //   PASS       : end actions
         if combat occurred and defender would fall: offer LAST STAND (§5.3)
      postTurnBrokenCheck(p)                       // §5.4
      checkImmediateLoss(state)                    // doom_complete / all_broken can fire mid-phase
@@ -293,6 +320,10 @@ function dawnPhase(state):
   covers the pushback path too, not just pledge-dodging).
 - PUSHBACK is the players' lever against the map dying; it replaces the old "defeat a Death Knight → doom
   −1." (Off-spoke contribution may be required so the leader isn't their own best firefighter — ML-tune.)
+- **HUNT the dark (5-dark, `docs/DESIGN-V2-DARK-ENGAGEMENT.md`):** killing a Death Knight is a positive
+  play, not just defense — the killer **claims the DK's node** (real win-currency) *and* drives back the
+  front. A DK also **blocks CLAIM** on its node, so clearing one opens land. The catch is asymmetric
+  grudge — see §5.6 (`GRUDGE_MARK_TOP_N`).
 - **Loss:** the dark eats the Keystone → `doom_complete`.
 
 ### 5.2 The Crown (leading is dangerous)
@@ -333,6 +364,10 @@ function combat(attacker, defender):
 ### 5.4 Broken Court & Rescue (no elimination, with teeth)
 - **Enter Broken** when accumulated wounds ≥ `BREAK_THRESHOLD` **[TUNABLE]** (one visible meter — a
   cracking shield — *not* a separate Penalty-Card economy).
+- **The dark's break-vector (5d, `docs/DESIGN-V2-RESCUE-ECONOMY.md`):** a landed strike on the dark's
+  **named target** inflicts `LANDED_STRIKE_WOUNDS` — this is the primary path *into* Broken (combat losses
+  are the other). So the dark itself, not just rivals, can crack a Warlord — which is what gives Rescue an
+  economy to run on.
 - **Broken state:** reduced actions (`ACTIONS_BROKEN`) **but boosted income** (a comeback subsidy
   `BROKEN_INCOME_BONUS` **[TUNABLE]**); may still RAID, STRIKE, and Last Stand; **keeps full Pledge
   rights**. A Broken Warlord's *lost* Holdings turn to ash and feed the front (§5.1) — so beating a rival
@@ -343,11 +378,20 @@ function combat(attacker, defender):
 - **Recovery cap:** auto-recovers to minimum strength after `BROKEN_MAX_ROUNDS` **[TUNABLE]** — no
   permanent kingmaker-hostage (judge's fix).
 - **Rescue:** an active Warlord spends `RESCUE_COST` cards to un-Break an ally, in exchange for a
-  **binding one-round debt**. The obligation set is: a forced **minimum Pledge contribution**, a
+  **binding one-round debt** AND a **banner tribute paid back to the rescuer** (5d — so rescue is a
+  positive-sum bid, not pure charity). The obligation set is: a forced **minimum Pledge contribution**, a
   **withheld attack** (named target, one round), or **claim support** — enforced on **public actions
   only** (a sealed/secret pledge amount can't police a debt; the forced-minimum is applied transparently).
-  No "vote" obligation (voting was replaced by the Pledge). Never charity; breaking the debt incurs a
-  penalty **[TUNABLE]**.
+  No "vote" obligation (voting was replaced by the Pledge). Breaking the debt incurs a penalty
+  **[TUNABLE]**. **A rescue auto-forges an Oath** (below) between rescuer and rescued. **Rescue volume is
+  STRUCTURALLY CAPPED** — pooled across 2–4p it sits near ~0.7/game, held down by the `all_broken < 5%`
+  guardrail (you can only rescue someone the dark/rivals actually broke; §9 band, tuning-log §5d).
+- **Oaths + the Ledger (`docs/DESIGN-V2-OATHS.md`):** public, breakable two-player pacts. **SWEAR_OATH is
+  free** (§4.3); while sworn, the pair has **non-aggression** (no RAID between them, Forge tolls waived
+  §2/§4.3) and each draws a **Dawn fealty dividend**. **BREAK_OATH consumes an action**, and **the dark
+  hunts oathbreakers** — the "**Ledger**" is the grudge array (§5.6): renouncing an oath marks you. Typical
+  table: ~6 sworn / ~3 broken per game. Oaths are the cooperative spine the Rescue debt and the Forge-toll
+  exemptions both hang off.
 - **Draw:** if all active Warlords are Broken simultaneously → `all_broken` (all lose).
 
 ### 5.5 Escalation acts (the noose tightens, visibly)
@@ -385,6 +429,13 @@ function chooseShadowkingIntent(state):
   per-player meter, decays each round, is capped, and **heroic-grudge decays faster than direct-SK-wound
   grudge**, so occasional heroism is safe and only sustained provocation makes you the target. Prevents
   the most helpful player (most front-pushback) from becoming the permanent victim. Ties → lowest seat.
+- **Asymmetric DK-hunt grudge (5-dark, `docs/DESIGN-V2-DARK-ENGAGEMENT.md`):** killing a Death Knight both
+  **claims its node** (win-currency, §5.1/§5.4) and adds grudge — but the "now it hunts you" tax is paid
+  **only by the leading seats** (`GRUDGE_MARK_TOP_N`). A trailing player can HUNT the dark for land and
+  pushback nearly free; the leader who does it paints the target on their own back. This is what made
+  DK-kills go from ~0 to ~2/game without making the dark a free piñata.
+- **The Ledger — the dark hunts oathbreakers:** the grudge array doubles as the **Ledger** (§5.4). Calling
+  BREAK_OATH adds grudge, so renouncing a pact is a *public* provocation the dark notices.
 - **In-round voice layer (P0-5)** — keyed off the existing `actionLog` + `grudge[]`, ZERO rules change:
   the villain barks during PLEDGE/ACTION, not only THREAT — on grudge earned ("So. *You* draw the blade."),
   on a strike landing through a thin pledge ("Your friends sold you cheap."), on a leader toppled, on
@@ -413,7 +464,12 @@ deterministic (loss preempts win; all snapshots taken post-escalation in seat or
 ### Alternate sudden win — The Crown's Gambit (the dramatic climax)
 A bold, fully telegraphed central play, **de-taxed to TWO real costs** (stress-test P0-3 — four costs
 made it a button nobody presses). Timeline:
-1. **Seize:** during ACTION, march a force onto the Keystone (only via an Approach). 
+1. **Seize:** during ACTION, march a force onto the Keystone (only via an Approach). **Risk-aware seize
+   gate (Stage S, the gambit-fire fix — FOCUS-GROUP-R3 §3):** a player won't seize unless
+   they hold `GAMBIT_SELF_COVER_CARDS` in reserve (cover cards to survive the named round) — this, not the
+   sealing, is what makes the Gambit fire at the intended rate. Once seized, the claimant's **Pledge is
+   SEALED even in competitive** (`SEALED_CORE_PLEDGE='gambit_claimant'`, §4.2 amendment) so the exposed
+   volunteer can't be perfectly read. FOCUS-GROUP-R3 §3.
 2. **Declared & named:** if you **hold the Keystone at Dawn**, the Gambit goes public and the dark
    **names you** — at the next THREAT it aims at you regardless of production lead. Rivals get this whole
    round to break you (raid you off, out-position, or withhold pledges to feed the dark at you).
@@ -503,10 +559,17 @@ wait. This converts the territory race's "turtle-to-cap" line from dominant into
 BLIGHT_TO_ASH, PUSHBACK, doomCost C(Act, playerCount), CROWN_PLEDGE_DISCOUNT, FULL_BLOCK_THRESHOLD,
 PATIENCE_ON_BLOCK / patience cap, FORGE_WEIGHT, BREAK_THRESHOLD, BROKEN_INCOME_BONUS, BROKEN_MAX_ROUNDS,
 RESCUE_COST, act thresholds, ROUND_CAP, GAMBIT_SURCHARGE, GAMBIT_ADJACENT_STRIKE_MULT.`
+Stage-5 additions (the folded mechanics): `GRUDGE_MARK_TOP_N` (asymmetric DK-hunt grudge, §5.6),
+`LANDED_STRIKE_WOUNDS` (the dark's break-vector, §5.4), `FORGE_TOLL_COST` (Forge-as-Gate, §2/§4.3),
+`SEALED_CORE_PLEDGE` + `GAMBIT_SELF_COVER_CARDS` (Sealed Pledge + the seize gate, §4.2/§6),
+`HERALD_HAND_BONUS` + `HERALD_COMBAT_PENALTY` (the political build, §2). **`src/v2/tunables.ts`
+`DEFAULT_TUNABLES` is the single source of truth** for every lever's locked value (§12).
 Target Gambit frequency: it should actually fire in ~1-in-6-to-8 games **[TUNABLE]** — rare enough to be
 an event, common enough that its *threat* shapes negotiation every game (board designer).
 Target metrics (from old PRD, re-validate): Shadowking win rate **18–22%**, session **10–16 rounds**,
-2–4 rescue events/game, no dominant pledge line. **These are validated against the REAL rules and AI in
+~0.5–4 rescue events/game (the original 2–4 is STRUCTURALLY CAPPED near ~1 pooled by the all_broken
+guardrail — band re-stated in `sim/report.ts`; see tuning-log §5d), no dominant pledge line.
+**These are validated against the REAL rules and AI in
 the new sim — never against a stubbed greedy bot (see `docs/ML-SYSTEM-ANALYSIS.md`).**
 
 ### 9.1 Player-count identity ladder (LOCKED decision — Stage 5; numbers refreshed after the R3 wave)
@@ -555,7 +618,10 @@ Built on top of the sealed-pledge substrate; absent unless `mode === 'blood_pact
 
 ## 11. Deliberately deferred / open for Stage 3
 - Full co-op mode (variant, post-core).
-- Async & mobile (this is a real-time game — open live Pledge window in core).
+- Async & mobile (this is a real-time game — open live Pledge window in core). **AMENDED (Stage S):** the
+  live window is open in core *except* for the named Gambit claimant, whose pledge is sealed
+  (`SEALED_CORE_PLEDGE='gambit_claimant'`) — see §4.2 / §0. The "fully open in core" pillar no longer holds
+  unconditionally.
 - Deep retinue/role economy (start minimal; expand once the loop is proven).
 - **P2 legibility/UX items** (pledge reveal as a threshold beat, blightLevel pip ladders, Gambit alarm
   banner, `SealedCommit<T>` primitive, Whisper-act onboarding, the dramatic "Last Dawn" cap ending) — see
@@ -567,35 +633,21 @@ Built on top of the sealed-pledge substrate; absent unless `mode === 'blood_pact
 
 ---
 
-## 12. Stage-5 mechanic additions (delta — AUTHORITATIVE POINTERS)
+## 12. Stage-5 delta — changelog & sources
 
-> ⚠️ **§§1–11 above describe the core as designed; they predate the Stage-5 balance work and the
-> reconvened focus-group rounds R2/R3. The mechanics below are LOCKED in code but not yet folded into the
-> prose above. For these, the authoritative sources are the named spec docs + `src/v2/tunables.ts`
-> (the live `DEFAULT_TUNABLES`) + `docs/handoff/stage5-tuning-log.md` (the evidence). A cold-start agent
-> MUST read those, not assume §§1–11 are complete.**
+> §§1–11 now incorporate the Stage-5 mechanics; this section is the change history.
 
-- **Dark engagement (5-dark)** — `docs/DESIGN-V2-DARK-ENGAGEMENT.md`. Players can HUNT the dark: killing a
-  Death Knight claims its node (win-currency) + adds grudge; the grudge is asymmetric (only leading seats
-  pay the "now it hunts you" tax — `GRUDGE_MARK_TOP_N`); DKs block CLAIM. Revived DK-kills 0→~2/game.
-- **Rescue/break economy (5d)** — `docs/DESIGN-V2-RESCUE-ECONOMY.md`. The dark WOUNDS its named target
-  (`LANDED_STRIKE_WOUNDS` — the §5.4 break-vector); rescue pays the rescuer a banner tribute. Rescues
-  ~0.07→~0.7 (pooled 2–4 is STRUCTURALLY CAPPED by all_broken<5% — §9 band re-stated; tuning-log §5d).
-- **Oaths + the Ledger** — `docs/DESIGN-V2-OATHS.md`. Public, breakable two-player pacts (SWEAR_OATH free /
-  BREAK_OATH consumes an action); non-aggression + a Dawn fealty dividend while sworn; the dark hunts
-  oathbreakers (the "Ledger" = the grudge array). Rescue auto-forges an Oath. ~6 sworn / ~3 broken per game.
-- **Forge-as-Gate tolls (Stage T)** — marching into a rival-owned Forge pays the owner a banner toll
-  (`FORGE_TOLL_COST`; sworn allies free). FOCUS-GROUP-R3 §4.
-- **Sealed Pledge + the gambit fix (Stage S)** — the named Gambit claimant's pledge is SEALED
-  (`SEALED_CORE_PLEDGE='gambit_claimant'`) — this **reverses the R1 "open live Pledge in core" pillar**
-  (§0/§4.2/§11 — those still say "open in core"; the reversal is owned here + in ROADMAP §2). NOTE: sealing
-  is a HUMAN-facing feature and a sim no-op; the actual gambit-fire fix is the risk-aware seize gate
-  (`GAMBIT_SELF_COVER_CARDS`). FOCUS-GROUP-R3 §3.
-- **Herald + political/martial stance (Stage H)** — RECRUIT a Herald = the political build (per-player
-  `handLimit` +`HERALD_HAND_BONUS`, −`HERALD_COMBAT_PENALTY` combat) vs default martial; PARLEY is a
-  non-card pushback vs the dark. MVP ABSTRACTS the literal lone-runner piece (deferred). FOCUS-GROUP-R3 §3.
-- **Tunable list (§9):** the original ~20 placeholders are superseded — `src/v2/tunables.ts`
-  `DEFAULT_TUNABLES` is the single source of truth for every lever + its locked value.
+**Authoritative sources:** `src/v2/tunables.ts` (`DEFAULT_TUNABLES`) is the live single source of truth
+for every lever and its locked value; the named spec docs below + `docs/handoff/stage5-tuning-log.md` are
+the evidence behind each.
+
+**Changelog (each mechanic, its stage tag, and its spec doc):**
+- **Dark engagement** (5-dark) — `docs/DESIGN-V2-DARK-ENGAGEMENT.md`. → §2 (DKs), §5.1, §5.6.
+- **Rescue/break economy** (5d) — `docs/DESIGN-V2-RESCUE-ECONOMY.md`. → §5.4.
+- **Oaths + the Ledger** (Oaths) — `docs/DESIGN-V2-OATHS.md`. → §4.3, §5.4, §5.6.
+- **Forge-as-Gate tolls** (Stage T) — FOCUS-GROUP-R3 §4. → §2, §4.3.
+- **Sealed Pledge + the gambit fix** (Stage S) — FOCUS-GROUP-R3 §3. → §4.2 (+§0/§11 amendments), §6.
+- **Herald + political/martial stance** (Stage H) — FOCUS-GROUP-R3 §3. → §2, §4.3.
 
 **Remaining Phase 5:** 5e (Blood Pact `chooseAccusation` heuristic + ACCUSATION knobs) and 5f (final
-2-seed lock + folding §12 into the §§1–11 prose; amending §0/§4.2 for the sealed-pledge reversal).
+2-seed lock).
