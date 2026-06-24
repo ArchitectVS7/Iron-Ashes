@@ -329,14 +329,33 @@ export const GAMBIT_ADJACENT_STRIKE_MULT = 1;
 /** How many recent rounds of pledge tiers the Suspicion Log retains. */
 export const SUSPICION_LOG_ROUNDS = 4;
 
+/** Blood Pact traitor cover (§5e): fraction of rounds the traitor pledges COVER (medium tier,
+ *  invisible to the Suspicion Log) vs SABOTAGE (suppress → the detectable 'none' tell). Higher =
+ *  blends more = survives + wins more, dark advances less. The PRIMARY 5e lever. Saboteur-only
+ *  (gated on hasBloodPact) so competitive is unaffected. [TUNABLE] */
+export const SABOTEUR_COVER = 0.745;
+
+/** Blood Pact ONLY (§5e): extra base blight spread on the dark's strike — the pact feeds the
+ *  dark, so it burns hotter when a traitor is at the table. Gives the (hidden) traitor a real path
+ *  to the doom_complete win + makes the dark scarier for the loyalists. Competitive = 0 (untouched). [TUNABLE] */
+export const BLOOD_PACT_SPREAD_BONUS = 1;
+
+/** Suspicion the loyalists demand before ACCUSING (§5e — the evidence bar). Higher = accuse
+ *  only on strong evidence → fewer, more accurate accusations (and a blending traitor survives
+ *  longer). The PRIMARY 5e lever paired with saboteurCover. (Max possible over SUSPICION_LOG_ROUNDS
+ *  rounds is 2*rounds, all 'none'.) [TUNABLE] */
+export const ACCUSE_MIN_SCORE = 4;
+
 /** Banner cost to Audit one opponent's last pledge. */
 export const AUDIT_COST = 2;
 
 /** Rounds new accusations are locked out after a wrong/fizzled one (anti-spam). */
 export const ACCUSATION_COOLDOWN_ROUNDS = 2;
 
-/** Cards each agreeing accuser discards when the accusation is wrong. */
-export const ACCUSATION_WRONG_PENALTY = 1;
+/** Cards each agreeing accuser discards when the accusation is wrong. Stage-5e raised 1→2 to
+ *  make a bad call a real GAMBLE for the human accuser (the sim AI doesn't weigh it when deciding
+ *  to accuse — a human-facing risk; see docs/human-playtest-checklist.md). */
+export const ACCUSATION_WRONG_PENALTY = 2;
 
 /** Banners the vindicated (wrongly-accused) player gains. */
 export const ACCUSATION_VINDICATION_BONUS = 2;
@@ -456,6 +475,10 @@ export interface Tunables {
   // ── Sealed Pledge + gambit fix (Stage S) ──
   readonly SEALED_CORE_PLEDGE: 'off' | 'gambit_claimant' | 'all';
   readonly GAMBIT_SELF_COVER_CARDS: number;
+  // ── Blood Pact accusation + traitor bluff (Stage 5e) ──
+  readonly ACCUSE_MIN_SCORE: number;
+  readonly SABOTEUR_COVER: number;
+  readonly BLOOD_PACT_SPREAD_BONUS: number;
   // ── Sealed-pledge bail-out / volunteer's dilemma (Stage B) ──
   /** Base probability a rival INDEPENDENTLY volunteers to bail out a SEALED Gambit
    *  claimant, scaled by the archetype's bailoutTrust (§B). Only bites when sealing
@@ -485,6 +508,7 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   BREAK_THRESHOLD, RESCUE_COST, RESCUE_TRIBUTE_BANNERS, LANDED_STRIKE_WOUNDS, BROKEN_MAX_ROUNDS,
   OATH_DIVIDEND, OATH_DURATION, OATH_LOYALTY_BONUS, OATH_BREAK_BANNERS, GRUDGE_OATHBREAK,
   FORGE_TOLL_COST, SEALED_CORE_PLEDGE, GAMBIT_SELF_COVER_CARDS, BAILOUT_BASE_PCT,
+  ACCUSE_MIN_SCORE, SABOTEUR_COVER, BLOOD_PACT_SPREAD_BONUS,
   HERALD_RECRUIT_COST, HERALD_HAND_BONUS, HERALD_COMBAT_PENALTY, HERALD_PUSHBACK,
   PLEDGE_SHIELD_AMOUNT, PLEDGE_FAVOR_GRUDGE_REDUCTION,
   DK_MARCH_DISTANCE, SURGE_SPREAD_MULT, GAMBIT_ADJACENT_STRIKE_MULT,
@@ -566,6 +590,9 @@ export const TUNABLES = Object.freeze({
   RESCUE_TRIBUTE_BANNERS,
   LANDED_STRIKE_WOUNDS,
   SUSPICION_LOG_ROUNDS,
+  ACCUSE_MIN_SCORE,
+  SABOTEUR_COVER,
+  BLOOD_PACT_SPREAD_BONUS,
   AUDIT_COST,
   ACCUSATION_COOLDOWN_ROUNDS,
   ACCUSATION_WRONG_PENALTY,

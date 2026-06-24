@@ -305,8 +305,11 @@ export function resolveStrike(
     return { state, events };
   }
 
-  // Proportional spread: ceil ensures even tiny unblocked fractions do damage
-  const spreadAmount = Math.ceil((1 - ratio) * getTunables().SPREAD_AMOUNT_BASE);
+  // Proportional spread: ceil ensures even tiny unblocked fractions do damage. In Blood Pact the
+  // dark burns hotter (§5e — the pact feeds it), giving the hidden traitor a real path to doom.
+  const base = getTunables().SPREAD_AMOUNT_BASE +
+    (state.mode === 'blood_pact' ? getTunables().BLOOD_PACT_SPREAD_BONUS : 0);
+  const spreadAmount = Math.ceil((1 - ratio) * base);
   events.push(...spreadShieldedOnSpoke(state, steerQuadrant, spreadAmount, pledgers));
 
   return { state, events };
@@ -352,7 +355,12 @@ export function applyDawnBlightAdvance(
   steerQuadrant: number,
 ): BlightResult {
   const events: GameEvent[] = [];
-  events.push(...advanceBlightOnSpoke(state, steerQuadrant, getTunables().DAWN_BLIGHT_ADVANCE, 'dawn'));
+  // In Blood Pact the dark marches toward the Keystone faster (§5e — the pact feeds it). This
+  // is the real doom driver (the Dawn march down the spoke), giving the hidden traitor a path
+  // to the doom_complete win. Competitive = +0 (untouched).
+  const advance = getTunables().DAWN_BLIGHT_ADVANCE +
+    (state.mode === 'blood_pact' ? getTunables().BLOOD_PACT_SPREAD_BONUS : 0);
+  events.push(...advanceBlightOnSpoke(state, steerQuadrant, advance, 'dawn'));
   return { state, events };
 }
 

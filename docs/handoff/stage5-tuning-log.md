@@ -494,3 +494,44 @@ UNCHANGED in character (the wave didn't touch BP accusation balance). These are 
 (traitor win → 12–20, exposure → 40–70) — the next stage, not a wave regression.
 
 **Verdict: the close-loose-ends wave is COMPLETE and locked.** Resume Phase 5 at 5e.
+
+---
+
+## §5e — Blood Pact accusation: a real bluff + a real gamble (Phase 5)
+
+**Start:** traitor win 7.8% (UNDER 12-20), exposure 86.9% (OVER 40-70), accuracy 53.7%. The crude
+saboteur (`saboteurPledgeSuppression: 0.8`) suppressed pledges hard → the Suspicion Log (which counts
+low/none pledges) lit it up like a beacon → convicted 87%.
+
+**The human design (the payoff).** Traitor: a **cover-vs-sabotage dilemma** — pledge into the
+'medium' tier to pass as loyal (cover, which genuinely helps the table block — the price of hiding)
+vs suppress to feed the dark (the detectable tell). Loyalists: real **deduction** (who's starving the
+Pledge?) + a real **gamble** (a wrong accusation costs cards + vindicates the innocent).
+
+**Three findings drove the build:**
+1. `ACCUSATION_WRONG_PENALTY` is a SIM NO-OP — the AI doesn't weigh the penalty when deciding to
+   accuse (a human-facing deterrent, like the sealed pledge). Raised 1→2 for the HUMAN gamble; flagged
+   on the human-playtest-checklist. NOT a sim lever.
+2. The Audit is redundant in-sim (the AI reads the public Suspicion Log directly) — its value is the
+   HUMAN's "pay banners for evidence before the gamble." Documented as human-facing; not force-wired.
+3. The traitor cannot win on suppression alone — `doom_complete` is rare (~17%) and N-1 loyalists block
+   it. **The real win lever is the dark itself:** `BLOOD_PACT_SPREAD_BONUS` adds +1 to the Dawn march
+   toward the Keystone in Blood Pact (the pact feeds the dark) — thematic, and it gives the hidden
+   traitor a genuine doom path. Mode-gated → competitive byte-identical (verified: SK-win 20.2% unchanged).
+
+**Levers + signal.** New tunables `SABOTEUR_COVER` (the bluff), `ACCUSE_MIN_SCORE` (the evidence bar),
+`BLOOD_PACT_SPREAD_BONUS` (the doom path). `suspicionScore` SHARPENED: only 'none' counts (+2) —
+counting 'low' (honest thrift everyone does) pushed accuracy BELOW the random floor (innocents looked
+guiltier than a blending traitor). With 'none'-only, accuracy holds ~70% (well above ~30 random).
+
+**LOCKED: SABOTEUR_COVER=0.745, ACCUSE_MIN_SCORE=4, BLOOD_PACT_SPREAD_BONUS=1, ACCUSATION_WRONG_PENALTY=2.**
+2-seed ×40 (--bloodpact): traitor win **20.0% / 20.3%**, exposure **69.7% / 71.1%**, accuracy
+**71.5% / 70.1%**, accusations **0.97 / 1.01**/game. Competitive unaffected (20.2%). 417 tests.
+
+**Residual (the achievable frontier — escalated):** win and exposure are JOINTLY tight — the cover
+lever crosses both band edges (~20 win / ~70 expose) together, so they hug their ceilings: seed 1 lands
+all four bands; seed 2 is +0.3pp (win) / +1.1pp (expose) over. Accuracy + frequency pass with wide
+margin on both. The dynamic (with the buffed dark self-dooming, the traitor wins by SURVIVING, so win
+and low-exposure move together) makes a cleaner mid-band lock need a fractional dark bonus or a
+win/exposure-decoupling mechanic — a deeper change escalated for 5f/the user, not blindly ground here.
+Net: traitor win 7.8%→20% (a REAL threat), exposure 87%→70%, accuracy 54%→71%. A vastly better game.

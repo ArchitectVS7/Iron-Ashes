@@ -26,6 +26,7 @@ import {
   AUDIT_COST,
   SUSPICION_LOG_ROUNDS,
   TRAITOR_EXPOSED_WOUNDS,
+  getTunables,
 } from './tunables.js';
 import { applyPushback, getBlightFrontier } from './blight.js';
 import { checkBrokenState } from './combat.js';
@@ -287,12 +288,16 @@ function resolveAccusation(state: GameState): GameEvent[] {
  * noise, so higher = more suspect.
  */
 export function suspicionScore(state: GameState, targetIndex: number): number {
+  // §5e — discriminate the traitor from honest economical play: pledging NOTHING while the
+  // world burns is the real tell ('none' = +2). A merely 'low' pledge is normal thrift that
+  // innocents do constantly — counting it pushes accusation accuracy BELOW the random floor
+  // (innocents look guiltier than a blending traitor), so it scores nothing. 'medium'/'high'
+  // (the traitor's COVER pledges) also register nothing — that is what makes cover work.
   let score = 0;
   for (const round of state.suspicionLog) {
     const entry = round.find(e => e.playerIndex === targetIndex);
     if (!entry) continue;
     if (entry.tier === 'none') score += 2;
-    else if (entry.tier === 'low') score += 1;
   }
   return score;
 }
@@ -324,8 +329,9 @@ export function chooseAccusation(
   if (state.bloodPactExposed) return null;
   if (state.accusationState && !state.accusationState.resolved) return null;
   if (state.round < state.accusationLockoutUntilRound) return null;
-  // Need real evidence before accusing (a high bar — accusing wrongly is costly).
-  return mostSuspect(state, playerIndex, seed, 3);
+  // Need real evidence before accusing — the evidence bar (§5e). Higher ⇒ accuse only on
+  // strong, consistent suspicion → fewer, more accurate accusations; a blending traitor survives.
+  return mostSuspect(state, playerIndex, seed, getTunables().ACCUSE_MIN_SCORE);
 }
 
 /**
@@ -339,10 +345,11 @@ export function chooseAccusationVote(
 ): boolean {
   const acc = state.accusationState;
   if (!acc) return false;
-  // The accused's suspicion in this voter's eyes vs. the field.
+  // The accused's suspicion in this voter's eyes vs. the field. Agree if they're my top
+  // suspect, or their suspicion clears the evidence bar (§5e).
   const accusedScore = suspicionScore(state, acc.accused);
   const myTop = mostSuspect(state, playerIndex, seed, 1);
-  return myTop === acc.accused || accusedScore >= 3;
+  return myTop === acc.accused || accusedScore >= getTunables().ACCUSE_MIN_SCORE;
 }
 
 /**

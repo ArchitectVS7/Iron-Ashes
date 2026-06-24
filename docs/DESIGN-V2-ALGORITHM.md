@@ -628,6 +628,24 @@ Built on top of the sealed-pledge substrate; absent unless `mode === 'blood_pact
 - **"Can't pay" definition (critical):** inability to pay = pledges 0 and that fact is public — so being
   card-poor cannot be used as a fake-traitor shield.
 
+> **TUNED + AMENDED (Stage 5e — tuning-log §5e).** The hidden-traitor game now plays as a real bluff
+> and a real gamble:
+> - **The traitor's cover-vs-sabotage dilemma** (`SABOTEUR_COVER`): pledge into the 'medium' tier to
+>   pass as loyal (cover — which genuinely helps the table block, the price of hiding) vs suppress to
+>   feed the dark (the detectable tell). Was a beacon (suppress-always, exposed 87%); now a bluff.
+> - **The dark burns hotter under a Pact** (`BLOOD_PACT_SPREAD_BONUS` — +1 Dawn march toward the
+>   Keystone, Blood-Pact only, competitive byte-identical): the pact feeds the dark, giving the hidden
+>   traitor a genuine path to the `doom_complete` win (which one defector's pledge alone can't force).
+> - **The evidence bar** (`ACCUSE_MIN_SCORE`) + a **sharpened Suspicion signal**: only pledging
+>   *nothing* ('none') reads as suspicious — a merely 'low' pledge is honest thrift everyone does, so
+>   counting it pushed accusation accuracy BELOW random (innocents looked guiltier than a blending
+>   traitor). 'none'-only keeps deduction skillful (~70% accurate).
+> - The **wrong-accusation gamble** (`ACCUSATION_WRONG_PENALTY`=2) and the **Audit** are HUMAN-facing
+>   (the AI weighs neither — sim-inert; see `docs/human-playtest-checklist.md` §3).
+> LOCKED 2-seed: traitor win 7.8%→~20%, exposure 87%→~70%, accuracy 54%→~71%, ≤1 accusation/game.
+> Residual: win + exposure are jointly tight (both hug their ceilings) — a cleaner mid-band lock needs a
+> fractional dark bonus / win-exposure decoupling (escalated to 5f).
+
 ---
 
 ## 11. Deliberately deferred / open for Stage 3

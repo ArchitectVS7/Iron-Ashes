@@ -215,11 +215,22 @@ export function choosePledge(
     }
   }
 
-  // Saboteur (Blood Pact traitor only): hide a thin pledge in the noise so the
-  // dark advances (§10). Inert for non-traitors and in competitive mode.
+  // Saboteur (Blood Pact traitor only) — the cover-vs-sabotage bluff (§5e). Inert for
+  // non-traitors and in competitive mode.
   const suppression = policy.saboteurPledgeSuppression ?? 0;
   if (suppression > 0 && player.hasBloodPact) {
-    amount = Math.min(amount, Math.floor(amount * (1 - suppression)));
+    // The cover-vs-sabotage bluff (§5e). SABOTEUR_COVER = the fraction of rounds the traitor
+    // plays COVER (pledges into the 'medium' tier → invisible to the Suspicion Log) instead of
+    // sabotaging. Higher = blends more = survives longer = wins more, but the dark advances less.
+    // Cover pledges genuinely help the table block — the price of passing as loyal.
+    const cover = getTunables().SABOTEUR_COVER;
+    const blend = decisionRng(state, playerIndex, seed, 2).float() < cover;
+    if (blend) {
+      amount = Math.max(amount, Math.min(available, Math.ceil(handSize * 0.35)));
+    } else {
+      // SABOTAGE: suppress toward the noise floor so the dark advances (the detectable tell).
+      amount = Math.min(amount, Math.floor(amount * (1 - suppression)));
+    }
   }
 
   return amount;

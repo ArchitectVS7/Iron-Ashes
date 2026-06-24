@@ -30,7 +30,21 @@ can't reach. Per the No-Deferred-Debt norm (CLAUDE.md), these ship LABELLED, not
   verb-count growth (Oaths, tolls, Parley, Herald). Watch for: analysis-paralysis on the Pledge,
   turn length creep, whether the per-round verb menu feels rich or bloated.
 
-## 3. The literal Herald lone-runner (Stage HL) — table drama
+## 3. Blood Pact — the accusation gamble + the Audit (Stage 5e) — sim-inert, human-real
+
+- **The claim:** accusing is a real GAMBLE — a wrong call costs the accuser cards
+  (`ACCUSATION_WRONG_PENALTY=2`), vindicates (rewards) the innocent, and gives the real traitor cover
+  ("we cried wolf"). And the **Audit** (spend banners to reveal one rival's last pledge) lets you BUY
+  evidence to de-risk the gamble.
+- **Why the sim can't judge it:** the AI doesn't weigh the wrong-penalty when deciding to accuse, and
+  it reads the Suspicion Log directly (so it never needs to pay for an Audit). Both are sim-inert —
+  the balance came from the cover bluff + the evidence bar + the dark bonus, NOT these.
+- **What only humans can confirm:** that the wrong-accusation cost actually creates "are we SURE?"
+  hesitation at the table; that the Audit feels worth its banners as a pre-accusation investment; and
+  that the traitor's cover-vs-sabotage choice (pass as loyal vs feed the dark) lands as a genuine
+  white-knuckle dilemma. Watch: do loyalists Audit before accusing, or accuse on a hunch and get burned?
+
+## 4. The literal Herald lone-runner (Stage HL) — table drama
 
 - **The claim:** a single vulnerable Herald crossing the blight to Parley is a *scene* the table
   watches ("will he make it?") — escort/intercept tension a stance flag can't deliver.

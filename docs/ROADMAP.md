@@ -25,9 +25,12 @@ un-injectable load-bearing-tunable seam bug), A (all_broken = Shadowking win), M
 B (sealed-pledge validated via a bail-out AI channel), HL (the literal Herald lone-runner piece). R2
 re-baseline: competitive ALL §9 bands PASS (SK-win 20.2%, 2-seed 20.2/20.0, 413 tests); blood-pact clean.
 
-**Immediate next action:** **Stage 5e** — Blood Pact `chooseAccusation` heuristic + ACCUSATION knobs
-(traitor win 7.8% → 12–20, exposure 86.9% → 40–70, keep accuracy 53.7% ≥45 + ≤2.5 accusations/game) →
-**5f** (final 2-seed lock + §9 doc). Human-only validations remain on `docs/human-playtest-checklist.md`.
+**Immediate next action:** **Stage 5f** — the final both-modes 2-seed lock + the §9 doc pass (fold the
+per-stage tuning-log into `DESIGN-V2-ALGORITHM.md §9` prose, placeholder → FINAL). Stage 5e (Blood Pact)
+is DONE (traitor win 7.8%→~20%, exposure 87%→~70%, accuracy 54%→~71%); its only residual is the jointly-
+tight win/exposure bands (both hug their ceilings) — decide at 5f whether a fractional dark bonus / a
+win-exposure-decoupling mechanic is worth a cleaner mid-band lock, or accept the frontier. Human-only
+validations remain on `docs/human-playtest-checklist.md`.
 
 ---
 
@@ -250,8 +253,10 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     to **SK-win 20.0% ✅**). Build axis used (59% political, 1.78/game), gambit still 17.0% ✅, guards PASS,
     2-seed stable, 406 tests. (Political/martial "parity" is confounded by archetype — see §herald.) MVP
     defers the literal lone-runner piece. Evidence `stage5-tuning-log.md` §herald. *Completed 2026-06-23.*
-  - [ ] **5e. Blood Pact** — fix the chooseAccusation relative-gap heuristic + ACCUSATION knobs → accuracy ≥45%,
-    ≤2.5 accusations/game, traitor win 12–20%, exposure 40–70%.
+  - [x] **5e. Blood Pact** — DONE (tuning-log §5e). Built the cover-vs-sabotage bluff (`SABOTEUR_COVER`),
+    a mode-gated dark doom-path (`BLOOD_PACT_SPREAD_BONUS`), the evidence bar (`ACCUSE_MIN_SCORE`) + a
+    'none'-only suspicion signal. Traitor win 7.8%→~20%, exposure 87%→~70%, accuracy 54%→~71%, ≤1
+    accusation/game. Residual: win+exposure jointly tight (hug ceilings) — escalated to 5f.
   - [ ] **5f. Final validation + lock** — 2-seed stability; all bands + guards + per-count + BP pass; LOCK
     values; update `DESIGN-V2-ALGORITHM.md §9` placeholder → FINAL + the AI-ceiling/human-playtest caveat.
 
