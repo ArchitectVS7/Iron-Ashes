@@ -22,7 +22,6 @@ import {
   CARD_VALUE_MIN,
   PATIENCE_CAP,
   PATIENCE_ON_BLOCK,
-  PLEDGE_FAVOR_GRUDGE_REDUCTION,
   ROUND_CAP,
   getTunables,
 } from './tunables.js';
@@ -160,7 +159,7 @@ export function resolvePledgePhase(state: GameState): SequencerResult {
     if (pledge.amount > 0) {
       pledgers.add(pledge.playerIndex);
       const g = state.shadowking.grudge;
-      g[pledge.playerIndex] = Math.max(0, (g[pledge.playerIndex] ?? 0) - PLEDGE_FAVOR_GRUDGE_REDUCTION);
+      g[pledge.playerIndex] = Math.max(0, (g[pledge.playerIndex] ?? 0) - getTunables().PLEDGE_FAVOR_GRUDGE_REDUCTION);
     }
   }
 

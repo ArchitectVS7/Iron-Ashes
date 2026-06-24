@@ -11,9 +11,9 @@
     "sim-results/s20260622-n40/REPORT.md (latest LOCKED competitive: SK-win 20.0%, gambit-noG 17.0%, oaths 6.13/3.46, tolls 0.89, heralds 1.78/59% political); PRIOR docs DESIGN-V2-OATHS / RESCUE-ECONOMY / DARK-ENGAGEMENT / FOCUS-GROUP-R2/R3 / ALGORITHM §9.1"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-24T02:13:29.885Z",
-    "commit": "c43ce27",
-    "sourceHash": "30ce368276c05375c1dff036d3c28d713caa918d44ea7ffb594480de0438df54",
+    "timestamp": "2026-06-24T02:49:06.413Z",
+    "commit": "9329735",
+    "sourceHash": "2756f06ea7224c60373ca0c1969f29b46ef68b40765603fc9604e732c9542ef3",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
@@ -44,7 +44,7 @@
     "STRUCTURAL CAPS (escalated, accepted): (1) rescues ~0.7 pooled — 2-4 unreachable inside all_broken<5% (tuning-log §5d); alive at 3-4p; the deeper fix (don't-end-on-all-broken / defer broken-lands ash) is available if the user wants it. (2) Per-count ladder NON-MONOTONIC (2p 19.6 / 3p 24.4 / 4p 16.1 — 3p hardest) from the Stage-S DOOM_COST_PER_PLAYER 6→5; §9.1 reframed; a future tune could restore monotonicity.",
     "DESIGN DEBT (for 5f): (a) DESIGN-V2-ALGORITHM.md §§1-11 prose still predates Stage 5 — §12 is the authoritative delta pointer; fold §12 into the prose at 5f. (b) Oath/rescue-debt OVERLAP — R3 wanted Oaths to ABSORB rescue, but both coexist (a rescue auto-swears an oath ON TOP of the rescue-debt); decide merge-or-keep. (c) Sealed-pledge concealment is a SIM NO-OP — the gambit fix is the GAMBIT_SELF_COVER_CARDS gate; the 'volunteer's-dilemma' drama is unvalidated (human-only). (d) Herald is ABSTRACTED (stance flag + Parley, no literal moving piece). (e) 30-45min scope unmeasured after ~2x the per-round verb count.",
     "BLOOD PACT (the 5e job): traitor win 8.8% (target 12-20, UNDER) + exposure 87% (target 40-70, OVER) — traitor under-powered/over-caught; accusation accuracy 54.3% (≥45 OK), 1.6 accusations/game (≤2.5 OK). Fix chooseAccusation heuristic + ACCUSATION knobs (AUDIT_COST, penalties/cooldown, SUSPICION_LOG_ROUNDS, TRAITOR_EXPOSED_WOUNDS).",
-    "PLACEHOLDER TUNABLES never swept (still defaults): PLEDGE_SHIELD_AMOUNT / PLEDGE_FAVOR_GRUDGE_REDUCTION (anti-free-rider — measures as working), SURGE_SPREAD_MULT / DK_MARCH_DISTANCE / GAMBIT_ADJACENT_STRIKE_MULT / RESCUE_DEBT_MIN_PLEDGE (3f magnitudes), GAMBIT_SURCHARGE (left 0.25 — sealing fixed the gambit instead). DK_PER_PLAYER parked at 0 (scaling backfires once kills pay).",
+    "PLACEHOLDER TUNABLES — RESOLVED in C2 (tuning-log §C2): the 6 never-swept levers (PLEDGE_SHIELD_AMOUNT, PLEDGE_FAVOR_GRUDGE_REDUCTION, DK_MARCH_DISTANCE, SURGE_SPREAD_MULT, GAMBIT_ADJACENT_STRIKE_MULT, RESCUE_DEBT_MIN_PLEDGE) were found UN-INJECTABLE (read as static module imports, absent from the Tunables interface) — a real seam bug, now fixed (added to interface + DEFAULT_TUNABLES; consumers route through getTunables(); defaults byte-identical). FINDING: PLEDGE_SHIELD_AMOUNT is LOAD-BEARING (±1 swings SK-win ±~5.5pp; =1 lands 20.1% in-band) — kept at 1, now a documented first-class dark-strength lever, not a 'reasonable default'. Other 5 wired + confirmed low-impact. STILL un-swept (separate, not part of C2): GAMBIT_SURCHARGE (left 0.25 — sealing fixed the gambit instead), DK_PER_PLAYER parked at 0 (scaling backfires once kills pay).",
     "DATA-TRUST CAVEAT (4g): combat commits are ENGINE-auto (COMBAT_COMMIT_MAX, RAID_DEFENSE_MARGIN), Last Stand engine-auto — good enough for balance signal; a per-policy combat-commit decision is a future improvement."
   ]
 }

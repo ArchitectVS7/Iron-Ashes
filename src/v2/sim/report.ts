@@ -77,6 +77,10 @@ export interface SweepDiagnostics {
   readonly martialWinRate: number;
   /** Mean nodes ashed by game end (doom progress). */
   readonly meanAshedNodes: number;
+  /** Mean ACTION decisions per game (session-length / decision-density proxy — C2). */
+  readonly meanPlayerActions: number;
+  /** Mean ACTION decisions per round (density proxy for the 30–45 min scope target — C2). */
+  readonly meanActionsPerRound: number;
   /** Fraction of pledge rounds that fully blocked the strike. */
   readonly pledgeFullBlockRate: number;
   /** Fraction of games where any Gambit was seized. */
@@ -230,6 +234,8 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
     heraldsPerGame: mean(rows.map(r => r.metrics.heraldsRecruited)),
     ...stanceStats(rows),
     meanAshedNodes: mean(rows.map(r => r.metrics.ashedNodes)),
+    meanPlayerActions: mean(rows.map(r => r.metrics.playerActions)),
+    meanActionsPerRound: mean(rows.map(r => r.metrics.rounds > 0 ? r.metrics.playerActions / r.metrics.rounds : 0)),
     pledgeFullBlockRate: totalPledgeRounds > 0 ? totalFullBlocks / totalPledgeRounds : 0,
     gambitSeizeRate: total ? rows.filter(r => r.metrics.gambitSeized).length / total : 0,
     gambitWinRate: total ? rows.filter(r => r.metrics.gambitWin).length / total : 0,
@@ -405,6 +411,7 @@ ${endRows}
 | Build win rate (political / martial) | ${pct(d.politicalWinRate)} / ${pct(d.martialWinRate)} | parity check — neither build should dominate |
 | Mean nodes ashed (doom progress) | ${d.meanAshedNodes.toFixed(2)} | how close the dark got |
 | Pledge full-block rate | ${pct(d.pledgeFullBlockRate)} | high ⇒ table over-blocks ⇒ dark too weak |
+| Decisions per game · per round | ${d.meanPlayerActions.toFixed(1)} · ${d.meanActionsPerRound.toFixed(2)} | session-length proxy (30–45 min scope — C2); flag if density drifts high |
 
 ## Per-player-count (strictness)
 | Count | Games | SK win | Rounds | Rescues | Gambit fire |

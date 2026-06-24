@@ -22,7 +22,6 @@ import type { GameState, Oath } from './types.js';
 import { addGrudge } from './shadowking-policy.js';
 import {
   ASHED_TRAVERSE_EXTRA_COST,
-  RESCUE_DEBT_MIN_PLEDGE,
   WARLORD_POWER,
 } from './tunables.js';
 import {
@@ -488,7 +487,7 @@ export function executeRescue(
   // Cleared at the Dawn of the obligation round.
   target.rescueDebt = {
     creditor: playerIndex,
-    forcedMinPledge: RESCUE_DEBT_MIN_PLEDGE,
+    forcedMinPledge: getTunables().RESCUE_DEBT_MIN_PLEDGE,
     expiresRound: state.round + 1,
   };
 

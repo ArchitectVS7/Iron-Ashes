@@ -33,6 +33,7 @@ function mkMetrics(p: Partial<GameMetrics> & { winner: number | null }): GameMet
     ashedNodes: p.ashedNodes ?? 0,
     pledgeRounds: p.pledgeRounds ?? 10,
     pledgeFullBlocks: p.pledgeFullBlocks ?? 0,
+    playerActions: p.playerActions ?? 26,
   };
 }
 

@@ -20,7 +20,6 @@ import type { GameEvent, BlightSource } from './events.js';
 import type { Act, GameState, V2BoardDef } from './types.js';
 import {
   ACT_THRESHOLDS,
-  PLEDGE_SHIELD_AMOUNT,
   getTunables,
 } from './tunables.js';
 import { isKeystoneGarrisoned } from './gambit.js';
@@ -331,7 +330,7 @@ export function spreadShieldedOnSpoke(
   for (const nodeId of frontier) {
     const owner = state.board.state.nodes[nodeId]?.owner;
     const shielded = owner !== null && owner !== undefined && pledgers.has(owner);
-    const amt = shielded ? Math.max(0, amount - PLEDGE_SHIELD_AMOUNT) : amount;
+    const amt = shielded ? Math.max(0, amount - getTunables().PLEDGE_SHIELD_AMOUNT) : amount;
     if (amt > 0) {
       events.push(...advanceBlightOnNode(state, nodeId, amt, 'strike'));
     }

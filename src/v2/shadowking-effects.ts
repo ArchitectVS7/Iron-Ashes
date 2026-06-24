@@ -22,9 +22,6 @@
 import type { GameEvent } from './events.js';
 import type { GameState, ShadowkingForce, ShadowkingTelegraph } from './types.js';
 import {
-  DK_MARCH_DISTANCE,
-  GAMBIT_ADJACENT_STRIKE_MULT,
-  SURGE_SPREAD_MULT,
   deathKnightCount,
   getTunables,
 } from './tunables.js';
@@ -66,7 +63,7 @@ export function applyShadowkingStrike(
 
     case 'SURGE': {
       // Reckoning: a doubled spread down the steered spoke.
-      const amount = Math.ceil((1 - ratio) * getTunables().SPREAD_AMOUNT_BASE * SURGE_SPREAD_MULT);
+      const amount = Math.ceil((1 - ratio) * getTunables().SPREAD_AMOUNT_BASE * getTunables().SURGE_SPREAD_MULT);
       events.push(...spreadShieldedOnSpoke(state, steer, amount, pledgers));
       return { state, events };
     }
@@ -148,7 +145,7 @@ export function respawnDeathKnights(state: GameState, targetCount?: number): Gam
 function strikeAdjacentToKeystone(state: GameState, ratio: number): BlightResult {
   const events: GameEvent[] = [];
   const def = state.board.definition;
-  const amount = Math.ceil((1 - ratio) * getTunables().SPREAD_AMOUNT_BASE * GAMBIT_ADJACENT_STRIKE_MULT);
+  const amount = Math.ceil((1 - ratio) * getTunables().SPREAD_AMOUNT_BASE * getTunables().GAMBIT_ADJACENT_STRIKE_MULT);
 
   // Hit the first non-ashed Approach in fixed order (deterministic).
   for (const approachId of def.approachIds) {
@@ -190,7 +187,7 @@ function marchDeathKnight(state: GameState, targetPlayerIndex: number): GameEven
   const path = shortestPath(state, dk.nodeId, goal); // includes start
   if (path.length <= 1) return events;
 
-  const steps = Math.min(DK_MARCH_DISTANCE, path.length - 1);
+  const steps = Math.min(getTunables().DK_MARCH_DISTANCE, path.length - 1);
   const dest = path[steps];
   if (dest === dk.nodeId) return events;
 

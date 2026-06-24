@@ -67,6 +67,9 @@ export interface GameMetrics {
   readonly pledgeRounds: number;
   /** Rounds the table FULLY blocked the strike (averted) — pledge health. */
   readonly pledgeFullBlocks: number;
+  /** Total ACTION decisions players took this game (incl. PASS) — the session-length /
+   *  decision-density proxy for the 30–45 min scope target (C2; no balance role). */
+  readonly playerActions: number;
 }
 
 /** Living owned production (Holdings + weighted Forges) for one seat. */
@@ -113,8 +116,10 @@ export function computeMetrics(state: GameState): GameMetrics {
   let tollsPaid = 0;
   let heraldsRecruited = 0;
   let parleyCount = 0;
+  let playerActions = 0;
   for (const e of state.actionLog) {
     if (e.type === 'PLAYER_ACTED') {
+      playerActions++;
       if (e.action === 'RESCUE') rescueCount++;
       if (e.action === 'SWEAR_OATH') oathsSworn++;
       if (e.action === 'BREAK_OATH') oathsBroken++;
@@ -172,5 +177,6 @@ export function computeMetrics(state: GameState): GameMetrics {
     ashedNodes,
     pledgeRounds,
     pledgeFullBlocks,
+    playerActions,
   };
 }

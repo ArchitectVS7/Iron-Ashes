@@ -457,6 +457,15 @@ export interface Tunables {
   readonly HERALD_HAND_BONUS: number;
   readonly HERALD_COMBAT_PENALTY: number;
   readonly HERALD_PUSHBACK: number;
+  // ── Anti-free-rider + dark-effect magnitudes (made injectable in C2 — see
+  //    stage5-tuning-log §C2; defaults are byte-identical, the consumers just now
+  //    read getTunables().X instead of the frozen module const, so a sweep can reach them) ──
+  readonly PLEDGE_SHIELD_AMOUNT: number;
+  readonly PLEDGE_FAVOR_GRUDGE_REDUCTION: number;
+  readonly DK_MARCH_DISTANCE: number;
+  readonly SURGE_SPREAD_MULT: number;
+  readonly GAMBIT_ADJACENT_STRIKE_MULT: number;
+  readonly RESCUE_DEBT_MIN_PLEDGE: number;
 }
 
 export const DEFAULT_TUNABLES: Tunables = Object.freeze({
@@ -469,6 +478,8 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   OATH_DIVIDEND, OATH_DURATION, OATH_LOYALTY_BONUS, OATH_BREAK_BANNERS, GRUDGE_OATHBREAK,
   FORGE_TOLL_COST, SEALED_CORE_PLEDGE, GAMBIT_SELF_COVER_CARDS,
   HERALD_RECRUIT_COST, HERALD_HAND_BONUS, HERALD_COMBAT_PENALTY, HERALD_PUSHBACK,
+  PLEDGE_SHIELD_AMOUNT, PLEDGE_FAVOR_GRUDGE_REDUCTION,
+  DK_MARCH_DISTANCE, SURGE_SPREAD_MULT, GAMBIT_ADJACENT_STRIKE_MULT, RESCUE_DEBT_MIN_PLEDGE,
 });
 
 let activeTunables: Tunables = DEFAULT_TUNABLES;

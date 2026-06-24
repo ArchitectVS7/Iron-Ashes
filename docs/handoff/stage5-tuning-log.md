@@ -328,3 +328,38 @@ The R3 build wave is COMPLETE. Remaining Phase 5: **5e** (Blood Pact `chooseAccu
 ACCUSATION knobs → lift traitor win into 12-20, pull exposure into 40-70, keep accuracy ≥45) and **5f**
 (final 2-seed lock + the §9 doc: amend ROADMAP §2 "open in core" — sealed gambit-claimant ships — and
 document the three new mechanics + the named per-count ladder).
+
+---
+
+## §C2 — Measurement instruments + the placeholder-tunable confirmation (close-loose-ends wave)
+
+Two instruments + one real seam-bug finding. No balance change (all defaults byte-identical;
+baseline SK still 20.1% @16 seeds).
+
+**Session-length proxy.** Added `playerActions` to `GameMetrics` (total ACTION decisions/game,
+incl. PASS) → `meanPlayerActions` + `meanActionsPerRound` diagnostics in `report.ts`. The 30–45 min
+scope target is now *measured*, not assumed. (Read it off the next full re-baseline; flag if density
+drifts high after the verb-count doubling.)
+
+**Placeholder confirmation sweep (`scripts/tune-confirm-placeholders.mjs`).** Probed the 6 levers
+that never got a dedicated search: PLEDGE_SHIELD_AMOUNT, PLEDGE_FAVOR_GRUDGE_REDUCTION,
+DK_MARCH_DISTANCE, SURGE_SPREAD_MULT, GAMBIT_ADJACENT_STRIKE_MULT, RESCUE_DEBT_MIN_PLEDGE.
+
+*Finding 1 — a real seam bug (FIXED).* All six were read as **static module imports**, never via
+`getTunables()`, and were absent from the `Tunables` interface + `DEFAULT_TUNABLES` — so they were
+**un-injectable** (a sweep override silently did nothing; first run showed exactly 0.0pp / no metric
+moved on every probe). Fixed: added them to the `Tunables` interface + `DEFAULT_TUNABLES` and routed
+all six consumers (`blight.ts`, `sequencer.ts`, `actions.ts`, `shadowking-effects.ts`) through
+`getTunables().X`. Defaults unchanged → byte-identical baseline.
+
+*Finding 2 — PLEDGE_SHIELD_AMOUNT is LOAD-BEARING, not low-impact.* Now that it's reachable, ±1
+swings pooled SK-win ±~5.5pp: `=0 → 25.9%` (OUT, dark too strong), `=2 → 14.8%` (OUT, too weak),
+`=1 (locked) → 20.1%` (in band). The anti-free-rider shield directly subtracts from the strike's
+blight damage on pledgers, so it is effectively a primary dark-strength compensator that had been
+frozen at a (fortunately correct) default. **Kept at 1** (validated in-band); now documented as a
+first-class lever for future tuning, NOT a "reasonable default".
+
+*The other five* are now wired + low-impact at ±1 (PLEDGE_FAVOR_GRUDGE_REDUCTION ±≤1.8pp,
+DK_MARCH_DISTANCE ±≤0.4pp, SURGE_SPREAD_MULT ≤0.5pp, RESCUE_DEBT_MIN_PLEDGE ≤0.9pp,
+GAMBIT_ADJACENT_STRIKE_MULT 0.0pp on SK but moves gambit-game blight) — defaults confirmed safe.
+RESCUE_DEBT_MIN_PLEDGE is slated for retirement in Stage M (rescue→Oath merge).
