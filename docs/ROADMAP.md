@@ -263,7 +263,7 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     game. ALGORITHM §9 marked FINAL (tunables.ts = source of truth). **Phase 5 (balance) COMPLETE.** The
     one structural residual (BP win+exposure jointly hug their ceilings; a sabotage-gated decouple was
     tried and was worse) is documented in §9/§10 — accepted as the frontier.
-  - [ ] **6. Human playtest + launch readiness** — the sim validated incentives; humans must validate
+  - [ ] **6a. Human playtest + launch readiness** — the sim validated incentives; humans must validate
     the FELT experience. Walk `docs/human-playtest-checklist.md` (sealed-pledge dilemma, 30–45 min length,
     Herald-runner tension, the Blood Pact accusation gamble + Audit) and verify the `src/ui-v2/` UI
     surfaces every Stage-5 mechanic (Oaths, tolls, Herald piece + capture, Parley, the Pledge/accusation

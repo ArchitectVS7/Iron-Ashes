@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "currentStage": "6",
-  "currentStageTitle": "Phase 6 — human playtest + launch readiness (PHASE 5 BALANCE COMPLETE & LOCKED)",
+  "currentStage": "6a",
+  "currentStageTitle": "Stage 6a — human playtest + launch readiness (PHASE 5 BALANCE COMPLETE & LOCKED)",
   "status": "not-started",
   "nextAction": "**PHASE 5 (balance) COMPLETE & LOCKED (Stage 5f, tuning-log §5f).** Final both-modes 2-seed lock: competitive SK-win 20.2/20.0%, rounds 12.2, gambit-free 13.5%, rescues 0.72/0.75, even-share 26.6/26.7%, free-rider OK, per-count credible — ALL §9 bands + guards PASS. Blood Pact: traitor win 20.0/20.3%, exposure 69.7/71.1%, accuracy 71.5/70.1%, ~1.0 accusation/game. ALGORITHM §9 marked FINAL (tunables.ts = single source of truth); §header placeholder banner retired. 417 tests, 2-seed stable. The full v2 arc is DONE: idea→algorithm→engine(3a-3f)→sim(4a-4g)→balance(5a-5c/5-dark/5d/Oaths/R3 tolls+sealed+Herald/close-loose-ends C1-HL+R2/5e/5f). ONE accepted structural residual (documented, not debt): BP traitor win+exposure jointly hug their ceilings — a sabotage-gated decouple was BUILT + TESTED in 5f and was strictly worse, so the flat-bonus frontier (real ~1-in-5 traitor, usually caught, ~71% deduction) is the accepted optimum. **NEXT = Phase 6: human playtest (docs/human-playtest-checklist.md — sealed-pledge dilemma, 30-45min length, Herald-runner tension, the accusation gamble+Audit) + verify the src/ui-v2 UI surfaces every Stage-5 mechanic (Oaths, tolls, Herald piece+capture, Parley, Pledge/accusation flow). Record verdicts back into the DESIGN-V2-*.md docs.** No further sim tuning is pending.",
   "specRefs": [
