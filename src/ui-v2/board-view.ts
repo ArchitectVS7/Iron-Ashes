@@ -115,6 +115,12 @@ export function renderBoard(state: GameState): string {
       if (crown) circles += `<text x="0" y="${-r - 14}" class="crown-glyph">♛</text>`;
     }
 
+    // Herald (the political build's lone runner) present?
+    const heralds = ns.pieces.filter(pc => pc.type === 'herald');
+    for (const hpc of heralds) {
+      circles += `<text x="${-r + 4}" y="${-r + 6}" class="herald-glyph" fill="${PLAYER_COLORS[hpc.owner]}" title="P${hpc.owner + 1} Herald">✉</text>`;
+    }
+
     // Dark forces present?
     if (ns.shadowkingForces.length > 0) {
       circles += `<text x="${r - 4}" y="${-r + 6}" class="dk-glyph">☠</text>`;

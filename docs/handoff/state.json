@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "currentStage": "6a",
-  "currentStageTitle": "Stage 6a — human playtest + launch readiness (PHASE 5 BALANCE COMPLETE & LOCKED)",
+  "currentStage": "6b",
+  "currentStageTitle": "Stage 6b — human playtest (PHASE 5 balance + 6a functional-UI parity COMPLETE)",
   "status": "not-started",
-  "nextAction": "**PHASE 5 (balance) COMPLETE & LOCKED (Stage 5f, tuning-log §5f).** Final both-modes 2-seed lock: competitive SK-win 20.2/20.0%, rounds 12.2, gambit-free 13.5%, rescues 0.72/0.75, even-share 26.6/26.7%, free-rider OK, per-count credible — ALL §9 bands + guards PASS. Blood Pact: traitor win 20.0/20.3%, exposure 69.7/71.1%, accuracy 71.5/70.1%, ~1.0 accusation/game. ALGORITHM §9 marked FINAL (tunables.ts = single source of truth); §header placeholder banner retired. 417 tests, 2-seed stable. The full v2 arc is DONE: idea→algorithm→engine(3a-3f)→sim(4a-4g)→balance(5a-5c/5-dark/5d/Oaths/R3 tolls+sealed+Herald/close-loose-ends C1-HL+R2/5e/5f). ONE accepted structural residual (documented, not debt): BP traitor win+exposure jointly hug their ceilings — a sabotage-gated decouple was BUILT + TESTED in 5f and was strictly worse, so the flat-bonus frontier (real ~1-in-5 traitor, usually caught, ~71% deduction) is the accepted optimum. **NEXT = Phase 6: human playtest (docs/human-playtest-checklist.md — sealed-pledge dilemma, 30-45min length, Herald-runner tension, the accusation gamble+Audit) + verify the src/ui-v2 UI surfaces every Stage-5 mechanic (Oaths, tolls, Herald piece+capture, Parley, Pledge/accusation flow). Record verdicts back into the DESIGN-V2-*.md docs.** No further sim tuning is pending.",
+  "nextAction": "PHASE 5 (balance) COMPLETE & LOCKED (5f) + STAGE 6a FUNCTIONAL-UI PARITY COMPLETE (2026-06-24). **6a:** src/ui-v2 now gives EVERY discrete player action a control (added Recruit/Parley/Swear-Oath/Break-Oath/March-Herald to the existing March/Claim/Raid/Strike/Rescue/Audit/Pass/Pledge/Accuse) + DISPLAYS full state (human hand, Oaths, Ledger/grudges, Suspicion Log, audit results, live accusation votes, wounds/stance/oath tags, Forge-toll hints, Herald piece on board, rounds-left). All via applyCommand. tests/v2/ui-parity.test.ts (12) asserts each control's surface + its reducer wiring; `vite build` bundles clean; 429 tests green. It's the FUNCTIONAL (unstyled) UI — the 'real' styled UI comes AFTER the human's first playthrough (user will have comments). KNOWN GAP (recorded): combat-commit + Last Stand are engine-auto (LAST_STAND_COMMIT is a stub) — exposing 'how hard to commit' as a human control needs an engine pause-flow (follow-on; touches the sim's auto-commit assumption). **NEXT = Stage 6b: the human plays (`npm run dev`) and walks docs/human-playtest-checklist.md; record comments → then the styled UI + any combat-commit exposure.** No sim tuning pending. Balance recap: competitive all §9 bands PASS (SK-win 20.2/20.0); Blood Pact traitor win 20.0/20.3, exposure 69.7/71.1, accuracy 71.5/70.1.",
   "specRefs": [
     "PLAN: ~/.claude/plans/i-want-to-use-transient-quill.md (R3 build wave, all 3 stages done) + docs/handoff/stage5-tuning-log.md §tolls/§sealed/§herald",
     "Stage H (done): src/v2/types.ts (PlayerState handLimit/stance/combatPenalty), src/v2/setup.ts (init), src/v2/sequencer.ts (Dawn p.handLimit), src/v2/combat.ts (combatPenalty in getPlayerPowerAtNode), src/v2/actions.ts (executeRecruit/executeParley/parleyTarget), src/v2/commands.ts ('PARLEY'), src/v2/ai-player.ts (heraldAffinity/parleyBias steps), src/v2/sim/{metrics,report}.ts (herald metrics + stance parity), scripts/tune-herald.mjs",
@@ -11,14 +11,14 @@
     "sim-results/s20260622-n40/REPORT.md (latest LOCKED competitive: SK-win 20.0%, gambit-noG 17.0%, oaths 6.13/3.46, tolls 0.89, heralds 1.78/59% political); PRIOR docs DESIGN-V2-OATHS / RESCUE-ECONOMY / DARK-ENGAGEMENT / FOCUS-GROUP-R2/R3 / ALGORITHM §9.1"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-24T14:56:09.968Z",
-    "commit": "963c1b5",
-    "sourceHash": "f52185ddcd56000b345a4071d2fe22a1a2f09b6e8b1bb326a38c5f48def68f73",
+    "timestamp": "2026-06-24T15:34:17.550Z",
+    "commit": "1abeb44",
+    "sourceHash": "12462eb535c1825bf4a76128d7d46340f41b8f485eb45e55310e5d0622aa731f",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 32,
-      "passed": 417,
+      "files": 33,
+      "passed": 429,
       "failed": 0,
       "status": "pass"
     }

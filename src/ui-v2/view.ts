@@ -21,6 +21,8 @@ import {
   TUNABLES,
   type GameState,
 } from '../v2/index.js';
+import { findOath, parleyTarget } from '../v2/actions.js';
+import { getTunables } from '../v2/tunables.js';
 
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -60,15 +62,22 @@ export function mountView(root: HTMLElement, session: GameSession): void {
 
     const [verb, arg] = action.split(':');
     const h = session.humanIndex;
+    const act = (a: import('../v2/index.js').PlayerAction): void =>
+      session.humanAction({ type: 'PLAYER_ACTION', playerIndex: h, action: a });
     switch (verb) {
       case 'advance-threat': session.advanceFromThreat(); break;
       case 'pledge': session.submitHumanPledge(Number(arg)); break;
-      case 'claim': session.humanAction({ type: 'PLAYER_ACTION', playerIndex: h, action: { type: 'CLAIM' } }); break;
-      case 'strike': session.humanAction({ type: 'PLAYER_ACTION', playerIndex: h, action: { type: 'STRIKE' } }); break;
-      case 'pass': session.humanAction({ type: 'PLAYER_ACTION', playerIndex: h, action: { type: 'PASS' } }); break;
-      case 'raid': session.humanAction({ type: 'PLAYER_ACTION', playerIndex: h, action: { type: 'RAID', targetPlayerIndex: Number(arg) } }); break;
-      case 'rescue': session.humanAction({ type: 'PLAYER_ACTION', playerIndex: h, action: { type: 'RESCUE', targetPlayerIndex: Number(arg) } }); break;
-      case 'audit': session.humanAction({ type: 'PLAYER_ACTION', playerIndex: h, action: { type: 'AUDIT', targetPlayerIndex: Number(arg) } }); break;
+      case 'claim': act({ type: 'CLAIM' }); break;
+      case 'strike': act({ type: 'STRIKE' }); break;
+      case 'pass': act({ type: 'PASS' }); break;
+      case 'raid': act({ type: 'RAID', targetPlayerIndex: Number(arg) }); break;
+      case 'rescue': act({ type: 'RESCUE', targetPlayerIndex: Number(arg) }); break;
+      case 'audit': act({ type: 'AUDIT', targetPlayerIndex: Number(arg) }); break;
+      case 'recruit': act({ type: 'RECRUIT' }); break;
+      case 'parley': act({ type: 'PARLEY' }); break;
+      case 'swear': act({ type: 'SWEAR_OATH', targetPlayerIndex: Number(arg) }); break;
+      case 'break-oath': act({ type: 'BREAK_OATH' }); break;
+      case 'herald-march': act({ type: 'MARCH', targetNodeId: arg, pieceId: 'herald' }); break;
       case 'accuse': session.humanAccuse(Number(arg)); break;
       case 'new-game': location.reload(); break;
     }
@@ -79,7 +88,7 @@ export function mountView(root: HTMLElement, session: GameSession): void {
 
 // ─── Top-level layout ─────────────────────────────────────────────
 
-function renderApp(session: GameSession): string {
+export function renderApp(session: GameSession): string {
   const s = session.state;
   return `
     ${renderGambitBanner(s)}
@@ -88,7 +97,12 @@ function renderApp(session: GameSession): string {
       <aside class="side-pane">
         ${renderHeader(s)}
         ${renderStandings(s, session.humanIndex)}
+        ${renderHand(s, session.humanIndex)}
         ${renderPanel(session)}
+        ${renderOaths(s)}
+        ${renderLedger(s)}
+        ${renderSuspicion(s, session.humanIndex)}
+        ${renderAudits(s, session.humanIndex)}
         ${renderNarration(session)}
       </aside>
     </div>`;
@@ -106,17 +120,24 @@ function renderHeader(s: GameState): string {
   return `
     <div class="header">
       <div class="title">Iron Throne of Ashes</div>
-      <div class="clock">Round ${s.round} · Act <b>${s.act}</b> · Phase <b>${s.phase}</b></div>
+      <div class="clock">Round ${s.round}/${TUNABLES.ROUND_CAP} · Act <b>${s.act}</b> · Phase <b>${s.phase}</b></div>
       <div class="sk-meter">Dark patience ${sk.patience}/${TUNABLES.PATIENCE_CAP}${s.mode === 'blood_pact' ? ' · <b>Blood Pact</b>' : ''}</div>
     </div>`;
 }
 
 function renderStandings(s: GameState, human: number): string {
+  const brk = TUNABLES.BREAK_THRESHOLD;
   const rows = s.players.map(p => {
     const color = PLAYER_COLORS[p.index];
     const tags: string[] = [];
-    if (p.crownHeld) tags.push('<span class="tag crown">♛ Crown</span>');
+    if (p.crownHeld) tags.push('<span class="tag crown">♛</span>');
     if (p.isBroken) tags.push('<span class="tag broken">Broken</span>');
+    else if (p.wounds > 0) tags.push(`<span class="tag wounds" title="wounds toward Break">${p.wounds}/${brk}✕</span>`);
+    tags.push(p.stance === 'political' ? '<span class="tag stance">🕊</span>' : '<span class="tag stance">⚔</span>');
+    const oath = findOath(s, p.index);
+    if (oath) { const partner = oath.a === p.index ? oath.b : oath.a; tags.push(`<span class="tag oath" title="sworn">⛓P${partner + 1}</span>`); }
+    const g = s.shadowking.grudge[p.index] ?? 0;
+    if (g > 0) tags.push(`<span class="tag grudge" title="the dark's Ledger — hunted">☠${g}</span>`);
     if (p.index === human) tags.push('<span class="tag you">You</span>');
     return `
       <tr>
@@ -124,14 +145,65 @@ function renderStandings(s: GameState, human: number): string {
         <td>${territoryOf(s, p.index)}</td>
         <td>${p.banners}</td>
         <td>${p.hand.length}</td>
-        <td>${tags.join(' ')}</td>
+        <td class="tags">${tags.join(' ')}</td>
       </tr>`;
   }).join('');
   return `
     <table class="standings">
-      <thead><tr><th>Warlord</th><th>Land</th><th>⚑</th><th>Hand</th><th></th></tr></thead>
+      <thead><tr><th>Warlord</th><th>Land</th><th>⚑</th><th>Hand</th><th>State</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
+}
+
+/** The human's actual hand (card values) — needed to read pledge/combat strength. */
+function renderHand(s: GameState, human: number): string {
+  const hand = s.players[human].hand;
+  if (hand.length === 0) return `<div class="hand"><span class="hand-label">Your hand:</span> <i>empty</i></div>`;
+  const cards = hand.map(v => `<span class="card">${v}</span>`).join('');
+  return `<div class="hand"><span class="hand-label">Your hand (${hand.length}):</span> ${cards}</div>`;
+}
+
+/** The Oaths in force (the social spine) — who is sworn to whom + rounds to maturity. */
+function renderOaths(s: GameState): string {
+  if (s.oaths.length === 0) return '';
+  const dur = TUNABLES.OATH_DURATION;
+  const items = s.oaths.map(o =>
+    `<li>P${o.a + 1} ⛓ P${o.b + 1} <small>(matures in ${Math.max(0, dur - o.strain)})</small></li>`).join('');
+  return `<div class="info-block"><div class="block-title">Oaths</div><ul class="oath-list">${items}</ul></div>`;
+}
+
+/** The dark's Ledger — per-player grudge weight (who the Shadowking hunts). */
+function renderLedger(s: GameState): string {
+  const g = s.shadowking.grudge;
+  const marked = g.map((v, i) => ({ v, i })).filter(x => x.v > 0).sort((a, b) => b.v - a.v);
+  if (marked.length === 0) return '';
+  const items = marked.map(x => `<li>P${x.i + 1} <b>${x.v}</b></li>`).join('');
+  return `<div class="info-block"><div class="block-title">The Ledger (the dark hunts)</div><ul class="ledger-list">${items}</ul></div>`;
+}
+
+/** Blood Pact — the Suspicion Log (per-player pledge-tier history, the deduction surface). */
+function renderSuspicion(s: GameState, human: number): string {
+  if (s.mode !== 'blood_pact' || s.suspicionLog.length === 0) return '';
+  const tierGlyph: Record<string, string> = { none: '∅', low: '▁', medium: '▄', high: '█' };
+  const rows = s.players.map(p => {
+    const hist = s.suspicionLog.map(round => {
+      const e = round.find(x => x.playerIndex === p.index);
+      return `<span class="tier tier-${e?.tier ?? 'na'}" title="${e?.tier ?? 'n/a'}">${e ? tierGlyph[e.tier] : '·'}</span>`;
+    }).join('');
+    return `<tr><td>P${p.index + 1}${p.index === human ? ' (you)' : ''}</td><td class="tier-row">${hist}</td></tr>`;
+  }).join('');
+  return `<div class="info-block"><div class="block-title">Suspicion Log (last ${s.suspicionLog.length} pledges)</div>
+    <table class="suspicion"><tbody>${rows}</tbody></table>
+    <div class="hint">∅ none · ▁ low · ▄ medium · █ high — a pattern of low/none is the traitor's tell.</div></div>`;
+}
+
+/** Blood Pact — what your Audits revealed (your paid evidence). */
+function renderAudits(s: GameState, human: number): string {
+  if (s.mode !== 'blood_pact') return '';
+  const mine = s.auditLog.filter(a => a.auditor === human);
+  if (mine.length === 0) return '';
+  const items = mine.slice(-6).map(a => `<li>R${a.round}: P${a.target + 1} pledged <b>${a.amount}</b> (${a.tier})</li>`).join('');
+  return `<div class="info-block"><div class="block-title">Your audits</div><ul class="audit-list">${items}</ul></div>`;
 }
 
 function renderNarration(session: GameSession): string {
@@ -246,6 +318,40 @@ function renderActionPanel(session: GameSession): string {
     }
   }
 
+  // RECRUIT a Herald — commit to the political build (martial → political).
+  const t = getTunables();
+  if (human.stance !== 'political' && human.banners >= t.HERALD_RECRUIT_COST) {
+    btns.push(`<button data-action="recruit">Recruit a Herald (⚑${t.HERALD_RECRUIT_COST}) — political build</button>`);
+  }
+
+  // PARLEY — the Herald (lone runner) pushes back the dark, but only from the front.
+  if (human.stance === 'political' && human.heraldNodeId !== null && parleyTarget(s, session.humanIndex) !== null) {
+    btns.push(`<button data-action="parley">Parley — push back the dark (Herald at ${esc(human.heraldNodeId)})</button>`);
+  }
+
+  // MARCH HERALD — move the lone runner toward the front (independent of the Warlord).
+  if (human.heraldNodeId !== null) {
+    for (const adj of s.board.definition.nodes[human.heraldNodeId].connections) {
+      if (s.board.state.nodes[adj]?.ashed) continue;
+      btns.push(`<button data-action="herald-march:${adj}">March Herald → ${esc(adj)}</button>`);
+    }
+  }
+
+  // SWEAR_OATH — a free public pact with any oath-free, unbroken rival (the social spine).
+  if (findOath(s, session.humanIndex) === null) {
+    for (const p of s.players) {
+      if (p.index === session.humanIndex || p.isBroken || findOath(s, p.index) !== null) continue;
+      btns.push(`<button data-action="swear:${p.index}">Swear an Oath with P${p.index + 1} (free)</button>`);
+    }
+  }
+
+  // BREAK_OATH — betray a sworn ally (after at least one Dawn): a banner burst + the dark's Ledger.
+  const myOath = findOath(s, session.humanIndex);
+  if (myOath !== null && s.round > myOath.swornRound) {
+    const partner = myOath.a === session.humanIndex ? myOath.b : myOath.a;
+    btns.push(`<button data-action="break-oath">Break your Oath with P${partner + 1} (betray)</button>`);
+  }
+
   // AUDIT (Blood Pact)
   if (s.mode === 'blood_pact' && human.banners >= TUNABLES.AUDIT_COST && s.pledgeHistory.length > 0) {
     for (const p of s.players) {
@@ -254,12 +360,26 @@ function renderActionPanel(session: GameSession): string {
     }
   }
 
-  const marchHint = `<div class="hint">Click an adjacent node to <b>March</b> (⚑1, +1 through ash). At <b>${esc(here)}</b>.</div>`;
+  // March cost readout per adjacent node (Forge tolls + ash surcharge made visible).
+  const adjCosts = s.board.definition.nodes[here].connections.map(adj => {
+    const ns = s.board.state.nodes[adj];
+    const adjDef = s.board.definition.nodes[adj];
+    let cost = 1;
+    if (ns?.ashed) cost += TUNABLES.ASHED_TRAVERSE_EXTRA_COST;
+    let toll = 0;
+    if (adjDef.tier === 'forge' && ns && ns.owner !== null && ns.owner !== session.humanIndex && !ns.ashed) {
+      toll = t.FORGE_TOLL_COST; // (waived for sworn allies — engine enforces)
+    }
+    const tollNote = toll > 0 ? ` <span class="toll">+${toll} toll→P${(ns!.owner ?? 0) + 1}</span>` : '';
+    return `<li>${esc(adj)} <b>⚑${cost + toll}</b>${tollNote}</li>`;
+  }).join('');
+
+  const marchHint = `<div class="hint">Click an adjacent node to <b>March</b> your Warlord. At <b>${esc(here)}</b>:<ul class="adj-costs">${adjCosts}</ul></div>`;
   const accuse = s.mode === 'blood_pact' ? renderAccusePanel(session) : '';
 
   return `
     <div class="panel action">
-      <div class="panel-title">Your turn — ${human.actionsRemaining} action${human.actionsRemaining === 1 ? '' : 's'} · ⚑${human.banners}</div>
+      <div class="panel-title">Your turn — ${human.actionsRemaining} action${human.actionsRemaining === 1 ? '' : 's'} · ⚑${human.banners} · ${human.stance === 'political' ? '🕊 political' : '⚔ martial'}</div>
       ${marchHint}
       <div class="action-btns">${btns.join('')}</div>
       <button class="end-turn" data-action="pass">End turn</button>
@@ -270,6 +390,13 @@ function renderActionPanel(session: GameSession): string {
 function renderAccusePanel(session: GameSession): string {
   const s = session.state;
   if (s.bloodPactExposed) return `<div class="accuse"><div class="panel-title">Traitor exposed.</div></div>`;
+  // A live accusation in progress — show who's voting which way (unanimity needed to convict).
+  const acc = s.accusationState;
+  if (acc && !acc.resolved) {
+    const votes = acc.votes.map(v => `P${v.playerIndex + 1} ${v.agree ? '✓' : '✗'}`).join(' · ');
+    return `<div class="accuse"><div class="panel-title">Accusation: P${acc.accuser + 1} → P${acc.accused + 1}</div>
+      <div class="hint">Votes (all must agree): ${votes || '—'}</div></div>`;
+  }
   const locked = s.round < s.accusationLockoutUntilRound;
   const opts = s.players
     .filter(p => p.index !== session.humanIndex)

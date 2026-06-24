@@ -263,11 +263,20 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     game. ALGORITHM §9 marked FINAL (tunables.ts = source of truth). **Phase 5 (balance) COMPLETE.** The
     one structural residual (BP win+exposure jointly hug their ceilings; a sabotage-gated decouple was
     tried and was worse) is documented in §9/§10 — accepted as the frontier.
-  - [ ] **6a. Human playtest + launch readiness** — the sim validated incentives; humans must validate
-    the FELT experience. Walk `docs/human-playtest-checklist.md` (sealed-pledge dilemma, 30–45 min length,
-    Herald-runner tension, the Blood Pact accusation gamble + Audit) and verify the `src/ui-v2/` UI
-    surfaces every Stage-5 mechanic (Oaths, tolls, Herald piece + capture, Parley, the Pledge/accusation
-    flow). Record verdicts back into the DESIGN-V2-*.md docs + state.json.
+  - [x] **6a. Functional UI parity** — DONE (2026-06-24). `src/ui-v2/` now gives EVERY discrete player
+    action a control (added Recruit/Parley/Swear-Oath/Break-Oath/March-Herald to the existing
+    March/Claim/Raid/Strike/Rescue/Audit/Pass/Pledge/Accuse) and DISPLAYS the full state (human hand,
+    Oaths, the Ledger/grudges, Suspicion Log, audit results, live accusation votes, wounds/stance/oath
+    tags, Forge-toll hints, Herald piece on the board, rounds-left). All routed through `applyCommand`.
+    Tested: `tests/v2/ui-parity.test.ts` (12) asserts each control's surface AND its reducer wiring;
+    `vite build` bundles clean; 429 tests green. This is the FUNCTIONAL (not styled) UI — the "real" UI
+    comes after the first human playthrough. KNOWN GAP (recorded, not hidden): combat commit + Last Stand
+    are engine-auto (the `LAST_STAND_COMMIT` handler is a stub) — making "how hard to commit" a human
+    control needs an engine pause-flow (a follow-on; would also touch the sim's auto-commit assumption).
+  - [ ] **6b. Human playtest + launch readiness** — the sim validated incentives; humans must validate
+    the FELT experience. Play `npm run dev` and walk `docs/human-playtest-checklist.md` (sealed-pledge
+    dilemma, 30–45 min length, Herald-runner tension, the Blood Pact accusation gamble + Audit). Record
+    comments/changes; the styled "real" UI + any combat-commit exposure follow from the playtest verdicts.
 
 ---
 

@@ -121,3 +121,34 @@ button.primary { background: var(--accent); color: #1a1206; border: none; font-w
 .accuse { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; }
 .accuse-btn { background: rgba(239,68,68,0.12); }
 .game-over .ending { font-size: 16px; margin-bottom: 14px; color: var(--accent); }
+
+/* ─── Stage-5 mechanic surfaces (functional UI parity) ─── */
+.tag.wounds { background: rgba(239,68,68,0.15); color: #fca5a5; }
+.tag.stance { background: rgba(154,146,166,0.15); color: var(--muted); }
+.tag.oath   { background: rgba(34,197,94,0.18); color: #86efac; }
+.tag.grudge { background: rgba(239,68,68,0.22); color: #fca5a5; }
+.standings td.tags { display: flex; flex-wrap: wrap; gap: 3px; }
+
+.hand { font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.hand-label { color: var(--muted); }
+.card { display: inline-block; min-width: 18px; text-align: center; background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; padding: 2px 5px; color: var(--ink); font-weight: 600; }
+
+.info-block { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.block-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 6px; }
+.info-block ul { margin: 0; padding-left: 16px; font-size: 13px; }
+.info-block small { color: var(--muted); }
+.adj-costs { margin: 4px 0 0; padding-left: 16px; font-size: 12px; color: var(--muted); }
+.toll { color: var(--accent); }
+
+.suspicion { width: 100%; border-collapse: collapse; font-size: 13px; }
+.suspicion td { padding: 2px 6px; }
+.tier-row { letter-spacing: 2px; }
+.tier { display: inline-block; width: 12px; text-align: center; }
+.tier-none { color: var(--danger); }
+.tier-low  { color: #fca5a5; }
+.tier-medium { color: var(--muted); }
+.tier-high { color: #86efac; }
+
+.herald-glyph { font-size: 11px; text-anchor: middle; }
+.action-btns { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.action-btns button { font-size: 13px; }
