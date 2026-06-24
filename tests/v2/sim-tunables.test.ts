@@ -45,12 +45,12 @@ describe('tunable seam', () => {
     expect(withTunables(tilted, () => doomCost('WHISPER', 4))).toBe(4); // ceil(3 + 1*(4-3)) = 4
   });
 
-  it('ships the locked doom curve (DOOM_COST_PER_PLAYER 6→5 at Stage S) + spread', () => {
-    expect(doomCost('WHISPER', 2)).toBe(1);    // 2p floors: ceil(6*2/4 + 5*(2-3)) = max(1, -2)
+  it('ships the locked doom curve (DOOM_COST_PER_PLAYER 6→5 Stage S, 5→6 Stage A) + spread', () => {
+    expect(doomCost('WHISPER', 2)).toBe(1);    // 2p floors: ceil(6*2/4 + 6*(2-3)) = max(1, -3)
     expect(doomCost('WHISPER', 3)).toBe(5);    // pivot: ceil(6*3/4 + 0)
-    expect(doomCost('WHISPER', 4)).toBe(11);   // ceil(6*4/4 + 5*1) = 6 + 5
-    expect(doomCost('RECKONING', 4)).toBe(17); // ceil(12*4/4 + 5*1) = 12 + 5
-    expect(getTunables().SPREAD_AMOUNT_BASE).toBe(7); // 5c 5 → 5-dark 4 → Oaths 5 → Herald 7
+    expect(doomCost('WHISPER', 4)).toBe(12);   // ceil(6*4/4 + 6*1) = 6 + 6
+    expect(doomCost('RECKONING', 4)).toBe(18); // ceil(12*4/4 + 6*1) = 12 + 6
+    expect(getTunables().SPREAD_AMOUNT_BASE).toBe(6); // 5c 5 → 5-dark 4 → Oaths 5 → Herald 7 → A 6
   });
 
   it('deathKnightCount scales the dark army with player count when DK_PER_PLAYER>0', () => {

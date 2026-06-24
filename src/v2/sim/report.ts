@@ -81,6 +81,9 @@ export interface SweepDiagnostics {
   readonly meanPlayerActions: number;
   /** Mean ACTION decisions per round (density proxy for the 30–45 min scope target — C2). */
   readonly meanActionsPerRound: number;
+  /** Share of Shadowking wins that came via all_broken (attrition) vs the Keystone assault.
+   *  Soft guard (§A): the dark should win mostly by the assault, not by attrition. */
+  readonly allBrokenWinShare: number;
   /** Fraction of pledge rounds that fully blocked the strike. */
   readonly pledgeFullBlockRate: number;
   /** Fraction of games where any Gambit was seized. */
@@ -236,6 +239,10 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
     meanAshedNodes: mean(rows.map(r => r.metrics.ashedNodes)),
     meanPlayerActions: mean(rows.map(r => r.metrics.playerActions)),
     meanActionsPerRound: mean(rows.map(r => r.metrics.rounds > 0 ? r.metrics.playerActions / r.metrics.rounds : 0)),
+    allBrokenWinShare: (() => {
+      const skWins = rows.filter(r => r.metrics.shadowkingWin).length;
+      return skWins ? rows.filter(r => r.metrics.allBrokenWin).length / skWins : 0;
+    })(),
     pledgeFullBlockRate: totalPledgeRounds > 0 ? totalFullBlocks / totalPledgeRounds : 0,
     gambitSeizeRate: total ? rows.filter(r => r.metrics.gambitSeized).length / total : 0,
     gambitWinRate: total ? rows.filter(r => r.metrics.gambitWin).length / total : 0,
@@ -412,6 +419,7 @@ ${endRows}
 | Mean nodes ashed (doom progress) | ${d.meanAshedNodes.toFixed(2)} | how close the dark got |
 | Pledge full-block rate | ${pct(d.pledgeFullBlockRate)} | high ⇒ table over-blocks ⇒ dark too weak |
 | Decisions per game · per round | ${d.meanPlayerActions.toFixed(1)} · ${d.meanActionsPerRound.toFixed(2)} | session-length proxy (30–45 min scope — C2); flag if density drifts high |
+| All-broken share of SK wins | ${pct(d.allBrokenWinShare)} | §A soft guard — dark should win by the Keystone assault, not attrition; high ⇒ investigate |
 
 ## Per-player-count (strictness)
 | Count | Games | SK win | Rounds | Rescues | Gambit fire |

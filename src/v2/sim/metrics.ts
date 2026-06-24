@@ -16,12 +16,14 @@ export interface GameMetrics {
   readonly rounds: number;
   readonly actReached: Act;
 
-  /** The dark ate the Keystone (doom_complete) — the §9 "Shadowking win". */
+  /** A Shadowking win — the dark ate the Keystone (doom_complete) OR broke the whole table
+   *  (all_broken) (§A). The §9 "Shadowking win" rate counts both. */
   readonly shadowkingWin: boolean;
   readonly territoryWin: boolean;
   readonly gambitWin: boolean;
-  /** All active Warlords Broken at once (mutual loss / draw). */
-  readonly allBrokenDraw: boolean;
+  /** Sub-type flag: this Shadowking win came via all_broken (attrition) rather than the
+   *  Keystone assault. A diagnostic, NOT mutually exclusive with shadowkingWin (§A). */
+  readonly allBrokenWin: boolean;
 
   /** A Crown's Gambit was seized at least once this game. */
   readonly gambitSeized: boolean;
@@ -150,10 +152,10 @@ export function computeMetrics(state: GameState): GameMetrics {
     winner: state.winner,
     rounds: state.round,
     actReached: state.act,
-    shadowkingWin: state.gameEndReason === 'doom_complete',
+    shadowkingWin: state.gameEndReason === 'doom_complete' || state.gameEndReason === 'all_broken',
     territoryWin: state.gameEndReason === 'territory_victory',
     gambitWin: state.gameEndReason === 'gambit_victory',
-    allBrokenDraw: state.gameEndReason === 'all_broken',
+    allBrokenWin: state.gameEndReason === 'all_broken',
     gambitSeized: gambitSeized || state.gameEndReason === 'gambit_victory',
     rescueCount,
     brokenCount,

@@ -517,12 +517,17 @@ function handlePlayerAction(
       winner: state.winner,
     });
   } else if (state.players.every(p => p.isBroken)) {
+    // All Warlords Broken at once ⇒ the dark has won by attrition — a Shadowking victory,
+    // NOT a draw (§A). Winner attribution mirrors doom_complete: in Blood Pact the traitor
+    // takes the dark's win unless exposed; in competitive there is no player winner.
     state.gameEndReason = 'all_broken';
-    state.winner = null;
+    state.winner = (state.mode === 'blood_pact' && !state.bloodPactExposed)
+      ? state.bloodPactHolder
+      : null;
     events.push({
       type: 'GAME_OVER',
       reason: 'all_broken',
-      winner: null,
+      winner: state.winner,
     });
   }
 

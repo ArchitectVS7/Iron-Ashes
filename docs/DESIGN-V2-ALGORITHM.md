@@ -392,7 +392,8 @@ function combat(attacker, defender):
   hunts oathbreakers** — the "**Ledger**" is the grudge array (§5.6): renouncing an oath marks you. Typical
   table: ~6 sworn / ~3 broken per game. Oaths are the cooperative spine the Rescue debt and the Forge-toll
   exemptions both hang off.
-- **Draw:** if all active Warlords are Broken simultaneously → `all_broken` (all lose).
+- **All-broken (§A):** if all active Warlords are Broken simultaneously → `all_broken`, a **Shadowking
+  win by attrition** (not a draw — see §6 Loss).
 
 ### 5.5 Escalation acts (the noose tightens, visibly)
 Three acts, advanced by Blight progress and/or the patience ratchet:
@@ -497,11 +498,15 @@ made it a button nobody presses). Timeline:
   Gambit is double-edged for the table; surfacing this tension is intended, but the loss check (Keystone
   ashed → traitor wins) still **preempts** the Gambit win if the dark reaches the center first (§check order).
 
-### Loss & draw
-- **Doom Complete (all lose):** the dark ashes the Keystone → game ends immediately. In Blood Pact mode →
-  the traitor wins, all others lose. **Checked at the end of every Dawn, after escalation, in seat order;
-  preempts the win check.**
-- **All Broken (draw):** all active Warlords Broken at once → all lose.
+### Loss (two Shadowking win-paths — no draw)
+- **Doom Complete (the assault):** the dark ashes the Keystone → game ends immediately, a Shadowking
+  win. In Blood Pact mode → the traitor wins (unless exposed), all others lose. **Checked at the end
+  of every Dawn, after escalation, in seat order; preempts the win check.**
+- **All Broken (attrition — §A):** all active Warlords Broken at once → **the Shadowking wins by
+  attrition** (NOT a draw — a whole-table collapse means the dark has prevailed). Winner attribution
+  mirrors Doom Complete (Blood Pact traitor wins unless exposed). It is the dark's *minority* win path
+  (~10% of Shadowking wins) — the assault is the main route; an `allBrokenWinShare` soft guard watches
+  that attrition never becomes the dominant way the dark wins.
 
 ### Anti-turtle / anti-stall (baseline, the judge's fix — applies regardless of win path)
 Every Dawn the front advances one step toward the Keystone **unless** the round's collective Pledge met
@@ -575,24 +580,24 @@ the new sim — never against a stubbed greedy bot (see `docs/ML-SYSTEM-ANALYSIS
 ### 9.1 Player-count identity ladder (LOCKED decision — Stage 5; numbers refreshed after the R3 wave)
 The Shadowking win-rate target (18–22%) is a **POOLED** target across player counts; per-count win rate
 is a **gradient by design, not a defect to flatten** (the Pledge's blocking power scales with allies, so
-co-op is inherently easier with more of them). **CURRENT locked per-count (post-R3, s20260622-n40): 2p
-~19.6% / 3p ~24.4% / 4p ~16.1%.** ⚠️ NOTE: this is NO LONGER strictly monotonic — the Stage-S
-`DOOM_COST_PER_PLAYER` 6→5 compensator (the gambit-fix) lifted 3p above 2p, so **3p is now the dark's
-strongest count**, not 2p. The dark is a credible threat at every count (16–24%), which is the design
-intent; the original "2p hardest" framing below is superseded by the data — treat the tier *names* as
-flavor, not a monotonic-ordering claim. (A future tune could restore strict monotonicity; see tuning-log
-§sealed/§herald.)
+co-op is inherently easier with more of them). **CURRENT locked per-count (post-Stage-A, ~24-seed): 2p
+~25% / 3p ~19% / 4p ~15%.** ✅ The ladder is **monotonically decreasing again — 2p is the dark's
+strongest count** — which RESTORES the original "The Duel = survival-horror, hardest" intent. (Stage-S's
+`DOOM_COST_PER_PLAYER` 6→5 had briefly inverted it to 3p-hardest; Stage A's all_broken→SK-win win-path
+falls hardest on 2p — a 2-player table is the easiest to fully break — and Stage A's `DOOM_COST_PER_PLAYER`
+5→6 re-lift naturally put 2p back on top.) The dark stays a credible threat at every count.
 
 | Count | Name | Texture |
 |---|---|---|
-| 2 | **The Duel** | a duel against a third party that may win — survival-horror stakes |
-| 3 | **The Triumvirate** | the balanced middle (currently the dark's strongest count) |
-| 4 | **The Carve-up** | the rivals are the danger; the dark is weather you weaponize (grudge/steer) |
+| 2 | **The Duel** | a duel against a third party that may win — survival-horror stakes; **the dark's strongest count** |
+| 3 | **The Triumvirate** | the balanced middle |
+| 4 | **The Carve-up** | the rivals are the danger; the dark is weather you weaponize (grudge/steer) — its weakest count |
 
 Decision history: per-count flatness escalated at 5c (numbers alone can't flatten it without exploding 2p
 / flipping the dominance guard — proven across 5 grids); focus group R2 §3 recommended **A — accept + name
-the tiers**; **Chosen: A** (the surgical option B, marginal-pledge decay, is recorded but NOT built). The
-Stage-S doom-tilt then shifted the shape to 3p-hardest. Do not re-litigate without sign-off.
+the tiers**; **Chosen: A** (the surgical option B, marginal-pledge decay, is recorded but NOT built).
+Stage-S briefly tilted to 3p-hardest; **Stage A restored 2p-hardest monotonic** (the intended shape). Do
+not re-litigate without sign-off.
 
 ---
 

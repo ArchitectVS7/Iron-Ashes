@@ -184,7 +184,7 @@ export const DAWN_BLIGHT_ADVANCE = 1;
  * to compensate — Stage H needed 7 to recover SK-win to ~20% with Heralds active (2-seed
  * stable). See stage5-tuning-log.md §oaths/§herald.
  */
-export const SPREAD_AMOUNT_BASE = 7;
+export const SPREAD_AMOUNT_BASE = 6;
 
 /** Extra banner cost to march through an ashed node (P0-3: traversable, not impassable). */
 export const ASHED_TRAVERSE_EXTRA_COST = 1;
@@ -364,14 +364,13 @@ export const DOOM_COST_PLAYER_DIVISOR = 4;
  * positive values LOWER the threshold below the pivot (dark weaker at low pc) and
  * RAISE it above (dark stronger at high pc).
  *
- * Stage 5c LOCKED at 6 (was 0); Stage-S retuned 6 → 5 as the fine compensator that
- * offset the gambit gate (suppressing gambits — a player win-path — raised SK-win, so
- * a slightly easier doom threshold pulled it back into band). The search showed this is
- * the lever that raises the dark's 4p win rate — at 4p the threshold is high enough that
- * 4 hands sometimes fail to block. At 2p it floors to 1. Residual per-count disparity is
- * STRUCTURAL — see the tuning log §5c note.
+ * Stage 5c LOCKED at 6 (was 0); Stage-S retuned 6 → 5 (gambit-gate compensator); Stage A
+ * retuned 5 → 6 again, paired with SPREAD_AMOUNT_BASE 7 → 6, to recenter SK-win to ~20%
+ * after all_broken became a dark win (§A). It is the lever that raises the dark's 4p win
+ * rate — at 4p the threshold is high enough that 4 hands sometimes fail to block; at 2p it
+ * floors to 1 — so it props the 4p floor while SPREAD trims pooled. See tuning log §A.
  */
-export const DOOM_COST_PER_PLAYER = 5;
+export const DOOM_COST_PER_PLAYER = 6;
 /** Player count at which the per-player tilt is zero (the curve's pivot). */
 export const DOOM_COST_PIVOT = 3;
 

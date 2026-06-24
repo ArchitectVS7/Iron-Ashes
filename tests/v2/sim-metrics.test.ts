@@ -15,10 +15,14 @@ describe('computeMetrics', () => {
     expect(m.rounds).toBeGreaterThan(0);
     expect(m.territoryPerSeat).toHaveLength(4);
     expect(m.meanPledgePerSeat).toHaveLength(4);
-    // The outcome flags are mutually consistent with the end reason.
-    expect(m.shadowkingWin).toBe(m.gameEndReason === 'doom_complete');
+    // The outcome flags are mutually consistent with the end reason. A Shadowking win is
+    // EITHER the Keystone assault (doom_complete) OR attrition (all_broken) (§A).
+    expect(m.shadowkingWin).toBe(m.gameEndReason === 'doom_complete' || m.gameEndReason === 'all_broken');
     expect(m.territoryWin).toBe(m.gameEndReason === 'territory_victory');
-    expect([m.shadowkingWin, m.territoryWin, m.gambitWin, m.allBrokenDraw].filter(Boolean).length).toBe(1);
+    expect(m.allBrokenWin).toBe(m.gameEndReason === 'all_broken');
+    // Exactly one win CATEGORY fires; allBrokenWin is a sub-type of shadowkingWin, not a 4th.
+    expect([m.shadowkingWin, m.territoryWin, m.gambitWin].filter(Boolean).length).toBe(1);
+    if (m.allBrokenWin) expect(m.shadowkingWin).toBe(true);
   });
 
   it('counts RESCUE and Broken events from the action log', () => {

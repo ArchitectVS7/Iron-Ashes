@@ -18,7 +18,7 @@ function mkMetrics(p: Partial<GameMetrics> & { winner: number | null }): GameMet
     shadowkingWin: p.shadowkingWin ?? (p.winner === null),
     territoryWin: p.winner !== null,
     gambitWin: false,
-    allBrokenDraw: false,
+    allBrokenWin: false,
     gambitSeized: p.gambitSeized ?? false,
     rescueCount: p.rescueCount ?? 3,
     brokenCount: p.brokenCount ?? 0,

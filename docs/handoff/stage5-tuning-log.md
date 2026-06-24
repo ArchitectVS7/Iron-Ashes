@@ -363,3 +363,31 @@ first-class lever for future tuning, NOT a "reasonable default".
 DK_MARCH_DISTANCE ±≤0.4pp, SURGE_SPREAD_MULT ≤0.5pp, RESCUE_DEBT_MIN_PLEDGE ≤0.9pp,
 GAMBIT_ADJACENT_STRIKE_MULT 0.0pp on SK but moves gambit-game blight) — defaults confirmed safe.
 RESCUE_DEBT_MIN_PLEDGE is slated for retirement in Stage M (rescue→Oath merge).
+
+---
+
+## §A — All-broken → Shadowking victory (close-loose-ends wave)
+
+**Mechanic.** A whole-table Break is now a **Shadowking win by attrition**, not a draw
+(`winner=null` → dark wins; Blood-Pact traitor takes it unless exposed — mirrors doom_complete).
+Both terminal sites updated (`sequencer.ts` runDawnPhase + `reducer.ts` post-action). `shadowkingWin`
+metric now counts doom_complete OR all_broken; `allBrokenWin` is a sub-type flag (+ new
+`allBrokenWinShare` soft guard: the dark should win mostly by the Keystone assault, not attrition).
+
+**Balance.** Reclassifying draws→SK-wins added ~+2.3pp, putting pooled SK-win at the 22.0% ceiling
+(at-edge → fragile for a 2-seed lock). The bump concentrates at **2p** (a 2-player table is the
+easiest to fully break). Recenter search (`scripts/tune-allbroken.mjs`, 24 seeds):
+- global trims (SPREAD 7→6) drop pooled to 19.4 but crater 4p to 13.6 (below the 16 floor);
+- `LANDED_STRIKE_WOUNDS` 3→2 hits 21.7 but guts rescues (breaks gate rescues);
+- the per-count lever `DOOM_COST_PER_PLAYER` props the 4p floor.
+
+**LOCKED: SPREAD_AMOUNT_BASE 7→6 + DOOM_COST_PER_PLAYER 5→6** (the latter reverts the Stage-S
+nerf — the gambit fix is the seize gate, not this lever, so the gambit band is unaffected). 2-seed ×40:
+SK-win **20.3% / 19.6%** (comfortable headroom), gambit-free 18.5/18.8%, rounds 12.2, rescues
+0.82/0.79 (slightly UP), guards PASS, all-broken share ~10% (assault still wins ~90% of dark games).
+
+**Ladder note.** all_broken makes **2p the hardest count again** (2p≈25 / 3p≈19 / 4p≈15 — monotonic
+decreasing), restoring the ORIGINAL "The Duel = survival-horror, hardest" intent that the Stage-S
+doom-tilt had inverted to 3p-hardest. §9.1 reframed accordingly. RESCUE CAP UNCHANGED: this fixes the
+ENDING quality, it does not lift the structural ~1-rescue cap (the user chose the SK-win ending over
+the claw-back that would have).

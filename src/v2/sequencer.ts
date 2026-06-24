@@ -421,12 +421,16 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
   // all_broken check (§7.10 — recovery evaluated before all_broken)
   const allBroken = state.players.every(p => p.isBroken);
   if (allBroken) {
+    // All Warlords Broken at once ⇒ a Shadowking victory by attrition, NOT a draw (§A).
+    // Winner attribution mirrors doom_complete (Blood Pact traitor wins unless exposed).
     state.gameEndReason = 'all_broken';
-    state.winner = null;
+    state.winner = (state.mode === 'blood_pact' && !state.bloodPactExposed)
+      ? state.bloodPactHolder
+      : null;
     events.push({
       type: 'GAME_OVER',
       reason: 'all_broken',
-      winner: null,
+      winner: state.winner,
     });
     return { state, events };
   }
