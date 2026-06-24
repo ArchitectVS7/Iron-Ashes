@@ -189,13 +189,17 @@ window close and resolves deterministically; **true-sealed** in Blood Pact (hidd
 reveal — the traitor hides a thin pledge in the noise). Determinism is identical either way: the frozen
 vector is resolved in fixed seat order against pre-reveal state.
 
-> **AMENDED (Stage S — FOCUS-GROUP-R3 §3):** the "open in core" rule above is no longer
-> absolute. The named **Gambit claimant's** pledge is now **SEALED even in competitive**
+> **AMENDED (Stage S — FOCUS-GROUP-R3 §3; VALIDATED Stage B):** the "open in core" rule above is no
+> longer absolute. The named **Gambit claimant's** pledge is now **SEALED even in competitive**
 > (`SEALED_CORE_PLEDGE='gambit_claimant'`) — a deliberate, owned reversal of the R1 "fully open live
-> Pledge in core" pillar, so the gambit volunteer can't be perfectly read while exposed. Sealing is a
-> **HUMAN-facing** legibility change and a **sim no-op**; the actual gambit-fire balance fix is the
-> **risk-aware seize gate** (`GAMBIT_SELF_COVER_CARDS` — a player won't seize the throne without enough
-> cover cards banked). FOCUS-GROUP-R3 §3.
+> Pledge in core" pillar, so the gambit volunteer can't be perfectly read while exposed. **Stage B gave
+> the sim a bail-out / volunteer's-dilemma channel** (rivals may pledge extra to cover the claimant;
+> `bailoutTrust` + `BAILOUT_BASE_PCT`), and sealing now MEASURABLY bites: open play lets the table
+> coordinate one efficient coverer, while sealing forces an independent bluff → claimant Gambit-win
+> −7pp, gambit fire 26%→18% (into band), SK-win +3pp. So sealing both creates the volunteer's dilemma
+> AND reinforces the gambit-fire fix; the **risk-aware seize gate** (`GAMBIT_SELF_COVER_CARDS`) remains
+> the primary nerf. The *felt* drama is still a human-only claim — see `docs/human-playtest-checklist.md`.
+> FOCUS-GROUP-R3 §3, tuning-log §B.
 
 ```
 function pledgePhase(state):

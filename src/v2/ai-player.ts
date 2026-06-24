@@ -109,6 +109,16 @@ export interface AIPolicy {
    * dark reach the Keystone (§10). Neutral 0 (and inert for non-traitors).
    */
   readonly saboteurPledgeSuppression?: number;
+  /**
+   * 0..1 — willingness to BAIL OUT a Gambit claimant: pledge extra to keep the dark
+   * off the Keystone during a named Gambit, even though it may let the claimant WIN
+   * (§B — the sealed-pledge volunteer's dilemma). Neutral 0 ⇒ never bails (DEFAULT
+   * path byte-identical). The SEAL changes HOW this fires: when the claimant's pledge
+   * is OPEN the table coordinates (one designated rival covers); when SEALED each rival
+   * volunteers INDEPENDENTLY with prob BAILOUT_BASE_PCT·bailoutTrust — a real bluff
+   * (under-provision when everyone hopes someone else covers; waste when several do).
+   */
+  readonly bailoutTrust?: number;
 }
 
 /** A moderately-cooperative economic player — the Stage-3c baseline (the neutral point). */
@@ -184,6 +194,27 @@ export function choosePledge(
 
   let amount = Math.max(0, Math.min(desired, available));
 
+  // Gambit bail-out (§B — the sealed-pledge volunteer's dilemma). A rival may pledge
+  // EXTRA to keep the dark off the Keystone during a named Gambit, even though it may
+  // hand the claimant the win. The SEAL is what makes this a bluff:
+  //   • OPEN   → the table coordinates: exactly ONE designated rival (most spare cards,
+  //              seat tiebreak) covers. Reliable, no waste.
+  //   • SEALED → no coordination: each rival volunteers INDEPENDENTLY (prob below), so
+  //              coverage is noisy — sometimes nobody covers, sometimes several do.
+  const bailoutTrust = policy.bailoutTrust ?? 0;
+  const gambit = state.gambit;
+  if (bailoutTrust > 0 && gambit?.named === true && gambit.claimant !== playerIndex && !amInDanger) {
+    const coverNeed = Math.min(Math.max(0, available - amount), Math.ceil(C * 0.25));
+    if (coverNeed > 0) {
+      // SEALED → each rival volunteers independently (a bluff); OPEN → the single
+      // best-positioned rival covers (coordination, no waste).
+      const bail = isClaimantSealed(state)
+        ? decisionRng(state, playerIndex, seed, 1).float() < getTunables().BAILOUT_BASE_PCT * bailoutTrust
+        : designatedBailer(state, playerIndex);
+      if (bail) amount = Math.min(available, amount + coverNeed);
+    }
+  }
+
   // Saboteur (Blood Pact traitor only): hide a thin pledge in the noise so the
   // dark advances (§10). Inert for non-traitors and in competitive mode.
   const suppression = policy.saboteurPledgeSuppression ?? 0;
@@ -192,6 +223,32 @@ export function choosePledge(
   }
 
   return amount;
+}
+
+/** Is the current Gambit claimant's pledge SEALED this round? (§B — mirrors the
+ *  reducer's isPledgeSealed for the claimant: blood_pact always; competitive per
+ *  SEALED_CORE_PLEDGE 'all' | 'gambit_claimant'.) */
+export function isClaimantSealed(state: GameState): boolean {
+  if (state.gambit?.named !== true) return false;
+  if (state.mode === 'blood_pact') return true;
+  const m = getTunables().SEALED_CORE_PLEDGE;
+  return m === 'all' || m === 'gambit_claimant';
+}
+
+/** In OPEN play the table coordinates: the non-claimant rival with the most spare
+ *  cards (seat-index tiebreak) is the single designated bail-out coverer. Pure. */
+function designatedBailer(state: GameState, playerIndex: number): boolean {
+  const claimant = state.gambit?.claimant;
+  let bestSeat = -1;
+  let bestHand = -1;
+  for (const p of state.players) {
+    if (p.index === claimant || p.isBroken) continue;
+    if (p.hand.length > bestHand) {
+      bestHand = p.hand.length;
+      bestSeat = p.index;
+    }
+  }
+  return bestSeat === playerIndex;
 }
 
 // ─── Action policy (§4.3) ─────────────────────────────────────────

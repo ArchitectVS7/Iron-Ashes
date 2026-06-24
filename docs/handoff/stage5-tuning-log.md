@@ -410,3 +410,35 @@ the old 4 debt-enforcement tests → 1 "rescue forges an Oath" test.
 **Balance.** Neutral — dropping the rarely-fired forced-min-Pledge moved nothing material. 2-seed ×40:
 SK-win **20.5% / 20.1%**, gambit-free 18.1/18.2%, rounds 12.2, rescues **0.84 / 0.83** (unchanged),
 guards PASS. No re-tune required.
+
+---
+
+## §B — Sealed-pledge bail-out validation (close-loose-ends wave)
+
+**The ask (user):** "we opted for the sealed pledge for a reason — find a creative way to test this.
+Perhaps assign percentage points for a bluffing system." The seal was a sim NO-OP (the AI never read
+rivals' pledges), so its value was an untested human claim.
+
+**The channel.** Gave the AI a bail-out / volunteer's-dilemma model: a rival may pledge EXTRA to cover
+a named Gambit claimant (`AIPolicy.bailoutTrust` per archetype: cooperator 0.85 / turtle 0.7 /
+opportunist 0.4 / aggressor 0.2 / gambler,saboteur 0). The SEAL changes HOW it fires:
+- OPEN (`'off'`) → the table coordinates: one designated rival (most spare cards) covers. Efficient.
+- SEALED (`'gambit_claimant'`/`'all'`) → each rival volunteers INDEPENDENTLY with prob
+  `BAILOUT_BASE_PCT(0.5)·bailoutTrust` — a real bluff (under-provision / waste). DEFAULT_AI_POLICY has
+  no bailoutTrust ⇒ byte-identical.
+
+**Validation (`scripts/tune-bluff.mjs`, 40 seeds — all arms run the SAME bail-out AI, so a delta IS
+the seal's effect):**
+| arm | SK-win | gambit fire (noG) | gambit seize | claimant Gambit-WIN |
+|---|---|---|---|---|
+| open ('off') | 17.0% | 26.4% | 43.2% | 26.4% |
+| sealed claimant (LOCKED) | 20.3% | 18.1% | 36.3% | 19.4% |
+
+**Finding — the seal is a REAL volunteer's dilemma in-sim (not a no-op):** sealing cuts the claimant's
+Gambit-win by **−7pp**, gambit seize by −6.9pp, and lifts SK-win by **+3.3pp**. It both (a) makes the
+gambit a genuine bet (rivals can't reliably bail you) and (b) REINFORCES the Stage-S gambit-fire fix —
+open over-fires at 26.4%, sealed lands in-band at 18.1%. KEPT at `'gambit_claimant'`. The *felt* drama
+remains a human-only claim → `docs/human-playtest-checklist.md` §1.
+
+**Balance.** The bail-out AI is now part of the locked sim; bands hold 2-seed ×40: SK-win 20.3% / 19.8%,
+gambit-free 18.1/18.2%, rounds 12.2, rescues 0.83/0.82, guards PASS. New tunable `BAILOUT_BASE_PCT=0.5`.

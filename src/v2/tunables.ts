@@ -156,6 +156,11 @@ export const SEALED_CORE_PLEDGE: 'off' | 'gambit_claimant' | 'all' = 'gambit_cla
  */
 export const GAMBIT_SELF_COVER_CARDS = 4;
 
+/** Stage B — base probability a rival independently volunteers to bail out a SEALED
+ *  Gambit claimant (scaled by archetype bailoutTrust). The sealed-pledge "volunteer's
+ *  dilemma" lever; inert unless a non-default policy opts in (DEFAULT byte-identical). */
+export const BAILOUT_BASE_PCT = 0.5;
+
 // ─── Banner Generation ────────────────────────────────────────────
 
 /** Base banners generated per player each Dawn (before territory income). */
@@ -449,6 +454,11 @@ export interface Tunables {
   // ── Sealed Pledge + gambit fix (Stage S) ──
   readonly SEALED_CORE_PLEDGE: 'off' | 'gambit_claimant' | 'all';
   readonly GAMBIT_SELF_COVER_CARDS: number;
+  // ── Sealed-pledge bail-out / volunteer's dilemma (Stage B) ──
+  /** Base probability a rival INDEPENDENTLY volunteers to bail out a SEALED Gambit
+   *  claimant, scaled by the archetype's bailoutTrust (§B). Only bites when sealing
+   *  is on AND a non-default policy sets bailoutTrust>0 — so DEFAULT is byte-identical. */
+  readonly BAILOUT_BASE_PCT: number;
   // ── Herald / stance (Stage H) ──
   readonly HERALD_RECRUIT_COST: number;
   readonly HERALD_HAND_BONUS: number;
@@ -472,7 +482,7 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   DK_BLOCKS_CLAIM, DK_KILL_CLAIMS_NODE, GRUDGE_MARK_TOP_N,
   BREAK_THRESHOLD, RESCUE_COST, RESCUE_TRIBUTE_BANNERS, LANDED_STRIKE_WOUNDS, BROKEN_MAX_ROUNDS,
   OATH_DIVIDEND, OATH_DURATION, OATH_LOYALTY_BONUS, OATH_BREAK_BANNERS, GRUDGE_OATHBREAK,
-  FORGE_TOLL_COST, SEALED_CORE_PLEDGE, GAMBIT_SELF_COVER_CARDS,
+  FORGE_TOLL_COST, SEALED_CORE_PLEDGE, GAMBIT_SELF_COVER_CARDS, BAILOUT_BASE_PCT,
   HERALD_RECRUIT_COST, HERALD_HAND_BONUS, HERALD_COMBAT_PENALTY, HERALD_PUSHBACK,
   PLEDGE_SHIELD_AMOUNT, PLEDGE_FAVOR_GRUDGE_REDUCTION,
   DK_MARCH_DISTANCE, SURGE_SPREAD_MULT, GAMBIT_ADJACENT_STRIKE_MULT,
@@ -520,6 +530,8 @@ export const TUNABLES = Object.freeze({
   ROUND_CAP,
   ACT_THRESHOLDS,
   GAMBIT_SURCHARGE,
+  GAMBIT_SELF_COVER_CARDS,
+  BAILOUT_BASE_PCT,
   BASE_BANNER_INCOME,
   DAWN_BLIGHT_ADVANCE,
   SPREAD_AMOUNT_BASE,

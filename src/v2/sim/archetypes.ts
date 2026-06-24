@@ -43,7 +43,7 @@ export const ARCHETYPES: Readonly<Record<ArchetypeId, Archetype>> = Object.freez
       selfishness: 0.6, targetCover: 0.4, handReserve: 1,
       pledgeGenerosity: 0.6, aggression: 0.9, raidLeaderBias: 0.7,
       defensiveness: 0.1, claimVsRaidPref: 0.3, gambitAmbition: 0.2, rescueWillingness: 0.2, gambitContest: 0.9,
-      heraldAffinity: 0.05, parleyBias: 0.2, forgeValuation: 0.7, darkHuntBias: 0.7, oathWillingness: 0.2, oathLoyalty: 0.45, // fights more than it allies; sometimes betrays
+      heraldAffinity: 0.05, parleyBias: 0.2, forgeValuation: 0.7, darkHuntBias: 0.7, oathWillingness: 0.2, oathLoyalty: 0.45, bailoutTrust: 0.2, // fights more than it allies; sometimes betrays
     },
   },
   turtle: {
@@ -53,7 +53,7 @@ export const ARCHETYPES: Readonly<Record<ArchetypeId, Archetype>> = Object.freez
       selfishness: 0.2, targetCover: 0.7, handReserve: 1,
       pledgeGenerosity: 0.8, aggression: 0.05, raidLeaderBias: 0,
       defensiveness: 0.9, claimVsRaidPref: 0.9, gambitAmbition: 0, rescueWillingness: 0.6, gambitContest: 0.5,
-      heraldAffinity: 0.7, parleyBias: 0.8, forgeValuation: 0.3, darkHuntBias: 0.5, oathWillingness: 0.6, oathLoyalty: 0.9, // a loyal ally
+      heraldAffinity: 0.7, parleyBias: 0.8, forgeValuation: 0.3, darkHuntBias: 0.5, oathWillingness: 0.6, oathLoyalty: 0.9, bailoutTrust: 0.7, // a loyal ally
     },
   },
   opportunist: {
@@ -63,7 +63,7 @@ export const ARCHETYPES: Readonly<Record<ArchetypeId, Archetype>> = Object.freez
       selfishness: 0.4, targetCover: 0.5, handReserve: 1,
       pledgeGenerosity: 0.9, aggression: 0.5, raidLeaderBias: 0.9,
       defensiveness: 0.3, claimVsRaidPref: 0.5, gambitAmbition: 0.3, rescueWillingness: 0.5, gambitContest: 0.8,
-      heraldAffinity: 0.4, parleyBias: 0.5, forgeValuation: 0.6, darkHuntBias: 0.5, oathWillingness: 0.5, oathLoyalty: 0.5, // the schemer — swears, sometimes betrays
+      heraldAffinity: 0.4, parleyBias: 0.5, forgeValuation: 0.6, darkHuntBias: 0.5, oathWillingness: 0.5, oathLoyalty: 0.5, bailoutTrust: 0.4, // the schemer — swears, sometimes betrays
     },
   },
   cooperator: {
@@ -73,7 +73,7 @@ export const ARCHETYPES: Readonly<Record<ArchetypeId, Archetype>> = Object.freez
       selfishness: 0.0, targetCover: 0.6, handReserve: 1,
       pledgeGenerosity: 1.6, aggression: 0.0, raidLeaderBias: 0,
       defensiveness: 0.4, claimVsRaidPref: 0.8, gambitAmbition: 0, rescueWillingness: 0.9, gambitContest: 0.4,
-      heraldAffinity: 0.6, parleyBias: 0.7, forgeValuation: 0.2, darkHuntBias: 0.6, oathWillingness: 0.8, oathLoyalty: 0.95, // the loyal allier (rescues forge Oaths)
+      heraldAffinity: 0.6, parleyBias: 0.7, forgeValuation: 0.2, darkHuntBias: 0.6, oathWillingness: 0.8, oathLoyalty: 0.95, bailoutTrust: 0.85, // the loyal allier (rescues forge Oaths; the natural volunteer)
     },
   },
   gambler: {
