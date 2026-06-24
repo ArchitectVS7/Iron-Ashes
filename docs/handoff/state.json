@@ -3,7 +3,7 @@
   "currentStage": "6b",
   "currentStageTitle": "Stage 6b — human playtest (PHASE 5 balance + 6a functional-UI parity COMPLETE)",
   "status": "not-started",
-  "nextAction": "PHASE 5 (balance) COMPLETE & LOCKED (5f) + STAGE 6a FUNCTIONAL-UI PARITY COMPLETE (2026-06-24). **6a:** src/ui-v2 now gives EVERY discrete player action a control (added Recruit/Parley/Swear-Oath/Break-Oath/March-Herald to the existing March/Claim/Raid/Strike/Rescue/Audit/Pass/Pledge/Accuse) + DISPLAYS full state (human hand, Oaths, Ledger/grudges, Suspicion Log, audit results, live accusation votes, wounds/stance/oath tags, Forge-toll hints, Herald piece on board, rounds-left). All via applyCommand. tests/v2/ui-parity.test.ts (12) asserts each control's surface + its reducer wiring; `vite build` bundles clean; 429 tests green. It's the FUNCTIONAL (unstyled) UI — the 'real' styled UI comes AFTER the human's first playthrough (user will have comments). KNOWN GAP (recorded): combat-commit + Last Stand are engine-auto (LAST_STAND_COMMIT is a stub) — exposing 'how hard to commit' as a human control needs an engine pause-flow (follow-on; touches the sim's auto-commit assumption). **NEXT = Stage 6b: the human plays (`npm run dev`) and walks docs/human-playtest-checklist.md; record comments → then the styled UI + any combat-commit exposure.** No sim tuning pending. Balance recap: competitive all §9 bands PASS (SK-win 20.2/20.0); Blood Pact traitor win 20.0/20.3, exposure 69.7/71.1, accuracy 71.5/70.1.",
+  "nextAction": "PHASE 5 (balance) COMPLETE & LOCKED (5f) + STAGE 6a FUNCTIONAL-UI PARITY COMPLETE (2026-06-24). **6a:** src/ui-v2 now gives EVERY discrete player action a control (added Recruit/Parley/Swear-Oath/Break-Oath/March-Herald to the existing March/Claim/Raid/Strike/Rescue/Audit/Pass/Pledge/Accuse) + DISPLAYS full state (human hand, Oaths, Ledger/grudges, Suspicion Log, audit results, live accusation votes, wounds/stance/oath tags, Forge-toll hints, Herald piece on board, rounds-left). All via applyCommand. TESTED: tests/v2/ui-parity.test.ts (12) asserts each control's surface + reducer wiring; tests/v2/ui-e2e.test.ts (8, jsdom) mounts the REAL mountView + plays full competitive & blood_pact games via REAL DOM clicks (no click throws, no soft-lock, reaches terminal, each new control fires through the DOM chain); `vite build` bundles clean; 437 tests green. (jsdom E2E = real DOM events + real view/session/reducer chain; a true-Chromium Playwright pass is an available upgrade, not built.) It's the FUNCTIONAL (unstyled) UI — the 'real' styled UI comes AFTER the human's first playthrough (user will have comments). KNOWN GAP (recorded): combat-commit + Last Stand are engine-auto (LAST_STAND_COMMIT is a stub) — exposing 'how hard to commit' as a human control needs an engine pause-flow (follow-on; touches the sim's auto-commit assumption). **NEXT = Stage 6b: the human plays (`npm run dev`) and walks docs/human-playtest-checklist.md; record comments → then the styled UI + any combat-commit exposure.** No sim tuning pending. Balance recap: competitive all §9 bands PASS (SK-win 20.2/20.0); Blood Pact traitor win 20.0/20.3, exposure 69.7/71.1, accuracy 71.5/70.1.",
   "specRefs": [
     "PLAN: ~/.claude/plans/i-want-to-use-transient-quill.md (R3 build wave, all 3 stages done) + docs/handoff/stage5-tuning-log.md §tolls/§sealed/§herald",
     "Stage H (done): src/v2/types.ts (PlayerState handLimit/stance/combatPenalty), src/v2/setup.ts (init), src/v2/sequencer.ts (Dawn p.handLimit), src/v2/combat.ts (combatPenalty in getPlayerPowerAtNode), src/v2/actions.ts (executeRecruit/executeParley/parleyTarget), src/v2/commands.ts ('PARLEY'), src/v2/ai-player.ts (heraldAffinity/parleyBias steps), src/v2/sim/{metrics,report}.ts (herald metrics + stance parity), scripts/tune-herald.mjs",
@@ -11,14 +11,14 @@
     "sim-results/s20260622-n40/REPORT.md (latest LOCKED competitive: SK-win 20.0%, gambit-noG 17.0%, oaths 6.13/3.46, tolls 0.89, heralds 1.78/59% political); PRIOR docs DESIGN-V2-OATHS / RESCUE-ECONOMY / DARK-ENGAGEMENT / FOCUS-GROUP-R2/R3 / ALGORITHM §9.1"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-24T15:34:17.550Z",
-    "commit": "1abeb44",
-    "sourceHash": "12462eb535c1825bf4a76128d7d46340f41b8f485eb45e55310e5d0622aa731f",
+    "timestamp": "2026-06-24T16:04:10.686Z",
+    "commit": "9711066",
+    "sourceHash": "18458fe373cf5ec76c800a85afd8578f58a1d2c950dadb5ab9cacbc7a9572039",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 33,
-      "passed": 429,
+      "files": 34,
+      "passed": 437,
       "failed": 0,
       "status": "pass"
     }

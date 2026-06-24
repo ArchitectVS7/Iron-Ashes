@@ -269,8 +269,12 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     Oaths, the Ledger/grudges, Suspicion Log, audit results, live accusation votes, wounds/stance/oath
     tags, Forge-toll hints, Herald piece on the board, rounds-left). All routed through `applyCommand`.
     Tested: `tests/v2/ui-parity.test.ts` (12) asserts each control's surface AND its reducer wiring;
-    `vite build` bundles clean; 429 tests green. This is the FUNCTIONAL (not styled) UI — the "real" UI
-    comes after the first human playthrough. KNOWN GAP (recorded, not hidden): combat commit + Last Stand
+    `tests/v2/ui-e2e.test.ts` (8, jsdom) mounts the REAL `mountView` and plays full competitive +
+    Blood-Pact games via REAL DOM click events — no click throws, no soft-lock, reaches terminal, and
+    each new control fires through the real DOM chain. `vite build` bundles clean; 437 tests green.
+    This is the FUNCTIONAL (not styled) UI — the "real" UI comes after the first human playthrough.
+    (jsdom E2E = real DOM events + real view/session/reducer chain; a true-Chromium Playwright pass is
+    an available upgrade, not yet built.) KNOWN GAP (recorded, not hidden): combat commit + Last Stand
     are engine-auto (the `LAST_STAND_COMMIT` handler is a stub) — making "how hard to commit" a human
     control needs an engine pause-flow (a follow-on; would also touch the sim's auto-commit assumption).
   - [ ] **6b. Human playtest + launch readiness** — the sim validated incentives; humans must validate
