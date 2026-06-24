@@ -93,8 +93,10 @@ export const RESCUE_COST = 1;
 // ─── Herald / political-martial stance (§ Herald, FOCUS-GROUP-R3 §3) ──
 // Recruiting a Herald commits a player to the POLITICAL build: a bigger hand (more
 // pledge/combat fuel) for a weaker fighter (the "body off the board" tradeoff).
-/** Banner cost to RECRUIT a Herald (commit to the political stance). [TUNABLE] */
-export const HERALD_RECRUIT_COST = 2;
+/** Banner cost to RECRUIT a Herald (commit to the political stance). Stage-HL locked 2→4:
+ *  the literal piece is re-recruitable after a capture, so a higher cost tames the churn and
+ *  compensates the dark (more political deep-hands ⇒ weaker dark) — see tuning-log §HL. [TUNABLE] */
+export const HERALD_RECRUIT_COST = 4;
 /** Hand-cap bonus a Herald grants (deep-hand political build). Stage-H locked 2→1
  * (deep pledging weakened the dark too much; +1 keeps the build viable). [TUNABLE] */
 export const HERALD_HAND_BONUS = 1;
@@ -189,7 +191,7 @@ export const DAWN_BLIGHT_ADVANCE = 1;
  * to compensate — Stage H needed 7 to recover SK-win to ~20% with Heralds active (2-seed
  * stable). See stage5-tuning-log.md §oaths/§herald.
  */
-export const SPREAD_AMOUNT_BASE = 6;
+export const SPREAD_AMOUNT_BASE = 7;
 
 /** Extra banner cost to march through an ashed node (P0-3: traversable, not impassable). */
 export const ASHED_TRAVERSE_EXTRA_COST = 1;

@@ -71,6 +71,7 @@ function createPlayerState(
     warlordNodeId: keepNodeId,
     handLimit: HAND_LIMIT,
     stance: 'martial',
+    heraldNodeId: null,
     combatPenalty: 0,
     hasBloodPact: false,
   };

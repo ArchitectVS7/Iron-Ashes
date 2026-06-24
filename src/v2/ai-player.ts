@@ -568,6 +568,38 @@ function bestStepTowardBrokenAlly(state: GameState, playerIndex: number): string
   return null;
 }
 
+/** First step for the Herald (§HL) toward a SAFE node ADJACENT to the blighted front (so it
+ *  can PARLEY from cover — parleyTarget reads here+neighbours). The runner ROUTES AROUND nodes
+ *  held by a Death Knight or a rival Warlord (stepping onto one = certain capture), so it only
+ *  dies when the dark/rival ACTIVELY moves onto it — "will he make it?", not a suicide run.
+ *  Null if it is already in parley range or no safe approach exists. */
+function bestStepTowardFront(state: GameState, playerIndex: number, heraldNode: string): string | null {
+  const def = state.board.definition;
+  const hostile = (n: string): boolean =>
+    hasSKForcesAtNode(state, n) ||
+    state.players.some(r => r.index !== playerIndex && r.warlordNodeId === n);
+  const blighted = (n: string): boolean => {
+    const ns = state.board.state.nodes[n];
+    return !!ns && !ns.ashed && ns.blightLevel > 0;
+  };
+  // Already in parley range? (on or adjacent to blight) → don't move, just PARLEY.
+  if (blighted(heraldNode) || def.nodes[heraldNode].connections.some(blighted)) return null;
+  const visited = new Set<string>([heraldNode]);
+  const queue: Array<{ node: string; firstStep: string | null }> = [{ node: heraldNode, firstStep: null }];
+  while (queue.length > 0) {
+    const cur = queue.shift()!;
+    for (const nb of def.nodes[cur.node].connections) {
+      if (visited.has(nb) || hostile(nb)) continue; // never route onto a hostile node
+      const firstStep = cur.firstStep ?? nb;
+      // A safe node from which we could PARLEY (adjacent to blight) is the goal.
+      if (def.nodes[nb].connections.some(blighted) || blighted(nb)) return firstStep;
+      visited.add(nb);
+      queue.push({ node: nb, firstStep });
+    }
+  }
+  return null;
+}
+
 /** Lowest-index oath-free, non-Broken rival to swear an Oath with, or null. */
 function oathTargetFor(state: GameState, playerIndex: number): number | null {
   for (const p of state.players) {
@@ -631,10 +663,23 @@ function archetypeAction(
   }
 
   // 0d. PARLEY — the political player pushes back the dark without a card (§ Herald),
-  //     when a blighted front is on/adjacent to the Warlord.
+  //     when the Herald (the lone runner) has reached a blighted front.
   if (parleyBias > 0 && player.stance === 'political' && !sabotaging
       && parleyTarget(state, playerIndex) !== null && rng.float() < parleyBias) {
     return { type: 'PARLEY' };
+  }
+
+  // 0d.5 RUN THE HERALD (§HL): if political with a Herald in play that hasn't reached the
+  //      front yet, MARCH the lone runner one step toward the nearest blight (then it can
+  //      PARLEY next turn) — the escort/intercept drama. Gated on parleyBias.
+  if (parleyBias > 0 && player.stance === 'political' && !sabotaging
+      && player.heraldNodeId !== null && rng.float() < parleyBias) {
+    const step = bestStepTowardFront(state, playerIndex, player.heraldNodeId);
+    // Herald march pays no toll/ZoC — just 1 banner (+ashed extra). Only propose if affordable.
+    if (step !== null) {
+      const cost = 1 + (state.board.state.nodes[step]?.ashed ? ASHED_TRAVERSE_EXTRA_COST : 0);
+      if (player.banners >= cost) return { type: 'MARCH', targetNodeId: step, pieceId: 'herald' };
+    }
   }
 
   // 0. CONTEST a live rival Gambit — a Gambit win ends the game, so this is the

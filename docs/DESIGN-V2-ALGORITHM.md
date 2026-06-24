@@ -89,11 +89,15 @@ shrinks toward the center). **17 nodes** — one over the ~16 budget to preserve
 ### Pieces
 - **Warlord (leader piece)** — 1 per player; cannot be destroyed; its node is "where you act from."
 - **Retinue pieces** — recruited; add combat strength and let you act in more than one place. **[scope: start minimal — 1–2 piece types — and add roles only once the loop proves fun.]**
-- **Herald (recruited, the political build — Stage H — FOCUS-GROUP-R3 §3)** — RECRUIT a Herald and a
+- **Herald (recruited, the political build — Stage H/HL — FOCUS-GROUP-R3 §3)** — RECRUIT a Herald and a
   Warlord trades steel for words: `+HERALD_HAND_BONUS` to that player's `handLimit` and
-  `−HERALD_COMBAT_PENALTY` to combat — the **political** alternative to the **martial** default. Unlocks
-  PARLEY, a non-card pushback against the dark (§4.3). MVP abstracts the literal lone-runner piece (the
-  on-map courier is deferred).
+  `−HERALD_COMBAT_PENALTY` to combat — the **political** alternative to the **martial** default.
+  **Stage HL made it a LITERAL board piece** (`'herald'`, on `heraldNodeId`): the lone runner spawns at
+  the Warlord's node, MARCHes independently (`pieceId:'herald'`), and must REACH the blighted front to
+  PARLEY (a non-card pushback, §4.3). A rival Warlord or a Death Knight co-located with it captures it at
+  Dawn (`resolveHeraldCaptures`) → the piece is lost and the player reverts to martial — the "will he
+  make it?" escort/intercept drama (~1.4 captures/game). `HERALD_RECRUIT_COST` is the churn/balance lever
+  (re-recruitable after a capture). See tuning-log §HL.
 - **Shadowking forces:**
   - **Death Knights** — mobile spear-tip; raid deep toward the Crown; strength `DK_POWER` **[TUNABLE]**.
     **A DK sitting on a node BLOCKS CLAIM there** — and **killing a DK (via STRIKE/Last Stand) claims its
@@ -585,24 +589,24 @@ the new sim — never against a stubbed greedy bot (see `docs/ML-SYSTEM-ANALYSIS
 ### 9.1 Player-count identity ladder (LOCKED decision — Stage 5; numbers refreshed after the R3 wave)
 The Shadowking win-rate target (18–22%) is a **POOLED** target across player counts; per-count win rate
 is a **gradient by design, not a defect to flatten** (the Pledge's blocking power scales with allies, so
-co-op is inherently easier with more of them). **CURRENT locked per-count (post-Stage-A, ~24-seed): 2p
-~25% / 3p ~19% / 4p ~15%.** ✅ The ladder is **monotonically decreasing again — 2p is the dark's
-strongest count** — which RESTORES the original "The Duel = survival-horror, hardest" intent. (Stage-S's
-`DOOM_COST_PER_PLAYER` 6→5 had briefly inverted it to 3p-hardest; Stage A's all_broken→SK-win win-path
-falls hardest on 2p — a 2-player table is the easiest to fully break — and Stage A's `DOOM_COST_PER_PLAYER`
-5→6 re-lift naturally put 2p back on top.) The dark stays a credible threat at every count.
+co-op is inherently easier with more of them). **CURRENT locked per-count (post-Stage-HL, ~24-seed): 2p
+~20% / 3p ~24% / 4p ~17%.** The **precise shape moves with each mechanic** (Stage-S tilted to 3p-hardest;
+Stage A's all_broken→SK-win briefly restored 2p-hardest; the Stage-HL Herald-piece recenter landed back
+at **3p-hardest**). The LOCKED DECISION is not a fixed ordering but the invariant: **the dark stays a
+credible threat at EVERY count (each per-count rate sits ~16–24%)**, and the pooled target is 18–22.
+Don't chase a particular ordering — chase "credible everywhere".
 
 | Count | Name | Texture |
 |---|---|---|
-| 2 | **The Duel** | a duel against a third party that may win — survival-horror stakes; **the dark's strongest count** |
-| 3 | **The Triumvirate** | the balanced middle |
+| 2 | **The Duel** | a duel against a third party that may win — survival-horror stakes |
+| 3 | **The Triumvirate** | the balanced middle (currently the dark's strongest count) |
 | 4 | **The Carve-up** | the rivals are the danger; the dark is weather you weaponize (grudge/steer) — its weakest count |
 
 Decision history: per-count flatness escalated at 5c (numbers alone can't flatten it without exploding 2p
 / flipping the dominance guard — proven across 5 grids); focus group R2 §3 recommended **A — accept + name
-the tiers**; **Chosen: A** (the surgical option B, marginal-pledge decay, is recorded but NOT built).
-Stage-S briefly tilted to 3p-hardest; **Stage A restored 2p-hardest monotonic** (the intended shape). Do
-not re-litigate without sign-off.
+the tiers**; **Chosen: A** (the surgical option B, marginal-pledge decay, is recorded but NOT built). The
+ordering has shifted across Stage-S / A / HL as each mechanic landed; all counts stayed credible. Do not
+re-litigate the ordering without sign-off — guard only the "credible at every count" invariant.
 
 ---
 

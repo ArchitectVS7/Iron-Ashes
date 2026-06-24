@@ -442,3 +442,31 @@ remains a human-only claim → `docs/human-playtest-checklist.md` §1.
 
 **Balance.** The bail-out AI is now part of the locked sim; bands hold 2-seed ×40: SK-win 20.3% / 19.8%,
 gambit-free 18.1/18.2%, rounds 12.2, rescues 0.83/0.82, guards PASS. New tunable `BAILOUT_BASE_PCT=0.5`.
+
+---
+
+## §HL — The literal Herald lone-runner piece (close-loose-ends wave)
+
+**Why (user):** "Build the literal lone-runner now." The abstract Herald (a stance flag + Parley
+from the Warlord) delivered the build-identity axis but not the panel's table-drama — a single
+vulnerable runner crossing the blight while the table watches "will he make it?".
+
+**Build.** New `'herald'` PieceType + `PlayerState.heraldNodeId`. RECRUIT spawns the Herald at the
+Warlord's node; it MARCHes independently (`pieceId:'herald'` — 1 banner, no toll/ZoC/Gambit); PARLEY
+now fires from the RUNNER's node (`parleyTarget` reads heraldNodeId), so a political player must
+ESCORT the Herald to the front. A rival Warlord or a Death Knight co-located with it at Dawn CAPTURES
+it (`resolveHeraldCaptures`) → piece removed, stance reverts to martial (loses the hand bonus). The AI
+routes the runner to a SAFE node adjacent to the blight (parley from cover) and never steps onto a
+hostile node — so captures happen only when the dark/rival ACTIVELY moves onto it (drama, not suicide).
+
+**Balance.** The literal piece RAISED political uptake (re-recruitable after capture → more deep-hand
+pledging) → dark too weak (SK-win 15.3% @ Stage-A defaults). First fix: safe AI routing dropped
+captures 3.11→1.68/game (the runner now sometimes survives). Recenter (`scripts/tune-herald-piece.mjs`,
+24 seeds): pumping SPREAD alone hit 18.7 (close to the floor); the cleaner lever was
+**HERALD_RECRUIT_COST 2→4** (tames the re-recruit churn AND compensates the dark) paired with
+**SPREAD_AMOUNT_BASE 6→7** (reverting Stage A's trim). LOCKED: **SPREAD_AMOUNT_BASE=7,
+HERALD_RECRUIT_COST=4.**
+
+**2-seed ×40:** SK-win 20.3% / 19.x%, gambit-free ~14–15%, rounds 12.2, rescues ~0.7, heralds ~2.8/game,
+captures ~1.4/game (interception drama live), guards PASS. Ladder shifted back to **3p-hardest** (all
+counts credible 16–24) — the per-count shape moves with each mechanic; §9.1 updated.

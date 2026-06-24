@@ -41,6 +41,7 @@ import {
 import {
   checkBrokenRecovery,
   runOathUpkeep,
+  resolveHeraldCaptures,
 } from './actions.js';
 import {
   evaluateGambitAtDawn,
@@ -312,6 +313,9 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
 
   // 1b. Oath upkeep (§ Oaths): fealty dividend on fresh income, strain, maturity.
   events.push(...runOathUpkeep(state));
+
+  // 1c. Herald captures (§HL): a lone runner caught by a rival Warlord or the dark is lost.
+  events.push(...resolveHeraldCaptures(state));
 
   // 2. Draw cards up to each player's hand limit (per-player — a Herald raises it; §Herald).
   for (const playerIndex of state.turnOrder) {

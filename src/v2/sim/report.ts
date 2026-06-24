@@ -69,6 +69,8 @@ export interface SweepDiagnostics {
   readonly tollsPerGame: number;
   /** Mean Heralds recruited per game (§ Herald — political-build uptake). */
   readonly heraldsPerGame: number;
+  /** Mean Heralds captured per game (§HL — the lone-runner interception drama). */
+  readonly heraldCapturesPerGame: number;
   /** Fraction of seats that finished in the political stance. */
   readonly politicalSeatShare: number;
   /** Win rate of political-stance seats (build-parity check). */
@@ -235,6 +237,7 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
       ? totalOathsBroken / (totalOathsBroken + totalOathsMatured) : 0,
     tollsPerGame: mean(rows.map(r => r.metrics.tollsPaid)),
     heraldsPerGame: mean(rows.map(r => r.metrics.heraldsRecruited)),
+    heraldCapturesPerGame: mean(rows.map(r => r.metrics.heraldCaptures)),
     ...stanceStats(rows),
     meanAshedNodes: mean(rows.map(r => r.metrics.ashedNodes)),
     meanPlayerActions: mean(rows.map(r => r.metrics.playerActions)),
@@ -415,6 +418,7 @@ ${endRows}
 | Oaths sworn / broken per game | ${d.oathsSwornPerGame.toFixed(2)} / ${d.oathsBrokenPerGame.toFixed(2)} | social density (sworn) + betrayal drama (${pct(d.oathBreakShare)} of oaths broken) |
 | Forge tolls per game | ${d.tollsPerGame.toFixed(2)} | chokepoint leverage (rival-Forge passage tax) |
 | Heralds/game · political share | ${d.heraldsPerGame.toFixed(2)} · ${pct(d.politicalSeatShare)} | build-identity uptake (§ Herald) |
+| Herald captures/game | ${d.heraldCapturesPerGame.toFixed(2)} | §HL lone-runner interception drama (0 ⇒ the runner risk never bites) |
 | Build win rate (political / martial) | ${pct(d.politicalWinRate)} / ${pct(d.martialWinRate)} | parity check — neither build should dominate |
 | Mean nodes ashed (doom progress) | ${d.meanAshedNodes.toFixed(2)} | how close the dark got |
 | Pledge full-block rate | ${pct(d.pledgeFullBlockRate)} | high ⇒ table over-blocks ⇒ dark too weak |

@@ -80,8 +80,8 @@ export interface V2BoardState {
 
 // ─── Pieces ───────────────────────────────────────────────────────
 
-/** Player piece types (§2: start minimal). */
-export type PieceType = 'warlord' | 'retinue';
+/** Player piece types (§2). The Herald is the political build's lone runner (§HL). */
+export type PieceType = 'warlord' | 'retinue' | 'herald';
 
 /** A player-owned piece on the board. */
 export interface Piece {
@@ -153,6 +153,10 @@ export interface PlayerState {
   stance: 'martial' | 'political';
   /** Combat-power penalty (the "fighter off the board" cost of the political stance). */
   combatPenalty: number;
+  /** Node the player's Herald piece sits on (§HL — the literal lone runner), or null if
+   *  martial / no Herald. The Herald MARCHes independently and must REACH the blighted front
+   *  to PARLEY; a rival Warlord or Death Knight co-located with it captures it. */
+  heraldNodeId: string | null;
 
   // ── Blood Pact (Layer B) ──
   /** Whether this player holds the Blood Pact (traitor). */

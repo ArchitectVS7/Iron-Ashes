@@ -61,6 +61,8 @@ export interface GameMetrics {
   readonly heraldsRecruited: number;
   /** Parley actions this game (the non-card anti-dark verb). */
   readonly parleyCount: number;
+  /** Heralds captured this game (§HL — the lone runner caught by a rival or the dark). */
+  readonly heraldCaptures: number;
   /** Each seat's final stance ('martial' | 'political') — for build-parity analysis. */
   readonly stancePerSeat: readonly ('martial' | 'political')[];
   /** Nodes ashed by game end — the doom-progress proxy. */
@@ -118,6 +120,7 @@ export function computeMetrics(state: GameState): GameMetrics {
   let tollsPaid = 0;
   let heraldsRecruited = 0;
   let parleyCount = 0;
+  let heraldCaptures = 0;
   let playerActions = 0;
   for (const e of state.actionLog) {
     if (e.type === 'PLAYER_ACTED') {
@@ -126,6 +129,7 @@ export function computeMetrics(state: GameState): GameMetrics {
       if (e.action === 'SWEAR_OATH') oathsSworn++;
       if (e.action === 'BREAK_OATH') oathsBroken++;
       if (e.action === 'RECRUIT' && e.details?.stance === 'political') heraldsRecruited++;
+      if (e.action === 'RECRUIT' && e.details?.heraldCaptured === true) heraldCaptures++;
       if (e.action === 'PARLEY') parleyCount++;
       if (e.action === 'MARCH' && typeof e.details?.toll === 'number' && e.details.toll > 0) tollsPaid++;
       if (e.details?.oathMatured === true) oathsMatured++;
@@ -175,6 +179,7 @@ export function computeMetrics(state: GameState): GameMetrics {
     tollsPaid,
     heraldsRecruited,
     parleyCount,
+    heraldCaptures,
     stancePerSeat: state.players.map(p => p.stance),
     ashedNodes,
     pledgeRounds,

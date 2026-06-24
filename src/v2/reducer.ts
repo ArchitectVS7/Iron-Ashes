@@ -209,6 +209,7 @@ function handleSubmitPledge(
 
 import {
   executeMarch,
+  executeHeraldMarch,
   executeClaim,
   executeStrike,
   executeRaid,
@@ -308,7 +309,9 @@ function handlePlayerAction(
         );
       }
       try {
-        actionResult = executeMarch(state, playerIndex, action.targetNodeId);
+        actionResult = action.pieceId === 'herald'
+          ? executeHeraldMarch(state, playerIndex, action.targetNodeId)
+          : executeMarch(state, playerIndex, action.targetNodeId);
       } catch (e: unknown) {
         throw new InvalidCommandError(
           { type: 'PLAYER_ACTION', playerIndex, action },

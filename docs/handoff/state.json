@@ -7,18 +7,18 @@
   "specRefs": [
     "PLAN: ~/.claude/plans/i-want-to-use-transient-quill.md (R3 build wave, all 3 stages done) + docs/handoff/stage5-tuning-log.md §tolls/§sealed/§herald",
     "Stage H (done): src/v2/types.ts (PlayerState handLimit/stance/combatPenalty), src/v2/setup.ts (init), src/v2/sequencer.ts (Dawn p.handLimit), src/v2/combat.ts (combatPenalty in getPlayerPowerAtNode), src/v2/actions.ts (executeRecruit/executeParley/parleyTarget), src/v2/commands.ts ('PARLEY'), src/v2/ai-player.ts (heraldAffinity/parleyBias steps), src/v2/sim/{metrics,report}.ts (herald metrics + stance parity), scripts/tune-herald.mjs",
-    "LOCKED tunables (R3 + Stage A): FORGE_TOLL_COST=1, SEALED_CORE_PLEDGE='gambit_claimant', GAMBIT_SELF_COVER_CARDS=4, HERALD_HAND_BONUS=1 (HERALD_COMBAT_PENALTY=1, HERALD_PUSHBACK=1, HERALD_RECRUIT_COST=2). STAGE A retuned SPREAD_AMOUNT_BASE 7→6 + DOOM_COST_PER_PLAYER 5→6 (recenter SK-win after all_broken became a dark win).",
+    "LOCKED tunables (R3 + close-loose-ends wave): FORGE_TOLL_COST=1, SEALED_CORE_PLEDGE='gambit_claimant', GAMBIT_SELF_COVER_CARDS=4, BAILOUT_BASE_PCT=0.5 (Stage B), HERALD_HAND_BONUS=1/HERALD_COMBAT_PENALTY=1/HERALD_PUSHBACK=1. NET tunable journey: Stage A SPREAD 7→6 + DOOM_COST_PER_PLAYER 5→6 (all_broken→SK-win recenter); Stage HL SPREAD 6→7 (back) + HERALD_RECRUIT_COST 2→4 (literal-Herald churn tame). FINAL: SPREAD_AMOUNT_BASE=7, DOOM_COST_PER_PLAYER=6, HERALD_RECRUIT_COST=4. RESCUE_DEBT_MIN_PLEDGE retired (Stage M). The 6 C2 levers now injectable (PLEDGE_SHIELD_AMOUNT load-bearing, kept at 1).",
     "sim-results/s20260622-n40/REPORT.md (latest LOCKED competitive: SK-win 20.0%, gambit-noG 17.0%, oaths 6.13/3.46, tolls 0.89, heralds 1.78/59% political); PRIOR docs DESIGN-V2-OATHS / RESCUE-ECONOMY / DARK-ENGAGEMENT / FOCUS-GROUP-R2/R3 / ALGORITHM §9.1"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-24T04:03:57.032Z",
-    "commit": "cdd518d",
-    "sourceHash": "7d39121c16b63f5cedbf01a25601a8b29e106cc5b8c284132f3b8addc563d930",
+    "timestamp": "2026-06-24T04:28:49.549Z",
+    "commit": "6b310c9",
+    "sourceHash": "7cbf66c4c14b7a530e14e75e3552019ccfa74fb12187c6449be4cc985a3d35c9",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 30,
-      "passed": 409,
+      "files": 31,
+      "passed": 413,
       "failed": 0,
       "status": "pass"
     }
@@ -41,8 +41,8 @@
   ],
   "openRisks": [
     "POST-R3 REVIEW (2026-06-23, memory iron-ashes-review-findings): code + competitive balance are SOUND (406 tests, 2-seed stable, every mechanic fires, no illegal-AI-action gaps). Fixed in the pre-5e cleanup: the gambit §9 check + tuningLoss now judge the gambler-free number (was the always-FAIL all-matchups one); the rescue §9 band re-stated 2-4 → 0.5-4 (capped, labeled); the oath-while-Broken gap (oaths now dissolve when a member breaks). All four §9 dashboard bands now PASS honestly.",
-    "STRUCTURAL CAPS: (1) rescues ~0.8 pooled — 2-4 unreachable; the user chose the Stage-A SK-win ending over the claw-back, so the cap STANDS (band 0.5-4, slightly up after Stage A). (2) Per-count ladder is now MONOTONIC 2p-hardest again after Stage A (2p ~25 / 3p ~19 / 4p ~15) — restores the original 'Duel = survival-horror' intent that Stage-S had inverted to 3p-hardest; §9.1 updated. 4p ~15 is marginally below the old 16 floor (the dark's intended-weakest count).",
-    "DESIGN DEBT — being closed in the close-loose-ends wave (plan ~/.claude/plans/close-loose-ends.md): (a) DONE in C1 — §12 folded into ALGORITHM §§1-11. (b) DONE in Stage M — rescue-debt RETIRED, rescue now forges one Oath (balance-neutral, 2-seed locked). (c) DONE in Stage B — gave the AI a bail-out/volunteer's-dilemma channel; the seal now MEASURABLY bites (claimant Gambit-win -7pp, gambit fire 26%→18%, SK-win +3pp open→sealed) — KEPT, validated in-sim, felt drama on the human-playtest-checklist. (d) Herald ABSTRACTED → Stage HL (build the literal lone-runner piece). (e) 30-45min scope → C2 added the decisionsPerGame proxy (read it at R2). Stages A + M + B DONE + 2-seed locked.",
+    "STRUCTURAL CAPS: (1) rescues ~0.7 pooled — 2-4 unreachable; the user chose the Stage-A SK-win ending over the claw-back, so the cap STANDS (band 0.5-4). (2) Per-count ladder SHAPE moves with each mechanic (Stage-S 3p-hardest → Stage-A 2p-hardest → Stage-HL 3p-hardest again: 2p ~20 / 3p ~24 / 4p ~17). §9.1 was reframed to guard the INVARIANT — 'the dark is credible at EVERY count (~16-24%)' — not a fixed ordering. All counts currently credible; don't chase a particular shape.",
+    "DESIGN DEBT — being closed in the close-loose-ends wave (plan ~/.claude/plans/close-loose-ends.md): (a) DONE in C1 — §12 folded into ALGORITHM §§1-11. (b) DONE in Stage M — rescue-debt RETIRED, rescue now forges one Oath (balance-neutral, 2-seed locked). (c) DONE in Stage B — gave the AI a bail-out/volunteer's-dilemma channel; the seal now MEASURABLY bites (claimant Gambit-win -7pp, gambit fire 26%→18%, SK-win +3pp open→sealed) — KEPT, validated in-sim, felt drama on the human-playtest-checklist. (d) DONE in Stage HL — built the LITERAL Herald lone-runner ('herald' piece on heraldNodeId, independent MARCH, PARLEY from the runner's node, capture-at-Dawn by rival/dark with stance revert; safe AI routing; ~1.4 captures/game drama). Recenter: SPREAD 6→7 + HERALD_RECRUIT_COST 2→4. (e) 30-45min scope → C2 added the decisionsPerGame proxy (read it at R2). Stages A + M + B + HL all DONE + 2-seed locked (SK-win 20.2/20.0%). NEXT in the wave: R2 final both-modes re-baseline, then resume Phase 5 (5e).",
     "BLOOD PACT (the 5e job): traitor win 8.8% (target 12-20, UNDER) + exposure 87% (target 40-70, OVER) — traitor under-powered/over-caught; accusation accuracy 54.3% (≥45 OK), 1.6 accusations/game (≤2.5 OK). Fix chooseAccusation heuristic + ACCUSATION knobs (AUDIT_COST, penalties/cooldown, SUSPICION_LOG_ROUNDS, TRAITOR_EXPOSED_WOUNDS).",
     "PLACEHOLDER TUNABLES — RESOLVED in C2 (tuning-log §C2): the 6 never-swept levers (PLEDGE_SHIELD_AMOUNT, PLEDGE_FAVOR_GRUDGE_REDUCTION, DK_MARCH_DISTANCE, SURGE_SPREAD_MULT, GAMBIT_ADJACENT_STRIKE_MULT, RESCUE_DEBT_MIN_PLEDGE) were found UN-INJECTABLE (read as static module imports, absent from the Tunables interface) — a real seam bug, now fixed (added to interface + DEFAULT_TUNABLES; consumers route through getTunables(); defaults byte-identical). FINDING: PLEDGE_SHIELD_AMOUNT is LOAD-BEARING (±1 swings SK-win ±~5.5pp; =1 lands 20.1% in-band) — kept at 1, now a documented first-class dark-strength lever, not a 'reasonable default'. Other 5 wired + confirmed low-impact. STILL un-swept (separate, not part of C2): GAMBIT_SURCHARGE (left 0.25 — sealing fixed the gambit instead), DK_PER_PLAYER parked at 0 (scaling backfires once kills pay).",
     "DATA-TRUST CAVEAT (4g): combat commits are ENGINE-auto (COMBAT_COMMIT_MAX, RAID_DEFENSE_MARGIN), Last Stand engine-auto — good enough for balance signal; a per-policy combat-commit decision is a future improvement."

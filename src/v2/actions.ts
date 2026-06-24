@@ -196,6 +196,98 @@ export function executeMarch(
 }
 
 /**
+ * MARCH the Herald — the political build's lone runner (§HL). A lightweight courier move:
+ * 1 banner (+ashed extra), adjacency only, NO Forge toll, NO Zone-of-Control block, NO Gambit
+ * seize. The Herald may walk into the dark's path — that is the interception RISK (resolved at
+ * Dawn, §HL): a rival Warlord or a Death Knight co-located with it captures it.
+ */
+export function executeHeraldMarch(
+  state: GameState,
+  playerIndex: number,
+  targetNodeId: string,
+): ActionResult {
+  const events: GameEvent[] = [];
+  const player = state.players[playerIndex];
+  const from = player.heraldNodeId;
+  if (from === null) {
+    throw new Error('Cannot MARCH Herald: no Herald in play (RECRUIT one first)');
+  }
+  if (!areAdjacent(state, from, targetNodeId)) {
+    throw new Error(`Cannot MARCH Herald: ${targetNodeId} is not adjacent to ${from}`);
+  }
+  const targetNodeState = state.board.state.nodes[targetNodeId];
+  let cost = 1;
+  if (targetNodeState?.ashed) cost += ASHED_TRAVERSE_EXTRA_COST;
+  if (player.banners < cost) {
+    throw new Error(`Cannot MARCH Herald: need ${cost} banners, have ${player.banners}`);
+  }
+
+  player.banners -= cost;
+  const oldNodeState = state.board.state.nodes[from];
+  if (oldNodeState) {
+    oldNodeState.pieces = oldNodeState.pieces.filter(
+      p => !(p.owner === playerIndex && p.type === 'herald'),
+    );
+  }
+  if (targetNodeState) {
+    targetNodeState.pieces.push({
+      id: `herald-${playerIndex}`,
+      type: 'herald',
+      owner: playerIndex,
+      power: 0,
+      nodeId: targetNodeId,
+    });
+  }
+  player.heraldNodeId = targetNodeId;
+
+  events.push({
+    type: 'PLAYER_ACTED',
+    playerIndex,
+    action: 'MARCH',
+    details: { piece: 'herald', from, to: targetNodeId, cost },
+  });
+
+  return { state, events, actionConsumed: true };
+}
+
+/**
+ * Capture-check for Heralds (§HL — the interception drama). Any Herald sharing a node with a
+ * rival Warlord or a Shadowking force is captured: the piece is removed, the owner reverts to
+ * the martial stance (loses the hand bonus, regains combat), and the dark notes the kill
+ * (grudge) when a Death Knight took it. Called at Dawn. Returns events.
+ */
+export function resolveHeraldCaptures(state: GameState): GameEvent[] {
+  const events: GameEvent[] = [];
+  const t = getTunables();
+  for (const player of state.players) {
+    const node = player.heraldNodeId;
+    if (node === null) continue;
+    const rivalWarlord = state.players.some(
+      r => r.index !== player.index && r.warlordNodeId === node,
+    );
+    const darkForce = hasSKForcesAtNode(state, node);
+    if (!rivalWarlord && !darkForce) continue;
+
+    // Capture: remove the piece + revert the political bonuses to martial.
+    const ns = state.board.state.nodes[node];
+    if (ns) {
+      ns.pieces = ns.pieces.filter(p => !(p.owner === player.index && p.type === 'herald'));
+    }
+    player.heraldNodeId = null;
+    player.stance = 'martial';
+    player.handLimit = Math.max(0, player.handLimit - t.HERALD_HAND_BONUS);
+    player.combatPenalty = Math.max(0, player.combatPenalty - t.HERALD_COMBAT_PENALTY);
+    events.push({
+      type: 'PLAYER_ACTED',
+      playerIndex: player.index,
+      action: 'RECRUIT',
+      details: { heraldCaptured: true, by: darkForce ? 'dark' : 'rival', at: node },
+    });
+  }
+  return events;
+}
+
+/**
  * CLAIM — claim an unclaimed living Holding or Forge at the Warlord's location.
  * Cost: 1 banner.
  */
@@ -638,11 +730,25 @@ export function executeRecruit(
   player.handLimit += t.HERALD_HAND_BONUS;       // deep hand
   player.combatPenalty += t.HERALD_COMBAT_PENALTY; // a fighter off the board
 
+  // Spawn the literal Herald piece (§HL) at the Warlord's node — the lone runner starts
+  // home and must MARCH to the blighted front to PARLEY (and risk interception en route).
+  player.heraldNodeId = player.warlordNodeId;
+  const spawnNode = state.board.state.nodes[player.warlordNodeId];
+  if (spawnNode) {
+    spawnNode.pieces.push({
+      id: `herald-${playerIndex}`,
+      type: 'herald',
+      owner: playerIndex,
+      power: 0, // a courier, not a fighter
+      nodeId: player.warlordNodeId,
+    });
+  }
+
   events.push({
     type: 'PLAYER_ACTED',
     playerIndex,
     action: 'RECRUIT',
-    details: { stance: 'political', handLimit: player.handLimit, combatPenalty: player.combatPenalty },
+    details: { stance: 'political', handLimit: player.handLimit, combatPenalty: player.combatPenalty, heraldNodeId: player.heraldNodeId },
   });
 
   return { state, events, actionConsumed: true };
@@ -650,7 +756,10 @@ export function executeRecruit(
 
 /** A node on/adjacent to the Warlord that the dark holds (blighted, not ashed), for PARLEY. */
 export function parleyTarget(state: GameState, playerIndex: number): string | null {
-  const here = state.players[playerIndex].warlordNodeId;
+  // §HL: the Herald PARLEYs from where the RUNNER stands, not the Warlord — so a
+  // political player must MARCH the Herald to the blighted front before it can push back.
+  const here = state.players[playerIndex].heraldNodeId;
+  if (here === null) return null;
   const candidates = [here, ...state.board.definition.nodes[here].connections];
   for (const nodeId of candidates) {
     const ns = state.board.state.nodes[nodeId];
@@ -672,9 +781,12 @@ export function executeParley(
   if (state.players[playerIndex].stance !== 'political') {
     throw new Error('Cannot PARLEY: only a political (Herald) player may parley the dark');
   }
+  if (state.players[playerIndex].heraldNodeId === null) {
+    throw new Error('Cannot PARLEY: your Herald has been captured — recruit again');
+  }
   const target = parleyTarget(state, playerIndex);
   if (target === null) {
-    throw new Error('Cannot PARLEY: no blighted front on or adjacent to the Warlord');
+    throw new Error('Cannot PARLEY: no blighted front on or adjacent to the Herald');
   }
   events.push(...applyPushback(state, target, getTunables().HERALD_PUSHBACK));
   events.push({
