@@ -28,6 +28,12 @@ function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+function oathPartner(oath: { a: number; b: number }, me: number): number {
+  return oath.a === me ? oath.b : oath.a;
+}
+
+const TIER_GLYPH: Record<string, string> = { none: '∅', low: '▁', medium: '▄', high: '█' };
+
 /** Living, owned production (Holdings + weighted Forges) for the standings. */
 function territoryOf(state: GameState, idx: number): number {
   let t = 0;
@@ -135,7 +141,7 @@ function renderStandings(s: GameState, human: number): string {
     else if (p.wounds > 0) tags.push(`<span class="tag wounds" title="wounds toward Break">${p.wounds}/${brk}✕</span>`);
     tags.push(p.stance === 'political' ? '<span class="tag stance">🕊</span>' : '<span class="tag stance">⚔</span>');
     const oath = findOath(s, p.index);
-    if (oath) { const partner = oath.a === p.index ? oath.b : oath.a; tags.push(`<span class="tag oath" title="sworn">⛓P${partner + 1}</span>`); }
+    if (oath) { tags.push(`<span class="tag oath" title="sworn">⛓P${oathPartner(oath, p.index) + 1}</span>`); }
     const g = s.shadowking.grudge[p.index] ?? 0;
     if (g > 0) tags.push(`<span class="tag grudge" title="the dark's Ledger — hunted">☠${g}</span>`);
     if (p.index === human) tags.push('<span class="tag you">You</span>');
@@ -184,11 +190,10 @@ function renderLedger(s: GameState): string {
 /** Blood Pact — the Suspicion Log (per-player pledge-tier history, the deduction surface). */
 function renderSuspicion(s: GameState, human: number): string {
   if (s.mode !== 'blood_pact' || s.suspicionLog.length === 0) return '';
-  const tierGlyph: Record<string, string> = { none: '∅', low: '▁', medium: '▄', high: '█' };
   const rows = s.players.map(p => {
     const hist = s.suspicionLog.map(round => {
       const e = round.find(x => x.playerIndex === p.index);
-      return `<span class="tier tier-${e?.tier ?? 'na'}" title="${e?.tier ?? 'n/a'}">${e ? tierGlyph[e.tier] : '·'}</span>`;
+      return `<span class="tier tier-${e?.tier ?? 'na'}" title="${e?.tier ?? 'n/a'}">${e ? TIER_GLYPH[e.tier] : '·'}</span>`;
     }).join('');
     return `<tr><td>P${p.index + 1}${p.index === human ? ' (you)' : ''}</td><td class="tier-row">${hist}</td></tr>`;
   }).join('');
@@ -292,6 +297,7 @@ function renderActionPanel(session: GameSession): string {
   if (!session.isHumanTurn) {
     return `<div class="panel"><div class="panel-title">Rivals are moving…</div></div>`;
   }
+  const t = getTunables();
   const human = s.players[session.humanIndex];
   const here = human.warlordNodeId;
   const nodeDef = s.board.definition.nodes[here];
@@ -314,12 +320,11 @@ function renderActionPanel(session: GameSession): string {
   for (const p of s.players) {
     if (p.index === session.humanIndex || !p.isBroken) continue;
     if (p.warlordNodeId === here || areAdjacent(s, here, p.warlordNodeId)) {
-      btns.push(`<button data-action="rescue:${p.index}">Rescue Player ${p.index + 1} (${TUNABLES.RESCUE_COST} cards)</button>`);
+      btns.push(`<button data-action="rescue:${p.index}">Rescue Player ${p.index + 1} (${t.RESCUE_COST} cards)</button>`);
     }
   }
 
   // RECRUIT a Herald — commit to the political build (martial → political).
-  const t = getTunables();
   if (human.stance !== 'political' && human.banners >= t.HERALD_RECRUIT_COST) {
     btns.push(`<button data-action="recruit">Recruit a Herald (⚑${t.HERALD_RECRUIT_COST}) — political build</button>`);
   }
@@ -337,8 +342,10 @@ function renderActionPanel(session: GameSession): string {
     }
   }
 
+  const myOath = findOath(s, session.humanIndex);
+
   // SWEAR_OATH — a free public pact with any oath-free, unbroken rival (the social spine).
-  if (findOath(s, session.humanIndex) === null) {
+  if (myOath === null) {
     for (const p of s.players) {
       if (p.index === session.humanIndex || p.isBroken || findOath(s, p.index) !== null) continue;
       btns.push(`<button data-action="swear:${p.index}">Swear an Oath with P${p.index + 1} (free)</button>`);
@@ -346,10 +353,8 @@ function renderActionPanel(session: GameSession): string {
   }
 
   // BREAK_OATH — betray a sworn ally (after at least one Dawn): a banner burst + the dark's Ledger.
-  const myOath = findOath(s, session.humanIndex);
   if (myOath !== null && s.round > myOath.swornRound) {
-    const partner = myOath.a === session.humanIndex ? myOath.b : myOath.a;
-    btns.push(`<button data-action="break-oath">Break your Oath with P${partner + 1} (betray)</button>`);
+    btns.push(`<button data-action="break-oath">Break your Oath with P${oathPartner(myOath, session.humanIndex) + 1} (betray)</button>`);
   }
 
   // AUDIT (Blood Pact)
@@ -361,7 +366,7 @@ function renderActionPanel(session: GameSession): string {
   }
 
   // March cost readout per adjacent node (Forge tolls + ash surcharge made visible).
-  const adjCosts = s.board.definition.nodes[here].connections.map(adj => {
+  const adjCosts = nodeDef.connections.map(adj => {
     const ns = s.board.state.nodes[adj];
     const adjDef = s.board.definition.nodes[adj];
     let cost = 1;

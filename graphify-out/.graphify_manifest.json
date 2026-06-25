@@ -1,0 +1,163 @@
+{
+  "version": "1.0",
+  "built_at": "2026-06-25T02:11:40Z",
+  "nodes": 840,
+  "edges": 2116,
+  "communities": 45,
+  "community_labels": {
+    "0": "v2 Engine Core",
+    "1": "v2 Engine Core + Balance Simulation",
+    "2": "UI Layer (v2) + v2 Engine Core",
+    "3": "v2 Engine Core",
+    "4": "Concept + Documentation",
+    "5": "Package",
+    "6": "Balance Simulation + v2 Engine Core",
+    "7": "v2 Engine Core",
+    "8": "Claude",
+    "9": "Build / CLI Scripts + Balance Simulation",
+    "10": "Tsconfig",
+    "11": "Handoff",
+    "12": "Handoff",
+    "13": "Build / CLI Scripts",
+    "14": "Build / CLI Scripts",
+    "15": "Utils",
+    "16": "Handoff",
+    "17": "Handoff",
+    "18": "Build / CLI Scripts",
+    "19": "Build / CLI Scripts",
+    "20": "Build / CLI Scripts",
+    "21": "Build / CLI Scripts",
+    "22": "Build / CLI Scripts",
+    "23": "Build / CLI Scripts",
+    "24": "Build / CLI Scripts",
+    "25": "Build / CLI Scripts",
+    "26": "Build / CLI Scripts",
+    "27": "Build / CLI Scripts",
+    "28": "Build / CLI Scripts",
+    "29": "Build / CLI Scripts",
+    "30": "Handoff",
+    "31": "Balance Simulation",
+    "32": "Public",
+    "33": "Handoff",
+    "34": "Handoff",
+    "35": "Handoff",
+    "36": "Context",
+    "37": "Documentation",
+    "38": "Documentation",
+    "39": "Documentation",
+    "40": "Eslint",
+    "41": "Readme",
+    "42": "Root",
+    "43": "UI Layer (v2)",
+    "44": "Vitest"
+  },
+  "god_nodes": [
+    {
+      "id": "v2_types_gamestate",
+      "label": "GameState",
+      "degree": 49
+    },
+    {
+      "id": "v2_tunables_gettunables",
+      "label": "getTunables()",
+      "degree": 47
+    },
+    {
+      "id": "v2_setup_creategame",
+      "label": "createGame()",
+      "degree": 46
+    },
+    {
+      "id": "v2_reducer_applycommand",
+      "label": "applyCommand()",
+      "degree": 41
+    },
+    {
+      "id": "utils_seeded_random_seededrandom",
+      "label": "SeededRandom",
+      "degree": 32
+    },
+    {
+      "id": "ui_v2_session_gamesession",
+      "label": "GameSession",
+      "degree": 25
+    },
+    {
+      "id": "v2_events_gameevent",
+      "label": "GameEvent",
+      "degree": 24
+    },
+    {
+      "id": "v2_ai_player_archetypeaction",
+      "label": "archetypeAction()",
+      "degree": 23
+    },
+    {
+      "id": "claude_iron_throne_ashes",
+      "label": "Iron Throne of Ashes — Development Guide",
+      "degree": 21
+    },
+    {
+      "id": "sim_sweep_runsweep",
+      "label": "runSweep()",
+      "degree": 20
+    }
+  ],
+  "surprising_connections": [
+    {
+      "source": "Play-and-Fix Agent Rule",
+      "target": "Monte Carlo Balance Sim (v2 harness)",
+      "source_files": [
+        ".agents/rules/play-and-fix.md",
+        "docs/ML-SYSTEM-ANALYSIS.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link"
+    },
+    {
+      "source": "apply()",
+      "target": "applyCommand()",
+      "source_files": [
+        "tests/v2/mechanics-3f.test.ts",
+        "src/v2/reducer.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities; peripheral node `apply()` unexpectedly reaches hub `applyCommand()`"
+    },
+    {
+      "source": "apply()",
+      "target": "applyCommand()",
+      "source_files": [
+        "tests/v2/sim-bloodpact.test.ts",
+        "src/v2/reducer.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities; peripheral node `apply()` unexpectedly reaches hub `applyCommand()`"
+    },
+    {
+      "source": "evalRun()",
+      "target": "summarize()",
+      "source_files": [
+        "scripts/tune-confirm-placeholders.mjs",
+        "src/v2/sim/report.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "evalRun()",
+      "target": "runSweep()",
+      "source_files": [
+        "scripts/tune-confirm-placeholders.mjs",
+        "src/v2/sim/sweep.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities"
+    }
+  ]
+}
