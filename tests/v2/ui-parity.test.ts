@@ -78,6 +78,18 @@ describe('UI parity — full state display', () => {
     expect(html).toMatch(/Round \d+\/\d+/);
   });
 
+  it("publishes every seat's hand size — capacity transparency / anti-fake-poverty (§4.2), in every mode", () => {
+    // §4.2: each player's |hand| is PUBLIC before commit (incl. Blood Pact's sealed pledge), so a
+    // card-rich player's thin pledge is visibly a CHOICE. Realized as the per-player Hand column.
+    for (const mode of ['competitive', 'blood_pact'] as const) {
+      const s = humanTurn(mode);
+      const html = renderApp(s);
+      expect(html).toContain('<th>Hand</th>'); // the public capacity column exists
+      const seatRows = (html.match(/class="dot"/g) ?? []).length;
+      expect(seatRows).toBe(s.state.players.length); // one public row per seat, not just the human
+    }
+  });
+
   it('shows the Oaths panel and the Ledger when they exist', () => {
     const s = humanTurn('competitive');
     s.state.oaths.push({ a: 0, b: 1, swornRound: s.state.round, strain: 0 });

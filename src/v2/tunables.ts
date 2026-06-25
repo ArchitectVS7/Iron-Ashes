@@ -220,11 +220,8 @@ export const LANDED_STRIKE_WOUNDS = 3;
 
 // ─── Grudge System ────────────────────────────────────────────────
 
-/** Grudge decays by this amount per round (standard grudge). */
+/** Grudge decays by this amount per round (one flat rate for all sources). */
 export const GRUDGE_DECAY_RATE = 1;
-
-/** Heroic-grudge (DK kills, Forge reclaims) decays at this faster rate (P1). */
-export const GRUDGE_HEROIC_DECAY_RATE = 2;
 
 /** Maximum grudge a single player can accumulate. */
 export const GRUDGE_CAP = 10;
@@ -564,7 +561,6 @@ export const TUNABLES = Object.freeze({
   ASHED_TRAVERSE_EXTRA_COST,
   FORGE_TOLL_COST,
   GRUDGE_DECAY_RATE,
-  GRUDGE_HEROIC_DECAY_RATE,
   GRUDGE_CAP,
   GRUDGE_PER_DK_KILL,
   GRUDGE_PER_FORGE_RECLAIM,

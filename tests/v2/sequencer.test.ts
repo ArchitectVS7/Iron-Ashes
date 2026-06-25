@@ -11,6 +11,8 @@
 
 import { describe, expect, it } from 'vitest';
 import { createGame } from '../../src/v2/setup.js';
+import { generateBannersForPlayer, runThreatPhase, resolvePledgePhase } from '../../src/v2/sequencer.js';
+import { BROKEN_INCOME_BONUS, PATIENCE_ON_BLOCK, PATIENCE_CAP } from '../../src/v2/tunables.js';
 import { applyCommand, InvalidCommandError } from '../../src/v2/reducer.js';
 import type { Command } from '../../src/v2/commands.js';
 import type { GameState } from '../../src/v2/types.js';
@@ -27,6 +29,72 @@ function submitAllPledges(state: GameState, amount = 0): GameState {
   }
   return state;
 }
+
+describe('Broken income subsidy decay (§5.4 anti-exploit)', () => {
+  it('the Broken income bonus decays by 1 each consecutive Broken round and floors at 0', () => {
+    const state = createGame(4, 'competitive', 7);
+    const p = state.players[0];
+    p.isBroken = true;
+    // Territory income is identical across these calls (board ownership unchanged), so the delta
+    // between calls isolates the subsidy — the only term keyed on brokenRoundsConsecutive:
+    //   bonus = max(BROKEN_INCOME_BONUS - brokenRoundsConsecutive + 1, 0).
+    p.brokenRoundsConsecutive = 0;
+    const r0 = generateBannersForPlayer(state, 0);
+    p.brokenRoundsConsecutive = 1;
+    const r1 = generateBannersForPlayer(state, 0);
+    p.brokenRoundsConsecutive = 2;
+    const r2 = generateBannersForPlayer(state, 0);
+    expect(r0 - r1).toBe(1); // decays by exactly 1 per consecutive Broken round
+    expect(r1 - r2).toBe(1);
+
+    // Floors at 0: a long-Broken player gets NO subsidy — income equals the non-Broken base.
+    p.brokenRoundsConsecutive = BROKEN_INCOME_BONUS + 5;
+    const rFloor = generateBannersForPlayer(state, 0);
+    p.isBroken = false;
+    const baseNoSubsidy = generateBannersForPlayer(state, 0);
+    expect(rFloor).toBe(baseNoSubsidy); // subsidy floored to 0 — comeback ramp, not a home
+  });
+});
+
+describe('Patience ratchet — cooperation angers the dark (§4.2 step 6)', () => {
+  it('a FULL block increments patience by PATIENCE_ON_BLOCK', () => {
+    const state = createGame(2, 'competitive', 7);
+    runThreatPhase(state); // set a real telegraph
+    state.shadowking.patience = 0;
+    // Guarantee a full block: a cheap threat met by an overwhelming pledge.
+    state.shadowking.telegraph!.doomCost = 1;
+    state.players[0].hand = [9, 9, 9, 9, 9];
+    state.pledgeBuffer = [{ playerIndex: 0, amount: 5, tier: 'high' }];
+
+    const { state: after } = resolvePledgePhase(state);
+
+    expect(after.shadowking.patience).toBe(Math.min(PATIENCE_ON_BLOCK, PATIENCE_CAP));
+  });
+
+  it('a thin (un-averted) pledge does NOT increment patience', () => {
+    const state = createGame(2, 'competitive', 7);
+    runThreatPhase(state);
+    state.shadowking.patience = 0;
+    state.shadowking.telegraph!.doomCost = 99; // unreachable → the strike lands
+    state.players[0].hand = [1];
+    state.pledgeBuffer = [{ playerIndex: 0, amount: 1, tier: 'low' }];
+
+    const { state: after } = resolvePledgePhase(state);
+
+    expect(after.shadowking.patience).toBe(0); // only a FULL block ratchets the dark
+  });
+});
+
+describe('Broken players keep full Pledge rights (§4.2 / §5.4)', () => {
+  it("a Broken player's pledge is accepted (no isBroken guard)", () => {
+    let state = createGame(2, 'competitive', 7);
+    state = apply(state, { type: 'ADVANCE_PHASE' }); // THREAT → PLEDGE
+    expect(state.phase).toBe('PLEDGE');
+    state.players[1].isBroken = true; // a downed lord still has a voice in the Pledge
+    state = apply(state, { type: 'SUBMIT_PLEDGE', playerIndex: 1, amount: 1 });
+    expect(state.pledgeBuffer.some(p => p.playerIndex === 1)).toBe(true);
+  });
+});
 
 /** Helper to pass all player actions (one PASS ends a player's turn). */
 function passAllActions(state: GameState): GameState {

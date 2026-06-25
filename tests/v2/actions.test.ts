@@ -16,6 +16,7 @@ import {
   executeMarch,
   executeClaim,
   executeRescue,
+  executeRaid,
   checkBrokenRecovery,
   areAdjacent,
 } from '../../src/v2/actions.js';
@@ -272,6 +273,19 @@ describe('Actions System', () => {
 
       checkBrokenRecovery(state, 0);
       expect(state.players[0].wounds).toBe(Math.floor(BREAK_THRESHOLD / 2));
+    });
+  });
+
+  describe('Broken players keep an active verb (§5.4)', () => {
+    it('a Broken Warlord can still initiate a RAID', () => {
+      const keepId = state.board.definition.keepIds[0];
+      state.players[0].isBroken = true;        // attacker is Broken...
+      state.players[0].warlordNodeId = keepId;
+      state.players[1].warlordNodeId = keepId;  // ...co-located with a rival
+      state.players[0].hand = [5, 5];
+
+      const result = executeRaid(state, 0, 1, [], []);
+      expect(result.actionConsumed).toBe(true); // the RAID was NOT blocked by Broken status
     });
   });
 });

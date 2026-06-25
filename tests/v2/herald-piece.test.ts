@@ -70,4 +70,24 @@ describe('Stage HL — literal Herald piece', () => {
     expect(p.handLimit).toBe(handBefore - base);
     expect(events.some(e => e.type === 'PLAYER_ACTED' && e.details?.heraldCaptured === true)).toBe(true);
   });
+
+  it('a Death Knight co-located with the Herald CAPTURES it (by: dark, stance reverts)', () => {
+    const state = recruited();
+    const p = state.players[0];
+    const handBefore = p.handLimit;
+    const node = p.heraldNodeId!;
+    // No rival Warlord on this node — instead a Death Knight moves onto the lone runner.
+    state.board.state.nodes[node].shadowkingForces.push({
+      id: 'dk-capture', type: 'death_knight', power: 4, nodeId: node,
+    });
+    const events = resolveHeraldCaptures(state);
+    expect(p.heraldNodeId).toBeNull();
+    expect(p.stance).toBe('martial');
+    expect(p.handLimit).toBe(handBefore - HERALD_HAND_BONUS);
+    expect(
+      events.some(
+        e => e.type === 'PLAYER_ACTED' && e.details?.heraldCaptured === true && e.details?.by === 'dark',
+      ),
+    ).toBe(true);
+  });
 });

@@ -71,12 +71,13 @@ export function addGrudge(
 }
 
 /**
- * Decay all players' grudge at the start of each round.
- * Standard grudge decays by GRUDGE_DECAY_RATE.
+ * Decay all players' grudge at the start of each round, by GRUDGE_DECAY_RATE.
  *
- * Note: heroic-grudge vs standard-grudge differentiation requires
- * tracking grudge sources — deferred to Stage 3b+. For now, all
- * grudge decays at the standard rate (conservative approach).
+ * All grudge decays at one flat rate. (An earlier design split this into
+ * faster-decaying "heroic" grudge vs sticky provocation grudge; that intent —
+ * keeping the table's most helpful front-pushers from becoming the permanent
+ * named target — is instead delivered by the asymmetric grudge Mark
+ * (GRUDGE_MARK_TOP_N): trailing seats pay no grudge for killing a DK. See §5.6.)
  */
 export function decayGrudge(state: GameState): GameEvent[] {
   const events: GameEvent[] = [];

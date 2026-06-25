@@ -60,4 +60,15 @@ describe('Stage A — all-broken is a Shadowking win', () => {
     expect(after.gameEndReason).toBe('all_broken');
     expect(after.winner).toBeNull();
   });
+
+  it('recovery preempts all_broken when a player is due to recover the same Dawn (§7.10)', () => {
+    const state = createGame(2, 'competitive', 42);
+    breakEveryone(state);
+    // One player has been Broken long enough to recover THIS Dawn: ++ → 2 ≥ BROKEN_MAX_ROUNDS.
+    state.players[0].brokenRoundsConsecutive = 1;
+    const { state: after } = runDawnPhase(state, new SeededRandom(42));
+
+    expect(after.players[0].isBroken).toBe(false);      // recovery is evaluated first (§7.10)...
+    expect(after.gameEndReason).not.toBe('all_broken'); // ...so a simultaneous break+recover is survival
+  });
 });

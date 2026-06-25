@@ -311,5 +311,19 @@ describe('Combat System', () => {
       expect(state.board.state.nodes['holding-ne'].owner).toBeNull();
       expect(events.some(e => e.type === 'NODE_ASHED')).toBe(true);
     });
+
+    it('dissolves the Broken player\'s Oaths but leaves unrelated ones intact', () => {
+      // A downed lord can't honor a pact (§ Oaths): becoming Broken removes any Oath the
+      // player held, so the Dawn fealty dividend can't leak to a corpse-state ally and the
+      // ally is freed to act. Unrelated oaths between other seats must survive.
+      state.oaths.push({ a: 0, b: 1, swornRound: state.round, strain: 0 });
+      state.oaths.push({ a: 2, b: 3, swornRound: state.round, strain: 0 });
+      state.players[0].wounds = BREAK_THRESHOLD;
+
+      checkBrokenState(state, 0);
+
+      expect(state.oaths.some(o => o.a === 0 || o.b === 0)).toBe(false); // P0's oath dissolved
+      expect(state.oaths.some(o => o.a === 2 && o.b === 3)).toBe(true);  // the unrelated oath untouched
+    });
   });
 });

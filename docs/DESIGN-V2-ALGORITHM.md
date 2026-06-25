@@ -210,9 +210,12 @@ vector is resolved in fixed seat order against pre-reveal state.
 ```
 function pledgePhase(state):
   C = state.shadowking.telegraph.doomCost
-  // CAPACITY TRANSPARENCY (anti-fake-poverty): each player's MAX possible pledge (|hand|) is PUBLIC
-  // before commit — so a card-rich player's low pledge is visibly a choice, in every mode. (P0/§10)
-  publish(maxPledge[p] = |p.hand| for all active p)
+  // CAPACITY TRANSPARENCY (anti-fake-poverty): each player's hand size (|hand|) is PUBLIC state, shown
+  // for ALL seats before commit — so a card-rich player's low pledge is visibly a choice, in every mode
+  // (incl. Blood Pact, where the pledge is sealed but capacity stays public). Realized as a UI PROJECTION
+  // of already-public state, not a discrete engine event: the standings render |hand| per player
+  // (src/ui-v2/view.ts renderStandings, the Hand column; test: tests/v2/ui-parity.test.ts). (P0/§10)
+  surfaceCapacity(maxPledge[p] = |p.hand| for all active p)   // a UI projection of public state, not an engine broadcast
 
   // 1. Commit
   //   Layer A: OPEN live window — players raise/lower visibly on a timer; FREEZE at close.
@@ -236,11 +239,15 @@ function pledgePhase(state):
   averted = ratio
   resolveStrike(state, telegraph, averted)      // §5.1/§5.6: apply (1-averted); spread uses ceil() — see note
 
-  // 5. ANTI-FREE-RIDER (stress-test P0-1 — the #1 balance risk) [TUNABLE / ML-VALIDATE]
+  // 5. ANTI-FREE-RIDER (stress-test P0-1 — the #1 balance risk) [BUILT + sim-VALIDATED]
   //   Without this, the dominant line is "pledge ~0, let someone else cross the threshold."
-  //   Candidate (prototype + ML-test): contributors are rewarded, free-riders are not:
-  //     (a) the averted fraction shields a PLEDGER's own lands first; AND
-  //     (b) each pledger earns a small persistent FAVOR (grudge-reduction / one-time Crown-discount immunity).
+  //   BUILT + VALIDATED — the free-rider guard PASSES in every Stage-5 sweep (5a→5f), and
+  //   PLEDGE_SHIELD_AMOUNT is confirmed load-bearing & in-band (tuning-log §C2). Contributors are
+  //   rewarded, free-riders are not:
+  //     (a) the averted fraction shields a PLEDGER's own lands first (PLEDGE_SHIELD_AMOUNT, blight.ts); AND
+  //     (b) each non-zero pledger earns a small persistent FAVOR — grudge-reduction
+  //         (PLEDGE_FAVOR_GRUDGE_REDUCTION, sequencer.ts). (The one-time Crown-discount-immunity
+  //         alternative once floated here was NOT built; grudge-reduction is the shipped form.)
   //   Plus shared spillover: an un-averted strike's Blight advances on the steered spoke, threatening
   //   Forges/Approaches NEIGHBORS rely on — so free-riding is not consequence-free. (See §6 anti-turtle.)
 
@@ -438,9 +445,10 @@ function chooseShadowkingIntent(state):
   players commit actions, so the steered-front re-aim (§5.1) is never a surprise.
 - **Grudge is public, decays, and is capped (P0-4 / P1):** wounding the SK (killing forces, reclaiming
   Forges) raises *your* grudge — players steer the dark at each other — but grudge is shown as a public
-  per-player meter, decays each round, is capped, and **heroic-grudge decays faster than direct-SK-wound
-  grudge**, so occasional heroism is safe and only sustained provocation makes you the target. Prevents
-  the most helpful player (most front-pushback) from becoming the permanent victim. Ties → lowest seat.
+  per-player meter, decays each round (one flat `GRUDGE_DECAY_RATE`), and is capped. Keeping the table's
+  most helpful front-pushers from becoming the permanent named target is delivered by the **asymmetric
+  grudge Mark** (`GRUDGE_MARK_TOP_N`, below): trailing seats pay no grudge for killing a DK, so occasional
+  heroism is safe and only the leader's sustained provocation makes you the target. Ties → lowest seat.
 - **Asymmetric DK-hunt grudge (5-dark, `docs/DESIGN-V2-DARK-ENGAGEMENT.md`):** killing a Death Knight both
   **claims its node** (win-currency, §5.1/§5.4) and adds grudge — but the "now it hunts you" tax is paid
   **only by the leading seats** (`GRUDGE_MARK_TOP_N`). A trailing player can HUNT the dark for land and
@@ -520,10 +528,12 @@ made it a button nobody presses). Timeline:
   that attrition never becomes the dominant way the dark wins.
 
 ### Anti-turtle / anti-stall (baseline, the judge's fix — applies regardless of win path)
-Every Dawn the front advances one step toward the Keystone **unless** the round's collective Pledge met
-threshold. Passivity is therefore lethal: a player who stops pledging to dodge the Crown surcharge is
-feeding their own loss — and the traitor must *actively* suppress pledges (detectable) rather than simply
-wait. This converts the territory race's "turtle-to-cap" line from dominant into suicidal.
+Every Dawn the front advances one step toward the Keystone **unconditionally** — regardless of the round's
+Pledge outcome (`applyDawnBlightAdvance`, the §5.1 net-front step 3). Even a full block freezes only *that
+round's telegraphed strike* (§5.1 step 1); the baseline Dawn creep still happens, so the front can never
+reach a stable zero. Passivity is therefore lethal: a player who stops pledging to dodge the Crown
+surcharge is feeding their own loss — and the traitor must *actively* suppress pledges (detectable) rather
+than simply wait. This converts the territory race's "turtle-to-cap" line from dominant into suicidal.
 
 ---
 
