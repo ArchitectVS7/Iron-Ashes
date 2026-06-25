@@ -1,14 +1,13 @@
 {
   "name": "iron-ashes",
   "version": "0.1.0",
-  "description": "Iron Throne of Ashes — Alliance Engine v1.0",
+  "description": "Iron Throne of Ashes — Alliance Engine v2",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "tsc",
-    "start:server": "cd server && npm start",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:v2": "vitest run tests/v2",
