@@ -79,7 +79,8 @@ docs/         # DESIGN-V2-ALGORITHM.md (authority for mechanics), ROADMAP.md, AG
 
 ## Balance Parameters (from design spec)
 
-- Behavior Deck: 6 SPAWN, 6 MOVE, 4 CLAIM, 3 ASSAULT, 1 ESCALATE
-- Target Dark Lord win rate: 18–22%
-- Doom Toll max: 13, Final Phase threshold: 10
-- Actions per turn: 2 normal, 1 broken
+- Shadowking effects (a telegraphed CHARACTER, not a deck): WHISPER → SPREAD, MARCH → MARCH_DK,
+  RECKONING → REAP / SURGE (see `src/v2/shadowking-policy.ts`)
+- Target Shadowking (Dark Lord) win rate: 18–22% (pooled across player counts)
+- Acts: Whisper → March → Reckoning, advanced by Blight thresholds + patience cap (`PATIENCE_CAP = 3`)
+- Actions per turn: 2 normal (`ACTIONS_NORMAL`), 1 Broken (`ACTIONS_BROKEN`)

@@ -85,6 +85,19 @@ export class GameSession {
                 : `The accusation fizzles — no consensus.`,
           kind: 'system',
         });
+      } else if (e.type === 'ACT_ESCALATED') {
+        this.narration.unshift({
+          text: `The war deepens — the Act turns to ${e.newAct}.`,
+          kind: 'beat',
+        });
+      } else if (e.type === 'CROWN_CHANGED') {
+        this.narration.unshift({
+          text:
+            e.newHolder === null
+              ? `The Crown falls — no one wears it.`
+              : `The Crown passes to Player ${e.newHolder + 1} — and with it, the target on their back.`,
+          kind: 'beat',
+        });
       } else if (e.type === 'GAME_OVER') {
         this.narration.unshift({ text: this.describeEnding(), kind: 'system' });
       }

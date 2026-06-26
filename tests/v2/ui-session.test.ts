@@ -49,4 +49,26 @@ describe('UI session smoke', () => {
     s.submitHumanPledge(1);
     expect(s.isHumanTurn || s.isOver || s.phase === 'THREAT').toBe(true);
   });
+
+  it('renders ACT_ESCALATED and CROWN_CHANGED as narration beats over a full game', () => {
+    // Collect every beat the session ever produces (narration is trimmed to the
+    // last 8, so snapshot it each step rather than reading only the final state).
+    const s = new GameSession(4, 'competitive', 42);
+    const seen: string[] = [];
+    let guard = 0;
+    while (!s.isOver && guard < 2000) {
+      guard++;
+      if (s.phase === 'THREAT') s.advanceFromThreat();
+      else if (s.phase === 'PLEDGE') s.submitHumanPledge(s.suggestedHumanPledge());
+      else if (s.phase === 'ACTION') {
+        if (s.isHumanTurn) s.humanAction({ type: 'PLAYER_ACTION', playerIndex: 0, action: { type: 'PASS' } });
+        else break;
+      } else break;
+      for (const n of s.narration) if (n.kind === 'beat') seen.push(n.text);
+    }
+    // The Act always advances WHISPER → MARCH → RECKONING over a full game.
+    expect(seen.some(t => t.startsWith('The war deepens'))).toBe(true);
+    // The Crown handoff is highly likely but seed-dependent; assert it fired for seed 42.
+    expect(seen.some(t => t.startsWith('The Crown'))).toBe(true);
+  });
 });
