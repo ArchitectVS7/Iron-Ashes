@@ -19,8 +19,6 @@ import { SeededRandom } from '../utils/seeded-random.js';
 import { buildClosingRing, createInitialBoardState } from './board.js';
 import { computeCrownHolder, generateBannersForPlayer } from './sequencer.js';
 import {
-  CARD_VALUE_MAX,
-  CARD_VALUE_MIN,
   STARTING_HAND,
   HAND_LIMIT,
   WARLORD_POWER,
@@ -44,7 +42,7 @@ import type {
 function drawCards(rng: SeededRandom, count: number): number[] {
   const cards: number[] = [];
   for (let i = 0; i < count; i++) {
-    cards.push(rng.int(CARD_VALUE_MIN, CARD_VALUE_MAX));
+    cards.push(rng.int(getTunables().CARD_VALUE_MIN, getTunables().CARD_VALUE_MAX));
   }
   return cards;
 }

@@ -5,7 +5,7 @@
  * *pledge* and the AI *action* choices must be reproducible from the seed so the
  * "scripted inputs ⇒ identical game" invariant (§7.12) holds for AI-driven games.
  * This is what the Stage-4/5 ML harness drives to measure balance against the REAL
- * rules (never a parallel rules path — see docs/ML-SYSTEM-ANALYSIS.md).
+ * rules (never a parallel rules path — see docs/design-history/ML-SYSTEM-ANALYSIS.md).
  *
  * Design:
  *   - The CHOOSERS (`choosePledge`, `chooseAction`) are pure functions of
@@ -28,7 +28,7 @@ import type { GameState } from './types.js';
 import { applyCommand, type CommandResult } from './reducer.js';
 import { getPlayerPowerAtNode, getShadowkingPowerAtNode, chooseCombatCommit } from './combat.js';
 import { hasSKForcesAtNode, hasRivalAtNode, areAdjacent, findOath, areSworn, parleyTarget } from './actions.js';
-import { ASHED_TRAVERSE_EXTRA_COST, COMBAT_COMMIT_MAX, getTunables } from './tunables.js';
+import { ASHED_TRAVERSE_EXTRA_COST, COMBAT_COMMIT_MAX, FORGE_WEIGHT, getTunables } from './tunables.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 
 // ─── Policy ───────────────────────────────────────────────────────
@@ -204,7 +204,7 @@ export function choosePledge(
   const bailoutTrust = policy.bailoutTrust ?? 0;
   const gambit = state.gambit;
   if (bailoutTrust > 0 && gambit?.named === true && gambit.claimant !== playerIndex && !amInDanger) {
-    const coverNeed = Math.min(Math.max(0, available - amount), Math.ceil(C * 0.25));
+    const coverNeed = Math.min(Math.max(0, available - amount), Math.ceil(C * getTunables().GAMBIT_COVER_FRACTION));
     if (coverNeed > 0) {
       // SEALED → each rival volunteers independently (a bluff); OPEN → the single
       // best-positioned rival covers (coordination, no waste).
@@ -226,7 +226,7 @@ export function choosePledge(
     const cover = getTunables().SABOTEUR_COVER;
     const blend = decisionRng(state, playerIndex, seed, 2).float() < cover;
     if (blend) {
-      amount = Math.max(amount, Math.min(available, Math.ceil(handSize * 0.35)));
+      amount = Math.max(amount, Math.min(available, Math.ceil(handSize * getTunables().SABOTEUR_COVER_PLEDGE_FRACTION)));
     } else {
       // SABOTAGE: suppress toward the noise floor so the dark advances (the detectable tell).
       amount = Math.min(amount, Math.floor(amount * (1 - suppression)));
@@ -275,7 +275,7 @@ function claimValue(state: GameState, nodeId: string): number {
   // path instead (and the kill itself claims it). Keeps the AI from proposing an
   // illegal CLAIM the reducer would reject.
   if (getTunables().DK_BLOCKS_CLAIM && nodeState.shadowkingForces.length > 0) return 0;
-  if (nodeDef.tier === 'forge') return 3; // matches FORGE_WEIGHT — Forges drive the Crown
+  if (nodeDef.tier === 'forge') return FORGE_WEIGHT; // Forges drive the Crown (matches the territory weight)
   if (nodeDef.tier === 'holding') return 1;
   return 0;
 }

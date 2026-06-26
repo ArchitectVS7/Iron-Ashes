@@ -14,12 +14,9 @@ import type { GamePhase, GameState, PledgeTier } from './types.js';
 import {
   ACTIONS_BROKEN,
   ACTIONS_NORMAL,
-  BASE_BANNER_INCOME,
   BROKEN_INCOME_BONUS,
   CROWN_PLEDGE_DISCOUNT,
   FORGE_WEIGHT,
-  CARD_VALUE_MAX,
-  CARD_VALUE_MIN,
   PATIENCE_CAP,
   PATIENCE_ON_BLOCK,
   ROUND_CAP,
@@ -106,8 +103,8 @@ export function isPledgeComplete(state: GameState): boolean {
 export function classifyPledgeTier(amount: number, handSize: number): PledgeTier {
   if (amount === 0) return 'none';
   const ratio = amount / Math.max(handSize, 1);
-  if (ratio >= 0.6) return 'high';
-  if (ratio >= 0.3) return 'medium';
+  if (ratio >= getTunables().PLEDGE_TIER_HIGH_RATIO) return 'high';
+  if (ratio >= getTunables().PLEDGE_TIER_MEDIUM_RATIO) return 'medium';
   return 'low';
 }
 
@@ -321,7 +318,7 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
   for (const playerIndex of state.turnOrder) {
     const p = state.players[playerIndex];
     while (p.hand.length < p.handLimit) {
-      p.hand.push(rng.int(CARD_VALUE_MIN, CARD_VALUE_MAX));
+      p.hand.push(rng.int(getTunables().CARD_VALUE_MIN, getTunables().CARD_VALUE_MAX));
     }
   }
 
@@ -520,7 +517,7 @@ export function computeCrownHolder(state: GameState): number | null {
  * Generate banners for a player based on their owned living territory.
  */
 export function generateBannersForPlayer(state: GameState, playerIndex: number): number {
-  let income = BASE_BANNER_INCOME;
+  let income = getTunables().BASE_BANNER_INCOME;
 
   for (const [nodeId, nodeState] of Object.entries(state.board.state.nodes)) {
     if (nodeState.owner !== playerIndex || nodeState.ashed) continue;

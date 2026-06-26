@@ -8,25 +8,31 @@
  */
 
 import type { Act } from './types.js';
+import { TUNABLES_DATA } from './tunables.gen.js';
+
+// Values flow from data/tunables.json → tunables.gen.ts (run `npm run gen:data` after
+// editing the JSON). The named consts below are thin re-exports of TUNABLES_DATA so the
+// engine/UI keep their existing imports, while the single source of truth is the JSON.
+// tests/v2/data-sync.test.ts deep-equal-guards JSON ⇄ gen against silent drift.
 
 // ─── Player Economy ───────────────────────────────────────────────
 
 /** Cards dealt to each player at game start. */
-export const STARTING_HAND = 4;
+export const STARTING_HAND = TUNABLES_DATA.STARTING_HAND;
 
 /** Maximum cards a player can hold (refilled toward this at Dawn). */
-export const HAND_LIMIT = 6;
+export const HAND_LIMIT = TUNABLES_DATA.HAND_LIMIT;
 
 /** Actions per turn for an active (non-Broken) player. */
-export const ACTIONS_NORMAL = 2;
+export const ACTIONS_NORMAL = TUNABLES_DATA.ACTIONS_NORMAL;
 
 /** Actions per turn for a Broken player. */
-export const ACTIONS_BROKEN = 1;
+export const ACTIONS_BROKEN = TUNABLES_DATA.ACTIONS_BROKEN;
 
 // ─── Shadowking Forces ────────────────────────────────────────────
 
 /** Number of Death Knights placed at game start (flat, before per-player scaling). */
-export const DK_START_COUNT = 2;
+export const DK_START_COUNT = TUNABLES_DATA.DK_START_COUNT;
 
 /**
  * Per-player scaling of the Death Knight count (via `deathKnightCount()`):
@@ -36,19 +42,19 @@ export const DK_START_COUNT = 2;
  * went *up*, not down, with fewer DKs). Kept FLAT at 0 — engagement comes from the
  * other four 5-dark levers, not army size. (See DESIGN-V2-DARK-ENGAGEMENT + tuning-log §5-dark.)
  */
-export const DK_PER_PLAYER = 0;
+export const DK_PER_PLAYER = TUNABLES_DATA.DK_PER_PLAYER;
 
 /** Combat power of a Death Knight. */
-export const DK_POWER = 4;
+export const DK_POWER = TUNABLES_DATA.DK_POWER;
 
 /** Combat power of a Blight token (static, blocking). */
-export const BLIGHT_POWER = 2;
+export const BLIGHT_POWER = TUNABLES_DATA.BLIGHT_POWER;
 
 /** Blight level at which a node becomes permanently ashed. */
-export const BLIGHT_TO_ASH = 3;
+export const BLIGHT_TO_ASH = TUNABLES_DATA.BLIGHT_TO_ASH;
 
 /** Blight-level reduction when a Death Knight is killed or a Forge reclaimed. */
-export const PUSHBACK = 1;
+export const PUSHBACK = TUNABLES_DATA.PUSHBACK;
 
 // ─── The Pledge ───────────────────────────────────────────────────
 
@@ -56,39 +62,39 @@ export const PUSHBACK = 1;
  * Crown holder's pledged cards are multiplied by this discount.
  * < 1 means the leader's cards count for less.
  */
-export const CROWN_PLEDGE_DISCOUNT = 0.5;
+export const CROWN_PLEDGE_DISCOUNT = TUNABLES_DATA.CROWN_PLEDGE_DISCOUNT;
 
 /** Ratio at or above which the Pledge fully blocks the strike. */
-export const FULL_BLOCK_THRESHOLD = 1.0;
+export const FULL_BLOCK_THRESHOLD = TUNABLES_DATA.FULL_BLOCK_THRESHOLD;
 
 /** Patience gained by the Shadowking when the table fully blocks a strike. */
-export const PATIENCE_ON_BLOCK = 1;
+export const PATIENCE_ON_BLOCK = TUNABLES_DATA.PATIENCE_ON_BLOCK;
 
 /** Maximum patience before escalation triggers. */
-export const PATIENCE_CAP = 3;
+export const PATIENCE_CAP = TUNABLES_DATA.PATIENCE_CAP;
 
 // ─── Territory & Crown ────────────────────────────────────────────
 
 /** Weight multiplier for Forges when computing territory lead (Crown). */
-export const FORGE_WEIGHT = 3;
+export const FORGE_WEIGHT = TUNABLES_DATA.FORGE_WEIGHT;
 
 // ─── Broken Court ─────────────────────────────────────────────────
 
 /** Accumulated wounds required to enter Broken state. */
-export const BREAK_THRESHOLD = 6;
+export const BREAK_THRESHOLD = TUNABLES_DATA.BREAK_THRESHOLD;
 
 /** Extra banners per round while Broken (comeback subsidy, decays). */
-export const BROKEN_INCOME_BONUS = 2;
+export const BROKEN_INCOME_BONUS = TUNABLES_DATA.BROKEN_INCOME_BONUS;
 
 /**
  * Auto-recover to minimum strength after this many consecutive Broken rounds.
  * Stage 5d locked 3 → 2: with the dark now a break-vector, faster recovery keeps the
  * extra Breaks from piling into all_broken (mutual-loss) draws.
  */
-export const BROKEN_MAX_ROUNDS = 2;
+export const BROKEN_MAX_ROUNDS = TUNABLES_DATA.BROKEN_MAX_ROUNDS;
 
 /** Card cost to Rescue an adjacent/co-located Broken ally. Stage 5d locked 2 → 1 (cheaper). */
-export const RESCUE_COST = 1;
+export const RESCUE_COST = TUNABLES_DATA.RESCUE_COST;
 
 // ─── Herald / political-martial stance (§ Herald, FOCUS-GROUP-R3 §3) ──
 // Recruiting a Herald commits a player to the POLITICAL build: a bigger hand (more
@@ -96,14 +102,14 @@ export const RESCUE_COST = 1;
 /** Banner cost to RECRUIT a Herald (commit to the political stance). Stage-HL locked 2→4:
  *  the literal piece is re-recruitable after a capture, so a higher cost tames the churn and
  *  compensates the dark (more political deep-hands ⇒ weaker dark) — see tuning-log §HL. [TUNABLE] */
-export const HERALD_RECRUIT_COST = 4;
+export const HERALD_RECRUIT_COST = TUNABLES_DATA.HERALD_RECRUIT_COST;
 /** Hand-cap bonus a Herald grants (deep-hand political build). Stage-H locked 2→1
  * (deep pledging weakened the dark too much; +1 keeps the build viable). [TUNABLE] */
-export const HERALD_HAND_BONUS = 1;
+export const HERALD_HAND_BONUS = TUNABLES_DATA.HERALD_HAND_BONUS;
 /** Combat-power penalty a Herald imposes (fewer fighters — the tradeoff). [TUNABLE] */
-export const HERALD_COMBAT_PENALTY = 1;
+export const HERALD_COMBAT_PENALTY = TUNABLES_DATA.HERALD_COMBAT_PENALTY;
 /** Blight pushback a Herald's PARLEY applies to a nearby front (non-card anti-dark verb). [TUNABLE] */
-export const HERALD_PUSHBACK = 1;
+export const HERALD_PUSHBACK = TUNABLES_DATA.HERALD_PUSHBACK;
 
 /**
  * Banners the rescued ally pays the rescuer on Rescue (Stage 5d win-currency payoff).
@@ -111,20 +117,15 @@ export const HERALD_PUSHBACK = 1;
  * it's a real political deal (bind a rival + take their banners), not charity. Stage 5d
  * locked 0 → 2. [TUNABLE]
  */
-export const RESCUE_TRIBUTE_BANNERS = 2;
+export const RESCUE_TRIBUTE_BANNERS = TUNABLES_DATA.RESCUE_TRIBUTE_BANNERS;
 
 // ─── Game Clock ───────────────────────────────────────────────────
 
 /** Fixed round cap — territory victory checked at this round's Dawn. */
-export const ROUND_CAP = 14;
+export const ROUND_CAP = TUNABLES_DATA.ROUND_CAP;
 
-/** Blight-progress thresholds for Act transitions. */
-export const ACT_THRESHOLDS = {
-  /** Total ashed nodes to trigger Whisper → March. */
-  MARCH: 3,
-  /** Total ashed nodes to trigger March → Reckoning. */
-  RECKONING: 7,
-} as const;
+/** Blight-progress thresholds for Act transitions (ashed-node counts: Whisper→March, March→Reckoning). */
+export const ACT_THRESHOLDS = TUNABLES_DATA.ACT_THRESHOLDS;
 
 // ─── Crown's Gambit ───────────────────────────────────────────────
 
@@ -133,7 +134,7 @@ export const ACT_THRESHOLDS = {
  * It does NOT stack with the Crown discount — `getEffectivePledgeWeight` returns
  * this outright (the worst weight wins): Gambit 0.25 > Crown 0.5 > normal 1.0.
  */
-export const GAMBIT_SURCHARGE = 0.25;
+export const GAMBIT_SURCHARGE = TUNABLES_DATA.GAMBIT_SURCHARGE;
 
 /**
  * Which pledges are SEALED (concealed reveal) in competitive play (§ Sealed Pledge,
@@ -146,7 +147,7 @@ export const GAMBIT_SURCHARGE = 0.25;
  * reads rivals' pledges, so it is a sim no-op ON ITS OWN. It gates the risk-aware
  * Gambit self-cover rule below (the lever that actually moves the fire rate).
  */
-export const SEALED_CORE_PLEDGE: 'off' | 'gambit_claimant' | 'all' = 'gambit_claimant';
+export const SEALED_CORE_PLEDGE: 'off' | 'gambit_claimant' | 'all' = TUNABLES_DATA.SEALED_CORE_PLEDGE;
 
 /**
  * Risk-aware Gambit gate (§ Sealed Pledge): when a would-be claimant's pledge will be
@@ -156,17 +157,17 @@ export const SEALED_CORE_PLEDGE: 'off' | 'gambit_claimant' | 'all' = 'gambit_cla
  * (with SEALED_CORE_PLEDGE='gambit_claimant'): gambler-free gambit fire 26.7%→~14%
  * (in 10-20 band), gambit-win 28.9%→~19%, 2-seed stable. [TUNABLE]
  */
-export const GAMBIT_SELF_COVER_CARDS = 4;
+export const GAMBIT_SELF_COVER_CARDS = TUNABLES_DATA.GAMBIT_SELF_COVER_CARDS;
 
 /** Stage B — base probability a rival independently volunteers to bail out a SEALED
  *  Gambit claimant (scaled by archetype bailoutTrust). The sealed-pledge "volunteer's
  *  dilemma" lever; inert unless a non-default policy opts in (DEFAULT byte-identical). */
-export const BAILOUT_BASE_PCT = 0.5;
+export const BAILOUT_BASE_PCT = TUNABLES_DATA.BAILOUT_BASE_PCT;
 
 // ─── Banner Generation ────────────────────────────────────────────
 
 /** Base banners generated per player each Dawn (before territory income). */
-export const BASE_BANNER_INCOME = 2;
+export const BASE_BANNER_INCOME = TUNABLES_DATA.BASE_BANNER_INCOME;
 
 // ─── Blight / Ash-Map ────────────────────────────────────────────
 
@@ -181,7 +182,7 @@ export const BASE_BANNER_INCOME = 2;
  * or rely on the steered-quadrant rotation + multi-spoke advance to guarantee net
  * progress). Left at 1/1 for now — a Stage-5 measurement + tuning decision.
  */
-export const DAWN_BLIGHT_ADVANCE = 1;
+export const DAWN_BLIGHT_ADVANCE = TUNABLES_DATA.DAWN_BLIGHT_ADVANCE;
 
 /**
  * Base Blight spread from an un-averted strike (scaled by 1-ratio).
@@ -191,10 +192,10 @@ export const DAWN_BLIGHT_ADVANCE = 1;
  * to compensate — Stage H needed 7 to recover SK-win to ~20% with Heralds active (2-seed
  * stable). See stage5-tuning-log.md §oaths/§herald.
  */
-export const SPREAD_AMOUNT_BASE = 7;
+export const SPREAD_AMOUNT_BASE = TUNABLES_DATA.SPREAD_AMOUNT_BASE;
 
 /** Extra banner cost to march through an ashed node (P0-3: traversable, not impassable). */
-export const ASHED_TRAVERSE_EXTRA_COST = 1;
+export const ASHED_TRAVERSE_EXTRA_COST = TUNABLES_DATA.ASHED_TRAVERSE_EXTRA_COST;
 
 /**
  * Banner toll paid to a rival when marching INTO a Forge they own (§ tolls — the
@@ -204,7 +205,7 @@ export const ASHED_TRAVERSE_EXTRA_COST = 1;
  * (2-seed stable: SK-win 18.6/19.4%, tolls ~0.74/game, monotonic per-count ladder
  * preserved, guards PASS). See stage5-tuning-log.md §tolls. [TUNABLE]
  */
-export const FORGE_TOLL_COST = 1;
+export const FORGE_TOLL_COST = TUNABLES_DATA.FORGE_TOLL_COST;
 
 /**
  * Wounds the dark deals its NAMED TARGET when a strike lands un-averted (Stage 5d
@@ -216,51 +217,51 @@ export const FORGE_TOLL_COST = 1;
  * non-aggression cut PvP Breaks, so a harder dark-wound restores breaks/rescues. See
  * tuning-log §5d + §oaths. [TUNABLE]
  */
-export const LANDED_STRIKE_WOUNDS = 3;
+export const LANDED_STRIKE_WOUNDS = TUNABLES_DATA.LANDED_STRIKE_WOUNDS;
 
 // ─── Grudge System ────────────────────────────────────────────────
 
 /** Grudge decays by this amount per round (one flat rate for all sources). */
-export const GRUDGE_DECAY_RATE = 1;
+export const GRUDGE_DECAY_RATE = TUNABLES_DATA.GRUDGE_DECAY_RATE;
 
 /** Maximum grudge a single player can accumulate. */
-export const GRUDGE_CAP = 10;
+export const GRUDGE_CAP = TUNABLES_DATA.GRUDGE_CAP;
 
 /** Grudge added when a player kills a Death Knight. */
-export const GRUDGE_PER_DK_KILL = 3;
+export const GRUDGE_PER_DK_KILL = TUNABLES_DATA.GRUDGE_PER_DK_KILL;
 
 /** Grudge added when a player reclaims a Forge from the Shadowking. */
-export const GRUDGE_PER_FORGE_RECLAIM = 2;
+export const GRUDGE_PER_FORGE_RECLAIM = TUNABLES_DATA.GRUDGE_PER_FORGE_RECLAIM;
 
 /** Grudge added per point of combat damage dealt to Shadowking forces (§5.6). */
-export const GRUDGE_PER_SK_WOUND = 1;
+export const GRUDGE_PER_SK_WOUND = TUNABLES_DATA.GRUDGE_PER_SK_WOUND;
 
-// ─── Oaths (the passion spine — DESIGN-V2-OATHS.md) ───────────────
+// ─── Oaths (the passion spine — design-history/DESIGN-V2-OATHS.md) ───────────────
 // Public, breakable two-player pacts. Kept OFF the card economy (banners + grudge).
 
 /** Banners each sworn player gains at Dawn while an Oath is active (fealty dividend). */
-export const OATH_DIVIDEND = 1;
+export const OATH_DIVIDEND = TUNABLES_DATA.OATH_DIVIDEND;
 /** Rounds of strain until an Oath matures (dissolves with a loyalty bonus). */
-export const OATH_DURATION = 3;
+export const OATH_DURATION = TUNABLES_DATA.OATH_DURATION;
 /** Banners each sworn player gains when an Oath matures honored to the end. */
-export const OATH_LOYALTY_BONUS = 2;
+export const OATH_LOYALTY_BONUS = TUNABLES_DATA.OATH_LOYALTY_BONUS;
 /** Banner burst the breaker seizes on betrayal (BREAK_OATH). */
-export const OATH_BREAK_BANNERS = 2;
+export const OATH_BREAK_BANNERS = TUNABLES_DATA.OATH_BREAK_BANNERS;
 /** Grudge added to an oathbreaker — the dark hunts the traitor (the Ledger). */
-export const GRUDGE_OATHBREAK = 3;
+export const GRUDGE_OATHBREAK = TUNABLES_DATA.GRUDGE_OATHBREAK;
 
-// ─── Dark Engagement (Stage 5-dark — DESIGN-V2-DARK-ENGAGEMENT.md) ──
+// ─── Dark Engagement (Stage 5-dark — design-history/DESIGN-V2-DARK-ENGAGEMENT.md) ──
 // The fix for the dead grudge: make engaging the dark reachable, rewarded, and
 // necessary — flipping heroism from a pure cost (0.00 DK-kills) into a real play.
 
 /** A Death Knight on a node BLOCKS claiming it (the forcing function). */
-export const DK_BLOCKS_CLAIM = true;
+export const DK_BLOCKS_CLAIM = TUNABLES_DATA.DK_BLOCKS_CLAIM;
 
 /**
  * Killing a Death Knight on an unclaimed, living Holding/Forge CLAIMS it for the
  * attacker for free ("spoils of the breach") — heroism paid in the win currency.
  */
-export const DK_KILL_CLAIMS_NODE = true;
+export const DK_KILL_CLAIMS_NODE = TUNABLES_DATA.DK_KILL_CLAIMS_NODE;
 
 /**
  * DK-kill / Forge-reclaim grudge (becoming the villain's next target) applies ONLY
@@ -269,25 +270,25 @@ export const DK_KILL_CLAIMS_NODE = true;
  * a catch-up lever that keeps "leading is dangerous" honest (the MTG judge's lever).
  * Set very high (≥ player count) to restore the old "always mark" behaviour.
  */
-export const GRUDGE_MARK_TOP_N = 2;
+export const GRUDGE_MARK_TOP_N = TUNABLES_DATA.GRUDGE_MARK_TOP_N;
 
 // ─── Pieces / Combat power ────────────────────────────────────────
 
 /** Base combat power of a Warlord piece (consistent at setup and after moving). */
-export const WARLORD_POWER = 3;
+export const WARLORD_POWER = TUNABLES_DATA.WARLORD_POWER;
 
 /** Max cards the engine auto-commits to a single combat (value-aware, §5.3). */
-export const COMBAT_COMMIT_MAX = 3;
+export const COMBAT_COMMIT_MAX = TUNABLES_DATA.COMBAT_COMMIT_MAX;
 
 /** Power an attacker assumes the defender will add when sizing a RAID commit. */
-export const RAID_DEFENSE_MARGIN = 1;
+export const RAID_DEFENSE_MARGIN = TUNABLES_DATA.RAID_DEFENSE_MARGIN;
 
 // ─── Card values (the core pledge/combat scaling lever) ───────────
 
 /** Lowest possible drawn card value. */
-export const CARD_VALUE_MIN = 1;
+export const CARD_VALUE_MIN = TUNABLES_DATA.CARD_VALUE_MIN;
 /** Highest possible drawn card value. Card values scale BOTH pledging and combat. */
-export const CARD_VALUE_MAX = 4;
+export const CARD_VALUE_MAX = TUNABLES_DATA.CARD_VALUE_MAX;
 
 // ─── Anti-free-rider reward (§4.2 step 5 — the #1 balance risk) ────
 
@@ -295,28 +296,46 @@ export const CARD_VALUE_MAX = 4;
  * Grudge reduction a player earns for making a non-zero Pledge (the persistent
  * FAVOR). Contributing buys goodwill; free-riding does not. [TUNABLE / ML]
  */
-export const PLEDGE_FAVOR_GRUDGE_REDUCTION = 1;
+export const PLEDGE_FAVOR_GRUDGE_REDUCTION = TUNABLES_DATA.PLEDGE_FAVOR_GRUDGE_REDUCTION;
 
 /**
  * Blight levels a contributor's own frontier land is shielded by when an
  * un-averted strike spreads (§4.2 step 5a — the averted fraction protects
  * pledgers' lands first, so free-riders eat the strike). [TUNABLE / ML]
  */
-export const PLEDGE_SHIELD_AMOUNT = 1;
+export const PLEDGE_SHIELD_AMOUNT = TUNABLES_DATA.PLEDGE_SHIELD_AMOUNT;
 
 // ─── Shadowking effect table (§5.6) ───────────────────────────────
 
 /** Nodes a Death Knight maneuvers toward the target on a MARCH_DK effect. */
-export const DK_MARCH_DISTANCE = 2;
+export const DK_MARCH_DISTANCE = TUNABLES_DATA.DK_MARCH_DISTANCE;
 
 /** SURGE (Reckoning) multiplies the SPREAD amount by this. */
-export const SURGE_SPREAD_MULT = 2;
+export const SURGE_SPREAD_MULT = TUNABLES_DATA.SURGE_SPREAD_MULT;
 
 /**
  * Gambit STRIKE-ADJACENT rate while the Keystone is garrisoned. Per stress-test
  * P0-3 the amplifying multiplier is DROPPED — the adjacent strike is normal rate.
  */
-export const GAMBIT_ADJACENT_STRIKE_MULT = 1;
+export const GAMBIT_ADJACENT_STRIKE_MULT = TUNABLES_DATA.GAMBIT_ADJACENT_STRIKE_MULT;
+
+// ─── Extracted magic numbers (Assessment #3 — were bare literals at the call site) ──
+
+/** Base banner cost of a MARCH or CLAIM (was a literal `1` in actions.ts). */
+export const ACTION_BASE_COST = TUNABLES_DATA.ACTION_BASE_COST;
+/** Suspicion added by a 'none' pledge — the traitor's tell (was `+2` in blood-pact.ts).
+ *  Pairs with ACCUSE_MIN_SCORE (max over the log window is 2·SUSPICION_LOG_ROUNDS). */
+export const SUSPICION_NONE_SCORE = TUNABLES_DATA.SUSPICION_NONE_SCORE;
+/** Pledge ratio (amount/hand) at/above which a pledge is 'high' / 'medium' tier
+ *  (were literals 0.6 / 0.3 in classifyPledgeTier). */
+export const PLEDGE_TIER_HIGH_RATIO = TUNABLES_DATA.PLEDGE_TIER_HIGH_RATIO;
+export const PLEDGE_TIER_MEDIUM_RATIO = TUNABLES_DATA.PLEDGE_TIER_MEDIUM_RATIO;
+/** AI-heuristic (sim-exercised, untuned): fraction of a sealed Gambit's doomCost a rival
+ *  will over-pledge to bail it out (was `0.25` in ai-player.ts). */
+export const GAMBIT_COVER_FRACTION = TUNABLES_DATA.GAMBIT_COVER_FRACTION;
+/** AI-heuristic (sim-exercised, untuned): min fraction of hand a blending saboteur pledges
+ *  on a COVER round to hit the 'medium' tier (was `0.35` in ai-player.ts). */
+export const SABOTEUR_COVER_PLEDGE_FRACTION = TUNABLES_DATA.SABOTEUR_COVER_PLEDGE_FRACTION;
 
 // (Rescue binding debt RETIRED in Stage M — a rescue now forges a single Oath; the
 //  Oath's non-aggression replaces the debt's withheld-attack + forced-pledge teeth.)
@@ -324,44 +343,44 @@ export const GAMBIT_ADJACENT_STRIKE_MULT = 1;
 // ─── Layer B — Blood Pact (§10) ──────────────────────────────────
 
 /** How many recent rounds of pledge tiers the Suspicion Log retains. */
-export const SUSPICION_LOG_ROUNDS = 4;
+export const SUSPICION_LOG_ROUNDS = TUNABLES_DATA.SUSPICION_LOG_ROUNDS;
 
 /** Blood Pact traitor cover (§5e): fraction of rounds the traitor pledges COVER (medium tier,
  *  invisible to the Suspicion Log) vs SABOTAGE (suppress → the detectable 'none' tell). Higher =
  *  blends more = survives + wins more, dark advances less. The PRIMARY 5e lever. Saboteur-only
  *  (gated on hasBloodPact) so competitive is unaffected. [TUNABLE] */
-export const SABOTEUR_COVER = 0.745;
+export const SABOTEUR_COVER = TUNABLES_DATA.SABOTEUR_COVER;
 
 /** Blood Pact ONLY (§5e): extra base blight spread on the dark's strike — the pact feeds the
  *  dark, so it burns hotter when a traitor is at the table. Gives the (hidden) traitor a real path
  *  to the doom_complete win + makes the dark scarier for the loyalists. Competitive = 0 (untouched). [TUNABLE] */
-export const BLOOD_PACT_SPREAD_BONUS = 1;
+export const BLOOD_PACT_SPREAD_BONUS = TUNABLES_DATA.BLOOD_PACT_SPREAD_BONUS;
 
 /** Suspicion the loyalists demand before ACCUSING (§5e — the evidence bar). Higher = accuse
  *  only on strong evidence → fewer, more accurate accusations (and a blending traitor survives
  *  longer). The PRIMARY 5e lever paired with saboteurCover. (Max possible over SUSPICION_LOG_ROUNDS
  *  rounds is 2*rounds, all 'none'.) [TUNABLE] */
-export const ACCUSE_MIN_SCORE = 4;
+export const ACCUSE_MIN_SCORE = TUNABLES_DATA.ACCUSE_MIN_SCORE;
 
 /** Banner cost to Audit one opponent's last pledge. */
-export const AUDIT_COST = 2;
+export const AUDIT_COST = TUNABLES_DATA.AUDIT_COST;
 
 /** Rounds new accusations are locked out after a wrong/fizzled one (anti-spam). */
-export const ACCUSATION_COOLDOWN_ROUNDS = 2;
+export const ACCUSATION_COOLDOWN_ROUNDS = TUNABLES_DATA.ACCUSATION_COOLDOWN_ROUNDS;
 
 /** Cards each agreeing accuser discards when the accusation is wrong. Stage-5e raised 1→2 to
  *  make a bad call a real GAMBLE for the human accuser (the sim AI doesn't weigh it when deciding
  *  to accuse — a human-facing risk; see docs/human-playtest-checklist.md). */
-export const ACCUSATION_WRONG_PENALTY = 2;
+export const ACCUSATION_WRONG_PENALTY = TUNABLES_DATA.ACCUSATION_WRONG_PENALTY;
 
 /** Banners the vindicated (wrongly-accused) player gains. */
-export const ACCUSATION_VINDICATION_BONUS = 2;
+export const ACCUSATION_VINDICATION_BONUS = TUNABLES_DATA.ACCUSATION_VINDICATION_BONUS;
 
 /** Blight pushback applied to the worst frontier node when the traitor is exposed. */
-export const ACCUSATION_PUSHBACK = 2;
+export const ACCUSATION_PUSHBACK = TUNABLES_DATA.ACCUSATION_PUSHBACK;
 
 /** Wounds dealt to the traitor when correctly exposed. */
-export const TRAITOR_EXPOSED_WOUNDS = 3;
+export const TRAITOR_EXPOSED_WOUNDS = TUNABLES_DATA.TRAITOR_EXPOSED_WOUNDS;
 
 // ─── Doom Cost curve (per-Act base + player-count scaling) ────────
 // Extracted into named tunables so the Stage-5 search can fix the player-count
@@ -372,11 +391,11 @@ export const TRAITOR_EXPOSED_WOUNDS = 3;
 // pledge otherwise block everything). Combined with SPREAD_AMOUNT_BASE=5 this
 // lifts pooled SK-win 14%→~20% and 4p 1.9%→~8%. Evidence + the structural 4p
 // caveat are in docs/handoff/stage5-tuning-log.md.
-export const DOOM_COST_WHISPER = 6;
-export const DOOM_COST_MARCH = 9;
-export const DOOM_COST_RECKONING = 12;
+export const DOOM_COST_WHISPER = TUNABLES_DATA.DOOM_COST_WHISPER;
+export const DOOM_COST_MARCH = TUNABLES_DATA.DOOM_COST_MARCH;
+export const DOOM_COST_RECKONING = TUNABLES_DATA.DOOM_COST_RECKONING;
 /** doomCost scales as base * playerCount / this divisor (4 = baseline 4p). */
-export const DOOM_COST_PLAYER_DIVISOR = 4;
+export const DOOM_COST_PLAYER_DIVISOR = TUNABLES_DATA.DOOM_COST_PLAYER_DIVISOR;
 /**
  * Per-player TILT added to doomCost: `+ DOOM_COST_PER_PLAYER * (playerCount - DOOM_COST_PIVOT)`.
  * This is the lever that flattens the 5a per-count SK-win disparity (the linear
@@ -391,9 +410,9 @@ export const DOOM_COST_PLAYER_DIVISOR = 4;
  * rate — at 4p the threshold is high enough that 4 hands sometimes fail to block; at 2p it
  * floors to 1 — so it props the 4p floor while SPREAD trims pooled. See tuning log §A.
  */
-export const DOOM_COST_PER_PLAYER = 6;
+export const DOOM_COST_PER_PLAYER = TUNABLES_DATA.DOOM_COST_PER_PLAYER;
 /** Player count at which the per-player tilt is zero (the curve's pivot). */
-export const DOOM_COST_PIVOT = 3;
+export const DOOM_COST_PIVOT = TUNABLES_DATA.DOOM_COST_PIVOT;
 
 /**
  * The card threshold the table must collectively meet in the Pledge to fully
@@ -494,6 +513,31 @@ export interface Tunables {
   readonly DK_MARCH_DISTANCE: number;
   readonly SURGE_SPREAD_MULT: number;
   readonly GAMBIT_ADJACENT_STRIKE_MULT: number;
+  // ── Previously-frozen levers wired in this pass (Assessment #3 — "~half the
+  //    declared tunables aren't injectable"). Defaults byte-identical; the call
+  //    sites now read getTunables().X so the balance search can reach them. ──
+  readonly CARD_VALUE_MIN: number;
+  readonly CARD_VALUE_MAX: number;
+  readonly BASE_BANNER_INCOME: number;
+  readonly GRUDGE_PER_DK_KILL: number;
+  readonly GRUDGE_PER_FORGE_RECLAIM: number;
+  readonly GRUDGE_CAP: number;
+  readonly GRUDGE_DECAY_RATE: number;
+  // Blood-Pact accusation economy (§10).
+  readonly SUSPICION_LOG_ROUNDS: number;
+  readonly AUDIT_COST: number;
+  readonly ACCUSATION_COOLDOWN_ROUNDS: number;
+  readonly ACCUSATION_PUSHBACK: number;
+  readonly TRAITOR_EXPOSED_WOUNDS: number;
+  readonly ACCUSATION_WRONG_PENALTY: number;
+  readonly ACCUSATION_VINDICATION_BONUS: number;
+  // ── Extracted magic numbers (Assessment #3) — defaults byte-identical. ──
+  readonly ACTION_BASE_COST: number;
+  readonly SUSPICION_NONE_SCORE: number;
+  readonly PLEDGE_TIER_HIGH_RATIO: number;
+  readonly PLEDGE_TIER_MEDIUM_RATIO: number;
+  readonly GAMBIT_COVER_FRACTION: number;
+  readonly SABOTEUR_COVER_PLEDGE_FRACTION: number;
 }
 
 export const DEFAULT_TUNABLES: Tunables = Object.freeze({
@@ -509,6 +553,12 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   HERALD_RECRUIT_COST, HERALD_HAND_BONUS, HERALD_COMBAT_PENALTY, HERALD_PUSHBACK,
   PLEDGE_SHIELD_AMOUNT, PLEDGE_FAVOR_GRUDGE_REDUCTION,
   DK_MARCH_DISTANCE, SURGE_SPREAD_MULT, GAMBIT_ADJACENT_STRIKE_MULT,
+  CARD_VALUE_MIN, CARD_VALUE_MAX, BASE_BANNER_INCOME,
+  GRUDGE_PER_DK_KILL, GRUDGE_PER_FORGE_RECLAIM, GRUDGE_CAP, GRUDGE_DECAY_RATE,
+  SUSPICION_LOG_ROUNDS, AUDIT_COST, ACCUSATION_COOLDOWN_ROUNDS, ACCUSATION_PUSHBACK,
+  TRAITOR_EXPOSED_WOUNDS, ACCUSATION_WRONG_PENALTY, ACCUSATION_VINDICATION_BONUS,
+  ACTION_BASE_COST, SUSPICION_NONE_SCORE, PLEDGE_TIER_HIGH_RATIO, PLEDGE_TIER_MEDIUM_RATIO,
+  GAMBIT_COVER_FRACTION, SABOTEUR_COVER_PLEDGE_FRACTION,
 });
 
 let activeTunables: Tunables = DEFAULT_TUNABLES;
@@ -595,5 +645,11 @@ export const TUNABLES = Object.freeze({
   ACCUSATION_VINDICATION_BONUS,
   ACCUSATION_PUSHBACK,
   TRAITOR_EXPOSED_WOUNDS,
+  ACTION_BASE_COST,
+  SUSPICION_NONE_SCORE,
+  PLEDGE_TIER_HIGH_RATIO,
+  PLEDGE_TIER_MEDIUM_RATIO,
+  GAMBIT_COVER_FRACTION,
+  SABOTEUR_COVER_PLEDGE_FRACTION,
   doomCost,
 });

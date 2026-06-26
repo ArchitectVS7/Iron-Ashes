@@ -109,7 +109,7 @@ export function executeMarch(
   // Compute cost
   const targetNodeState = state.board.state.nodes[targetNodeId];
   const targetDef = state.board.definition.nodes[targetNodeId];
-  let cost = 1;
+  let cost = getTunables().ACTION_BASE_COST;
   if (targetNodeState?.ashed) {
     cost += ASHED_TRAVERSE_EXTRA_COST;
   }
@@ -325,12 +325,13 @@ export function executeClaim(
   }
 
   // Validate banners
-  if (player.banners < 1) {
-    throw new Error(`Cannot CLAIM: need 1 banner, have ${player.banners}`);
+  const claimCost = getTunables().ACTION_BASE_COST;
+  if (player.banners < claimCost) {
+    throw new Error(`Cannot CLAIM: need ${claimCost} banner, have ${player.banners}`);
   }
 
   // Execute
-  player.banners -= 1;
+  player.banners -= claimCost;
   nodeState.owner = playerIndex;
 
   events.push({

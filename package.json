@@ -16,7 +16,9 @@
     "verify": "node scripts/verify.mjs",
     "verify:check": "node scripts/verify.mjs --check",
     "handoff:check": "node scripts/handoff-check.mjs",
-    "sim": "tsc && node scripts/sim.mjs"
+    "gen:data": "node scripts/gen-data.mjs",
+    "gen:data:check": "node scripts/gen-data.mjs --check",
+    "sim": "npm run gen:data:check && tsc && node scripts/sim.mjs"
   },
   "keywords": [
     "board-game",
@@ -33,7 +35,8 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.56.1",
     "vite": "^7.3.1",
-    "vitest": "^4.0.18"
+    "vitest": "^4.0.18",
+    "zod": "^4.4.3"
   },
   "overrides": {
     "minimatch": "10.2.4"

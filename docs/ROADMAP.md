@@ -69,10 +69,10 @@ round as the dark's named target). No elimination (Broken = an active comeback e
 1. **`docs/ROADMAP.md`** — this file. Status + plan + how to resume.
 2. **`docs/DESIGN-V2-ALGORITHM.md`** — ⭐ THE SPEC to code from. Hardened with stress-test fixes. Every
    turn, phase, mechanic, the determinism contract, the reuse map (§8), and the tunable list (§9).
-3. **`docs/DESIGN-V2-STRESS-TEST.md`** — the pre-code punch list (P0/P1 folded into the spec; P2 = Stage-3 UI).
-4. **`docs/DESIGN-V2-FOCUS-GROUP.md`** — Stage 1, the core idea and the panel synthesis (the "why").
-5. **`docs/REDESIGN-ANALYSIS.md`** — why v1 failed; original reuse-vs-rebuild analysis.
-6. **`docs/ML-SYSTEM-ANALYSIS.md`** — why the old ML harness was scrapped; what a sound one looks like.
+3. **`docs/design-history/DESIGN-V2-STRESS-TEST.md`** — the pre-code punch list (P0/P1 folded into the spec; P2 = Stage-3 UI).
+4. **`docs/design-history/DESIGN-V2-FOCUS-GROUP.md`** — Stage 1, the core idea and the panel synthesis (the "why").
+5. **`docs/design-history/REDESIGN-ANALYSIS.md`** — why v1 failed; original reuse-vs-rebuild analysis.
+6. **`docs/design-history/ML-SYSTEM-ANALYSIS.md`** — why the old ML harness was scrapped; what a sound one looks like.
 7. (Reference) `docs/prd.md` = the OLD v1 PRD — historical; superseded by the v2 docs for mechanics.
 
 ---
@@ -81,9 +81,9 @@ round as the dark's named target). No elimination (Broken = an active comeback e
 
 Workflow defined with the user: **① idea → ② textual algorithm → ③ code → ④ ML training → ⑤ ML validation.**
 
-- [x] **Stage 1 — Game idea / focus group** → `DESIGN-V2-FOCUS-GROUP.md`
+- [x] **Stage 1 — Game idea / focus group** → `design-history/DESIGN-V2-FOCUS-GROUP.md`
 - [x] **Stage 2 — Textual algorithm** → `DESIGN-V2-ALGORITHM.md`
-- [x] **Stage 2.5 — Adversarial stress-test + fixes folded in** → `DESIGN-V2-STRESS-TEST.md`
+- [x] **Stage 2.5 — Adversarial stress-test + fixes folded in** → `design-history/DESIGN-V2-STRESS-TEST.md`
 - [ ] **Stage 3 — Build the new engine (from the spec).** Recommended order:
   - [x] **3a. Scaffold** — `GameState` shapes (ALGORITHM §2) + a single `applyCommand(state, cmd) → {state, events}`
     reducer + a pure phase sequencer (THREAT→PLEDGE→ACTION→DAWN) + determinism tests (§7). UI-less, headless.
@@ -116,7 +116,7 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     (verify with `npm run dev`).*
   - [x] **3f. Spec-parity reconciliation** — a pre-Stage-4 review (5 audit passes) found several spec-critical
     mechanics stubbed/dead/missing behind the green suite; this stage builds them to spec so the Stage-4 sim
-    measures the REAL designed game (per `ML-SYSTEM-ANALYSIS.md`).
+    measures the REAL designed game (per `design-history/ML-SYSTEM-ANALYSIS.md`).
     *Completed 2026-06-22. Built: the **anti-free-rider reward** (§4.2 step 5 — contributor land-shielding +
     persistent FAVOR grudge-reduction; was entirely absent); the **Gambit Keystone guardrail** (§6 — a
     garrisoned Keystone can't be blighted by any source; strike redirects to the adjacent ring; was dead code);
@@ -213,8 +213,8 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     accept the (now-flatter) gradient as a named identity ladder — 2p Duel / 3p Triumvirate / 4p Carve-up
     (`DESIGN-V2-ALGORITHM.md` §9.1). Option B not built.**
   - [x] **5-dark. Dark Engagement mechanic patch + retune** — the reconvened focus group
-    (`DESIGN-V2-FOCUS-GROUP-R2.md`) ruled the dormant DK-engagement pillar an INVERTED incentive; the patch
-    (`DESIGN-V2-DARK-ENGAGEMENT.md`) added the Hunt verb (AI `darkHuntBias` + cards-aware `canStrikeWin`),
+    (`design-history/DESIGN-V2-FOCUS-GROUP-R2.md`) ruled the dormant DK-engagement pillar an INVERTED incentive; the patch
+    (`design-history/DESIGN-V2-DARK-ENGAGEMENT.md`) added the Hunt verb (AI `darkHuntBias` + cards-aware `canStrikeWin`),
     win-currency DK-kill auto-claim, asymmetric grudge Mark (`GRUDGE_MARK_TOP_N`, `territoryRank`), and
     DK-blocks-claim. **DK-kills 0.00→2.05** (pillar alive); a retune (`scripts/tune-5dark.mjs`) LOCKED
     `SPREAD_AMOUNT_BASE` 5→4 + `DK_PER_PLAYER` 1→0 (army scaling BACKFIRES once kills pay). **SK-win 20.5% ✅**
@@ -226,19 +226,19 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     (14×; per-count 4p 1.85 / 3p 0.88 / 2p 0.21), conditional-rescue 7%→51.5%**, SK-win 19.1% ✅, all_broken 2.9% ✅,
     guards PASS, 2-seed stable. ⚠️ **Pooled 2–4 is STRUCTURALLY CAPPED by all_broken<5%** (breaking the leader
     thrashes the dark's front + piles into draws) — the economy is alive at 3–4p; closing to 2–4 needs a DESIGN
-    change (don't end on all-broken / defer broken-lands ash), **escalated to user**. Spec: `DESIGN-V2-RESCUE-ECONOMY.md`,
+    change (don't end on all-broken / defer broken-lands ash), **escalated to user**. Spec: `design-history/DESIGN-V2-RESCUE-ECONOMY.md`,
     evidence `stage5-tuning-log.md` §5d. *Completed 2026-06-22.*
   - [x] **Oaths + the Ledger (the passion spine)** — the reconvened panel's 3rd session
-    (`DESIGN-V2-FOCUS-GROUP-R3.md`) diagnosed "sound but emotionally thin"; built public, breakable
+    (`design-history/DESIGN-V2-FOCUS-GROUP-R3.md`) diagnosed "sound but emotionally thin"; built public, breakable
     **Oaths** between players + a villain that **remembers betrayal** (the Ledger = grudge; oathbreaking
-    makes the dark hunt the traitor), absorbing Rescue. Spec `DESIGN-V2-OATHS.md`. **Social density 0 →
+    makes the dark hunt the traitor), absorbing Rescue. Spec `design-history/DESIGN-V2-OATHS.md`. **Social density 0 →
     5.82 oaths sworn + 3.27 betrayals/game** (exceeds v1's ~5 vassal events); retune (`SPREAD_AMOUNT_BASE`
     4→5, `LANDED_STRIKE_WOUNDS` 2→3 + loyalty nudge) held **SK-win 18.7% ✅**, all_broken 2.3% ✅, guards
     PASS, 2-seed stable, 392 tests. Evidence `stage5-tuning-log.md` §oaths. *Completed 2026-06-22.*
   - [x] **Stage T — Forge-as-Gate tolls (R3 build wave 1/3)** — marching into a rival-owned Forge pays a
     banner toll to the owner (the chokepoint tax; sworn allies free). `FORGE_TOLL_COST` 0→1 + AI
     `forgeValuation`. Tolls 0.74/game, SK-win 18.6% ✅, monotonic ladder, guards PASS, 396 tests. Spec
-    `DESIGN-V2-FOCUS-GROUP-R3.md` §4, evidence `stage5-tuning-log.md` §tolls. *Completed 2026-06-23.*
+    `design-history/DESIGN-V2-FOCUS-GROUP-R3.md` §4, evidence `stage5-tuning-log.md` §tolls. *Completed 2026-06-23.*
   - [x] **Stage S — Sealed Pledge + the Gambit fix (R3 build wave 2/3)** — the named Gambit claimant's
     pledge is sealed (`SEALED_CORE_PLEDGE`='gambit_claimant') + a risk-aware seize gate
     (`GAMBIT_SELF_COVER_CARDS`=4: only gamble if you can self-defend) + a doom compensator
@@ -281,6 +281,58 @@ Workflow defined with the user: **① idea → ② textual algorithm → ③ cod
     the FELT experience. Play `npm run dev` and walk `docs/human-playtest-checklist.md` (sealed-pledge
     dilemma, 30–45 min length, Herald-runner tension, the Blood Pact accusation gamble + Audit). Record
     comments/changes; the styled "real" UI + any combat-commit exposure follow from the playtest verdicts.
+
+### Phase 7 — Post-audit hardening (from the 2026-06-25 codebase assessment)
+
+> **Source:** the skeptical 5-lens codebase audit. **Tier-1 "cheap wins" already SHIPPED** as commit
+> `3ed3c39` (npm audit fix → 0 vulns, `@types/node`→^24, `CROWN_CHANGED`+`ACT_ESCALATED` narration beats,
+> stale-comment fixes). The remaining work splits into **two tracks**: **Track A** (engineering hardening
+> — no human judgment, agent-parallelizable, invisible to a playtest) can run **concurrently with 6b**;
+> **Track B** (the experience layer — AI / villain / UX) is **human-gated** and should follow the 6b
+> playtest verdicts (which re-prioritize it). See the assessment thread for full file:line evidence.
+
+**Track A — Engineering hardening (concurrent with 6b; sub-agent friendly):**
+
+  - [x] **7a. Lock the balance promise as a test** — DONE (commit `ac24196`). `tests/v2/balance-lock.test.ts`
+    asserts pooled SK-win ∈ [18,22] on a deterministic 525-game sweep (reads 20.2%); `scripts/sim.mjs`
+    now exits non-zero on a band miss (`--report-only` opt-out). Runs in pre-push + both CI jobs.
+  - [x] **7b. Parameterize balance to data files** — DONE. `tunables` + the 6 strategy `archetypes`
+    + the 17-node `board` topology → hand-editable `data/*.json`, **Zod-validated** by
+    `scripts/gen-data.mjs` (codegen → committed `src/**/*.gen.ts`; zod is DEV-ONLY, never in the Vite
+    bundle). Unwired levers (`CARD_VALUE_*`, `BASE_BANNER_INCOME`, `GRUDGE_*`, the 7 Blood-Pact knobs)
+    now in the injectable `Tunables` interface. `tests/v2/data-sync.test.ts` deep-equals JSON⇄gen.
+    Byte-identical (full suite + 20.2% lock + both-mode sim unchanged). `baseline` policy stays `===`
+    by reference. (`GRUDGE_PER_SK_WOUND` left unwired — it is a dead lever with no call-site.)
+  - [x] **7c. De-magic the engine** — DONE (folded into 7b): `ACTION_BASE_COST`, `SUSPICION_NONE_SCORE`,
+    `PLEDGE_TIER_HIGH/MEDIUM_RATIO`, `GAMBIT_COVER_FRACTION`, `SABOTEUR_COVER_PLEDGE_FRACTION` extracted to
+    tunables; node income is now data (`board.json`); the ai-player forge claim value reuses `FORGE_WEIGHT`.
+  - [ ] **7d. Engine cleanup** — `board.ts` already shrank 595→285 in 7b (the hand-built topology + its
+    build-then-`delete`-then-rebuild dead path fell out when it moved to `board.json`); REMAINING: remove
+    the now-unused stale `NODE_IDS` export (+ its `index.ts` re-export) and any leftover thinking-out-loud
+    comments; de-dupe the terminal-loss block
+    (`reducer.ts:498` ↔ `sequencer.ts:407`), `getSpokePath` (×3), the 6 near-identical BFS helpers; fix
+    the clone-per-command (`JSON.parse(JSON.stringify)` per action over a growing `actionLog` →
+    `structuredClone`/clone-once-per-turn) and correct its false "pure / structured-clone" comments. [src/v2]
+  - [ ] **7e. Test-determinism gap + lint hygiene** — add a FULL-game, AI-decided, same-seed determinism
+    test across all counts + both modes (today only 1 seed / 1 config is covered); clear the 9 test-suite
+    lint warnings (unused symbols — check for missing assertions while there). [tests/v2]
+
+**Track B — Experience layer (human-gated; follows the 6b playtest):**
+
+  - [ ] **7f. A credible AI** — give the baseline policy a "who is winning" evaluation + shallow lookahead,
+    and make the DEFAULT seat use the advanced verbs (today baseline never raids / swears oaths / recruits /
+    hunts the dark — `ai-player.ts:467`). The shipped solo opponent is myopic. [src/v2/ai-player.ts]
+  - [ ] **7g. De-script the villain** — replace the RECKONING `round % 2 ? REAP : SURGE` parity script
+    (`shadowking-policy.ts:183`) + the `round % N` voice lookups with state-reactive selection, so the
+    effect playbook isn't human-solvable in 2–3 games. [src/v2/shadowking-policy.ts]
+  - [ ] **7h. Last Stand under human control** — replace engine-auto `chooseLastStandCards` for humans
+    with a real commit prompt (the engine pause-flow the 6a KNOWN GAP already flags). [src/v2 + ui-v2]
+  - [ ] **7i. The Pledge staredown** — live adjust-before-freeze + show opponents committing, replacing the
+    one-shot button grid (`view.ts:266`), to deliver the design's staredown. [ui-v2]
+  - [ ] **7j. Onboarding past Act 1** — board glyph legend + node tooltips + a coach that survives past
+    WHISPER (`view.ts:240`). [ui-v2]
+  - [ ] **7k. The styled UI** — the "real" UI pass after the human's functional-playtest comments (already
+    the project's planned post-6b step). [ui-v2]
 
 ---
 
@@ -329,11 +381,11 @@ fresh, but the *foundations* are directly reusable.
    status (`currentStage`, `nextAction`, `specRefs`, `invariants`, `gotchas`).
 2. Read this file (§2 locked decisions; §4 — the first unchecked box equals `state.currentStage`) and the
    `specRefs` sections of `docs/DESIGN-V2-ALGORITHM.md`. (Right now: **Stage 5-dark — Dark Engagement mechanic
-   patch + retune COMPLETE & LOCKED** (`docs/DESIGN-V2-DARK-ENGAGEMENT.md`, `docs/DESIGN-V2-FOCUS-GROUP-R2.md`):
+   patch + retune COMPLETE & LOCKED** (`docs/design-history/DESIGN-V2-DARK-ENGAGEMENT.md`, `docs/design-history/DESIGN-V2-FOCUS-GROUP-R2.md`):
    DK-kills 0.00→2.05, SK-win re-locked to 20.5% (band, 2-seed stable), per-count gradient flatter
    (26.7→22.0pp). The per-count A/B fork is **RESOLVED — decision A** (named identity ladder, §9.1).
    **Stage 5d rescue economy COMPLETE** (rescues 0.07→~0.8/game; pooled 2–4 structurally capped, escalated).
-   **Oaths + the Ledger (passion spine) COMPLETE** (`DESIGN-V2-OATHS.md`, `DESIGN-V2-FOCUS-GROUP-R3.md`):
+   **Oaths + the Ledger (passion spine) COMPLETE** (`design-history/DESIGN-V2-OATHS.md`, `design-history/DESIGN-V2-FOCUS-GROUP-R3.md`):
    public breakable player Oaths + a villain that hunts oathbreakers; social density 0 → ~5.8 sworn/game.
    **R3 build wave COMPLETE** (`~/.claude/plans/i-want-to-use-transient-quill.md`): Stage T (Forge-tolls) +
    Stage S (Sealed-Pledge/Gambit-fix, gambit 26.7%→17% ✅) + **Stage H (Herald + political/martial stance)

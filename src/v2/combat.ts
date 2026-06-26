@@ -22,7 +22,6 @@ import type { GameState } from './types.js';
 import { FORGE_WEIGHT, getTunables } from './tunables.js';
 import { applyPushback } from './blight.js';
 import { addGrudge } from './shadowking-policy.js';
-import { GRUDGE_PER_DK_KILL, GRUDGE_PER_FORGE_RECLAIM } from './tunables.js';
 
 // ─── Territory standing (Stage 5-dark) ────────────────────────────
 
@@ -400,10 +399,10 @@ export function applyCombatOutcome(
       // dark now hunts you" tax for wounding it — trailing seats hunt for free. This
       // makes dark-engagement a catch-up lever and keeps "leading is dangerous" honest.
       if (territoryRank(state, attackerIndex) < getTunables().GRUDGE_MARK_TOP_N) {
-        events.push(...addGrudge(state, attackerIndex, GRUDGE_PER_DK_KILL, 'dk_kill'));
+        events.push(...addGrudge(state, attackerIndex, getTunables().GRUDGE_PER_DK_KILL, 'dk_kill'));
         // If this is a Forge, also grudge for the reclaim (same standing gate).
         if (nodeDef?.tier === 'forge') {
-          events.push(...addGrudge(state, attackerIndex, GRUDGE_PER_FORGE_RECLAIM, 'forge_reclaim'));
+          events.push(...addGrudge(state, attackerIndex, getTunables().GRUDGE_PER_FORGE_RECLAIM, 'forge_reclaim'));
         }
       }
 

@@ -32,8 +32,7 @@ import type {
   V2BoardDef,
 } from './types.js';
 import {
-  GRUDGE_CAP,
-  GRUDGE_DECAY_RATE,
+  getTunables,
   doomCost,
 } from './tunables.js';
 
@@ -53,7 +52,7 @@ export function addGrudge(
   const previousGrudge = state.shadowking.grudge[playerIndex];
   state.shadowking.grudge[playerIndex] = Math.min(
     previousGrudge + amount,
-    GRUDGE_CAP,
+    getTunables().GRUDGE_CAP,
   );
   const newGrudge = state.shadowking.grudge[playerIndex];
 
@@ -86,7 +85,7 @@ export function decayGrudge(state: GameState): GameEvent[] {
     const previousGrudge = state.shadowking.grudge[i];
     if (previousGrudge <= 0) continue;
 
-    state.shadowking.grudge[i] = Math.max(previousGrudge - GRUDGE_DECAY_RATE, 0);
+    state.shadowking.grudge[i] = Math.max(previousGrudge - getTunables().GRUDGE_DECAY_RATE, 0);
     const newGrudge = state.shadowking.grudge[i];
 
     if (newGrudge !== previousGrudge) {

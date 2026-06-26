@@ -19,13 +19,6 @@
 import type { GameEvent } from './events.js';
 import type { GameState, PledgeEntry } from './types.js';
 import {
-  ACCUSATION_COOLDOWN_ROUNDS,
-  ACCUSATION_PUSHBACK,
-  ACCUSATION_VINDICATION_BONUS,
-  ACCUSATION_WRONG_PENALTY,
-  AUDIT_COST,
-  SUSPICION_LOG_ROUNDS,
-  TRAITOR_EXPOSED_WOUNDS,
   getTunables,
 } from './tunables.js';
 import { applyPushback, getBlightFrontier } from './blight.js';
@@ -54,7 +47,7 @@ export interface AuditResult extends BloodPactResult {
 export function recordSuspicionLog(state: GameState, entries: PledgeEntry[]): void {
   if (state.mode !== 'blood_pact') return;
   state.suspicionLog.push(entries.map(e => ({ ...e })));
-  while (state.suspicionLog.length > SUSPICION_LOG_ROUNDS) {
+  while (state.suspicionLog.length > getTunables().SUSPICION_LOG_ROUNDS) {
     state.suspicionLog.shift();
   }
 }
@@ -84,8 +77,9 @@ export function executeAudit(
   if (!target) {
     throw new Error(`Cannot AUDIT: player ${targetIndex} does not exist`);
   }
-  if (auditor.banners < AUDIT_COST) {
-    throw new Error(`Cannot AUDIT: need ${AUDIT_COST} banners, have ${auditor.banners}`);
+  const auditCost = getTunables().AUDIT_COST;
+  if (auditor.banners < auditCost) {
+    throw new Error(`Cannot AUDIT: need ${auditCost} banners, have ${auditor.banners}`);
   }
 
   // Find the target's most recent recorded pledge.
@@ -95,7 +89,7 @@ export function executeAudit(
     throw new Error('Cannot AUDIT: no pledge on record yet to reveal');
   }
 
-  auditor.banners -= AUDIT_COST;
+  auditor.banners -= auditCost;
   state.auditLog.push({
     round: state.round,
     auditor: auditorIndex,
@@ -229,7 +223,7 @@ function resolveAccusation(state: GameState): GameEvent[] {
   if (!unanimous) {
     // Someone refused — the accusation collapses with no conviction.
     outcome = 'fizzled';
-    state.accusationLockoutUntilRound = state.round + ACCUSATION_COOLDOWN_ROUNDS;
+    state.accusationLockoutUntilRound = state.round + getTunables().ACCUSATION_COOLDOWN_ROUNDS;
   } else if (wasTraitor) {
     // Correct conviction — the traitor is exposed.
     outcome = 'correct';
@@ -244,11 +238,11 @@ function resolveAccusation(state: GameState): GameEvent[] {
         if (lb !== la) return lb - la;
         return a < b ? -1 : 1;
       })[0];
-      events.push(...applyPushback(state, worst, ACCUSATION_PUSHBACK));
+      events.push(...applyPushback(state, worst, getTunables().ACCUSATION_PUSHBACK));
     }
 
     // The exposed traitor takes wounds (may Break them).
-    state.players[acc.accused].wounds += TRAITOR_EXPOSED_WOUNDS;
+    state.players[acc.accused].wounds += getTunables().TRAITOR_EXPOSED_WOUNDS;
     events.push(...checkBrokenState(state, acc.accused));
   } else {
     // Wrong conviction — accusers pay, the accused is vindicated.
@@ -256,11 +250,11 @@ function resolveAccusation(state: GameState): GameEvent[] {
     for (const vote of acc.votes) {
       if (vote.agree) {
         const accuser = state.players[vote.playerIndex];
-        accuser.hand.splice(0, Math.min(ACCUSATION_WRONG_PENALTY, accuser.hand.length));
+        accuser.hand.splice(0, Math.min(getTunables().ACCUSATION_WRONG_PENALTY, accuser.hand.length));
       }
     }
-    state.players[acc.accused].banners += ACCUSATION_VINDICATION_BONUS;
-    state.accusationLockoutUntilRound = state.round + ACCUSATION_COOLDOWN_ROUNDS;
+    state.players[acc.accused].banners += getTunables().ACCUSATION_VINDICATION_BONUS;
+    state.accusationLockoutUntilRound = state.round + getTunables().ACCUSATION_COOLDOWN_ROUNDS;
   }
 
   acc.resolved = true;
@@ -297,7 +291,7 @@ export function suspicionScore(state: GameState, targetIndex: number): number {
   for (const round of state.suspicionLog) {
     const entry = round.find(e => e.playerIndex === targetIndex);
     if (!entry) continue;
-    if (entry.tier === 'none') score += 2;
+    if (entry.tier === 'none') score += getTunables().SUSPICION_NONE_SCORE;
   }
   return score;
 }

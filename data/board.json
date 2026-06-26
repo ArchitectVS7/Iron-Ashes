@@ -1,0 +1,227 @@
+{
+  "keystoneId": "keystone",
+  "approachIds": [
+    "approach-nw",
+    "approach-ne",
+    "approach-se",
+    "approach-sw"
+  ],
+  "forgeIds": [
+    "forge-nw",
+    "forge-ne",
+    "forge-se",
+    "forge-sw"
+  ],
+  "keepIds": [
+    "keep-n",
+    "keep-e",
+    "keep-s",
+    "keep-w"
+  ],
+  "holdingIds": [
+    "holding-ne",
+    "holding-se",
+    "holding-sw",
+    "holding-nw"
+  ],
+  "blightEntrySeams": [
+    "holding-ne",
+    "holding-se",
+    "holding-sw",
+    "holding-nw"
+  ],
+  "nodes": [
+    {
+      "id": "keystone",
+      "tier": "keystone",
+      "quadrant": null,
+      "connections": [
+        "approach-nw",
+        "approach-ne",
+        "approach-se",
+        "approach-sw"
+      ],
+      "income": 0
+    },
+    {
+      "id": "approach-nw",
+      "tier": "approach",
+      "quadrant": 0,
+      "connections": [
+        "keystone",
+        "forge-nw",
+        "approach-ne",
+        "approach-sw"
+      ],
+      "income": 0
+    },
+    {
+      "id": "approach-ne",
+      "tier": "approach",
+      "quadrant": 1,
+      "connections": [
+        "keystone",
+        "forge-ne",
+        "approach-nw",
+        "approach-se"
+      ],
+      "income": 0
+    },
+    {
+      "id": "approach-se",
+      "tier": "approach",
+      "quadrant": 2,
+      "connections": [
+        "keystone",
+        "forge-se",
+        "approach-ne",
+        "approach-sw"
+      ],
+      "income": 0
+    },
+    {
+      "id": "approach-sw",
+      "tier": "approach",
+      "quadrant": 3,
+      "connections": [
+        "keystone",
+        "forge-sw",
+        "approach-nw",
+        "approach-se"
+      ],
+      "income": 0
+    },
+    {
+      "id": "forge-nw",
+      "tier": "forge",
+      "quadrant": 0,
+      "connections": [
+        "approach-nw",
+        "keep-n",
+        "forge-ne",
+        "forge-sw"
+      ],
+      "income": 3
+    },
+    {
+      "id": "forge-ne",
+      "tier": "forge",
+      "quadrant": 1,
+      "connections": [
+        "approach-ne",
+        "keep-e",
+        "forge-nw",
+        "forge-se"
+      ],
+      "income": 3
+    },
+    {
+      "id": "forge-se",
+      "tier": "forge",
+      "quadrant": 2,
+      "connections": [
+        "approach-se",
+        "keep-s",
+        "forge-ne",
+        "forge-sw"
+      ],
+      "income": 3
+    },
+    {
+      "id": "forge-sw",
+      "tier": "forge",
+      "quadrant": 3,
+      "connections": [
+        "approach-sw",
+        "keep-w",
+        "forge-se",
+        "forge-nw"
+      ],
+      "income": 3
+    },
+    {
+      "id": "keep-n",
+      "tier": "keep",
+      "quadrant": 0,
+      "connections": [
+        "forge-nw",
+        "holding-ne",
+        "holding-nw"
+      ],
+      "income": 1
+    },
+    {
+      "id": "keep-e",
+      "tier": "keep",
+      "quadrant": 1,
+      "connections": [
+        "forge-ne",
+        "holding-ne",
+        "holding-se"
+      ],
+      "income": 1
+    },
+    {
+      "id": "keep-s",
+      "tier": "keep",
+      "quadrant": 2,
+      "connections": [
+        "forge-se",
+        "holding-se",
+        "holding-sw"
+      ],
+      "income": 1
+    },
+    {
+      "id": "keep-w",
+      "tier": "keep",
+      "quadrant": 3,
+      "connections": [
+        "forge-sw",
+        "holding-sw",
+        "holding-nw"
+      ],
+      "income": 1
+    },
+    {
+      "id": "holding-ne",
+      "tier": "holding",
+      "quadrant": null,
+      "connections": [
+        "keep-n",
+        "keep-e"
+      ],
+      "income": 1
+    },
+    {
+      "id": "holding-se",
+      "tier": "holding",
+      "quadrant": null,
+      "connections": [
+        "keep-e",
+        "keep-s"
+      ],
+      "income": 1
+    },
+    {
+      "id": "holding-sw",
+      "tier": "holding",
+      "quadrant": null,
+      "connections": [
+        "keep-s",
+        "keep-w"
+      ],
+      "income": 1
+    },
+    {
+      "id": "holding-nw",
+      "tier": "holding",
+      "quadrant": null,
+      "connections": [
+        "keep-w",
+        "keep-n"
+      ],
+      "income": 1
+    }
+  ]
+}
