@@ -11,14 +11,14 @@
     "sim-results/s20260622-n40/REPORT.md (latest LOCKED competitive: SK-win 20.0%, gambit-noG 17.0%, oaths 6.13/3.46, tolls 0.89, heralds 1.78/59% political); PRIOR docs DESIGN-V2-OATHS / RESCUE-ECONOMY / DARK-ENGAGEMENT / FOCUS-GROUP-R2/R3 / ALGORITHM §9.1"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-26T01:45:16.144Z",
-    "commit": "aa277dd",
-    "sourceHash": "86a6d56d587dd3fc8345df6644599d1c40ba0244317cac560970e11c230deae1",
+    "timestamp": "2026-06-26T02:15:58.891Z",
+    "commit": "3ed3c39",
+    "sourceHash": "a16fd21ca7e263b0d00a1409cf0a85f85fcb100769086d8ee89c2a5430ee04aa",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 34,
-      "passed": 447,
+      "files": 35,
+      "passed": 448,
       "failed": 0,
       "status": "pass"
     }
@@ -45,6 +45,7 @@
     "DESIGN DEBT — being closed in the close-loose-ends wave (plan ~/.claude/plans/close-loose-ends.md): (a) DONE in C1 — §12 folded into ALGORITHM §§1-11. (b) DONE in Stage M — rescue-debt RETIRED, rescue now forges one Oath (balance-neutral, 2-seed locked). (c) DONE in Stage B — gave the AI a bail-out/volunteer's-dilemma channel; the seal now MEASURABLY bites (claimant Gambit-win -7pp, gambit fire 26%→18%, SK-win +3pp open→sealed) — KEPT, validated in-sim, felt drama on the human-playtest-checklist. (d) DONE in Stage HL — built the LITERAL Herald lone-runner ('herald' piece on heraldNodeId, independent MARCH, PARLEY from the runner's node, capture-at-Dawn by rival/dark with stance revert; safe AI routing; ~1.4 captures/game drama). Recenter: SPREAD 6→7 + HERALD_RECRUIT_COST 2→4. (e) 30-45min scope → C2 added the decisionsPerGame proxy (read it at R2). Stages A + M + B + HL all DONE + 2-seed locked (SK-win 20.2/20.0%). NEXT in the wave: R2 final both-modes re-baseline, then resume Phase 5 (5e).",
     "BLOOD PACT — DONE in Stage 5e (tuning-log §5e). Traitor win 7.8%->20.0/20.3% (IN/at-ceiling), exposure 86.9%->69.7/71.1% (in/just-over), accuracy 53.7%->71.5/70.1% (PASS, wide margin), accusations 1.62->~1.0/game (PASS). Levers: SABOTEUR_COVER=0.745 (cover bluff), BLOOD_PACT_SPREAD_BONUS=1 (dark's doom path, mode-gated), ACCUSE_MIN_SCORE=4 + 'none'-only suspicion signal. RESIDUAL: win+exposure jointly tight (both hug ceilings; seed2 +0.3/+1.1pp over) — a fractional dark bonus or win/exposure decoupling would clean it up (5f/user call). ACCUSATION_WRONG_PENALTY=2 + the Audit are HUMAN-facing (sim-inert → human-playtest-checklist §3).",
     "PLACEHOLDER TUNABLES — RESOLVED in C2 (tuning-log §C2): the 6 never-swept levers (PLEDGE_SHIELD_AMOUNT, PLEDGE_FAVOR_GRUDGE_REDUCTION, DK_MARCH_DISTANCE, SURGE_SPREAD_MULT, GAMBIT_ADJACENT_STRIKE_MULT, RESCUE_DEBT_MIN_PLEDGE) were found UN-INJECTABLE (read as static module imports, absent from the Tunables interface) — a real seam bug, now fixed (added to interface + DEFAULT_TUNABLES; consumers route through getTunables(); defaults byte-identical). FINDING: PLEDGE_SHIELD_AMOUNT is LOAD-BEARING (±1 swings SK-win ±~5.5pp; =1 lands 20.1% in-band) — kept at 1, now a documented first-class dark-strength lever, not a 'reasonable default'. Other 5 wired + confirmed low-impact. STILL un-swept (separate, not part of C2): GAMBIT_SURCHARGE (left 0.25 — sealing fixed the gambit instead), DK_PER_PLAYER parked at 0 (scaling backfires once kills pay).",
-    "DATA-TRUST CAVEAT (4g): combat commits are ENGINE-auto (COMBAT_COMMIT_MAX, RAID_DEFENSE_MARGIN), Last Stand engine-auto — good enough for balance signal; a per-policy combat-commit decision is a future improvement."
+    "DATA-TRUST CAVEAT (4g): combat commits are ENGINE-auto (COMBAT_COMMIT_MAX, RAID_DEFENSE_MARGIN), Last Stand engine-auto — good enough for balance signal; a per-policy combat-commit decision is a future improvement.",
+    "PHASE 7 LOADED (2026-06-25 codebase assessment → ROADMAP §4): post-audit hardening, two tracks. Tier-1 cheap wins SHIPPED (commit 3ed3c39: audit fix, @types/node→24, CROWN_CHANGED/ACT_ESCALATED beats, stale comments). Track A (7a–7e: balance-band test, data-file parameterization + wire unwired tunables, de-magic, board.ts/de-dup/clone cleanup, determinism+lint) = engineering, no human input, agent-parallelizable, can run CONCURRENTLY with 6b. Track B (7f–7k: credible AI, de-script villain, Last-Stand human control, Pledge staredown, onboarding, styled UI) = experience layer, HUMAN-GATED, follows the 6b playtest. currentStage stays 6b (Phase 7 boxes are appended after it)."
   ]
 }

@@ -7,10 +7,15 @@
  * determinism invariant that governs src/v2). It imports the COMPILED library
  * from dist/ — so `npm run sim` builds first (`tsc && node scripts/sim.mjs`).
  *
- * Usage: node scripts/sim.mjs [baseSeed] [seedCount] [--quick]
- *   baseSeed   default 20260622   (seed list is derived deterministically from it)
- *   seedCount  default 40         (games per matchup-cell)
- *   --quick    small set (fast smoke of the whole pipeline)
+ * Usage: node scripts/sim.mjs [baseSeed] [seedCount] [--quick] [--report-only]
+ *   baseSeed       default 20260622   (seed list is derived deterministically from it)
+ *   seedCount      default 40         (games per matchup-cell)
+ *   --quick        small set (fast smoke of the whole pipeline)
+ *   --report-only  print the report but never fail on a band miss (exploratory tuning)
+ *
+ * Exit code: non-zero if any game fails to terminate (a real bug) OR the 18–22%
+ * Shadowking win-rate band is broken on the full competitive sweep (the game's
+ * central promise). The fast CI tripwire for the band is tests/v2/balance-lock.test.ts.
  *
  * Determinism: the seed LIST is generated via SeededRandom(baseSeed) — never
  * Math.random — so a given (baseSeed, seedCount) reproduces the same sweep.
@@ -21,12 +26,13 @@ import { resolve } from 'node:path';
 import { SeededRandom } from '../dist/utils/seeded-random.js';
 import { runSweep } from '../dist/v2/sim/sweep.js';
 import { standardMatchups, MIXED_CANONICAL, bloodPactMatchups } from '../dist/v2/sim/matchups.js';
-import { summarize, renderMarkdown, summarizeBloodPact, renderBloodPactMarkdown } from '../dist/v2/sim/report.js';
+import { summarize, renderMarkdown, summarizeBloodPact, renderBloodPactMarkdown, TARGETS } from '../dist/v2/sim/report.js';
 
 const ROOT = process.cwd();
 const args = process.argv.slice(2);
 const quick = args.includes('--quick');
 const bloodpact = args.includes('--bloodpact');
+const reportOnly = args.includes('--report-only');
 const positional = args.filter(a => !a.startsWith('--'));
 
 const baseSeed = Number(positional[0] ?? 20260622) || 20260622;
@@ -56,6 +62,7 @@ writeFileSync(resolve(outDir, 'rows.json'), JSON.stringify(rows, null, 2) + '\n'
 
 let md;
 let hitGuard;
+let bandFail = false; // the 18–22% Shadowking band — the game's central promise
 if (bloodpact) {
   const bp = summarizeBloodPact(rows);
   hitGuard = rows.filter(r => r.hitGuard).length;
@@ -68,11 +75,27 @@ if (bloodpact) {
   md = renderMarkdown(summary, meta);
   writeFileSync(resolve(outDir, 'summary.json'), JSON.stringify(summary, null, 2) + '\n');
   writeFileSync(resolve(outDir, 'REPORT.md'), md);
+
+  // Assert the central balance promise on the canonical competitive sweep. --quick
+  // ([4]-only, mixed-only) doesn't pool to the band, and --report-only is for
+  // exploratory tuning where a miss is expected — both are exempt. Blood-pact has
+  // its own targets (traitor win/exposure), validated separately, not here.
+  if (!quick && !reportOnly) {
+    const sk = summary.checks.find(c => c.name === TARGETS.shadowkingWinRate.label);
+    bandFail = sk ? !sk.pass : false;
+    if (bandFail) {
+      console.error(
+        `\n✗ BALANCE LOCK BROKEN — Shadowking win rate ${(sk.measured * 100).toFixed(1)}% is outside ` +
+          `the §9 band ${(sk.lo * 100).toFixed(0)}–${(sk.hi * 100).toFixed(0)}%. ` +
+          `A tunable change has broken the game's central promise. (Re-run with --report-only to bypass.)`,
+      );
+    }
+  }
 }
 
 console.log(`\n${rows.length} games in ${(elapsedMs / 1000).toFixed(1)}s → sim-results/${runId}/`);
 console.log('\n' + md);
 
-// Exit non-zero only if a game failed to terminate (a real bug). Target PASS/FAIL
-// is reported but does NOT fail the process (untuned defaults are expected to miss).
-process.exit(hitGuard > 0 ? 1 : 0);
+// Exit non-zero on a non-termination guard (a real bug) OR a broken balance lock
+// (the 18–22% Shadowking band). Both are failures the sim must surface to CI.
+process.exit(hitGuard > 0 || bandFail ? 1 : 0);
