@@ -26,9 +26,19 @@ built a turtle meta; two new subsystems were non-deterministic). Those fixes are
 > - `docs/handoff/state.json` stays pointed at the **v2** status until the v3 code sprint opens its own
 >   stage (see §7).
 
-**Immediate next action:** get sign-off on the **one open structural decision (§2 row "Build strategy")** —
-build `src/v3/` in parallel with `src/v2/` (recommended) vs. branch-and-replace — then start **Stage V3-3a
-(scaffold)**. Nothing is committed yet; the four design docs must be committed first (DoD, §7).
+**Immediate next action:** **Stage V3-3d (Capture & ransom).** Build strategy is settled (parallel `src/v3/`,
+copy+transform — §2). The design docs are committed (`cda55d8`), and **Stages V3-3a/3b/3c are DONE** — built
+by an orchestrated sub-agent pipeline (each stage codes+tests+commits on green; verified independently:
+typecheck PASS, **v3 = 431 tests green**, **v2 = 451 still green**). Next sub-agent run: 3d → 3e (the
+load-bearing elimination/end-conditions) → 3f–3i.
+
+**Recorded debt (resolve-or-record, from the 3a/3b sub-agents):** `data/tunables.json` + `data/archetypes.json`
+still list the removed Broken/Rescue levers (`rescueWillingness` etc.) — **inert** (the engine reads the cleaned
+`src/v3/tunables.gen.ts`), but a `npm run gen:data` resync is owed once v3 gets its own `data/` dir. The four
+new court tunables (`MARSHAL_POWER`/`STEWARD_POWER`/`HERALD_PIECE_POWER`/`STEWARD_INCOME`) are plain literals in
+`src/v3/tunables.ts` pending that v3 data split. Blood-Pact exposure re-tune deferred to the v3 5e-equivalent.
+`state.json` still tracks **v2** (its `handoff:check` is wired to `ROADMAP.md`); repoint it to v3 only when the
+handoff machinery is made v3-aware or v3 promotes — tracked here in §4/§8 meanwhile.
 
 ---
 
@@ -88,15 +98,21 @@ Workflow (same as v2): **① idea → ② textual algorithm → ③ code → ④
 - [x] **Stage V3-2 — Textual algorithm** → `DESIGN-V3-ALGORITHM.md`
 - [x] **Stage V3-2.5 — Adversarial stress-test + 12 P0 fixes folded** → `design-history/DESIGN-V3-STRESS-TEST.md` (→ ALGORITHM §13)
 - [ ] **Stage V3-3 — Build the v3 engine (from the spec; §13 is the checklist).** Recommended order:
-  - [ ] **3a. Scaffold** — the v3 `GameState` (ALGORITHM §2: `court[]`, `captives[]`, `strikePool`, `wraiths[]`,
-    `heart`; **remove** `isBroken/wounds/…`) + the one `applyCommand` reducer + the THREAT→PLEDGE→ACTION→DAWN
-    sequencer. **Reuse** `SeededRandom`, the board graph, the Pledge, Crown, Blight, Shadowking policy, Oaths,
-    Gambit from v2 (§5). Port the v2 determinism tests first.
-  - [ ] **3b. The court (archetypes)** — §2 pieces with per-archetype power/verb/passive (Steward income,
-    Herald hand/parley). Recruitment is wired by 3c.
-  - [ ] **3c. Discovery** — §5.1 + §7 **D1/D2/D9** FIRST (pre-bound tokens `f(seed,nodeId)`, the
-    `observableState(state, viewerSeat)` projection that redacts content **and `seed`**, the frozen back-sigil
-    field). CLAIM-flips-token (§12 #19). This is a determinism gate — get it right before anything reads fog.
+  - [x] **3a. Scaffold + retire Broken Court** — DONE (`63eadb2` Foundation faithful clone → `8d7f575` retire
+    Broken). Removed all Broken/Rescue fields + `checkBrokenState`/`executeRescue`/`checkBrokenRecovery` + the
+    `all_broken` checks + 7 Broken/Rescue tunables; added `isEliminated`/`deposed`, `resolveDeposals`
+    (zero-strongholds → deposed, resolved at Dawn in seat order, Whisper-protected §12 #13), and
+    `checkEndConditions` with loss-preempts-win ordering (doom → **attrition** [the `all_broken` successor] →
+    last-standing). Reuses SeededRandom/board/Pledge/Crown/Blight/policy/Oaths/Gambit. Rescue tests removed
+    (mechanic gone); end-condition tests added.
+  - [x] **3b. The court (archetypes)** — DONE (`efb67ae`). New `src/v3/court.ts` + `court[]` on PlayerState;
+    Warlord/Marshal/Steward/Herald with distinct power/verb/passive (Steward income at Dawn, Marshal combat +
+    Last-Stand gate, Herald hand/parley generalized from v2). Four placeholder court tunables added.
+  - [x] **3c. Discovery + determinism** — DONE (`43c98b9`). Determinism-first: pre-bound tokens via a
+    namespaced `SeededRandom(hash(seed, nodeId))` (D1/D9), the `observableState(state, viewerSeat)` projection
+    redacting content **and `seed`** (D2), the frozen back-sigil field, CLAIM-flips-token (§12 #19) with the
+    recruit/Blight-seed/Death-Knight outcomes. Determinism tests added (identical layout + scripted-input replay
+    + projection never leaks). **v3 = 431 tests green; v2 = 451 green; typecheck + lint PASS.**
   - [ ] **3d. Capture & ransom** — §5.2/§5.3 + **§13 P0-1/2/3**: RAID elect-one-effect (margin-gated,
     standing-scaled `CAPTURE_MARGIN`), **ROUT = tempo loss**, captive guard cap, recapture immunity,
     resource-negative ransom, Steward denial-trickle, captive-on-captor-death → freed-to-owner (§12 #6/#22/#25).
@@ -184,6 +200,14 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-06-26** — **Stages V3-3a/3b/3c COMPLETE** (commits `63eadb2`/`8d7f575`/`efb67ae`/`43c98b9`). Built by
+  an orchestrated sub-agent pipeline (orchestrator workflow → per-stage coding+testing sub-agents, commit-on-green,
+  red-halts). **Independently verified:** `tsc --noEmit` PASS, `eslint src/v3 tests/v3` PASS, **v3 431 tests
+  green**, **v2 451 tests green** (untouched). Foundation = a faithful `src/v2→src/v3` clone; 3a retired Broken
+  Court → elimination end-conditions (attrition + last-standing, depose-at-Dawn); 3b added the 4-archetype court;
+  3c added Discovery determinism-first (pre-bound tokens + `observableState` + back-sigil). Recorded debt:
+  `data/*.json` drift (inert) + the v3 court tunables pending a v3 `data/` split; `state.json` stays on v2 until
+  the handoff machinery is v3-aware. **Next: 3d (capture & ransom).**
 - **2026-06-26** — **v3 DESIGN sprint COMPLETE.** Ground-up redesign on paper (design-only): retire
   no-elimination/Broken Court → full elimination + a Shadowlord-style roster (court/discovery/capture/ransom/
   kill-the-dark). Four docs produced (`DESIGN-V3-CONCEPT`, `-FOCUS-GROUP`, `DESIGN-V3-ALGORITHM`,
