@@ -5,9 +5,9 @@
     "semantic_hash": "16d8d023e94568cb9c0c0dd8bd37cfb8"
   },
   ".githooks/pre-commit": {
-    "mtime": 1782146289.3403957,
-    "ast_hash": "6a3895db23bca6e16cbbdf6cee5273ae",
-    "semantic_hash": "6a3895db23bca6e16cbbdf6cee5273ae"
+    "mtime": 1782438198.9618046,
+    "ast_hash": "72720bf8e5014dd6efcfd2f17770f136",
+    "semantic_hash": ""
   },
   ".githooks/pre-push": {
     "mtime": 1773023816.3724508,
@@ -15,9 +15,9 @@
     "semantic_hash": "d5761a1390c7de9de43a266f26e41793"
   },
   "docs/handoff/state.json": {
-    "mtime": 1782317073.9486735,
-    "ast_hash": "4d11f264930e6bfdc2cd2ab5b797db86",
-    "semantic_hash": "4d11f264930e6bfdc2cd2ab5b797db86"
+    "mtime": 1782517896.551093,
+    "ast_hash": "bea6a2b9b786b57988f7aae0473272e6",
+    "semantic_hash": ""
   },
   "docs/handoff/state.schema.json": {
     "mtime": 1782146269.7638445,
@@ -25,14 +25,14 @@
     "semantic_hash": "25d9f28c3fb877c478f25829c753ca33"
   },
   "eslint.config.js": {
-    "mtime": 1771811848.3800814,
-    "ast_hash": "cbf3fa7617a3a8fd31b9bf81332fc2c7",
-    "semantic_hash": "cbf3fa7617a3a8fd31b9bf81332fc2c7"
+    "mtime": 1782517759.944528,
+    "ast_hash": "5e5bf819d2ff80086b48cd32034ae8f4",
+    "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1782352598.8702164,
-    "ast_hash": "793e0d3721c87b307ce5c4d8e9b619ce",
-    "semantic_hash": "793e0d3721c87b307ce5c4d8e9b619ce"
+    "mtime": 1782517763.7470388,
+    "ast_hash": "e2113e298b28e1742eb641139df58b5b",
+    "semantic_hash": ""
   },
   "scripts/handoff-check.mjs": {
     "mtime": 1782146253.045712,
@@ -40,9 +40,9 @@
     "semantic_hash": "5ba68fe3ab5b375eef3004dd9e4d007e"
   },
   "scripts/sim.mjs": {
-    "mtime": 1782156677.594906,
-    "ast_hash": "1eb0b6404256498ab99c41833528926d",
-    "semantic_hash": "1eb0b6404256498ab99c41833528926d"
+    "mtime": 1782440024.8998036,
+    "ast_hash": "6cf584761a42c820e875999ee7cd0ebe",
+    "semantic_hash": ""
   },
   "scripts/tune-5c.mjs": {
     "mtime": 1782165622.0591238,
@@ -55,9 +55,9 @@
     "semantic_hash": "41b3aa0a7f154832acd7744a93d11b63"
   },
   "scripts/tune-5dark.mjs": {
-    "mtime": 1782176144.5431674,
-    "ast_hash": "30149c05901b538de228ba552ef2a97d",
-    "semantic_hash": "30149c05901b538de228ba552ef2a97d"
+    "mtime": 1782356803.3120375,
+    "ast_hash": "52cb301329bfd39763c368ee2f9b3ad8",
+    "semantic_hash": ""
   },
   "scripts/tune-5e.mjs": {
     "mtime": 1782312418.3527436,
@@ -120,9 +120,9 @@
     "semantic_hash": "3dbead96c4a07aa3c53cf250003b0261"
   },
   "src/ui-v2/session.ts": {
-    "mtime": 1782150206.3493881,
-    "ast_hash": "1c168282af396410b66132402580cdb3",
-    "semantic_hash": "1c168282af396410b66132402580cdb3"
+    "mtime": 1782438174.9016738,
+    "ast_hash": "20d892e18d13bb75e468b3a0b53d0327",
+    "semantic_hash": ""
   },
   "src/ui-v2/view.ts": {
     "mtime": 1782354246.823762,
@@ -145,14 +145,14 @@
     "semantic_hash": "6d08be1f64f501a2ae980589e622e8c1"
   },
   "src/v2/actions.ts": {
-    "mtime": 1782347069.0724754,
-    "ast_hash": "c9b1c3845af3eb99363c6eefeb192013",
-    "semantic_hash": "c9b1c3845af3eb99363c6eefeb192013"
+    "mtime": 1782517263.5867302,
+    "ast_hash": "9ec551aa2bb738d8a04dee4beb04dda1",
+    "semantic_hash": ""
   },
   "src/v2/ai-player.ts": {
-    "mtime": 1782298513.8027427,
-    "ast_hash": "5c68b19dc4b76dd80819d5a7e291f005",
-    "semantic_hash": "5c68b19dc4b76dd80819d5a7e291f005"
+    "mtime": 1782517345.3836882,
+    "ast_hash": "633e03aa9f479d75ca0d9e0808eca69d",
+    "semantic_hash": ""
   },
   "src/v2/blight.ts": {
     "mtime": 1782312573.5036352,
@@ -160,19 +160,19 @@
     "semantic_hash": "dead1ef279c1f9862f9bb8db9fb84fa5"
   },
   "src/v2/blood-pact.ts": {
-    "mtime": 1782299453.649922,
-    "ast_hash": "188bd87799424c70152bfab83c2bcf39",
-    "semantic_hash": "188bd87799424c70152bfab83c2bcf39"
+    "mtime": 1782517270.1657894,
+    "ast_hash": "68996d5e45eb230754adfbc582736235",
+    "semantic_hash": ""
   },
   "src/v2/board.ts": {
-    "mtime": 1782099517.622402,
-    "ast_hash": "a1f2e36cd71e430a1b835b4dcb75a1d4",
-    "semantic_hash": "a1f2e36cd71e430a1b835b4dcb75a1d4"
+    "mtime": 1782517682.0974636,
+    "ast_hash": "a0db98ae585516b7a36867dacdbaf8aa",
+    "semantic_hash": ""
   },
   "src/v2/combat.ts": {
-    "mtime": 1782347069.0728135,
-    "ast_hash": "c2eefefc644f2dc6d5c0f2b98164bbb9",
-    "semantic_hash": "c2eefefc644f2dc6d5c0f2b98164bbb9"
+    "mtime": 1782516961.6358924,
+    "ast_hash": "15e6e4215333cbc3163f7cb1ce73e934",
+    "semantic_hash": ""
   },
   "src/v2/commands.ts": {
     "mtime": 1782235163.0607185,
@@ -200,14 +200,14 @@
     "semantic_hash": "48f8a8b8f1d2bcd53a70cbcdb36303a0"
   },
   "src/v2/sequencer.ts": {
-    "mtime": 1782347069.0731,
-    "ast_hash": "85e3ad7d7b55b99593ee77fb62becdef",
-    "semantic_hash": "85e3ad7d7b55b99593ee77fb62becdef"
+    "mtime": 1782517267.4533052,
+    "ast_hash": "5b7f86c34e3e5359a646eaa424fdf576",
+    "semantic_hash": ""
   },
   "src/v2/setup.ts": {
-    "mtime": 1782273970.7960694,
-    "ast_hash": "879adc1506f30947b306509317a6bff3",
-    "semantic_hash": "879adc1506f30947b306509317a6bff3"
+    "mtime": 1782516995.2980986,
+    "ast_hash": "3ae450ce31cd6daf942a8b7eec5ae3b1",
+    "semantic_hash": ""
   },
   "src/v2/shadowking-effects.ts": {
     "mtime": 1782268841.6265066,
@@ -215,14 +215,14 @@
     "semantic_hash": "be3bcc644667971299a0c1a389891d1a"
   },
   "src/v2/shadowking-policy.ts": {
-    "mtime": 1782344712.1282487,
-    "ast_hash": "fe3d6bec8d4ee282169100862ce936a7",
-    "semantic_hash": "fe3d6bec8d4ee282169100862ce936a7"
+    "mtime": 1782516978.6284332,
+    "ast_hash": "8fdb42c2fb814d66665b867739afc5f2",
+    "semantic_hash": ""
   },
   "src/v2/sim/archetypes.ts": {
-    "mtime": 1782298518.3440707,
-    "ast_hash": "70ad26c26e3c7bbd737eb09d315965dd",
-    "semantic_hash": "70ad26c26e3c7bbd737eb09d315965dd"
+    "mtime": 1782517511.846778,
+    "ast_hash": "a8042c9f72c1f2be78f99174b895f2ff",
+    "semantic_hash": ""
   },
   "src/v2/sim/driver.ts": {
     "mtime": 1782162108.511894,
@@ -235,9 +235,9 @@
     "semantic_hash": "d0ff7041a8ea9fb0970f73e0cd7e8cba"
   },
   "src/v2/sim/metrics.ts": {
-    "mtime": 1782274162.2887878,
-    "ast_hash": "8e1f67c30c9fb57b7da1f85060b13868",
-    "semantic_hash": "8e1f67c30c9fb57b7da1f85060b13868"
+    "mtime": 1782356803.3270984,
+    "ast_hash": "7ebd0c3b13b0a8e484d8251d462b419c",
+    "semantic_hash": ""
   },
   "src/v2/sim/report.ts": {
     "mtime": 1782274183.4454968,
@@ -255,9 +255,9 @@
     "semantic_hash": "949baaaafb00420ad15a64d069407084"
   },
   "src/v2/tunables.ts": {
-    "mtime": 1782344719.0050035,
-    "ast_hash": "c151a18d678b3ea24f3766a4de1ac334",
-    "semantic_hash": "c151a18d678b3ea24f3766a4de1ac334"
+    "mtime": 1782517228.9985788,
+    "ast_hash": "5719bd45758180ac2377dde920faf23c",
+    "semantic_hash": ""
   },
   "src/v2/types.ts": {
     "mtime": 1782273967.581588,
@@ -310,9 +310,9 @@
     "semantic_hash": "f47fe937cfa206b0c00306aec6582a16"
   },
   "tests/v2/dark-engagement.test.ts": {
-    "mtime": 1782174108.3893642,
-    "ast_hash": "34a8621f56202cecff135ef333f1263a",
-    "semantic_hash": "34a8621f56202cecff135ef333f1263a"
+    "mtime": 1782356803.2687066,
+    "ast_hash": "83fcde5f2a241bb3648edf17b26f082f",
+    "semantic_hash": ""
   },
   "tests/v2/determinism.test.ts": {
     "mtime": 1782139785.2516246,
@@ -320,7 +320,7 @@
     "semantic_hash": "03ac3567c12dcdcb90fb78a65e63ca72"
   },
   "tests/v2/forge-tolls.test.ts": {
-    "mtime": 1782208542.2456098,
+    "mtime": 1782356803.2782037,
     "ast_hash": "843fe455e1033ec6d530f62055cf7c16",
     "semantic_hash": "843fe455e1033ec6d530f62055cf7c16"
   },
@@ -350,9 +350,9 @@
     "semantic_hash": "b21f511465387491777f42f04eaf75f0"
   },
   "tests/v2/oaths.test.ts": {
-    "mtime": 1782185391.9761405,
-    "ast_hash": "94edf9d017a745375f764520b573a75e",
-    "semantic_hash": "94edf9d017a745375f764520b573a75e"
+    "mtime": 1782356803.2736304,
+    "ast_hash": "37c131e80c040008d5c45d52dc22b735",
+    "semantic_hash": ""
   },
   "tests/v2/reducer.test.ts": {
     "mtime": 1782152786.0610523,
@@ -360,9 +360,9 @@
     "semantic_hash": "b87ae018b3d5dea1fd09ae36e42bb5ab"
   },
   "tests/v2/rescue-economy.test.ts": {
-    "mtime": 1782235374.2861743,
-    "ast_hash": "2a44631739afb5a7707884ac82785df4",
-    "semantic_hash": "2a44631739afb5a7707884ac82785df4"
+    "mtime": 1782356803.2638505,
+    "ast_hash": "9d1bbf14bb7efc6ba2449ba3d852a3f8",
+    "semantic_hash": ""
   },
   "tests/v2/sealed-bailout.test.ts": {
     "mtime": 1782273324.327582,
@@ -435,9 +435,9 @@
     "semantic_hash": "ff2de4594da3878c331c177f2657227e"
   },
   "tests/v2/ui-session.test.ts": {
-    "mtime": 1782150439.0698056,
-    "ast_hash": "8dac09b8a09e097c706ac5b0a4252e3c",
-    "semantic_hash": "8dac09b8a09e097c706ac5b0a4252e3c"
+    "mtime": 1782438186.0201545,
+    "ast_hash": "f29b2cfaca4feff4a3e9fea216f1fad4",
+    "semantic_hash": ""
   },
   "tsconfig.json": {
     "mtime": 1771809662.9057207,
@@ -460,9 +460,9 @@
     "semantic_hash": "5dd62b2940fc92cc9de942cf39da52f4"
   },
   "CLAUDE.md": {
-    "mtime": 1782352638.0850964,
-    "ast_hash": "19dad43b343534d5a7bd285c6ea96103",
-    "semantic_hash": "19dad43b343534d5a7bd285c6ea96103"
+    "mtime": 1782438259.1955853,
+    "ast_hash": "2b2b72901fdc05e411162aeea3758fb2",
+    "semantic_hash": ""
   },
   "README.md": {
     "mtime": 1773065204.0152237,
@@ -475,64 +475,19 @@
     "semantic_hash": "588546d0f36372cc08c32e4e65a778ed"
   },
   "docs/DESIGN-V2-ALGORITHM.md": {
-    "mtime": 1782346558.9786248,
-    "ast_hash": "b4a7d9760fceeac1327e44575b8968bf",
-    "semantic_hash": "b4a7d9760fceeac1327e44575b8968bf"
-  },
-  "docs/DESIGN-V2-DARK-ENGAGEMENT.md": {
-    "mtime": 1782176885.4064453,
-    "ast_hash": "1f1a5c5fbf1b77ab55c3d71544179852",
-    "semantic_hash": "1f1a5c5fbf1b77ab55c3d71544179852"
-  },
-  "docs/DESIGN-V2-FOCUS-GROUP-R2.md": {
-    "mtime": 1782178325.8167343,
-    "ast_hash": "7332e123df8de8f22e2a715c7f613c94",
-    "semantic_hash": "7332e123df8de8f22e2a715c7f613c94"
-  },
-  "docs/DESIGN-V2-FOCUS-GROUP-R3.md": {
-    "mtime": 1782184294.6456487,
-    "ast_hash": "9a6f8a44da2f93eedfe8c010ce669adc",
-    "semantic_hash": "9a6f8a44da2f93eedfe8c010ce669adc"
-  },
-  "docs/DESIGN-V2-FOCUS-GROUP.md": {
-    "mtime": 1782091609.8798969,
-    "ast_hash": "77bd6fddc3d7485f6253818443ce2ce8",
-    "semantic_hash": "77bd6fddc3d7485f6253818443ce2ce8"
-  },
-  "docs/DESIGN-V2-OATHS.md": {
-    "mtime": 1782186535.9119897,
-    "ast_hash": "571d6d75752c09c6df5904f432f8aaa6",
-    "semantic_hash": "571d6d75752c09c6df5904f432f8aaa6"
-  },
-  "docs/DESIGN-V2-RESCUE-ECONOMY.md": {
-    "mtime": 1782181584.364544,
-    "ast_hash": "44cb262337c872aa404a483856af554b",
-    "semantic_hash": "44cb262337c872aa404a483856af554b"
-  },
-  "docs/DESIGN-V2-STRESS-TEST.md": {
-    "mtime": 1782097703.1151693,
-    "ast_hash": "7f424a9dc25d96162d3494e86fcc4a8c",
-    "semantic_hash": "7f424a9dc25d96162d3494e86fcc4a8c"
-  },
-  "docs/ML-SYSTEM-ANALYSIS.md": {
-    "mtime": 1782090867.4402895,
-    "ast_hash": "be06cd36c42cfec214eae4aa0f846192",
-    "semantic_hash": "be06cd36c42cfec214eae4aa0f846192"
-  },
-  "docs/REDESIGN-ANALYSIS.md": {
-    "mtime": 1782090493.2066383,
-    "ast_hash": "f5ce9cdb5fa3e2404ce2ba2380396d5d",
-    "semantic_hash": "f5ce9cdb5fa3e2404ce2ba2380396d5d"
+    "mtime": 1782356841.6878335,
+    "ast_hash": "30143945f5e08a5f1b39048ea0a4dca4",
+    "semantic_hash": ""
   },
   "docs/ROADMAP.md": {
-    "mtime": 1782317067.3349383,
-    "ast_hash": "8d95dad44995774375a63256c85fe0af",
-    "semantic_hash": "8d95dad44995774375a63256c85fe0af"
+    "mtime": 1782517935.2116244,
+    "ast_hash": "4b7eee25df9794cf8282c173e5e65106",
+    "semantic_hash": ""
   },
   "docs/USER-MANUAL.md": {
-    "mtime": 1772676499.7449872,
-    "ast_hash": "c48f676dfd59b5616f1fce930bf50b70",
-    "semantic_hash": "c48f676dfd59b5616f1fce930bf50b70"
+    "mtime": 1782356554.0910475,
+    "ast_hash": "b970401f7dcf19328b70671c257f6102",
+    "semantic_hash": ""
   },
   "docs/architecture.md": {
     "mtime": 1772843351.3045845,
@@ -545,19 +500,19 @@
     "semantic_hash": "cbdc97401522405ebaeab8db6ca10c1d"
   },
   "docs/handoff/plan-stage4.md": {
-    "mtime": 1782154873.3131042,
-    "ast_hash": "7f2187142a3684c01d693ddc5b44f1b4",
-    "semantic_hash": "7f2187142a3684c01d693ddc5b44f1b4"
+    "mtime": 1782356803.3024602,
+    "ast_hash": "69153edf1e4c81a494b25d6ec83960cc",
+    "semantic_hash": ""
   },
   "docs/handoff/qa-pre-playtest-review.md": {
-    "mtime": 1782332773.4035833,
-    "ast_hash": "bfddd20d3aa99ac627a004a77f192fb3",
-    "semantic_hash": "bfddd20d3aa99ac627a004a77f192fb3"
+    "mtime": 1782356803.2976637,
+    "ast_hash": "1fa33aa751b5737755ebcd293ee0eda7",
+    "semantic_hash": ""
   },
   "docs/handoff/stage5-tuning-log.md": {
-    "mtime": 1782312894.6998222,
-    "ast_hash": "54ac55b84f08147bae81ae8bae31f075",
-    "semantic_hash": "54ac55b84f08147bae81ae8bae31f075"
+    "mtime": 1782356803.2928646,
+    "ast_hash": "498086e401370ee3c8b2ee1dc19f6c86",
+    "semantic_hash": ""
   },
   "docs/human-playtest-checklist.md": {
     "mtime": 1782299864.4584873,
@@ -593,5 +548,110 @@
     "mtime": 1782353077.0020514,
     "ast_hash": "56fb41483eeebb546846ed67eb7fae71",
     "semantic_hash": "56fb41483eeebb546846ed67eb7fae71"
+  },
+  "docs/Assessment-June-25.md": {
+    "mtime": 1782436202.5939188,
+    "ast_hash": "8badb4a33c5543ba264f75b25d550ffa",
+    "semantic_hash": ""
+  },
+  "docs/GAME-DESIGN.md": {
+    "mtime": 1782356438.8089843,
+    "ast_hash": "a9147ca1aeda012a4f0a150949a8104c",
+    "semantic_hash": ""
+  },
+  "docs/design-history/DESIGN-V2-DARK-ENGAGEMENT.md": {
+    "mtime": 1782176885.4064453,
+    "ast_hash": "1f1a5c5fbf1b77ab55c3d71544179852",
+    "semantic_hash": ""
+  },
+  "docs/design-history/DESIGN-V2-FOCUS-GROUP-R2.md": {
+    "mtime": 1782178325.8167343,
+    "ast_hash": "7332e123df8de8f22e2a715c7f613c94",
+    "semantic_hash": ""
+  },
+  "docs/design-history/DESIGN-V2-FOCUS-GROUP-R3.md": {
+    "mtime": 1782184294.6456487,
+    "ast_hash": "9a6f8a44da2f93eedfe8c010ce669adc",
+    "semantic_hash": ""
+  },
+  "docs/design-history/DESIGN-V2-FOCUS-GROUP.md": {
+    "mtime": 1782091609.8798969,
+    "ast_hash": "77bd6fddc3d7485f6253818443ce2ce8",
+    "semantic_hash": ""
+  },
+  "docs/design-history/DESIGN-V2-OATHS.md": {
+    "mtime": 1782186535.9119897,
+    "ast_hash": "571d6d75752c09c6df5904f432f8aaa6",
+    "semantic_hash": ""
+  },
+  "docs/design-history/DESIGN-V2-RESCUE-ECONOMY.md": {
+    "mtime": 1782181584.364544,
+    "ast_hash": "44cb262337c872aa404a483856af554b",
+    "semantic_hash": ""
+  },
+  "docs/design-history/DESIGN-V2-STRESS-TEST.md": {
+    "mtime": 1782097703.1151693,
+    "ast_hash": "7f424a9dc25d96162d3494e86fcc4a8c",
+    "semantic_hash": ""
+  },
+  "docs/design-history/ML-SYSTEM-ANALYSIS.md": {
+    "mtime": 1782090867.4402895,
+    "ast_hash": "be06cd36c42cfec214eae4aa0f846192",
+    "semantic_hash": ""
+  },
+  "docs/design-history/README.md": {
+    "mtime": 1782356830.6825259,
+    "ast_hash": "4887226620433b274666d3cacc9ba555",
+    "semantic_hash": ""
+  },
+  "docs/design-history/REDESIGN-ANALYSIS.md": {
+    "mtime": 1782090493.2066383,
+    "ast_hash": "f5ce9cdb5fa3e2404ce2ba2380396d5d",
+    "semantic_hash": ""
+  },
+  "tests/v2/balance-lock.test.ts": {
+    "mtime": 1782439975.539636,
+    "ast_hash": "9939d397fa0c687b75fcf6d09ce82725",
+    "semantic_hash": ""
+  },
+  "data/archetypes.json": {
+    "mtime": 1782517399.5193274,
+    "ast_hash": "53ffca3eed5369b8a7a1c5ba34bded64",
+    "semantic_hash": ""
+  },
+  "data/board.json": {
+    "mtime": 1782517553.261872,
+    "ast_hash": "4b09e6281370bd8c4d3f0f4fd9942c89",
+    "semantic_hash": ""
+  },
+  "data/tunables.json": {
+    "mtime": 1782517142.453535,
+    "ast_hash": "a34d99166ec60bd43432447ddc319a94",
+    "semantic_hash": ""
+  },
+  "scripts/gen-data.mjs": {
+    "mtime": 1782517664.190153,
+    "ast_hash": "6cff43ed0798e7060f70fbcf2fbec680",
+    "semantic_hash": ""
+  },
+  "src/v2/board.gen.ts": {
+    "mtime": 1782517667.2646153,
+    "ast_hash": "70983f5bfe9c6cb612fdc76fab1e77dc",
+    "semantic_hash": ""
+  },
+  "src/v2/sim/archetypes.gen.ts": {
+    "mtime": 1782517457.2013965,
+    "ast_hash": "745e62661d8f1fa124f0992b1fedabee",
+    "semantic_hash": ""
+  },
+  "src/v2/tunables.gen.ts": {
+    "mtime": 1782517176.186025,
+    "ast_hash": "f4714408cb2c154872365e01aa9e46b4",
+    "semantic_hash": ""
+  },
+  "tests/v2/data-sync.test.ts": {
+    "mtime": 1782517690.4088428,
+    "ast_hash": "4fe7d3060fc31236fa868002fc64ebf5",
+    "semantic_hash": ""
   }
 }
