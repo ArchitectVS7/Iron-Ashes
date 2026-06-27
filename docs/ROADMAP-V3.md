@@ -26,11 +26,11 @@ built a turtle meta; two new subsystems were non-deterministic). Those fixes are
 > - `docs/handoff/state.json` stays pointed at the **v2** status until the v3 code sprint opens its own
 >   stage (see §7).
 
-**Immediate next action:** **Stage V3-3d (Capture & ransom).** Build strategy is settled (parallel `src/v3/`,
-copy+transform — §2). The design docs are committed (`cda55d8`), and **Stages V3-3a/3b/3c are DONE** — built
-by an orchestrated sub-agent pipeline (each stage codes+tests+commits on green; verified independently:
-typecheck PASS, **v3 = 431 tests green**, **v2 = 451 still green**). Next sub-agent run: 3d → 3e (the
-load-bearing elimination/end-conditions) → 3f–3i.
+**Immediate next action:** **Stage V3-3i (UI port)**, then **Stage V3-4 (sim harness)**. The v3 **ENGINE is
+feature-complete** — Stages V3-3a→3h all DONE, built by two orchestrated sub-agent pipeline runs (each stage
+codes+tests+commits on green; a red stage halts). Verified independently after each run: typecheck PASS, lint
+PASS, determinism clean, **v3 = 497 tests green**, **v2 = 451 still green**. What remains: 3i (UI), then
+re-point the sim harness (V3-4) and re-validate balance from scratch (V3-5).
 
 **Recorded debt (resolve-or-record, from the 3a/3b sub-agents):** `data/tunables.json` + `data/archetypes.json`
 still list the removed Broken/Rescue levers (`rescueWillingness` etc.) — **inert** (the engine reads the cleaned
@@ -113,19 +113,29 @@ Workflow (same as v2): **① idea → ② textual algorithm → ③ code → ④
     redacting content **and `seed`** (D2), the frozen back-sigil field, CLAIM-flips-token (§12 #19) with the
     recruit/Blight-seed/Death-Knight outcomes. Determinism tests added (identical layout + scripted-input replay
     + projection never leaks). **v3 = 431 tests green; v2 = 451 green; typecheck + lint PASS.**
-  - [ ] **3d. Capture & ransom** — §5.2/§5.3 + **§13 P0-1/2/3**: RAID elect-one-effect (margin-gated,
-    standing-scaled `CAPTURE_MARGIN`), **ROUT = tempo loss**, captive guard cap, recapture immunity,
-    resource-negative ransom, Steward denial-trickle, captive-on-captor-death → freed-to-owner (§12 #6/#22/#25).
-  - [ ] **3e. Elimination + end-conditions** — the LOAD-BEARING stage. §5.5/§6 + **§13 P0-4/5/9/10**: the
-    `deposed` flag resolved at **Dawn** in seat order; the **attrition** win (the `all_broken` successor);
-    last-Warlord-standing; **strikePool cap+decay+formula (§7 D7)**; Reckoning auto-pressure that **targets
-    the most-hoarded seat first**; Whisper hopelessness protection (P0-10). Close every §6/§12 ordering case.
-  - [ ] **3f. Residual agency** — Death Bequest (§7 D8) + the Wraith (depersonalized targeting, underworld
-    score, §13 P0-8; ordering §12 #24). The Death-Curse "killer" rule (§12 #26).
-  - [ ] **3g. Kill the Dark** — §5.6 + **§13 P0-6/7**: the heart node + HP track, the multi-round assault with
-    real-liveness, the off-Keystone displacement + un-producing penalty, the single-Dawn scramble (§12 #17/#18/#21).
-  - [ ] **3h. Layer B — Blood Pact** — port v2 §10 + the v3 interactions (eliminated traitor still wins on
-    doom; the Wraith-traitor tension). Competitive must stay byte-identical with the flag off.
+  - [x] **3d. Capture & ransom** — DONE (`7b3fdb6`). New `src/v3/capture.ts`: RAID elects one of
+    {TAKE_LAND/ROUT_PIECE/CAPTURE_PIECE} (margin+standing-gated `CAPTURE_MARGIN`, trailing-seat defense bonus);
+    **ROUT = tempo loss** (returns next Dawn, recapture-immune); `captives[]` + guard cap; resource-negative
+    RANSOM (replaces RESCUE; ally-ransom forges an Oath); captive-on-captor-death → freed-to-owner; Whisper
+    last-retainer protection. *Note: `STEWARD_INCOME` 1→2 so `STEWARD_DENIED_TRICKLE`=1 is genuinely partial
+    (§13 P0-3 softens §12 #7 — captor gains nothing, owner keeps a trickle).*
+  - [x] **3e. Elimination + end-conditions** — DONE (`56a4199`). New `src/v3/elimination.ts`: the strikePool
+    (eliminated hands → dark, cap+decay, Σ(power), lowest-id-first consume, conservation census, §7 D7);
+    Reckoning auto-pressure targeting the **most-production/least-engaged seat first** (gated on a heart-live
+    flag finalized in 3g); the Death-Curse target rule (leader/oathbreaker/beneficiary, never the killer, §12
+    #26); simultaneous/last-two → attrition; loss-preempts-win extended to last-standing.
+  - [x] **3f. Residual agency** — DONE (`e60f45c`). Death Bequest (scripted `f(observableState)` in
+    `resolveDeposals`: bequeath to a **standing oath ally** — proof they aren't the killer, preserving
+    no-free-spoils — forging a dissolve-exempt posthumous Oath, OR Death-Curse) + the Wraith (underworld
+    score axis; one capped input/round; targeting **constrained to the dark's existing precedence**, never a
+    personal face; ascending seat-index, nudges-before-/cards-after-telegraph, §12 #24).
+  - [x] **3g. Kill the Dark** — DONE (`a4811f9`). New `src/v3/heart.ts`: the heart spawns at the Reckoning
+    Keystone with a public HP track; `ASSAULT_HEART` multi-round commit + real liveness (suppresses 3e
+    auto-pressure); largest-committer = raid-leader; on kill → off-Keystone displacement + un-producing
+    penalty + hero shielded that Dawn + single-Dawn scramble overriding `ROUND_CAP` (§12 #17/#18/#21).
+  - [x] **3h. Blood Pact v3 interactions** — DONE (`5709c92`). Eliminated traitor still wins on a later
+    doom/attrition (win-check reads `bloodPactHolder` regardless of elimination); wraith-traitor tension within
+    the cap; competitive (flag off) byte-identical. Full BP re-tune deferred to a v3 5e-equivalent.
   - [ ] **3i. UI — render-from-state** — port `src/ui-v2`; add the new controls + the **mandated legibility**
     (Exposure meter, pre-commit combat-margin, the "Hold" rail, the capture/heart scene beats — §13 P0-11).
 - [ ] **Stage V3-4 — Sim harness** — port `src/v2/sim/` to the v3 reducer + AI; new archetypes that exercise
@@ -200,6 +210,18 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-06-27** — **Stages V3-3d→3h COMPLETE — the v3 ENGINE is feature-complete** (commits
+  `7b3fdb6`/`56a4199`/`e60f45c`/`a4811f9`/`5709c92`, second sub-agent pipeline run). **Independently verified:**
+  `tsc --noEmit` PASS, `eslint src/v3 tests/v3` PASS, no real `Math.random`/`Date.now`/`: any` in `src/v3`,
+  **v3 497 tests green**, **v2 451 green** (untouched). New modules: `capture.ts`, `elimination.ts`, `heart.ts`.
+  Built: the capture economy (elect-one-effect, ROUT-as-tempo, RANSOM, guard cap), the strikePool + attrition +
+  auto-pressure end-conditions, Death Bequest + Wraith, Kill-the-Dark (heart/assault/two-act), and the Blood-Pact
+  v3 interactions. **Recorded debts (resolve-or-record):** (1) the strikePool is fed+decayed+**consumed via the
+  Wraith card-add**, but a *baseline* "strikes draw from the pool" path (§5.5) is NOT wired — a deliberate
+  V3-5/wiring decision (the wraith is currently the only conduit). (2) `STEWARD_INCOME` 1→2 to keep
+  `STEWARD_DENIED_TRICKLE`=1 partial — **§13 P0-3 authoritatively softens §12 #7** (captor gains nothing; owner
+  keeps a trickle); the spec §12 #7 row is annotated to match. (3) data/*.json drift + the v3 court/elimination
+  tunables-as-literals carry forward (resync on the v3 `data/` split). **Next: 3i UI port → V3-4 sim.**
 - **2026-06-26** — **Stages V3-3a/3b/3c COMPLETE** (commits `63eadb2`/`8d7f575`/`efb67ae`/`43c98b9`). Built by
   an orchestrated sub-agent pipeline (orchestrator workflow → per-stage coding+testing sub-agents, commit-on-green,
   red-halts). **Independently verified:** `tsc --noEmit` PASS, `eslint src/v3 tests/v3` PASS, **v3 431 tests

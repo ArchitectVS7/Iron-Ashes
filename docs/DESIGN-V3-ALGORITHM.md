@@ -398,7 +398,7 @@ tension; the accusation tools (Audit, Suspicion Log) are unchanged. Re-tune in a
 | 4 | Eliminator hand > HAND_LIMIT | N/A — eliminated cards go to `strikePool`/removed, never to a player (no inheritance). |
 | 5 | Eliminated Blood-Pact traitor | **Still wins** on a later doom/attrition. Surfaced, intended. |
 | 6 | Captive when captor is deposed | **Freed to original owner.** Never folded into spoils. |
-| 7 | Captured Steward/Herald passive | **OFF while held**; captor does **not** gain it; stays off if traded. |
+| 7 | Captured Steward/Herald passive | The captor gains **nothing**; stays off if traded. **Softened by §13 P0-3 (authoritative):** a captured/routed Steward still trickles `STEWARD_DENIED_TRICKLE` to its *owner* — denial is partial, not total. |
 | 8 | Loss-preempts-win vs last-Warlord-standing | Doom Complete / attrition at a Dawn preempts a same-Dawn last-standing or Gambit win. |
 | 9 | Gambit holder deposed on the named Dawn | Deposal (loss-side) resolves before the Gambit win-check → no win. |
 | 10 | Kill-the-Dark vs in-flight dark deposal same Dawn | The heart dying is applied **before** the dark's deposal pressure → ending the dark cancels its pending kills that Dawn. |
