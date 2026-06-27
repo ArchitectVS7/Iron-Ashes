@@ -308,6 +308,12 @@ export const WRAITH_INPUT_CAP = 2;
 /** Grudge a single Wraith "nudge" intensifies on the dark's existing target — the BOARD LEADER,
  *  not a chosen face (§13 P0-8). One step of intensity. The sim tunes it. */
 export const WRAITH_GRUDGE_NUDGE = 1;
+/** Grudge an ELIMINATED BLOOD-PACT TRAITOR's wraith nudge intensifies on the board leader (§10).
+ *  The traitor's afterlife is "especially charged" — it steers the dark toward doom harder than a
+ *  loyal wraith (still the existing-precedence target, P0-8 — intensity, not a chosen face). It does
+ *  NOT buy an extra input slot: the traitor's ONE input stays inside WRAITH_INPUT_CAP. Placeholder;
+ *  the v3 5e-equivalent re-tune sets it. */
+export const WRAITH_TRAITOR_NUDGE = 3;
 
 // ─── Kill the Dark — the heart + two-act ending (§5.6, §13 P0-6/P0-7; Stage 3g) ──
 // v3-native placeholders (the sim tunes them in Stage V3-5). Injectable below.
@@ -583,6 +589,7 @@ export interface Tunables {
   readonly CURSE_GRUDGE: number;
   readonly WRAITH_INPUT_CAP: number;
   readonly WRAITH_GRUDGE_NUDGE: number;
+  readonly WRAITH_TRAITOR_NUDGE: number;
   // ── Kill the Dark — heart + two-act ending (Stage 3g) ──
   readonly HEART_HP: number;
   readonly HEART_ASSAULT_MIN_COMMIT: number;
@@ -643,7 +650,7 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   CAPTIVE_GUARD_CAP, STEWARD_DENIED_TRICKLE, STEWARD_HOME_DEFENSE_BONUS,
   RANSOM_COST, RANSOM_BANNERS, RANSOM_SINK_CUT,
   STRIKEPOOL_CAP, STRIKEPOOL_DECAY, RECKONING_AUTOPRESSURE_NODES, CURSE_GRUDGE,
-  WRAITH_INPUT_CAP, WRAITH_GRUDGE_NUDGE,
+  WRAITH_INPUT_CAP, WRAITH_GRUDGE_NUDGE, WRAITH_TRAITOR_NUDGE,
   HEART_HP, HEART_ASSAULT_MIN_COMMIT, HEART_RETALIATE_GRUDGE, POST_DARK_ROUNDS,
   DISCOVERY_RECRUIT_PCT, DISCOVERY_BLIGHT_PCT, DISCOVERY_DK_PCT, DISCOVERY_BLIGHT_DELTA,
   PLEDGE_SHIELD_AMOUNT, PLEDGE_FAVOR_GRUDGE_REDUCTION,
@@ -734,6 +741,7 @@ export const TUNABLES = Object.freeze({
   CURSE_GRUDGE,
   WRAITH_INPUT_CAP,
   WRAITH_GRUDGE_NUDGE,
+  WRAITH_TRAITOR_NUDGE,
   HEART_HP,
   HEART_ASSAULT_MIN_COMMIT,
   HEART_RETALIATE_GRUDGE,

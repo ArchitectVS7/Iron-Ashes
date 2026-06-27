@@ -402,6 +402,19 @@ export interface WraithDecision {
   readonly seat: number;
   /** The bounded input chosen: a grudge/target nudge, or a strike-pool card-add. */
   readonly kind: 'nudge' | 'card_add';
+  /** True iff this wraith is the ELIMINATED BLOOD-PACT TRAITOR (§10) — its afterlife is "especially
+   *  charged" toward doom: it takes precedence within the cap and nudges harder. Always false in
+   *  competitive mode (no traitor) → the plan stays pure ascending-seat (byte-identical). */
+  readonly isTraitor: boolean;
+}
+
+/** The eliminated Blood-Pact traitor's seat, IF it is currently a wraith (§10). null in competitive
+ *  mode (no holder) or when the traitor is still alive. Pure. */
+function traitorWraithSeat(state: GameState): number | null {
+  if (state.mode !== 'blood_pact') return null;
+  const holder = state.bloodPactHolder;
+  if (holder === null) return null;
+  return state.shadowking.wraiths.some(w => w.seat === holder) ? holder : null;
 }
 
 /**
@@ -429,27 +442,42 @@ function decideWraithInput(_obs: ObservableState, cardsAvailable: number): 'nudg
  * Plan every Wraith's ONE bounded input this round (§5.5/§12 #24, §7 D6): resolve in ascending
  * ORIGINAL-SEAT order, capped at WRAITH_INPUT_CAP TOTAL across all wraiths. Each wraith reads only
  * its own observable projection. A `card_add` decrements the live strike-pool budget so later
- * (higher-seat) wraiths fall back to a `nudge` once the ammo is spent — the ordering is legible and
- * reproducible. Returns the plan; the sweep applies nudges BEFORE the telegraph, card-adds AFTER.
+ * wraiths fall back to a `nudge` once the ammo is spent — the ordering is legible and reproducible.
+ * Returns the plan; the sweep applies nudges BEFORE the telegraph, card-adds AFTER.
+ *
+ * BLOOD-PACT overlay (§10): the eliminated traitor's wraith is "especially charged" toward doom, so
+ * in blood_pact mode it takes PRECEDENCE — it sorts FIRST and thus always secures one of the capped
+ * slots — then the rest follow ascending-seat as §12 #24. This buys the traitor no EXTRA input (the
+ * cap is still WRAITH_INPUT_CAP TOTAL), only the order. In competitive mode there is no traitor, so
+ * the comparator collapses to pure ascending-seat — the plan is byte-identical to before.
  */
 export function planWraithInputs(state: GameState): WraithDecision[] {
   const cap = getTunables().WRAITH_INPUT_CAP;
+  const traitorSeat = traitorWraithSeat(state);
   const plan: WraithDecision[] = [];
   let cardsAvailable = state.shadowking.strikePool.length;
-  const ordered = [...state.shadowking.wraiths].sort((a, b) => a.seat - b.seat);
+  const ordered = [...state.shadowking.wraiths].sort((a, b) => {
+    const at = a.seat === traitorSeat ? 0 : 1;
+    const bt = b.seat === traitorSeat ? 0 : 1;
+    if (at !== bt) return at - bt; // the traitor wraith jumps the queue (blood_pact only)
+    return a.seat - b.seat;        // else ascending original-seat (§12 #24)
+  });
   for (const w of ordered) {
     if (plan.length >= cap) break;
     const kind = decideWraithInput(observableState(state, w.seat), cardsAvailable);
     if (kind === 'card_add') cardsAvailable -= 1;
-    plan.push({ seat: w.seat, kind });
+    plan.push({ seat: w.seat, kind, isTraitor: w.seat === traitorSeat });
   }
   return plan;
 }
 
 /**
  * Apply the Wraith NUDGES (§13 P0-8) — BEFORE the telegraph is computed. Each nudge intensifies the
- * dark's grudge on the current BOARD LEADER (its existing precedence) by WRAITH_GRUDGE_NUDGE — never
- * a personal revenge face. Resolved in the plan's ascending-seat order (§12 #24). Returns events.
+ * dark's grudge on the current BOARD LEADER (its existing precedence) — never a personal revenge
+ * face. A loyal wraith nudges by WRAITH_GRUDGE_NUDGE; the eliminated BLOOD-PACT TRAITOR's wraith is
+ * "especially charged" and nudges by the larger WRAITH_TRAITOR_NUDGE (§10) — same target, more
+ * intensity (steering the dark harder toward doom). Resolved in the plan's order (§12 #24, traitor-
+ * first overlay §10). Returns events.
  */
 export function applyWraithNudges(state: GameState, plan: readonly WraithDecision[]): GameEvent[] {
   const events: GameEvent[] = [];
@@ -457,7 +485,8 @@ export function applyWraithNudges(state: GameState, plan: readonly WraithDecisio
     if (d.kind !== 'nudge') continue;
     const leader = boardLeaderSeat(state);
     if (leader === null) continue;
-    events.push(...addGrudge(state, leader, getTunables().WRAITH_GRUDGE_NUDGE, 'wraith_nudge'));
+    const amount = d.isTraitor ? getTunables().WRAITH_TRAITOR_NUDGE : getTunables().WRAITH_GRUDGE_NUDGE;
+    events.push(...addGrudge(state, leader, amount, d.isTraitor ? 'wraith_traitor_nudge' : 'wraith_nudge'));
   }
   return events;
 }
@@ -481,7 +510,7 @@ export function applyWraithCardAdds(state: GameState, plan: readonly WraithDecis
     telegraph.wraithStrikeBonus = (telegraph.wraithStrikeBonus ?? 0) + card.power;
     events.push({
       type: 'PLAYER_ACTED', playerIndex: d.seat, action: 'PASS',
-      details: { wraith: 'card_add', power: card.power, strikeBonus: telegraph.wraithStrikeBonus },
+      details: { wraith: 'card_add', power: card.power, strikeBonus: telegraph.wraithStrikeBonus, traitor: d.isTraitor },
     });
   }
   return events;

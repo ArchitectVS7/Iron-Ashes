@@ -133,7 +133,7 @@ describe('Stage 3f — Wraith nudge intensifies the BOARD LEADER, never a person
     s.shadowking.grudge[1] = 5;                                   // seat 1 = a high-grudge "rival" face
     expect(boardLeaderSeat(s)).toBe(2);
 
-    const plan = [{ seat: 0 as number, kind: 'nudge' as const }];
+    const plan = [{ seat: 0 as number, kind: 'nudge' as const, isTraitor: false }];
     applyWraithNudges(s, plan);
 
     expect(s.shadowking.grudge[2]).toBe(WRAITH_GRUDGE_NUDGE);      // the LEADER is intensified…
@@ -179,7 +179,7 @@ describe('Stage 3f — one fixed THREAT sweep: nudges BEFORE telegraph, card-add
     const s = createGame(4, 'competitive', 63);
     s.shadowking.telegraph = null;
     s.shadowking.strikePool = [{ id: 0, power: 2 }];
-    const events = applyWraithCardAdds(s, [{ seat: 0, kind: 'card_add' }]);
+    const events = applyWraithCardAdds(s, [{ seat: 0, kind: 'card_add', isTraitor: false }]);
     expect(events.length).toBe(0);
     expect(s.shadowking.strikePool.length).toBe(1);              // untouched — no telegraph to feed
   });
