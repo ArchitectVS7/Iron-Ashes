@@ -169,6 +169,15 @@ export {
 } from './elimination.js';
 export type { BequestChoice, WraithDecision } from './elimination.js';
 
+// ── Kill the Dark — heart + two-act ending (§5.6, §13 P0-6/P0-7; Stage 3g) ──
+export {
+  spawnHeartAtReckoning,
+  executeAssaultHeart,
+  computeRaidLeader,
+  resolveHeartCollapse,
+  computePostDarkWinner,
+} from './heart.js';
+
 // ── The Court (§2 archetypes) ──
 export {
   addCourtPiece,

@@ -17,6 +17,7 @@ export type ActionType =
   | 'RAID'      // Initiate combat vs a co-located rival; elect one effect on a win (§5.2)
   | 'STRIKE'    // Initiate combat vs a co-located Shadowking force (§5.3)
   | 'RANSOM'    // Free a captive (yours or an ally's) for cards/banners (§5.3)
+  | 'ASSAULT_HEART' // Commit a force to damage the dark's heart (Reckoning only, §5.6)
   | 'RECRUIT'   // Recruit a court piece (§2 archetypes; Herald stance today)
   | 'AUDIT'     // Reveal one opponent's last pledge (Blood Pact only, §10)
   | 'SWEAR_OATH' // Forge a public pact with a rival (§ Oaths) — free, no action point

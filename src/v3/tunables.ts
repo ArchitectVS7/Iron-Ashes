@@ -309,6 +309,20 @@ export const WRAITH_INPUT_CAP = 2;
  *  not a chosen face (§13 P0-8). One step of intensity. The sim tunes it. */
 export const WRAITH_GRUDGE_NUDGE = 1;
 
+// ─── Kill the Dark — the heart + two-act ending (§5.6, §13 P0-6/P0-7; Stage 3g) ──
+// v3-native placeholders (the sim tunes them in Stage V3-5). Injectable below.
+/** The heart's public HP at spawn (§5.6) — high enough that killing it takes a multi-round
+ *  committed assault (telegraphed, costly), so it is rare and shapes negotiation. */
+export const HEART_HP = 12;
+/** Minimum cards an ASSAULT_HEART must commit to count toward liveness (§13 P0-6) — a stalled /
+ *  token assault does NOT suppress the auto-pressure. The "real commit" floor. */
+export const HEART_ASSAULT_MIN_COMMIT = 1;
+/** Grudge the dark fixes on the raid-leader BY NAME each assault round (§5.6/§12 #21) — the
+ *  retaliation that makes leading the raid dangerous. */
+export const HEART_RETALIATE_GRUDGE = 2;
+/** Dawns of the post-dark two-act scramble before the single named resolution Dawn (§5.6/§12 #18). */
+export const POST_DARK_ROUNDS = 2;
+
 // ─── Discovery (§5.1, Stage 3c) ───────────────────────────────────
 // The flip-outcome split (sum = 1.0) + the Blight-seed magnitudes. v3-native placeholders
 // (the sim tunes them in Stage V3-5). Injectable in the Tunables registry below.
@@ -569,6 +583,11 @@ export interface Tunables {
   readonly CURSE_GRUDGE: number;
   readonly WRAITH_INPUT_CAP: number;
   readonly WRAITH_GRUDGE_NUDGE: number;
+  // ── Kill the Dark — heart + two-act ending (Stage 3g) ──
+  readonly HEART_HP: number;
+  readonly HEART_ASSAULT_MIN_COMMIT: number;
+  readonly HEART_RETALIATE_GRUDGE: number;
+  readonly POST_DARK_ROUNDS: number;
   // ── Discovery (Stage 3c) ──
   readonly DISCOVERY_RECRUIT_PCT: number;
   readonly DISCOVERY_BLIGHT_PCT: number;
@@ -625,6 +644,7 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   RANSOM_COST, RANSOM_BANNERS, RANSOM_SINK_CUT,
   STRIKEPOOL_CAP, STRIKEPOOL_DECAY, RECKONING_AUTOPRESSURE_NODES, CURSE_GRUDGE,
   WRAITH_INPUT_CAP, WRAITH_GRUDGE_NUDGE,
+  HEART_HP, HEART_ASSAULT_MIN_COMMIT, HEART_RETALIATE_GRUDGE, POST_DARK_ROUNDS,
   DISCOVERY_RECRUIT_PCT, DISCOVERY_BLIGHT_PCT, DISCOVERY_DK_PCT, DISCOVERY_BLIGHT_DELTA,
   PLEDGE_SHIELD_AMOUNT, PLEDGE_FAVOR_GRUDGE_REDUCTION,
   DK_MARCH_DISTANCE, SURGE_SPREAD_MULT, GAMBIT_ADJACENT_STRIKE_MULT,
@@ -714,6 +734,10 @@ export const TUNABLES = Object.freeze({
   CURSE_GRUDGE,
   WRAITH_INPUT_CAP,
   WRAITH_GRUDGE_NUDGE,
+  HEART_HP,
+  HEART_ASSAULT_MIN_COMMIT,
+  HEART_RETALIATE_GRUDGE,
+  POST_DARK_ROUNDS,
   DISCOVERY_RECRUIT_PCT,
   DISCOVERY_BLIGHT_PCT,
   DISCOVERY_DK_PCT,

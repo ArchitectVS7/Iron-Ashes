@@ -215,6 +215,11 @@ export function createGame(
       wraiths: [],
       heart: null,
       heartAssaultLiveThisRound: false,
+      darkDefeated: false,
+      postDarkResolutionRound: null,
+      heroShieldSeat: null,
+      heroShieldRound: null,
+      unproducingNodes: [],
     },
 
     crownHolder: null,

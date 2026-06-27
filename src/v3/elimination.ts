@@ -228,6 +228,8 @@ function chooseCurseMetaTarget(state: GameState, victimSeat: number, killer: num
 export function applyReckoningAutoPressure(state: GameState): GameEvent[] {
   const events: GameEvent[] = [];
   if (state.act !== 'RECKONING') return events;
+  // Once the heart has fallen the apocalypse clock is gone (§5.6) — the dark deposes no one.
+  if (state.shadowking.darkDefeated) return events;
   // P0-6: a REAL heart-hit this round suppresses the pressure (a stalled/token assault does not).
   if (state.shadowking.heartAssaultLiveThisRound) return events;
 

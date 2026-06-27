@@ -224,6 +224,7 @@ import {
   initiateAccusation,
   submitAccusationVote,
 } from './blood-pact.js';
+import { executeAssaultHeart } from './heart.js';
 import {
   chooseCombatCommit,
   getPlayerPowerAtNode,
@@ -388,6 +389,22 @@ function handlePlayerAction(
       }
       try {
         actionResult = executeRansom(state, playerIndex, action.pieceId, action.consent ?? true);
+      } catch (e: unknown) {
+        throw new InvalidCommandError(
+          { type: 'PLAYER_ACTION', playerIndex, action },
+          (e as Error).message,
+        );
+      }
+      break;
+    }
+
+    case 'ASSAULT_HEART': {
+      // Commit the actor's highest cards as the card sink (value-aware; the sim/UI may pass an
+      // explicit set, but the headless path sizes the strongest legal commit). §5.6/§13 P0-6.
+      const sorted = [...player.hand].sort((a, b) => b - a);
+      const heartCards = sorted.slice(0, Math.min(sorted.length, COMBAT_COMMIT_MAX));
+      try {
+        actionResult = executeAssaultHeart(state, playerIndex, heartCards);
       } catch (e: unknown) {
         throw new InvalidCommandError(
           { type: 'PLAYER_ACTION', playerIndex, action },

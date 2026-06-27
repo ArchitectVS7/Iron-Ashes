@@ -236,12 +236,19 @@ export interface Wraith {
  * Reckoning. ASSAULT_HEART commits damage its HP track over telegraphed rounds.
  */
 export interface HeartState {
-  /** The on-map node the heart occupies. */
+  /** The on-map node the heart occupies (the Reckoning crossing = the Keystone). */
   readonly nodeId: string;
   /** Public HP track (HEART_HP at spawn). */
   hp: number;
-  /** Whether the heart is exposed (assaultable). */
+  /** Whether the heart is exposed (assaultable). false once broken. */
   exposed: boolean;
+  /** Cumulative ASSAULT_HEART commit per seat (§12 #21) — the LARGEST is the raid-leader.
+   *  Indexed by seat; bound to 0 for all seats at spawn. JSON-serializable. */
+  committedBySeat: number[];
+  /** The current raid-leader (largest cumulative committer; ties → lowest seat, §12 #21) — the
+   *  seat the dark retaliates against by name and the one penalized post-dark (§13 P0-7). null
+   *  until the first assault commit lands. */
+  raidLeader: number | null;
 }
 
 /** Shadowking force types (§2). */
@@ -378,10 +385,25 @@ export interface ShadowkingState {
   /**
    * Whether a REAL ASSAULT_HEART hit landed THIS round (§13 P0-5/P0-6). Suppresses the
    * Reckoning auto-pressure (§6) — a stalled/token assault does NOT count. Reset to false at
-   * THREAT, set true by a landed assault in ACTION (the assault path is finalized in 3g, so it
-   * defaults false here ⇒ auto-pressure is active in every Reckoning Dawn until 3g wires it).
+   * THREAT, set true by a landed ASSAULT_HEART hit in ACTION (§5.6, 3g): a real heart-hit this
+   * round + a minimum commit. A stalled/token assault does NOT count.
    */
   heartAssaultLiveThisRound: boolean;
+
+  /** Whether the heart has fallen (§5.6) — the apocalypse clock is REMOVED: no Blight advance,
+   *  no strikes, no Reckoning auto-pressure. Set by `resolveHeartCollapse` the Dawn HP hits 0. */
+  darkDefeated: boolean;
+  /** The single named Dawn (round) the post-dark two-act scramble resolves (§5.6/§12 #18) —
+   *  OVERRIDES ROUND_CAP. null until the heart falls. */
+  postDarkResolutionRound: number | null;
+  /** The raid-leader SHIELDED from deposal the Dawn the dark dies (§12 #17), or null. Read by
+   *  `resolveDeposals` only when `heroShieldRound === round` (the shield is one Dawn). */
+  heroShieldSeat: number | null;
+  /** The round the hero shield applies (§12 #17) — only that single Dawn. null when no shield. */
+  heroShieldRound: number | null;
+  /** The raid-leader's committed-force home nodes that count UN-PRODUCING for the post-dark
+   *  resolution (§13 P0-7) — the spent-force penalty in the win currency (not auto-robbed). */
+  unproducingNodes: string[];
 }
 
 // ─── Pledge ───────────────────────────────────────────────────────

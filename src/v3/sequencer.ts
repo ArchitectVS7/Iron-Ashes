@@ -58,6 +58,11 @@ import {
   getEffectivePledgeWeight,
   computeTerritoryWinner,
 } from './gambit.js';
+import {
+  computePostDarkWinner,
+  resolveHeartCollapse,
+  spawnHeartAtReckoning,
+} from './heart.js';
 import { recordSuspicionLog } from './blood-pact.js';
 
 // ─── Result type ──────────────────────────────────────────────────
@@ -205,10 +210,14 @@ export function resolvePledgePhase(state: GameState): SequencerResult {
   });
 
   // ── Apply the un-averted strike (§5.6 effect table / §5.1 Blight spread) ──
-  // Pledgers' own lands are shielded first (§4.2 step 5a).
-  const strikeResult = applyShadowkingStrike(state, telegraph, ratio, pledgers);
-  state = strikeResult.state;
-  events.push(...strikeResult.events);
+  // Pledgers' own lands are shielded first (§4.2 step 5a). Once the heart has fallen the
+  // apocalypse clock is gone (§5.6) — the dark no longer bites the map during the post-dark
+  // scramble, so the strike is skipped entirely.
+  if (!state.shadowking.darkDefeated) {
+    const strikeResult = applyShadowkingStrike(state, telegraph, ratio, pledgers);
+    state = strikeResult.state;
+    events.push(...strikeResult.events);
+  }
 
   // The dark's un-averted strike now bites the MAP only (Blight spread, above): it ashes
   // production toward depose pressure, which resolves at Dawn (§6). The v2 "landed strike
@@ -358,7 +367,10 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
     }
   }
 
-  // 3. Anti-turtle Blight advance + Act escalation (§5.1, §5.5)
+  // 3. Anti-turtle Blight advance + Act escalation (§5.1, §5.5). Once the heart has fallen the
+  //    apocalypse clock is removed (§5.6) — no more Blight advance / escalation during the
+  //    post-dark scramble.
+  if (!state.shadowking.darkDefeated) {
   // Net-front step 3: Dawn baseline advance on the steered spoke
   const steerQuadrant = state.shadowking.telegraph?.steerQuadrant ?? 0;
   const dawnBlightResult = applyDawnBlightAdvance(state, steerQuadrant);
@@ -409,11 +421,21 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
     }
   }
 
+  // Reckoning spawns the heart (§5.6) — the Kill-the-Dark objective rises at the crossing the
+  // first Reckoning Dawn (no-op outside Reckoning / once spawned / after the dark has fallen).
+  events.push(...spawnHeartAtReckoning(state));
+  } // end !darkDefeated escalation block
+
   // 3b. Strike-pool decay (§13 P0-4 / §7 D7): the OLDEST cards leave the game each Dawn, BEFORE
   //     this Dawn's eliminations feed it — so freshly-fed cards survive at least one round.
   events.push(...decayStrikePool(state));
 
-  // 3c. Reckoning AUTO-PRESSURE (§6 / §13 P0-5): the dark strips strongholds from the most-
+  // 3c. Kill the Dark (§5.6 / §12 #10): if the heart hit 0 HP this round, the dark falls — applied
+  //     BEFORE the auto-pressure + deposals, so ending the dark CANCELS its pending kills this Dawn
+  //     and the raid-leader is shielded from deposal (§12 #17).
+  events.push(...resolveHeartCollapse(state));
+
+  // 3d. Reckoning AUTO-PRESSURE (§6 / §13 P0-5): the dark strips strongholds from the most-
   //     production / least-engaged seat, BEFORE deposals resolve — a seat reduced to zero
   //     strongholds is eliminated this same Dawn (the all_broken executioner successor).
   events.push(...applyReckoningAutoPressure(state));
@@ -447,6 +469,27 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
     return { state, events };
   }
 
+  // Post-dark resolution (§5.6 / §12 #18) — once the heart has fallen, a single named Dawn
+  // (POST_DARK_ROUNDS out) OVERRIDES ROUND_CAP and resolves the two-act scramble: a Gambit named
+  // by that Dawn resolves first, else the Territory winner (with the raid-leader's spent-force
+  // un-producing penalty, §13 P0-7). The intermediate post-dark Dawns fall through to the normal
+  // (now dark-free) Gambit/territory checks below.
+  if (
+    state.shadowking.darkDefeated &&
+    state.shadowking.postDarkResolutionRound !== null &&
+    state.round >= state.shadowking.postDarkResolutionRound
+  ) {
+    const postGambit = evaluateGambitAtDawn(state);
+    events.push(...postGambit.events);
+    if (postGambit.outcome === 'gambit_victory') {
+      return { state, events };
+    }
+    state.gameEndReason = 'territory_victory';
+    state.winner = computePostDarkWinner(state);
+    events.push({ type: 'GAME_OVER', reason: 'territory_victory', winner: state.winner });
+    return { state, events };
+  }
+
   // Gambit lifecycle (§6) — evaluated BEFORE territory, AFTER the loss/last-standing
   // checks above (loss preempts a same-Dawn Gambit win, §12 #8/#9).
   const gambitResult = evaluateGambitAtDawn(state);
@@ -455,8 +498,9 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
     return { state, events };
   }
 
-  // Territory victory at round cap (§6) — full tiebreakers
-  if (state.round >= ROUND_CAP) {
+  // Territory victory at round cap (§6) — full tiebreakers. Suppressed once the heart has fallen:
+  // the post-dark named Dawn (§12 #18) is then the ONLY ROUND_CAP-overriding ender.
+  if (!state.shadowking.darkDefeated && state.round >= ROUND_CAP) {
     state.gameEndReason = 'territory_victory';
     state.winner = computeTerritoryWinner(state);
     events.push({
@@ -499,10 +543,17 @@ export function resolveDeposals(state: GameState): GameEvent[] {
   // Whisper opening protection — last-stronghold loss / depose is forbidden pre-March.
   if (state.act === 'WHISPER') return events;
 
+  // Hero shield (§12 #17, §13 P0-7): the raid-leader is shielded from deposal the single Dawn the
+  // dark dies — their spent force left them exposed, but slaying the dark earns one Dawn's grace.
+  const shieldSeat = state.shadowking.heroShieldRound === state.round
+    ? state.shadowking.heroShieldSeat
+    : null;
+
   // Snapshot the eligible set BEFORE mutating anything (§12 #1).
   const eligible: number[] = [];
   for (const p of state.players) {
     if (p.isEliminated) continue;
+    if (p.index === shieldSeat) continue;
     if (p.deposed || livingStrongholdCount(state, p.index) === 0) eligible.push(p.index);
   }
 
