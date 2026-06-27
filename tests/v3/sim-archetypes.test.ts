@@ -60,16 +60,8 @@ describe('archetype decision branches', () => {
     expect(action).toEqual({ type: 'RAID', targetPlayerIndex: 1 });
   });
 
-  it('cooperator RESCUEs an adjacent Broken ally', () => {
-    const state = createGame(2, 'competitive', 42);
-    const node = state.board.definition.holdingIds[0];
-    placeWarlord(state, 0, node);
-    placeWarlord(state, 1, node);
-    state.players[1].isBroken = true;
-    state.players[0].hand = [1, 2, 3]; // >= RESCUE_COST
-    const policy: AIPolicy = { ...ARCHETYPES.cooperator.policy, rescueWillingness: 1 };
-    expect(chooseAction(state, 0, 7, policy)).toEqual({ type: 'RESCUE', targetPlayerIndex: 1 });
-  });
+  // 'cooperator RESCUEs an adjacent Broken ally' removed (§8): RESCUE is retired with the
+  // Broken Court. The cooperator's coop verb returns as ally-RANSOM when capture lands (3d).
 
   it('gambler marches toward the Keystone instead of claiming', () => {
     const state = createGame(4, 'competitive', 42);

@@ -4,9 +4,8 @@
  * Real end-to-end coverage for the mechanics that the pre-Stage-4 review found
  * stubbed/dead/missing: the anti-free-rider reward (§4.2 step 5), the Gambit
  * Keystone guardrail (§6), Last Stand wired into live combat (§5.3), the
- * Shadowking effect table (§5.6), the Rescue binding debt (§5.4), and the
- * warlord-power / FORGE_WEIGHT bug fixes. These exercise the REAL behaviour, not
- * isolated predicates.
+ * Shadowking effect table (§5.6), and the warlord-power / FORGE_WEIGHT bug fixes.
+ * These exercise the REAL behaviour, not isolated predicates.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -22,9 +21,7 @@ import {
   computeTerritoryWinner,
   getPlayerPowerAtNode,
   executeRaid,
-  executeRescue,
 } from '../../src/v3/index.js';
-import { areSworn } from '../../src/v3/actions.js';
 import {
   WARLORD_POWER,
   FORGE_WEIGHT,
@@ -170,7 +167,7 @@ describe('Gambit Keystone guardrail (§6)', () => {
 // ─── Last Stand wired into live combat (§5.3) ─────────────────────
 
 describe('Last Stand in live combat (§5.3)', () => {
-  it('a defender reverses a losing RAID, holds the node, and the attacker takes the wounds', () => {
+  it('a defender reverses a losing RAID and holds the node', () => {
     const state = createGame(2, 'competitive', 42);
     const node = state.board.definition.holdingIds[0];
     state.board.state.nodes[node].owner = 1; // defender owns it
@@ -179,11 +176,9 @@ describe('Last Stand in live combat (§5.3)', () => {
     state.players[0].hand = [4];     // attacker commits 4 → atk = 3+4 = 7
     state.players[1].hand = [1, 5];  // defender commits 1 (def=4), Last-Stands the 5
 
-    const woundsBefore = state.players[0].wounds;
     const res = executeRaid(state, 0, 1, [4], [1]);
 
     expect(res.state.board.state.nodes[node].owner).toBe(1); // held via Last Stand
-    expect(res.state.players[0].wounds).toBeGreaterThan(woundsBefore); // attacker took the hit
     expect(res.state.players[1].hand).not.toContain(5); // the Last Stand card was spent
   });
 
@@ -243,23 +238,5 @@ describe('Shadowking effect table (§5.6)', () => {
   });
 });
 
-// ─── Rescue → a single Oath (§M — the rescue-debt is retired) ──────
-
-describe('Rescue forges ONE bond — an Oath (§M)', () => {
-  it('a rescue swears the rescuer and rescued into an Oath (no separate debt)', () => {
-    let state = createGame(4, 'competitive', 42);
-    state = apply(state, { type: 'ADVANCE_PHASE' });
-    for (const p of state.players) state = apply(state, { type: 'SUBMIT_PLEDGE', playerIndex: p.index, amount: 0 });
-    state = apply(state, { type: 'ADVANCE_PHASE' }); // → ACTION
-    const node = state.board.definition.holdingIds[0];
-    placeWarlord(state, 0, node);
-    placeWarlord(state, 1, node);
-    state.players[1].isBroken = true;
-    state.players[1].brokenSince = state.round;
-    executeRescue(state, 0, 1);
-    // The merged bond is an Oath between 0 and 1 — and a sworn pair cannot RAID each other,
-    // which is what used to be the rescue-debt's "withheld attack".
-    expect(areSworn(state, 0, 1)).toBe(true);
-    expect(() => executeRaid(state, 0, 1, [], [])).toThrow(/sworn/i);
-  });
-});
+// Rescue → Oath tests removed (§8/§M): RESCUE is retired with the Broken Court. The
+// ally-RANSOM-forges-an-Oath path returns with capture/ransom in 3d (§5.3).

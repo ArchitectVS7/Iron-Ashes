@@ -8,7 +8,7 @@
  *   1. Attacker + defender each commit cards (sealed) → combat power
  *   2. Reveal simultaneously, discard committed cards
  *   3. Winner = higher power (ties → defender, except STRIKE vs SK → no-result)
- *   4. Margin = |atk - def| → loser takes wounds toward Broken
+ *   4. Margin = |atk - def| → drives capture-margin election (§5.2, built in 3d)
  *   5. If defender would lose a stronghold, they may Last Stand (one-sided, final)
  *
  * Last Stand (§5.3):
@@ -41,20 +41,35 @@ function productionOf(state: GameState, seat: number): number {
 }
 
 /**
+ * Count a seat's living strongholds (§6, §12 #14): any owned, non-ashed PRODUCTION node
+ * (Keep / Forge / Holding). A Warlord with zero strongholds is `deposed` and eliminated
+ * at Dawn (§6). Unweighted — this is a survival census, not a standing score. Pure.
+ */
+export function livingStrongholdCount(state: GameState, seat: number): number {
+  let n = 0;
+  for (const [id, ns] of Object.entries(state.board.state.nodes)) {
+    if (ns.owner !== seat || ns.ashed) continue;
+    const tier = state.board.definition.nodes[id]?.tier;
+    if (tier === 'forge' || tier === 'keep' || tier === 'holding') n++;
+  }
+  return n;
+}
+
+/**
  * 0-based territory rank of a player (0 = leader). A player ranks ahead of another
  * with more production, or equal production and a lower seat index (matches the
- * §7.6 tiebreak). Broken players sink to the bottom (forfeit standing). Pure.
+ * §7.6 tiebreak). Eliminated players sink to the bottom (forfeit standing). Pure.
  *
  * Used by the asymmetric grudge Mark: only the leading seats pay the "the dark
  * now hunts you" tax for wounding it; trailing seats hunt for free (catch-up).
  */
 export function territoryRank(state: GameState, playerIndex: number): number {
-  const meBroken = state.players[playerIndex]?.isBroken === true;
-  const mine = meBroken ? -1 : productionOf(state, playerIndex);
+  const meGone = state.players[playerIndex]?.isEliminated === true;
+  const mine = meGone ? -1 : productionOf(state, playerIndex);
   let rank = 0;
   for (const p of state.players) {
     if (p.index === playerIndex) continue;
-    const theirs = p.isBroken ? -1 : productionOf(state, p.index);
+    const theirs = p.isEliminated ? -1 : productionOf(state, p.index);
     if (theirs > mine || (theirs === mine && p.index < playerIndex)) rank++;
   }
   return rank;
@@ -333,9 +348,10 @@ export function resolveLastStand(
 // ─── Combat Outcome Application ──────────────────────────────────
 
 /**
- * Apply combat outcome to state: wounds, pushback, grudge, etc.
+ * Apply combat outcome to state: card discard, pushback, grudge, etc.
  *
- * For RAID: loser takes `margin` wounds toward Broken.
+ * For RAID: the loser only forfeits committed cards (Broken Court retired §8 — no
+ *           wounds; node transfer + capture/rout election handled by the caller / 3d).
  * For STRIKE: if attacker wins, destroy SK force + pushback + grudge.
  *             if no_result (tie), return cards.
  */
@@ -343,7 +359,6 @@ export function applyCombatOutcome(
   state: GameState,
   setup: CombatSetup,
   winner: 'attacker' | 'defender' | 'no_result',
-  margin: number,
 ): GameEvent[] {
   const events: GameEvent[] = [];
   const { combatType, attackerIndex, nodeId, defenderIndex, attackerCards, defenderCards } = setup;
@@ -417,11 +432,9 @@ export function applyCombatOutcome(
       // Cards already discarded above — re-add them
       const attacker2 = state.players[attackerIndex];
       attacker2.hand.push(...attackerCards);
-    } else {
-      // Defender (SK) wins — attacker takes wounds
-      const attacker2 = state.players[attackerIndex];
-      attacker2.wounds += margin;
     }
+    // Defender (SK) wins → the attacker simply loses the committed cards (no wounds:
+    // Broken Court is retired §8; land-strip/capture pressure arrives in 3d).
   } else {
     // RAID — PvP combat
     // Discard committed cards from both sides
@@ -438,72 +451,9 @@ export function applyCombatOutcome(
         if (idx !== -1) defender.hand.splice(idx, 1);
       }
     }
-
-    // Loser takes wounds
-    const loserIndex = winner === 'attacker' ? defenderIndex : attackerIndex;
-    if (loserIndex !== null) {
-      const loser = state.players[loserIndex];
-      loser.wounds += margin;
-    }
-  }
-
-  return events;
-}
-
-/**
- * Check if a player should enter Broken state after accumulating wounds.
- * Returns events produced (including NODE_ASHED for lost Holdings).
- */
-export function checkBrokenState(state: GameState, playerIndex: number): GameEvent[] {
-  const events: GameEvent[] = [];
-  const player = state.players[playerIndex];
-
-  if (player.isBroken) return events; // Already Broken
-  if (player.wounds < getTunables().BREAK_THRESHOLD) return events; // Not enough wounds
-
-  // Enter Broken state
-  player.isBroken = true;
-  player.brokenSince = state.round;
-  player.brokenRoundsConsecutive = 0;
-
-  // Dissolve any Oath this player held (§ Oaths): a Broken lord can't honor a pact —
-  // stops the Dawn fealty dividend leaking to a downed player and frees the ally to
-  // act (no raid-shield by a corpse-state ally). Inline to avoid an actions↔combat cycle.
-  state.oaths = state.oaths.filter(o => o.a !== playerIndex && o.b !== playerIndex);
-  player.crownHeld = false; // Forfeit Crown eligibility (P1 anti-exploit)
-
-  events.push({
-    type: 'PLAYER_ACTED',
-    playerIndex,
-    action: 'PASS',
-    details: { broken: true, round: state.round },
-  });
-
-  // Voice line
-  events.push({
-    type: 'SK_VOICE_LINE',
-    line: `Player ${playerIndex + 1} falls. Their lands feed my hunger now.`,
-    trigger: 'player_broken',
-  });
-
-  // Broken player's lost Holdings turn to ash (§5.4)
-  for (const [nodeId, nodeState] of Object.entries(state.board.state.nodes)) {
-    if (nodeState.owner === playerIndex && !nodeState.ashed) {
-      const nodeDef = state.board.definition.nodes[nodeId];
-      // Holdings owned by the broken player ash immediately
-      // Keeps cannot be ashed until owner is Broken — now they can be targeted
-      if (nodeDef && nodeDef.tier === 'holding') {
-        const prevOwner = nodeState.owner;
-        nodeState.ashed = true;
-        nodeState.blightLevel = getTunables().BLIGHT_TO_ASH;
-        nodeState.owner = null;
-        events.push({
-          type: 'NODE_ASHED',
-          nodeId,
-          previousOwner: prevOwner,
-        });
-      }
-    }
+    // No wounds on a RAID loss (Broken Court retired, §8). The node transfer toward
+    // depose pressure is applied by the caller (executeRaid); capture/rout election
+    // arrives in 3d (§5.2).
   }
 
   return events;

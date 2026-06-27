@@ -16,23 +16,22 @@ describe('computeMetrics', () => {
     expect(m.territoryPerSeat).toHaveLength(4);
     expect(m.meanPledgePerSeat).toHaveLength(4);
     // The outcome flags are mutually consistent with the end reason. A Shadowking win is
-    // EITHER the Keystone assault (doom_complete) OR attrition (all_broken) (§A).
-    expect(m.shadowkingWin).toBe(m.gameEndReason === 'doom_complete' || m.gameEndReason === 'all_broken');
+    // EITHER the Keystone assault (doom_complete) OR attrition (zero living Warlords, §6).
+    expect(m.shadowkingWin).toBe(m.gameEndReason === 'doom_complete' || m.gameEndReason === 'attrition');
     expect(m.territoryWin).toBe(m.gameEndReason === 'territory_victory');
-    expect(m.allBrokenWin).toBe(m.gameEndReason === 'all_broken');
-    // Exactly one win CATEGORY fires; allBrokenWin is a sub-type of shadowkingWin, not a 4th.
-    expect([m.shadowkingWin, m.territoryWin, m.gambitWin].filter(Boolean).length).toBe(1);
-    if (m.allBrokenWin) expect(m.shadowkingWin).toBe(true);
+    expect(m.lastStandingWin).toBe(m.gameEndReason === 'last_standing');
+    expect(m.attritionWin).toBe(m.gameEndReason === 'attrition');
+    // Exactly one win CATEGORY fires; attritionWin is a sub-type of shadowkingWin, not a 5th.
+    expect([m.shadowkingWin, m.territoryWin, m.gambitWin, m.lastStandingWin].filter(Boolean).length).toBe(1);
+    if (m.attritionWin) expect(m.shadowkingWin).toBe(true);
   });
 
-  it('counts RESCUE and Broken events from the action log', () => {
+  it('counts PLAYER_ELIMINATED events from the action log', () => {
     const { finalState } = playHeadlessGame({ seed: 7, playerCount: 4, mode: 'competitive' });
-    const before = computeMetrics(finalState).rescueCount;
-    finalState.actionLog.push({ type: 'PLAYER_ACTED', playerIndex: 0, action: 'RESCUE', details: {} });
-    finalState.actionLog.push({ type: 'PLAYER_ACTED', playerIndex: 1, action: 'PASS', details: { broken: true } });
+    const before = computeMetrics(finalState).eliminations;
+    finalState.actionLog.push({ type: 'PLAYER_ELIMINATED', playerIndex: 1, round: finalState.round });
     const after = computeMetrics(finalState);
-    expect(after.rescueCount).toBe(before + 1);
-    expect(after.brokenCount).toBeGreaterThanOrEqual(1);
+    expect(after.eliminations).toBe(before + 1);
   });
 
   it('is deterministic for a fixed final state', () => {

@@ -100,7 +100,7 @@ export {
   applyCombatOutcome,
   getPlayerPowerAtNode,
   getShadowkingPowerAtNode,
-  checkBrokenState,
+  livingStrongholdCount,
 } from './combat.js';
 export type { CombatSetup, CombatResult, CombatType, LastStandResult } from './combat.js';
 
@@ -110,9 +110,7 @@ export {
   executeClaim,
   executeStrike,
   executeRaid,
-  executeRescue,
   executeRecruit,
-  checkBrokenRecovery,
   areAdjacent,
   isPlayerAtNode,
   hasRivalAtNode,
@@ -156,4 +154,9 @@ export type { AIPolicy } from './ai-player.js';
 export { TUNABLES } from './tunables.js';
 
 // ── Sequencer (for advanced/test use) ──
-export { computeCrownHolder, classifyPledgeTier } from './sequencer.js';
+export {
+  computeCrownHolder,
+  classifyPledgeTier,
+  resolveDeposals,
+  checkEndConditions,
+} from './sequencer.js';

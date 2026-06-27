@@ -21,7 +21,6 @@ import {
   AUDIT_COST,
   ACCUSATION_COOLDOWN_ROUNDS,
   ACCUSATION_VINDICATION_BONUS,
-  TRAITOR_EXPOSED_WOUNDS,
 } from '../../src/v3/tunables.js';
 import type { Command } from '../../src/v3/commands.js';
 import type { GameState, PledgeEntry } from '../../src/v3/types.js';
@@ -192,7 +191,8 @@ describe('accusation (§10)', () => {
     const state = bloodPactGame(7, traitor);
     const after = runAccusation(state, 0, traitor, true);
     expect(after.bloodPactExposed).toBe(true);
-    expect(after.players[traitor].wounds).toBeGreaterThanOrEqual(TRAITOR_EXPOSED_WOUNDS);
+    // The exposure bite is the forfeited doom/attrition win + front pushback (§10); the v2
+    // wounds sting is retired with the Broken Court (§8).
     expect(after.accusationState).toBeNull();
     const resolved = after.actionLog.find(e => e.type === 'ACCUSATION_RESOLVED');
     expect(resolved).toMatchObject({ outcome: 'correct', wasTraitor: true });

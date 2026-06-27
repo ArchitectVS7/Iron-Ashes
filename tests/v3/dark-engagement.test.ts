@@ -84,14 +84,14 @@ describe('Dark Engagement (Stage 5-dark)', () => {
   });
 
   describe('territoryRank', () => {
-    it('orders by production, ties by seat, Broken last', () => {
+    it('orders by production, ties by seat, eliminated last', () => {
       const state = createGame(4, 'competitive', 42);
       // Clear all ownership, then hand-build standings.
       for (const ns of Object.values(state.board.state.nodes)) ns.owner = null;
       state.board.state.nodes['forge-nw'].owner = 2;   // player 2: production 3 (leader)
       state.board.state.nodes['holding-ne'].owner = 0; // player 0: production 1
       state.board.state.nodes['holding-se'].owner = 1; // player 1: production 1 (tie w/ 0 → lower seat ranks higher)
-      state.players[3].isBroken = true;                // player 3: ranked last
+      state.players[3].isEliminated = true;            // player 3: ranked last
 
       expect(territoryRank(state, 2)).toBe(0);
       expect(territoryRank(state, 0)).toBe(1);

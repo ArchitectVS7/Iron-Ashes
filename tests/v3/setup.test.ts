@@ -112,11 +112,11 @@ describe('createGame()', () => {
       }
     });
 
-    it('no player starts Broken', () => {
+    it('no player starts eliminated or deposed', () => {
       for (const p of state.players) {
-        expect(p.isBroken).toBe(false);
-        expect(p.brokenSince).toBeNull();
-        expect(p.brokenRoundsConsecutive).toBe(0);
+        expect(p.isEliminated).toBe(false);
+        expect(p.eliminatedRound).toBeNull();
+        expect(p.deposed).toBe(false);
       }
     });
 

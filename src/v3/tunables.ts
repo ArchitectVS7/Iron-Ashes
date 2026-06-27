@@ -23,11 +23,10 @@ export const STARTING_HAND = TUNABLES_DATA.STARTING_HAND;
 /** Maximum cards a player can hold (refilled toward this at Dawn). */
 export const HAND_LIMIT = TUNABLES_DATA.HAND_LIMIT;
 
-/** Actions per turn for an active (non-Broken) player. */
+/** Actions per turn for a living player. */
 export const ACTIONS_NORMAL = TUNABLES_DATA.ACTIONS_NORMAL;
 
-/** Actions per turn for a Broken player. */
-export const ACTIONS_BROKEN = TUNABLES_DATA.ACTIONS_BROKEN;
+// ACTIONS_BROKEN removed (§8): the Broken Court is retired — there is no reduced-action state.
 
 // ─── Shadowking Forces ────────────────────────────────────────────
 
@@ -78,23 +77,11 @@ export const PATIENCE_CAP = TUNABLES_DATA.PATIENCE_CAP;
 /** Weight multiplier for Forges when computing territory lead (Crown). */
 export const FORGE_WEIGHT = TUNABLES_DATA.FORGE_WEIGHT;
 
-// ─── Broken Court ─────────────────────────────────────────────────
-
-/** Accumulated wounds required to enter Broken state. */
-export const BREAK_THRESHOLD = TUNABLES_DATA.BREAK_THRESHOLD;
-
-/** Extra banners per round while Broken (comeback subsidy, decays). */
-export const BROKEN_INCOME_BONUS = TUNABLES_DATA.BROKEN_INCOME_BONUS;
-
-/**
- * Auto-recover to minimum strength after this many consecutive Broken rounds.
- * Stage 5d locked 3 → 2: with the dark now a break-vector, faster recovery keeps the
- * extra Breaks from piling into all_broken (mutual-loss) draws.
- */
-export const BROKEN_MAX_ROUNDS = TUNABLES_DATA.BROKEN_MAX_ROUNDS;
-
-/** Card cost to Rescue an adjacent/co-located Broken ally. Stage 5d locked 2 → 1 (cheaper). */
-export const RESCUE_COST = TUNABLES_DATA.RESCUE_COST;
+// ─── Broken Court — RETIRED (§8) ──────────────────────────────────
+// BREAK_THRESHOLD, BROKEN_INCOME_BONUS, BROKEN_MAX_ROUNDS, RESCUE_COST,
+// RESCUE_TRIBUTE_BANNERS, LANDED_STRIKE_WOUNDS, ACTIONS_BROKEN are removed: the
+// no-elimination comeback system is replaced by real elimination + Dawn deposal (§6).
+// Their rebuild levers (RANSOM_COST, CAPTURE_MARGIN, …) arrive with capture in 3d (§9).
 
 // ─── Herald / political-martial stance (§ Herald, FOCUS-GROUP-R3 §3) ──
 // Recruiting a Herald commits a player to the POLITICAL build: a bigger hand (more
@@ -110,14 +97,6 @@ export const HERALD_HAND_BONUS = TUNABLES_DATA.HERALD_HAND_BONUS;
 export const HERALD_COMBAT_PENALTY = TUNABLES_DATA.HERALD_COMBAT_PENALTY;
 /** Blight pushback a Herald's PARLEY applies to a nearby front (non-card anti-dark verb). [TUNABLE] */
 export const HERALD_PUSHBACK = TUNABLES_DATA.HERALD_PUSHBACK;
-
-/**
- * Banners the rescued ally pays the rescuer on Rescue (Stage 5d win-currency payoff).
- * The "strings" with teeth: rescue moves the rescuer's claim/march math THIS round, so
- * it's a real political deal (bind a rival + take their banners), not charity. Stage 5d
- * locked 0 → 2. [TUNABLE]
- */
-export const RESCUE_TRIBUTE_BANNERS = TUNABLES_DATA.RESCUE_TRIBUTE_BANNERS;
 
 // ─── Game Clock ───────────────────────────────────────────────────
 
@@ -207,17 +186,8 @@ export const ASHED_TRAVERSE_EXTRA_COST = TUNABLES_DATA.ASHED_TRAVERSE_EXTRA_COST
  */
 export const FORGE_TOLL_COST = TUNABLES_DATA.FORGE_TOLL_COST;
 
-/**
- * Wounds the dark deals its NAMED TARGET when a strike lands un-averted (Stage 5d
- * break-vector): `ceil((1-ratio) * LANDED_STRIKE_WOUNDS)`. The dark's strikes ash
- * nodes but never wounded a warlord, so breaks (and thus rescues) were starved and
- * "leading is dangerous" / "a beaten lord feeds the dark" (§5.4) was dormant. This
- * lets the dark break the leader it hunts. 5d locked 0 → 2 (the primary Break source
- * that revives the rescue economy); the Oaths retune raised it 2 → 3 — Oath
- * non-aggression cut PvP Breaks, so a harder dark-wound restores breaks/rescues. See
- * tuning-log §5d + §oaths. [TUNABLE]
- */
-export const LANDED_STRIKE_WOUNDS = TUNABLES_DATA.LANDED_STRIKE_WOUNDS;
+// LANDED_STRIKE_WOUNDS removed (§8): a landed strike now bites the MAP (Blight spread
+// toward depose pressure), not the warlord — the v2 wounds break-vector is retired.
 
 // ─── Grudge System ────────────────────────────────────────────────
 
@@ -379,8 +349,9 @@ export const ACCUSATION_VINDICATION_BONUS = TUNABLES_DATA.ACCUSATION_VINDICATION
 /** Blight pushback applied to the worst frontier node when the traitor is exposed. */
 export const ACCUSATION_PUSHBACK = TUNABLES_DATA.ACCUSATION_PUSHBACK;
 
-/** Wounds dealt to the traitor when correctly exposed. */
-export const TRAITOR_EXPOSED_WOUNDS = TUNABLES_DATA.TRAITOR_EXPOSED_WOUNDS;
+// TRAITOR_EXPOSED_WOUNDS removed (§8): it dealt wounds toward Broken, a state that no
+// longer exists. Exposure's bite is now the forfeited doom/attrition win + the front
+// pushback; the exposure economy re-tunes in a v3 5e-equivalent (spec §10).
 
 // ─── Doom Cost curve (per-Act base + player-count scaling) ────────
 // Extracted into named tunables so the Stage-5 search can fix the player-count
@@ -474,12 +445,8 @@ export interface Tunables {
   readonly DK_BLOCKS_CLAIM: boolean;
   readonly DK_KILL_CLAIMS_NODE: boolean;
   readonly GRUDGE_MARK_TOP_N: number;
-  // ── Rescue / break economy (5d cluster) ──
-  readonly BREAK_THRESHOLD: number;
-  readonly RESCUE_COST: number;
-  readonly RESCUE_TRIBUTE_BANNERS: number;
-  readonly LANDED_STRIKE_WOUNDS: number;
-  readonly BROKEN_MAX_ROUNDS: number;
+  // Rescue / break economy (5d cluster) — RETIRED (§8): BREAK_THRESHOLD, RESCUE_COST,
+  // RESCUE_TRIBUTE_BANNERS, LANDED_STRIKE_WOUNDS, BROKEN_MAX_ROUNDS removed.
   // ── Oaths (passion spine) ──
   readonly OATH_DIVIDEND: number;
   readonly OATH_DURATION: number;
@@ -528,7 +495,7 @@ export interface Tunables {
   readonly AUDIT_COST: number;
   readonly ACCUSATION_COOLDOWN_ROUNDS: number;
   readonly ACCUSATION_PUSHBACK: number;
-  readonly TRAITOR_EXPOSED_WOUNDS: number;
+  // TRAITOR_EXPOSED_WOUNDS removed (§8) — wounds no longer exist.
   readonly ACCUSATION_WRONG_PENALTY: number;
   readonly ACCUSATION_VINDICATION_BONUS: number;
   // ── Extracted magic numbers (Assessment #3) — defaults byte-identical. ──
@@ -546,7 +513,6 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   DK_START_COUNT, DK_PER_PLAYER, DK_POWER,
   SPREAD_AMOUNT_BASE, DAWN_BLIGHT_ADVANCE, BLIGHT_TO_ASH, PUSHBACK,
   DK_BLOCKS_CLAIM, DK_KILL_CLAIMS_NODE, GRUDGE_MARK_TOP_N,
-  BREAK_THRESHOLD, RESCUE_COST, RESCUE_TRIBUTE_BANNERS, LANDED_STRIKE_WOUNDS, BROKEN_MAX_ROUNDS,
   OATH_DIVIDEND, OATH_DURATION, OATH_LOYALTY_BONUS, OATH_BREAK_BANNERS, GRUDGE_OATHBREAK,
   FORGE_TOLL_COST, SEALED_CORE_PLEDGE, GAMBIT_SELF_COVER_CARDS, BAILOUT_BASE_PCT,
   ACCUSE_MIN_SCORE, SABOTEUR_COVER, BLOOD_PACT_SPREAD_BONUS,
@@ -556,7 +522,7 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   CARD_VALUE_MIN, CARD_VALUE_MAX, BASE_BANNER_INCOME,
   GRUDGE_PER_DK_KILL, GRUDGE_PER_FORGE_RECLAIM, GRUDGE_CAP, GRUDGE_DECAY_RATE,
   SUSPICION_LOG_ROUNDS, AUDIT_COST, ACCUSATION_COOLDOWN_ROUNDS, ACCUSATION_PUSHBACK,
-  TRAITOR_EXPOSED_WOUNDS, ACCUSATION_WRONG_PENALTY, ACCUSATION_VINDICATION_BONUS,
+  ACCUSATION_WRONG_PENALTY, ACCUSATION_VINDICATION_BONUS,
   ACTION_BASE_COST, SUSPICION_NONE_SCORE, PLEDGE_TIER_HIGH_RATIO, PLEDGE_TIER_MEDIUM_RATIO,
   GAMBIT_COVER_FRACTION, SABOTEUR_COVER_PLEDGE_FRACTION,
 });
@@ -585,7 +551,6 @@ export const TUNABLES = Object.freeze({
   STARTING_HAND,
   HAND_LIMIT,
   ACTIONS_NORMAL,
-  ACTIONS_BROKEN,
   DK_START_COUNT,
   DK_POWER,
   BLIGHT_POWER,
@@ -596,10 +561,6 @@ export const TUNABLES = Object.freeze({
   PATIENCE_ON_BLOCK,
   PATIENCE_CAP,
   FORGE_WEIGHT,
-  BREAK_THRESHOLD,
-  BROKEN_INCOME_BONUS,
-  BROKEN_MAX_ROUNDS,
-  RESCUE_COST,
   ROUND_CAP,
   ACT_THRESHOLDS,
   GAMBIT_SURCHARGE,
@@ -633,8 +594,6 @@ export const TUNABLES = Object.freeze({
   DK_MARCH_DISTANCE,
   SURGE_SPREAD_MULT,
   GAMBIT_ADJACENT_STRIKE_MULT,
-  RESCUE_TRIBUTE_BANNERS,
-  LANDED_STRIKE_WOUNDS,
   SUSPICION_LOG_ROUNDS,
   ACCUSE_MIN_SCORE,
   SABOTEUR_COVER,
@@ -644,7 +603,6 @@ export const TUNABLES = Object.freeze({
   ACCUSATION_WRONG_PENALTY,
   ACCUSATION_VINDICATION_BONUS,
   ACCUSATION_PUSHBACK,
-  TRAITOR_EXPOSED_WOUNDS,
   ACTION_BASE_COST,
   SUSPICION_NONE_SCORE,
   PLEDGE_TIER_HIGH_RATIO,

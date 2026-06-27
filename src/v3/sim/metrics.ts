@@ -16,21 +16,21 @@ export interface GameMetrics {
   readonly rounds: number;
   readonly actReached: Act;
 
-  /** A Shadowking win — the dark ate the Keystone (doom_complete) OR broke the whole table
-   *  (all_broken) (§A). The §9 "Shadowking win" rate counts both. */
+  /** A Shadowking win — the dark ate the Keystone (doom_complete) OR deposed the whole
+   *  table (attrition, the all_broken successor §6/§12 #2). The §9 rate counts both. */
   readonly shadowkingWin: boolean;
   readonly territoryWin: boolean;
   readonly gambitWin: boolean;
-  /** Sub-type flag: this Shadowking win came via all_broken (attrition) rather than the
-   *  Keystone assault. A diagnostic, NOT mutually exclusive with shadowkingWin (§A). */
-  readonly allBrokenWin: boolean;
+  /** A player won by being the last Warlord standing (the new elimination win, §6). */
+  readonly lastStandingWin: boolean;
+  /** Sub-type flag: this Shadowking win came via attrition (zero living Warlords) rather
+   *  than the Keystone assault. A diagnostic, NOT mutually exclusive with shadowkingWin. */
+  readonly attritionWin: boolean;
 
   /** A Crown's Gambit was seized at least once this game. */
   readonly gambitSeized: boolean;
-  /** Number of RESCUE actions performed. */
-  readonly rescueCount: number;
-  /** Number of times a player entered the Broken state. */
-  readonly brokenCount: number;
+  /** Number of Warlords eliminated (deposed at Dawn) this game (§6). */
+  readonly eliminations: number;
 
   /** Final living owned production per seat (Forges weighted FORGE_WEIGHT). */
   readonly territoryPerSeat: readonly number[];
@@ -106,8 +106,7 @@ function meanPledges(state: GameState, playerCount: number): number[] {
 export function computeMetrics(state: GameState): GameMetrics {
   const playerCount = state.players.length;
 
-  let rescueCount = 0;
-  let brokenCount = 0;
+  let eliminations = 0;
   let gambitSeized = false;
   let accusationsResolved = 0;
   let accusationsCorrect = 0;
@@ -123,9 +122,10 @@ export function computeMetrics(state: GameState): GameMetrics {
   let heraldCaptures = 0;
   let playerActions = 0;
   for (const e of state.actionLog) {
-    if (e.type === 'PLAYER_ACTED') {
+    if (e.type === 'PLAYER_ELIMINATED') {
+      eliminations++;
+    } else if (e.type === 'PLAYER_ACTED') {
       playerActions++;
-      if (e.action === 'RESCUE') rescueCount++;
       if (e.action === 'SWEAR_OATH') oathsSworn++;
       if (e.action === 'BREAK_OATH') oathsBroken++;
       if (e.action === 'RECRUIT' && e.details?.stance === 'political') heraldsRecruited++;
@@ -133,7 +133,6 @@ export function computeMetrics(state: GameState): GameMetrics {
       if (e.action === 'PARLEY') parleyCount++;
       if (e.action === 'MARCH' && typeof e.details?.toll === 'number' && e.details.toll > 0) tollsPaid++;
       if (e.details?.oathMatured === true) oathsMatured++;
-      if (e.details?.broken === true) brokenCount++;
       if (e.details?.gambitSeized === true) gambitSeized = true;
     } else if (e.type === 'ACCUSATION_RESOLVED') {
       accusationsResolved++;
@@ -156,18 +155,20 @@ export function computeMetrics(state: GameState): GameMetrics {
     winner: state.winner,
     rounds: state.round,
     actReached: state.act,
-    shadowkingWin: state.gameEndReason === 'doom_complete' || state.gameEndReason === 'all_broken',
+    shadowkingWin: state.gameEndReason === 'doom_complete' || state.gameEndReason === 'attrition',
     territoryWin: state.gameEndReason === 'territory_victory',
     gambitWin: state.gameEndReason === 'gambit_victory',
-    allBrokenWin: state.gameEndReason === 'all_broken',
+    lastStandingWin: state.gameEndReason === 'last_standing',
+    attritionWin: state.gameEndReason === 'attrition',
     gambitSeized: gambitSeized || state.gameEndReason === 'gambit_victory',
-    rescueCount,
-    brokenCount,
+    eliminations,
     territoryPerSeat: state.players.map(p => territoryOf(state, p.index)),
     meanPledgePerSeat: meanPledges(state, playerCount),
 
     isBloodPact,
-    traitorWin: isBloodPact && state.gameEndReason === 'doom_complete'
+    // §12 #5: an eliminated traitor still wins on a later doom/attrition.
+    traitorWin: isBloodPact
+      && (state.gameEndReason === 'doom_complete' || state.gameEndReason === 'attrition')
       && state.winner !== null && state.winner === state.bloodPactHolder,
     traitorExposed: isBloodPact && state.bloodPactExposed === true,
     accusationsResolved,

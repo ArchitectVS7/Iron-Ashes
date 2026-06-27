@@ -7,9 +7,9 @@
  * Actions:
  *   MARCH   — move a piece 1 node (cost 1 banner, extra if ashed node)
  *   CLAIM   — claim current unclaimed Holding/Forge (cost 1 banner)
- *   RAID    — initiate combat vs a co-located rival (§5.3)
+ *   RAID    — initiate combat vs a co-located rival (§5.3); taking a rival's last
+ *             stronghold flags them `deposed` (resolved at Dawn, §6)
  *   STRIKE  — initiate combat vs a co-located Shadowking force (§5.3)
- *   RESCUE  — un-Break a co-located/adjacent ally (§5.4)
  *   RECRUIT — recruit a Herald → the political-stance build (§Herald)
  *   PASS    — end actions early
  *
@@ -26,8 +26,8 @@ import {
 } from './tunables.js';
 import {
   applyCombatOutcome,
-  checkBrokenState,
   chooseLastStandCards,
+  livingStrongholdCount,
   resolveCombat,
   resolveLastStand,
   type CombatSetup,
@@ -390,13 +390,8 @@ export function executeStrike(
   events.push(...combatResult.events);
 
   // Apply outcome
-  const outcomeEvents = applyCombatOutcome(
-    state, setup, combatResult.winner, combatResult.margin
-  );
+  const outcomeEvents = applyCombatOutcome(state, setup, combatResult.winner);
   events.push(...outcomeEvents);
-
-  // Check if attacker is now Broken
-  events.push(...checkBrokenState(state, playerIndex));
 
   return { state, events, actionConsumed: true };
 }
@@ -460,7 +455,6 @@ export function executeRaid(
 
   // ── Last Stand (§5.3) — one-sided, final defender reversal ──
   let winner = combatResult.winner;
-  let margin = combatResult.margin;
   let lastStandCards: number[] = [];
   if (combatResult.lastStandAvailable) {
     lastStandCards = chooseLastStandCards(
@@ -469,7 +463,6 @@ export function executeRaid(
     if (lastStandCards.length > 0) {
       const stand = resolveLastStand(combatResult, lastStandCards);
       winner = stand.winner;
-      margin = stand.margin;
       events.push({
         type: 'PLAYER_ACTED',
         playerIndex: defenderIndex,
@@ -479,8 +472,8 @@ export function executeRaid(
     }
   }
 
-  // Apply outcome with the FINAL winner/margin (discards the originally-committed cards).
-  const outcomeEvents = applyCombatOutcome(state, setup, winner, margin);
+  // Apply outcome with the FINAL winner (discards the originally-committed cards).
+  const outcomeEvents = applyCombatOutcome(state, setup, winner);
   events.push(...outcomeEvents);
 
   // Discard the additional Last Stand cards the defender spent.
@@ -496,103 +489,33 @@ export function executeRaid(
     }
   }
 
-  // If the attacker (still) won, transfer ownership of the node
+  // If the attacker (still) won, transfer ownership of the node.
   if (winner === 'attacker') {
     const nodeState = state.board.state.nodes[nodeId];
     if (nodeState && nodeState.owner === defenderIndex) {
       nodeState.owner = playerIndex;
+
+      // Depose pressure (§5.5/§6): taking a rival's LAST living stronghold flags them
+      // `deposed`. The flag is set here in ACTION; the elimination RESOLVES AT DAWN in
+      // seat order (resolveDeposals). Whisper protects against hopelessness (§12 #13,
+      // §13 P0-10) — a last stronghold cannot be lost pre-March. (Capture verb 3d.)
+      if (state.act !== 'WHISPER' && livingStrongholdCount(state, defenderIndex) === 0) {
+        state.players[defenderIndex].deposed = true;
+        events.push({
+          type: 'PLAYER_ACTED',
+          playerIndex: defenderIndex,
+          action: 'PASS',
+          details: { deposed: true, by: playerIndex, reason: 'last_stronghold_raided' },
+        });
+      }
     }
   }
 
-  // Check if loser is now Broken
-  const loserIndex = winner === 'attacker' ? defenderIndex : playerIndex;
-  events.push(...checkBrokenState(state, loserIndex));
-
   return { state, events, actionConsumed: true };
 }
 
-/**
- * RESCUE — un-Break a co-located or adjacent ally (§5.4).
- * Cost: RESCUE_COST cards from hand.
- * Creates a binding one-round debt (forced minimum Pledge contribution).
- */
-export function executeRescue(
-  state: GameState,
-  playerIndex: number,
-  targetPlayerIndex: number,
-): ActionResult {
-  const events: GameEvent[] = [];
-  const rescuer = state.players[playerIndex];
-  const target = state.players[targetPlayerIndex];
-
-  // Validate target is Broken
-  if (!target.isBroken) {
-    throw new Error(`Cannot RESCUE: Player ${targetPlayerIndex + 1} is not Broken`);
-  }
-
-  // Validate co-located or adjacent
-  const rescuerNode = rescuer.warlordNodeId;
-  const targetNode = target.warlordNodeId;
-  if (rescuerNode !== targetNode && !areAdjacent(state, rescuerNode, targetNode)) {
-    throw new Error(`Cannot RESCUE: Player ${targetPlayerIndex + 1} is not co-located or adjacent`);
-  }
-
-  // Validate rescuer has enough cards
-  const rescueCost = getTunables().RESCUE_COST;
-  if (rescuer.hand.length < rescueCost) {
-    throw new Error(
-      `Cannot RESCUE: need ${rescueCost} cards, have ${rescuer.hand.length}`
-    );
-  }
-
-  // Validate not rescuing self
-  if (playerIndex === targetPlayerIndex) {
-    throw new Error('Cannot RESCUE yourself');
-  }
-
-  // Execute: spend cards
-  rescuer.hand.splice(0, rescueCost);
-
-  // Win-currency payoff (Stage 5d): the rescued ally pays the rescuer a banner tribute
-  // (capped at what they hold). Banners are the claim/march currency, so rescue moves
-  // the rescuer's win math THIS round — "strings with teeth", not charity.
-  const tribute = Math.min(getTunables().RESCUE_TRIBUTE_BANNERS, target.banners);
-  if (tribute > 0) {
-    target.banners -= tribute;
-    rescuer.banners += tribute;
-  }
-
-  // Un-Break the target
-  target.isBroken = false;
-  target.brokenSince = null;
-  target.brokenRoundsConsecutive = 0;
-  target.wounds = Math.floor(getTunables().BREAK_THRESHOLD / 2); // Recover to half wounds
-
-  // Rescue forges ONE bond — the dramatic, earned Oath (§ Oaths, §M). It replaces the
-  // old separate rescue-debt: the Oath's non-aggression already withholds the rescued's
-  // attack on the rescuer, and the dark hunts oathbreakers, so a saved player who turns on
-  // their saviour pays the Ledger. (One slot each — forms only if both are oath-free; the
-  // banner tribute above is the always-present "string" when an Oath can't form.)
-  let oathForged = false;
-  if (findOath(state, playerIndex) === null && findOath(state, targetPlayerIndex) === null) {
-    events.push(...forgeOath(state, playerIndex, targetPlayerIndex, 'rescue'));
-    oathForged = true;
-  }
-
-  events.push({
-    type: 'PLAYER_ACTED',
-    playerIndex,
-    action: 'RESCUE',
-    details: {
-      targetPlayerIndex,
-      cost: rescueCost,
-      tribute,
-      bond: oathForged ? 'oath' : 'none',
-    },
-  });
-
-  return { state, events, actionConsumed: true };
-}
+// RESCUE removed (§8): the Broken Court is retired, so there is no Broken ally to
+// un-break. Its rebuild as RANSOM (free a captive; §5.3) arrives with capture in 3d.
 
 // ─── Oaths (§ Oaths) ──────────────────────────────────────────────
 
@@ -621,7 +544,7 @@ function forgeOath(state: GameState, x: number, y: number, via: string): GameEve
 
 /**
  * SWEAR_OATH — forge a public pact with a rival (§ Oaths). FREE (no action point):
- * the cost is the betrayal risk, not tempo. Legal iff both are non-Broken, distinct,
+ * the cost is the betrayal risk, not tempo. Legal iff both are living, distinct,
  * and each oath-free (one Oath per player).
  */
 export function executeSwearOath(
@@ -633,7 +556,7 @@ export function executeSwearOath(
   const me = state.players[playerIndex];
   const them = state.players[targetIndex];
   if (!them) throw new Error(`Cannot SWEAR_OATH: no Player ${targetIndex + 1}`);
-  if (me.isBroken || them.isBroken) throw new Error('Cannot SWEAR_OATH while either is Broken');
+  if (me.isEliminated || them.isEliminated) throw new Error('Cannot SWEAR_OATH with an eliminated player');
   if (findOath(state, playerIndex) !== null) throw new Error('Cannot SWEAR_OATH: you already hold an Oath');
   if (findOath(state, targetIndex) !== null) throw new Error(`Cannot SWEAR_OATH: Player ${targetIndex + 1} already holds an Oath`);
 
@@ -799,31 +722,5 @@ export function executeParley(
   return { state, events, actionConsumed: true };
 }
 
-// ─── Broken Recovery (Dawn check, §5.4) ──────────────────────────
-
-/**
- * Check if a Broken player should auto-recover at Dawn.
- * Auto-recovers after BROKEN_MAX_ROUNDS consecutive rounds Broken.
- */
-export function checkBrokenRecovery(state: GameState, playerIndex: number): GameEvent[] {
-  const events: GameEvent[] = [];
-  const player = state.players[playerIndex];
-
-  if (!player.isBroken) return events;
-  if (player.brokenRoundsConsecutive < getTunables().BROKEN_MAX_ROUNDS) return events;
-
-  // Auto-recover to minimum strength
-  player.isBroken = false;
-  player.brokenSince = null;
-  player.brokenRoundsConsecutive = 0;
-  player.wounds = Math.floor(getTunables().BREAK_THRESHOLD / 2); // Minimum strength
-
-  events.push({
-    type: 'PLAYER_ACTED',
-    playerIndex,
-    action: 'PASS',
-    details: { recovered: true, reason: 'auto_recovery_cap' },
-  });
-
-  return events;
-}
+// Broken recovery removed (§8): the Broken Court is retired. Elimination is now
+// terminal (no auto-recovery); deposal resolves at Dawn via resolveDeposals (§6).

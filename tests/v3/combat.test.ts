@@ -5,10 +5,9 @@
  *   - Base piece power calculation
  *   - Card-committed combat resolution
  *   - Ties: defender wins in RAID, no-result in STRIKE
- *   - Margin → wounds
+ *   - Card discard on combat outcome (Broken/wounds retired §8)
  *   - Last Stand: one-sided, defender can reverse the outcome
  *   - DK destruction + pushback + grudge
- *   - Broken state check at wound threshold
  */
 
 import { describe, expect, it, beforeEach } from 'vitest';
@@ -19,10 +18,9 @@ import {
   applyCombatOutcome,
   getPlayerPowerAtNode,
   getShadowkingPowerAtNode,
-  checkBrokenState,
 } from '../../src/v3/combat.js';
 import type { CombatSetup } from '../../src/v3/combat.js';
-import { BREAK_THRESHOLD, DK_POWER } from '../../src/v3/tunables.js';
+import { DK_POWER } from '../../src/v3/tunables.js';
 import type { GameState } from '../../src/v3/types.js';
 
 describe('Combat System', () => {
@@ -204,22 +202,26 @@ describe('Combat System', () => {
   });
 
   describe('applyCombatOutcome()', () => {
-    it('RAID loser takes wounds equal to margin', () => {
+    it('RAID discards committed cards from both sides (no wounds — Broken retired §8)', () => {
       const keepId = state.board.definition.keepIds[0];
+      state.players[0].warlordNodeId = keepId;
       state.players[1].warlordNodeId = keepId;
+      state.players[0].hand = [1, 2, 5];
+      state.players[1].hand = [3, 4];
 
       const setup: CombatSetup = {
         combatType: 'RAID',
         attackerIndex: 0,
         nodeId: keepId,
-        attackerCards: [],
-        defenderCards: [],
+        attackerCards: [5],
+        defenderCards: [3],
         defenderIndex: 1,
       };
 
-      const initialWounds = state.players[1].wounds;
-      applyCombatOutcome(state, setup, 'attacker', 3);
-      expect(state.players[1].wounds).toBe(initialWounds + 3);
+      applyCombatOutcome(state, setup, 'attacker');
+      // Committed cards are spent; the rest of each hand is untouched, no wounds field.
+      expect(state.players[0].hand).toEqual([1, 2]);
+      expect(state.players[1].hand).toEqual([4]);
     });
 
     it('STRIKE win destroys SK force and adds grudge', () => {
@@ -242,7 +244,7 @@ describe('Combat System', () => {
       };
 
       const initialGrudge = state.shadowking.grudge[0];
-      const events = applyCombatOutcome(state, setup, 'attacker', 2);
+      const events = applyCombatOutcome(state, setup, 'attacker');
 
       // DK should be removed
       expect(state.board.state.nodes[nodeId].shadowkingForces.length).toBe(0);
@@ -266,64 +268,12 @@ describe('Combat System', () => {
         defenderIndex: null,
       };
 
-      applyCombatOutcome(state, setup, 'no_result', 0);
+      applyCombatOutcome(state, setup, 'no_result');
       // Cards should be returned
       expect(state.players[0].hand.length).toBe(initialHand.length);
     });
   });
 
-  describe('checkBrokenState()', () => {
-    it('does nothing below threshold', () => {
-      state.players[0].wounds = BREAK_THRESHOLD - 1;
-      const events = checkBrokenState(state, 0);
-      expect(state.players[0].isBroken).toBe(false);
-      expect(events.length).toBe(0);
-    });
-
-    it('breaks the player at threshold', () => {
-      state.players[0].wounds = BREAK_THRESHOLD;
-      const events = checkBrokenState(state, 0);
-      expect(state.players[0].isBroken).toBe(true);
-      expect(state.players[0].brokenSince).toBe(state.round);
-    });
-
-    it('does nothing if already Broken', () => {
-      state.players[0].isBroken = true;
-      state.players[0].wounds = BREAK_THRESHOLD + 10;
-      const events = checkBrokenState(state, 0);
-      expect(events.length).toBe(0); // No new events
-    });
-
-    it('Broken player forfeits Crown eligibility', () => {
-      state.players[0].wounds = BREAK_THRESHOLD;
-      state.players[0].crownHeld = true;
-      checkBrokenState(state, 0);
-      expect(state.players[0].crownHeld).toBe(false);
-    });
-
-    it('ashes Holdings owned by the Broken player', () => {
-      // Give player 0 a holding
-      state.board.state.nodes['holding-ne'].owner = 0;
-      state.players[0].wounds = BREAK_THRESHOLD;
-
-      const events = checkBrokenState(state, 0);
-      expect(state.board.state.nodes['holding-ne'].ashed).toBe(true);
-      expect(state.board.state.nodes['holding-ne'].owner).toBeNull();
-      expect(events.some(e => e.type === 'NODE_ASHED')).toBe(true);
-    });
-
-    it('dissolves the Broken player\'s Oaths but leaves unrelated ones intact', () => {
-      // A downed lord can't honor a pact (§ Oaths): becoming Broken removes any Oath the
-      // player held, so the Dawn fealty dividend can't leak to a corpse-state ally and the
-      // ally is freed to act. Unrelated oaths between other seats must survive.
-      state.oaths.push({ a: 0, b: 1, swornRound: state.round, strain: 0 });
-      state.oaths.push({ a: 2, b: 3, swornRound: state.round, strain: 0 });
-      state.players[0].wounds = BREAK_THRESHOLD;
-
-      checkBrokenState(state, 0);
-
-      expect(state.oaths.some(o => o.a === 0 || o.b === 0)).toBe(false); // P0's oath dissolved
-      expect(state.oaths.some(o => o.a === 2 && o.b === 3)).toBe(true);  // the unrelated oath untouched
-    });
-  });
+  // checkBrokenState() tests removed (§8): the Broken Court is retired. Elimination is now
+  // tested via resolveDeposals / end-conditions in all-broken-victory.test.ts.
 });

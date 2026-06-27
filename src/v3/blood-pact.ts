@@ -22,7 +22,6 @@ import {
   getTunables,
 } from './tunables.js';
 import { applyPushback, getBlightFrontier } from './blight.js';
-import { checkBrokenState } from './combat.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 
 // ─── Result type ──────────────────────────────────────────────────
@@ -241,9 +240,9 @@ function resolveAccusation(state: GameState): GameEvent[] {
       events.push(...applyPushback(state, worst, getTunables().ACCUSATION_PUSHBACK));
     }
 
-    // The exposed traitor takes wounds (may Break them).
-    state.players[acc.accused].wounds += getTunables().TRAITOR_EXPOSED_WOUNDS;
-    events.push(...checkBrokenState(state, acc.accused));
+    // Exposure's bite is the forfeited doom/attrition win (bloodPactExposed, above) plus
+    // the front pushback. The v2 wounds sting is retired with the Broken Court (§8); the
+    // exposure economy re-tunes in a v3 5e-equivalent (spec §10).
   } else {
     // Wrong conviction — accusers pay, the accused is vindicated.
     outcome = 'wrong';

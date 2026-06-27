@@ -5,9 +5,7 @@
  *   - MARCH: adjacency validation, banner cost, ashed traversal, ZoC
  *   - CLAIM: holding/forge only, unclaimed, banner cost
  *   - STRIKE: SK forces required, card commitment, DK kill
- *   - RAID: rival present, card commits, wounds
- *   - RESCUE: broken target, cost, co-location, un-Break
- *   - Broken recovery at Dawn
+ *   - RAID: rival present, card commits, last-stronghold depose flag (§6)
  */
 
 import { describe, expect, it, beforeEach } from 'vitest';
@@ -15,12 +13,9 @@ import { createGame } from '../../src/v3/setup.js';
 import {
   executeMarch,
   executeClaim,
-  executeRescue,
   executeRaid,
-  checkBrokenRecovery,
   areAdjacent,
 } from '../../src/v3/actions.js';
-import { BROKEN_MAX_ROUNDS, RESCUE_COST, BREAK_THRESHOLD } from '../../src/v3/tunables.js';
 import type { GameState } from '../../src/v3/types.js';
 
 describe('Actions System', () => {
@@ -173,119 +168,38 @@ describe('Actions System', () => {
     });
   });
 
-  describe('executeRescue()', () => {
-    it('un-Breaks a co-located Broken ally', () => {
+  describe('RAID last-stronghold depose flag (§6, §12 #13)', () => {
+    /** Set up: attacker (0) and defender (1) co-located at a node the defender owns as
+     *  their ONLY stronghold; the attacker can beat the defender on cards. */
+    function siege(state: GameState): string {
       const keepId = state.board.definition.keepIds[0];
-      state.players[1].isBroken = true;
+      // Defender owns only this one node (their last stronghold).
+      for (const ns of Object.values(state.board.state.nodes)) {
+        if (ns.owner === 1) ns.owner = null;
+      }
+      state.board.state.nodes[keepId].owner = 1;
       state.players[1].warlordNodeId = keepId;
-      state.players[0].hand = [1, 2, 3, 4, 5, 6]; // Enough cards
+      state.players[0].warlordNodeId = keepId;
+      state.players[0].hand = [4, 4, 4];
+      state.players[1].hand = [];
+      return keepId;
+    }
 
-      const result = executeRescue(state, 0, 1);
-      expect(state.players[1].isBroken).toBe(false);
+    it('taking a rival\'s last stronghold in March flags them deposed (resolved at Dawn)', () => {
+      state.act = 'MARCH';
+      const keepId = siege(state);
+      const result = executeRaid(state, 0, 1, [4, 4], []);
+      expect(state.board.state.nodes[keepId].owner).toBe(0); // node transferred
+      expect(state.players[1].deposed).toBe(true);           // flagged...
+      expect(state.players[1].isEliminated).toBe(false);     // ...but NOT yet eliminated
       expect(result.actionConsumed).toBe(true);
     });
 
-    it('costs RESCUE_COST cards', () => {
-      const keepId = state.board.definition.keepIds[0];
-      state.players[1].isBroken = true;
-      state.players[1].warlordNodeId = keepId;
-      state.players[0].hand = [1, 2, 3, 4, 5, 6];
-      const initialHand = state.players[0].hand.length;
-
-      executeRescue(state, 0, 1);
-      expect(state.players[0].hand.length).toBe(initialHand - RESCUE_COST);
-    });
-
-    it('throws if target is not Broken', () => {
-      const keepId = state.board.definition.keepIds[0];
-      state.players[1].warlordNodeId = keepId;
-
-      expect(() => {
-        executeRescue(state, 0, 1);
-      }).toThrow('not Broken');
-    });
-
-    it('throws if not co-located or adjacent', () => {
-      state.players[1].isBroken = true;
-      state.players[1].warlordNodeId = 'keystone'; // Far away
-      state.players[0].hand = [1, 2, 3, 4, 5, 6];
-
-      expect(() => {
-        executeRescue(state, 0, 1);
-      }).toThrow('not co-located or adjacent');
-    });
-
-    it('throws if insufficient cards', () => {
-      const keepId = state.board.definition.keepIds[0];
-      state.players[1].isBroken = true;
-      state.players[1].warlordNodeId = keepId;
-      state.players[0].hand = []; // No cards
-
-      expect(() => {
-        executeRescue(state, 0, 1);
-      }).toThrow('cards');
-    });
-
-    it('throws if trying to rescue self', () => {
-      state.players[0].isBroken = true;
-      state.players[0].hand = [1, 2, 3, 4, 5, 6];
-
-      expect(() => {
-        executeRescue(state, 0, 0);
-      }).toThrow('yourself');
-    });
-
-    it('works for adjacent allies', () => {
-      // keep-n is adjacent to holding-ne
-      state.players[1].isBroken = true;
-      state.players[1].warlordNodeId = 'holding-ne';
-      state.players[0].warlordNodeId = 'keep-n';
-      state.players[0].hand = [1, 2, 3, 4, 5, 6];
-
-      const result = executeRescue(state, 0, 1);
-      expect(state.players[1].isBroken).toBe(false);
-    });
-  });
-
-  describe('checkBrokenRecovery()', () => {
-    it('auto-recovers after BROKEN_MAX_ROUNDS', () => {
-      state.players[0].isBroken = true;
-      state.players[0].brokenRoundsConsecutive = BROKEN_MAX_ROUNDS;
-
-      const events = checkBrokenRecovery(state, 0);
-      expect(state.players[0].isBroken).toBe(false);
-      expect(events.length).toBeGreaterThan(0);
-    });
-
-    it('does not recover before the cap', () => {
-      state.players[0].isBroken = true;
-      state.players[0].brokenRoundsConsecutive = BROKEN_MAX_ROUNDS - 1;
-
-      const events = checkBrokenRecovery(state, 0);
-      expect(state.players[0].isBroken).toBe(true);
-      expect(events.length).toBe(0);
-    });
-
-    it('sets wounds to half break threshold on recovery', () => {
-      state.players[0].isBroken = true;
-      state.players[0].brokenRoundsConsecutive = BROKEN_MAX_ROUNDS;
-      state.players[0].wounds = BREAK_THRESHOLD + 5;
-
-      checkBrokenRecovery(state, 0);
-      expect(state.players[0].wounds).toBe(Math.floor(BREAK_THRESHOLD / 2));
-    });
-  });
-
-  describe('Broken players keep an active verb (§5.4)', () => {
-    it('a Broken Warlord can still initiate a RAID', () => {
-      const keepId = state.board.definition.keepIds[0];
-      state.players[0].isBroken = true;        // attacker is Broken...
-      state.players[0].warlordNodeId = keepId;
-      state.players[1].warlordNodeId = keepId;  // ...co-located with a rival
-      state.players[0].hand = [5, 5];
-
-      const result = executeRaid(state, 0, 1, [], []);
-      expect(result.actionConsumed).toBe(true); // the RAID was NOT blocked by Broken status
+    it('does NOT flag deposed in Whisper (opening protection, §12 #13)', () => {
+      expect(state.act).toBe('WHISPER');
+      siege(state);
+      executeRaid(state, 0, 1, [4, 4], []);
+      expect(state.players[1].deposed).toBe(false);
     });
   });
 });

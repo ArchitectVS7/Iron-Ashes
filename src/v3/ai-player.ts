@@ -27,7 +27,7 @@ import type { GameEvent } from './events.js';
 import type { GameState } from './types.js';
 import { applyCommand, type CommandResult } from './reducer.js';
 import { getPlayerPowerAtNode, getShadowkingPowerAtNode, chooseCombatCommit } from './combat.js';
-import { hasSKForcesAtNode, hasRivalAtNode, areAdjacent, findOath, areSworn, parleyTarget } from './actions.js';
+import { hasSKForcesAtNode, hasRivalAtNode, findOath, areSworn, parleyTarget } from './actions.js';
 import { ASHED_TRAVERSE_EXTRA_COST, COMBAT_COMMIT_MAX, FORGE_WEIGHT, getTunables } from './tunables.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 
@@ -73,8 +73,6 @@ export interface AIPolicy {
   readonly claimVsRaidPref?: number;
   /** 0..1 — propensity to march toward and seize the Keystone (the Gambit). Neutral 0. */
   readonly gambitAmbition?: number;
-  /** 0..1 — propensity to RESCUE an adjacent Broken ally when affordable. Neutral 0. */
-  readonly rescueWillingness?: number;
   /**
    * 0..1 — propensity to HUNT the dark: march toward and STRIKE a beatable Death
    * Knight (Stage 5-dark). Neutral 0 (baseline never hunts). The kill clears the
@@ -253,7 +251,7 @@ function designatedBailer(state: GameState, playerIndex: number): boolean {
   let bestSeat = -1;
   let bestHand = -1;
   for (const p of state.players) {
-    if (p.index === claimant || p.isBroken) continue;
+    if (p.index === claimant || p.isEliminated) continue;
     if (p.hand.length > bestHand) {
       bestHand = p.hand.length;
       bestSeat = p.index;
@@ -541,43 +539,8 @@ function firstStepTowardNearestRival(state: GameState, playerIndex: number): str
   return null;
 }
 
-/** A Broken ally co-located with or adjacent to the Warlord (for RESCUE), or null. */
-function rescuableAlly(state: GameState, playerIndex: number): number | null {
-  const here = state.players[playerIndex].warlordNodeId;
-  for (const p of state.players) {
-    if (p.index === playerIndex || !p.isBroken) continue;
-    if (p.warlordNodeId === here || areAdjacent(state, here, p.warlordNodeId)) return p.index;
-  }
-  return null;
-}
-
-/**
- * First legal step toward the nearest Broken player (to get adjacent and RESCUE),
- * or null if none reachable (Stage 5d). Without this the AI could only rescue a
- * Broken ally that happened to be adjacent; now it actively closes the distance.
- * BFS, ZoC-respecting, deterministic.
- */
-function bestStepTowardBrokenAlly(state: GameState, playerIndex: number): string | null {
-  const def = state.board.definition;
-  const start = state.players[playerIndex].warlordNodeId;
-  const visited = new Set<string>([start]);
-  const queue: Array<{ node: string; firstStep: string | null }> = [{ node: start, firstStep: null }];
-  while (queue.length > 0) {
-    const cur = queue.shift()!;
-    for (const nb of def.nodes[cur.node].connections) {
-      if (visited.has(nb)) continue;
-      if (stepBlocked(state, playerIndex, nb)) continue;
-      const firstStep = cur.firstStep ?? nb;
-      // A Broken ally standing on nb means stepping here makes us co-located → rescuable.
-      for (const p of state.players) {
-        if (p.index !== playerIndex && p.isBroken && p.warlordNodeId === nb) return firstStep;
-      }
-      visited.add(nb);
-      queue.push({ node: nb, firstStep });
-    }
-  }
-  return null;
-}
+// rescuableAlly / bestStepTowardBrokenAlly removed (§8): no Broken ally to seek or
+// rescue. Capture/RANSOM-seeking AI behaviour arrives with the verb in 3d.
 
 /** First step for the Herald (§HL) toward a SAFE node ADJACENT to the blighted front (so it
  *  can PARLEY from cover — parleyTarget reads here+neighbours). The runner ROUTES AROUND nodes
@@ -611,10 +574,10 @@ function bestStepTowardFront(state: GameState, playerIndex: number, heraldNode: 
   return null;
 }
 
-/** Lowest-index oath-free, non-Broken rival to swear an Oath with, or null. */
+/** Lowest-index oath-free, living rival to swear an Oath with, or null. */
 function oathTargetFor(state: GameState, playerIndex: number): number | null {
   for (const p of state.players) {
-    if (p.index === playerIndex || p.isBroken) continue;
+    if (p.index === playerIndex || p.isEliminated) continue;
     if (findOath(state, p.index) === null) return p.index;
   }
   return null;
@@ -639,7 +602,6 @@ function archetypeAction(
   const defensiveness = policy.defensiveness ?? 0;
   const claimVsRaid = policy.claimVsRaidPref ?? 1;
   const gambitAmbition = policy.gambitAmbition ?? 0;
-  const rescueWillingness = policy.rescueWillingness ?? 0;
   const gambitContest = policy.gambitContest ?? 0;
   const darkHunt = policy.darkHuntBias ?? 0;
   const forgeValuation = policy.forgeValuation ?? 0;
@@ -660,15 +622,14 @@ function archetypeAction(
 
   // 0b. SWEAR_OATH — forge a pact with an oath-free rival. FREE (no action point), so
   //     it doesn't compete with the real turn; the loop proceeds after swearing.
-  //     (A Broken player can't swear — guard so we never propose an illegal action.)
-  if (oathWillingness > 0 && myOath === null && !player.isBroken && rng.float() < oathWillingness) {
+  if (oathWillingness > 0 && myOath === null && rng.float() < oathWillingness) {
     const ally = oathTargetFor(state, playerIndex);
     if (ally !== null) return { type: 'SWEAR_OATH', targetPlayerIndex: ally };
   }
 
   // 0c. RECRUIT a Herald — commit to the political/deep-hand build (§ Herald). Sticky,
   //     consumes an action; only once, when affordable.
-  if (heraldAffinity > 0 && player.stance !== 'political' && !player.isBroken
+  if (heraldAffinity > 0 && player.stance !== 'political'
       && player.banners >= getTunables().HERALD_RECRUIT_COST && rng.float() < heraldAffinity) {
     return { type: 'RECRUIT' };
   }
@@ -713,21 +674,8 @@ function archetypeAction(
     }
   }
 
-  // 1. RESCUE a Broken ally (cooperator). If one is adjacent, rescue it; else close
-  //    the distance toward the nearest Broken player (Stage 5d rescue-seek verb).
-  if (rescueWillingness > 0 && player.hand.length >= getTunables().RESCUE_COST) {
-    const ally = rescuableAlly(state, playerIndex);
-    if (ally !== null && rng.float() < rescueWillingness) {
-      return { type: 'RESCUE', targetPlayerIndex: ally };
-    }
-    if (ally === null && rng.float() < rescueWillingness) {
-      const step = bestStepTowardBrokenAlly(state, playerIndex);
-      if (step !== null && player.banners >= marchCostFor(state, playerIndex, step)
-            && tollAcceptable(state, playerIndex, step, forgeValuation)) {
-        return { type: 'MARCH', targetNodeId: step };
-      }
-    }
-  }
+  // RESCUE step removed (§8): no Broken ally to rescue. The cooperator's coop verb
+  // returns as ally-RANSOM when capture lands in 3d.
 
   // 2. RAID a co-located rival we can beat (aggressor / opportunist). Sworn allies
   //    are off-limits (BREAK_OATH first) — guard so we never propose an illegal RAID.

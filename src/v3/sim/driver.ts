@@ -87,6 +87,7 @@ function runHeadlessGame(cfg: GameRunConfig): GameRunResult {
 
       case 'PLEDGE': {
         for (const p of state.players) {
+          if (p.isEliminated) continue; // eliminated players have no pledge rights (§6)
           if (!state.pledgeBuffer.some(e => e.playerIndex === p.index)) {
             state = runAIPledge(state, p.index, seed, policyFor(p.index)).state;
           }

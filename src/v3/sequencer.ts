@@ -12,9 +12,7 @@
 import type { GameEvent } from './events.js';
 import type { GamePhase, GameState, PledgeTier } from './types.js';
 import {
-  ACTIONS_BROKEN,
   ACTIONS_NORMAL,
-  BROKEN_INCOME_BONUS,
   CROWN_PLEDGE_DISCOUNT,
   FORGE_WEIGHT,
   PATIENCE_CAP,
@@ -22,7 +20,7 @@ import {
   ROUND_CAP,
   getTunables,
 } from './tunables.js';
-import { checkBrokenState } from './combat.js';
+import { livingStrongholdCount } from './combat.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 import {
   applyDawnBlightAdvance,
@@ -36,7 +34,6 @@ import {
   generateReactiveVoiceLine,
 } from './shadowking-policy.js';
 import {
-  checkBrokenRecovery,
   runOathUpkeep,
   resolveHeraldCaptures,
 } from './actions.js';
@@ -93,8 +90,9 @@ export function runThreatPhase(state: GameState): SequencerResult {
  * Check whether all active players have submitted their pledge.
  */
 export function isPledgeComplete(state: GameState): boolean {
-  // All players have Pledge rights, including Broken (per spec)
-  return state.pledgeBuffer.length >= state.players.length;
+  // Every living player pledges; eliminated players have no pledge rights (§6).
+  const living = state.players.filter(p => !p.isEliminated).length;
+  return state.pledgeBuffer.length >= living;
 }
 
 /**
@@ -178,25 +176,9 @@ export function resolvePledgePhase(state: GameState): SequencerResult {
   state = strikeResult.state;
   events.push(...strikeResult.events);
 
-  // ── The dark wounds its named target (Stage 5d break-vector) ──
-  // A landed strike now bloodies the warlord it hunts, not just the map — the §5.4
-  // "leading is dangerous / a beaten lord feeds the dark" loop. This is the main
-  // non-PvP source of Breaks (and thus of the rescue economy).
-  if (!averted) {
-    const dmg = Math.ceil((1 - ratio) * getTunables().LANDED_STRIKE_WOUNDS);
-    const tgt = telegraph.struckPlayerIndex;
-    const struck = tgt !== null ? state.players[tgt] : undefined;
-    if (dmg > 0 && struck && !struck.isBroken) {
-      struck.wounds += dmg;
-      events.push({
-        type: 'PLAYER_ACTED',
-        playerIndex: tgt as number,
-        action: 'PASS',
-        details: { darkWounds: dmg, reason: 'landed_strike' },
-      });
-      events.push(...checkBrokenState(state, tgt as number));
-    }
-  }
+  // The dark's un-averted strike now bites the MAP only (Blight spread, above): it ashes
+  // production toward depose pressure, which resolves at Dawn (§6). The v2 "landed strike
+  // wounds the warlord" break-vector is retired with the Broken Court (§8).
 
   // ── Reactive voice line (P0-5) ──
   if (averted) {
@@ -245,14 +227,22 @@ export function isActionPhaseComplete(state: GameState): boolean {
 export function beginActionPhase(state: GameState): SequencerResult {
   const events: GameEvent[] = [];
 
-  state.turnOrderPosition = 0;
-
   for (const p of state.players) {
-    p.actionsRemaining = p.isBroken ? ACTIONS_BROKEN : ACTIONS_NORMAL;
+    // Eliminated Warlords take no actions (§4.3: "where not isEliminated").
+    p.actionsRemaining = p.isEliminated ? 0 : ACTIONS_NORMAL;
   }
 
-  if (state.turnOrder.length > 0) {
-    state.activePlayerIndex = state.turnOrder[0];
+  // Advance to the first LIVING player in turn order (skip eliminated seats).
+  state.turnOrderPosition = 0;
+  while (
+    state.turnOrderPosition < state.turnOrder.length &&
+    state.players[state.turnOrder[state.turnOrderPosition]].isEliminated
+  ) {
+    state.turnOrderPosition++;
+  }
+
+  if (state.turnOrderPosition < state.turnOrder.length) {
+    state.activePlayerIndex = state.turnOrder[state.turnOrderPosition];
     events.push({
       type: 'ACTIVE_PLAYER_CHANGED',
       playerIndex: state.activePlayerIndex,
@@ -263,13 +253,18 @@ export function beginActionPhase(state: GameState): SequencerResult {
 }
 
 /**
- * Advance to the next player in turn order.
+ * Advance to the next LIVING player in turn order (eliminated seats are skipped, §4.3).
  * Called when the current player exhausts actions or passes.
  */
 export function advanceActivePlayer(state: GameState): SequencerResult {
   const events: GameEvent[] = [];
 
-  state.turnOrderPosition++;
+  do {
+    state.turnOrderPosition++;
+  } while (
+    state.turnOrderPosition < state.turnOrder.length &&
+    state.players[state.turnOrder[state.turnOrderPosition]].isEliminated
+  );
 
   if (state.turnOrderPosition < state.turnOrder.length) {
     state.activePlayerIndex = state.turnOrder[state.turnOrderPosition];
@@ -290,15 +285,15 @@ export function advanceActivePlayer(state: GameState): SequencerResult {
  * Stage 3b: implements real Blight advance (anti-turtle) and Act
  * escalation via ashed-node thresholds.
  *
- * Order (§7 check ordering):
+ * Order (§7 check ordering, §4.4):
  *   1. Discard banners, generate new
  *   2. Draw cards up to hand limit
- *   3. Broken recovery check
- *   4. Anti-turtle Blight advance + Act escalation
- *   5. Recompute Crown
- *   6. Loss check (doom_complete, all_broken)
- *   7. Victory check (territory at round cap, Gambit)
- *   8. Round increment, phase → THREAT
+ *   3. Anti-turtle Blight advance + Act escalation
+ *   4. resolveDeposals — zero-stronghold / flagged Warlords eliminated, seat order (§6)
+ *   5. Recompute Crown (living players only)
+ *   6. End-conditions — loss preempts win: doom_complete → attrition → last_standing
+ *      → Gambit → territory (§6)
+ *   7. Round increment, phase → THREAT
  */
 export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResult {
   const events: GameEvent[] = [];
@@ -322,16 +317,7 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
     }
   }
 
-  // 3. Broken recovery check (§5.4 — auto-recover after BROKEN_MAX_ROUNDS)
-  // Recovery evaluated before all_broken check (§7.10)
-  for (const p of state.players) {
-    if (p.isBroken) {
-      p.brokenRoundsConsecutive++;
-      events.push(...checkBrokenRecovery(state, p.index));
-    }
-  }
-
-  // 4. Anti-turtle Blight advance + Act escalation (§5.1, §5.5)
+  // 3. Anti-turtle Blight advance + Act escalation (§5.1, §5.5)
   // Net-front step 3: Dawn baseline advance on the steered spoke
   const steerQuadrant = state.shadowking.telegraph?.steerQuadrant ?? 0;
   const dawnBlightResult = applyDawnBlightAdvance(state, steerQuadrant);
@@ -382,7 +368,11 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
     }
   }
 
-  // 5. Recompute Crown (§5.2)
+  // 4. Resolve deposals (§6, §7 D5): zero-stronghold / flagged Warlords are eliminated
+  //    HERE, at Dawn, in seat order — never mid-action.
+  events.push(...resolveDeposals(state));
+
+  // 5. Recompute Crown (§5.2) — living players only
   const prevCrown = state.crownHolder;
   state.crownHolder = computeCrownHolder(state);
   for (const p of state.players) {
@@ -400,41 +390,15 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
     if (voiceLine) events.push(voiceLine);
   }
 
-  // 6. Loss checks (§7.10 — doom_complete before all_broken)
-  if (isKeystoneAshed(state)) {
-    state.gameEndReason = 'doom_complete';
-    // In blood_pact mode the traitor wins — unless exposed by a correct accusation (§10).
-    state.winner = (state.mode === 'blood_pact' && !state.bloodPactExposed)
-      ? state.bloodPactHolder
-      : null;
-    events.push({
-      type: 'GAME_OVER',
-      reason: 'doom_complete',
-      winner: state.winner,
-    });
+  // 6. End-conditions (§6) — loss preempts win, fixed deterministic order.
+  const endResult = checkEndConditions(state);
+  if (endResult) {
+    events.push(...endResult.events);
     return { state, events };
   }
 
-  // all_broken check (§7.10 — recovery evaluated before all_broken)
-  const allBroken = state.players.every(p => p.isBroken);
-  if (allBroken) {
-    // All Warlords Broken at once ⇒ a Shadowking victory by attrition, NOT a draw (§A).
-    // Winner attribution mirrors doom_complete (Blood Pact traitor wins unless exposed).
-    state.gameEndReason = 'all_broken';
-    state.winner = (state.mode === 'blood_pact' && !state.bloodPactExposed)
-      ? state.bloodPactHolder
-      : null;
-    events.push({
-      type: 'GAME_OVER',
-      reason: 'all_broken',
-      winner: state.winner,
-    });
-    return { state, events };
-  }
-
-  // 7. Victory checks
-  // Gambit lifecycle (§6) — evaluated BEFORE territory
-  // Gambit held into round cap resolves at that cap's Dawn BEFORE territory check
+  // Gambit lifecycle (§6) — evaluated BEFORE territory, AFTER the loss/last-standing
+  // checks above (loss preempts a same-Dawn Gambit win, §12 #8/#9).
   const gambitResult = evaluateGambitAtDawn(state);
   events.push(...gambitResult.events);
   if (gambitResult.outcome === 'gambit_victory') {
@@ -468,6 +432,109 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
   return { state, events };
 }
 
+// ─── Elimination & End-Conditions (§5.5/§6, §7 D5) ───────────────
+
+/**
+ * Resolve deposals at Dawn (§6, determinism §7 D5). A living Warlord is eliminated when
+ * it holds ZERO living strongholds (any owned living production node, §12 #14) OR carries
+ * the `deposed` flag (its last stronghold was taken in ACTION). Whisper protects against
+ * hopelessness (§12 #13, §13 P0-10): no deposal can resolve pre-March.
+ *
+ * Determinism (§12 #1): eligibility is SNAPSHOT first, then resolved in ascending seat
+ * order — eliminating one player never changes another's eligibility retroactively.
+ */
+export function resolveDeposals(state: GameState): GameEvent[] {
+  const events: GameEvent[] = [];
+
+  // Whisper opening protection — last-stronghold loss / depose is forbidden pre-March.
+  if (state.act === 'WHISPER') return events;
+
+  // Snapshot the eligible set BEFORE mutating anything (§12 #1).
+  const eligible: number[] = [];
+  for (const p of state.players) {
+    if (p.isEliminated) continue;
+    if (p.deposed || livingStrongholdCount(state, p.index) === 0) eligible.push(p.index);
+  }
+
+  // Resolve in ascending seat order.
+  for (const seat of [...eligible].sort((a, b) => a - b)) {
+    const p = state.players[seat];
+    p.isEliminated = true;
+    p.eliminatedRound = state.round;
+    p.deposed = true;
+    p.crownHeld = false;
+    p.actionsRemaining = 0;
+
+    // Eliminated player's standing Oaths dissolve cleanly — no oathbreaker grudge to the
+    // surviving partner (§12 #11).
+    state.oaths = state.oaths.filter(o => o.a !== seat && o.b !== seat);
+
+    // The deposed Warlord's remaining holdings ash (§2 Keep-ashing rule). Normally none
+    // remain (they are at zero strongholds), but ash any owned living node defensively.
+    for (const [nodeId, ns] of Object.entries(state.board.state.nodes)) {
+      if (ns.owner === seat && !ns.ashed) {
+        ns.ashed = true;
+        ns.blightLevel = getTunables().BLIGHT_TO_ASH;
+        ns.owner = null;
+        events.push({ type: 'NODE_ASHED', nodeId, previousOwner: seat });
+      }
+    }
+
+    events.push({ type: 'PLAYER_ELIMINATED', playerIndex: seat, round: state.round });
+    const voiceLine = generateReactiveVoiceLine(state, 'player_eliminated');
+    if (voiceLine) events.push(voiceLine);
+  }
+
+  return events;
+}
+
+/**
+ * Check the §6 end-conditions in fixed deterministic order — LOSS PREEMPTS WIN. Returns
+ * the terminal events when the game ends, or null if play continues. Snapshots are taken
+ * post-escalation, post-deposal, in seat order.
+ *
+ * Order: doom_complete → attrition (zero living, the all_broken successor) →
+ * last_standing (one living). Gambit/territory are checked by the caller AFTER this.
+ */
+export function checkEndConditions(state: GameState): SequencerResult | null {
+  const events: GameEvent[] = [];
+
+  // The dark wins on doom — and the Blood-Pact traitor takes that win unless exposed (§10).
+  const darkWinner = (state.mode === 'blood_pact' && !state.bloodPactExposed)
+    ? state.bloodPactHolder
+    : null;
+
+  // 1. Doom Complete (§6) — the Keystone is ash. Preempts everything.
+  if (isKeystoneAshed(state)) {
+    state.gameEndReason = 'doom_complete';
+    state.winner = darkWinner;
+    events.push({ type: 'GAME_OVER', reason: 'doom_complete', winner: state.winner });
+    return { state, events };
+  }
+
+  const living = state.players.filter(p => !p.isEliminated);
+
+  // 2. Attrition (§6, §12 #2) — zero living Warlords ⇒ Shadowking wins (the all_broken
+  //    successor; simultaneous/last-two deposals land here). Traitor wins unless exposed.
+  if (living.length === 0) {
+    state.gameEndReason = 'attrition';
+    state.winner = darkWinner;
+    events.push({ type: 'GAME_OVER', reason: 'attrition', winner: state.winner });
+    return { state, events };
+  }
+
+  // 3. Last Warlord standing (§6) — exactly one living Warlord remains (an elimination has
+  //    happened, since games start with ≥2). Loss-preempt above already fired (§12 #8).
+  if (living.length === 1) {
+    state.gameEndReason = 'last_standing';
+    state.winner = living[0].index;
+    events.push({ type: 'GAME_OVER', reason: 'last_standing', winner: state.winner });
+    return { state, events };
+  }
+
+  return null;
+}
+
 // ─── Crown Computation (§5.2) ─────────────────────────────────────
 
 /**
@@ -475,14 +542,14 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
  * owned production (Holdings + Forges weighted).
  *
  * Tie: most Banners → seat order (lowest index).
- * Broken players are ineligible (§5.4 anti-exploit).
+ * Eliminated players are ineligible (§6).
  */
 export function computeCrownHolder(state: GameState): number | null {
   const scores: Array<{ index: number; production: number; banners: number }> = [];
 
   for (const p of state.players) {
-    // Broken players forfeit Crown eligibility (§5.4)
-    if (p.isBroken) continue;
+    // Eliminated players forfeit Crown eligibility (§6)
+    if (p.isEliminated) continue;
 
     let production = 0;
     for (const [nodeId, nodeState] of Object.entries(state.board.state.nodes)) {
@@ -527,13 +594,8 @@ export function generateBannersForPlayer(state: GameState, playerIndex: number):
     }
   }
 
-  // Broken income bonus (§5.4) — decays each consecutive round
-  const player = state.players[playerIndex];
-  if (player && player.isBroken) {
-    const decayedBonus = Math.max(BROKEN_INCOME_BONUS - player.brokenRoundsConsecutive + 1, 0);
-    income += decayedBonus;
-  }
-
+  // No Broken income subsidy (§8): the comeback economy is retired. Catch-up is now
+  // capture-side (§5.4), not a flat income bonus.
   return income;
 }
 

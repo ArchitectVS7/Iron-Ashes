@@ -232,13 +232,12 @@ describe('Determinism Contract (§7)', () => {
       for (const p of state.players) {
         expect(p).toHaveProperty('index');
         expect(p).toHaveProperty('type');
-        expect(p).toHaveProperty('isBroken');
-        expect(p).toHaveProperty('brokenSince');
-        expect(p).toHaveProperty('brokenRoundsConsecutive');
+        expect(p).toHaveProperty('isEliminated');
+        expect(p).toHaveProperty('eliminatedRound');
+        expect(p).toHaveProperty('deposed');
         expect(p).toHaveProperty('hand');
         expect(p).toHaveProperty('banners');
         expect(p).toHaveProperty('crownHeld');
-        expect(p).toHaveProperty('wounds');
         expect(p).toHaveProperty('actionsRemaining');
         expect(p).toHaveProperty('warlordNodeId');
         expect(p).toHaveProperty('hasBloodPact');

@@ -18,10 +18,10 @@ function mkMetrics(p: Partial<GameMetrics> & { winner: number | null }): GameMet
     shadowkingWin: p.shadowkingWin ?? (p.winner === null),
     territoryWin: p.winner !== null,
     gambitWin: false,
-    allBrokenWin: false,
+    lastStandingWin: p.lastStandingWin ?? false,
+    attritionWin: p.attritionWin ?? false,
     gambitSeized: p.gambitSeized ?? false,
-    rescueCount: p.rescueCount ?? 3,
-    brokenCount: p.brokenCount ?? 0,
+    eliminations: p.eliminations ?? 0,
     territoryPerSeat: p.territoryPerSeat ?? [0, 0, 0, 0],
     meanPledgePerSeat: p.meanPledgePerSeat ?? [1, 1, 1, 1],
     isBloodPact: false,
@@ -78,18 +78,18 @@ describe('summarize', () => {
     expect(summarize(rows).freeRider.freeRidingRewarded).toBe(true);
   });
 
-  it('computes the Stage-5 diagnostics (conditional rescue rate, gambler-free gambit, per-count)', () => {
-    // 12 games: 6 with a gambler (3 seized), 6 without (1 seized); breaks/rescues controlled.
+  it('computes the Stage-5 diagnostics (eliminations, gambler-free gambit, per-count)', () => {
+    // 12 games: 6 with a gambler (3 seized), 6 without (1 seized); eliminations controlled.
     const withG: ArchetypeId[] = ['gambler', 'turtle', 'opportunist', 'cooperator'];
     const rows: SweepRow[] = [
-      ...Array.from({ length: 6 }, (_, i) => mkRow(withG, mkMetrics({ winner: 0, gambitSeized: i < 3, brokenCount: 2, rescueCount: 1 }))),
-      ...Array.from({ length: 6 }, (_, i) => mkRow(SEATS, mkMetrics({ winner: 1, gambitSeized: i < 1, brokenCount: 0, rescueCount: 0 }))),
+      ...Array.from({ length: 6 }, (_, i) => mkRow(withG, mkMetrics({ winner: 0, gambitSeized: i < 3, eliminations: 2 }))),
+      ...Array.from({ length: 6 }, (_, i) => mkRow(SEATS, mkMetrics({ winner: 1, gambitSeized: i < 1, eliminations: 0 }))),
     ];
     const d = summarize(rows).diagnostics;
     // gambler-free subset: 1 of 6 seized.
     expect(d.gambitFireRateNoGambler).toBeCloseTo(1 / 6);
-    // conditional rescue rate = total rescues (6) / total breaks (12) = 0.5.
-    expect(d.conditionalRescueRate).toBeCloseTo(0.5);
+    // eliminations per game = total eliminations (12) / 12 games = 1.0.
+    expect(d.eliminationsPerGame).toBeCloseTo(1);
     expect(d.perCount[4].games).toBe(12);
   });
 

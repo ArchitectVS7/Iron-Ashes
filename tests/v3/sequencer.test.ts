@@ -12,7 +12,7 @@
 import { describe, expect, it } from 'vitest';
 import { createGame } from '../../src/v3/setup.js';
 import { generateBannersForPlayer, runThreatPhase, resolvePledgePhase } from '../../src/v3/sequencer.js';
-import { BROKEN_INCOME_BONUS, PATIENCE_ON_BLOCK, PATIENCE_CAP } from '../../src/v3/tunables.js';
+import { PATIENCE_ON_BLOCK, PATIENCE_CAP } from '../../src/v3/tunables.js';
 import { applyCommand, InvalidCommandError } from '../../src/v3/reducer.js';
 import type { Command } from '../../src/v3/commands.js';
 import type { GameState } from '../../src/v3/types.js';
@@ -30,29 +30,15 @@ function submitAllPledges(state: GameState, amount = 0): GameState {
   return state;
 }
 
-describe('Broken income subsidy decay (§5.4 anti-exploit)', () => {
-  it('the Broken income bonus decays by 1 each consecutive Broken round and floors at 0', () => {
-    const state = createGame(4, 'competitive', 7);
-    const p = state.players[0];
-    p.isBroken = true;
-    // Territory income is identical across these calls (board ownership unchanged), so the delta
-    // between calls isolates the subsidy — the only term keyed on brokenRoundsConsecutive:
-    //   bonus = max(BROKEN_INCOME_BONUS - brokenRoundsConsecutive + 1, 0).
-    p.brokenRoundsConsecutive = 0;
-    const r0 = generateBannersForPlayer(state, 0);
-    p.brokenRoundsConsecutive = 1;
-    const r1 = generateBannersForPlayer(state, 0);
-    p.brokenRoundsConsecutive = 2;
-    const r2 = generateBannersForPlayer(state, 0);
-    expect(r0 - r1).toBe(1); // decays by exactly 1 per consecutive Broken round
-    expect(r1 - r2).toBe(1);
+// 'Broken income subsidy decay' tests removed (§8): the Broken Court comeback subsidy is
+// retired. Banner income is now territory-only; catch-up is capture-side (§5.4).
 
-    // Floors at 0: a long-Broken player gets NO subsidy — income equals the non-Broken base.
-    p.brokenRoundsConsecutive = BROKEN_INCOME_BONUS + 5;
-    const rFloor = generateBannersForPlayer(state, 0);
-    p.isBroken = false;
-    const baseNoSubsidy = generateBannersForPlayer(state, 0);
-    expect(rFloor).toBe(baseNoSubsidy); // subsidy floored to 0 — comeback ramp, not a home
+describe('income is territory-only (no Broken subsidy, §8)', () => {
+  it('banner income equals the base + per-node income with no state bonus', () => {
+    const state = createGame(4, 'competitive', 7);
+    // Two seats with identical board ownership generate identical income (no per-player
+    // state term remains after the Broken subsidy was removed).
+    expect(generateBannersForPlayer(state, 0)).toBe(generateBannersForPlayer(state, 1));
   });
 });
 
@@ -85,16 +71,9 @@ describe('Patience ratchet — cooperation angers the dark (§4.2 step 6)', () =
   });
 });
 
-describe('Broken players keep full Pledge rights (§4.2 / §5.4)', () => {
-  it("a Broken player's pledge is accepted (no isBroken guard)", () => {
-    let state = createGame(2, 'competitive', 7);
-    state = apply(state, { type: 'ADVANCE_PHASE' }); // THREAT → PLEDGE
-    expect(state.phase).toBe('PLEDGE');
-    state.players[1].isBroken = true; // a downed lord still has a voice in the Pledge
-    state = apply(state, { type: 'SUBMIT_PLEDGE', playerIndex: 1, amount: 1 });
-    expect(state.pledgeBuffer.some(p => p.playerIndex === 1)).toBe(true);
-  });
-});
+// 'Broken players keep full Pledge rights' removed (§8): Broken state is retired and
+// eliminated players are out of the round entirely (§6) — there is no downed-but-voting
+// state in v3.
 
 /** Helper to pass all player actions (one PASS ends a player's turn). */
 function passAllActions(state: GameState): GameState {

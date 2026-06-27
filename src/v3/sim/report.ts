@@ -13,10 +13,9 @@ export const TARGETS = {
   shadowkingWinRate: { lo: 0.18, hi: 0.22, label: 'Shadowking win rate' },
   meanRounds: { lo: 10, hi: 16, label: 'Mean game length (rounds)' },
   gambitFireRate: { lo: 0.10, hi: 0.20, label: 'Gambit fire rate (gambler-free, ~1-in-6-to-8)' },
-  // Re-stated from the structurally-unreachable 2-4 (proven capped by the all_broken<5%
-  // guard — tuning-log §5d; user-accepted) to "the economy is ALIVE" (≥0.5 pooled vs the
-  // dead 0.07; alive at 3-4p). The label keeps the cap visible, not hidden.
-  meanRescues: { lo: 0.5, hi: 4, label: 'Rescues per game (capped ~1 pooled — tuning-log §5d)' },
+  // The rescue band is retired with the Broken Court (§8). An elimination-tempo band is set
+  // from scratch in Stage V3-5 (ALGORITHM §9 re-balance note) — left out of the hard checks
+  // for 3a; eliminationsPerGame is reported as a pure diagnostic until then.
 } as const;
 
 export interface TargetCheck {
@@ -53,10 +52,10 @@ export interface SweepSummary {
 
 /** Stage-5 tuning diagnostics — context behind the headline §9 bands. */
 export interface SweepDiagnostics {
-  /** Mean Broken transitions per game (the rescue target is gated on breaks). */
-  readonly breakRatePerGame: number;
-  /** Rescues per break-opportunity — separates "nobody breaks" from "nobody rescues". */
-  readonly conditionalRescueRate: number;
+  /** Mean Warlords eliminated (deposed) per game (§6 — the elimination-tempo signal). */
+  readonly eliminationsPerGame: number;
+  /** Fraction of games that ended with a last-Warlord-standing win (§6). */
+  readonly lastStandingWinRate: number;
   /** Mean Death Knights killed per game (combat lethality vs the dark). */
   readonly dkKillRate: number;
   /** Mean Oaths sworn per game (the social-density signal). */
@@ -83,9 +82,9 @@ export interface SweepDiagnostics {
   readonly meanPlayerActions: number;
   /** Mean ACTION decisions per round (density proxy for the 30–45 min scope target — C2). */
   readonly meanActionsPerRound: number;
-  /** Share of Shadowking wins that came via all_broken (attrition) vs the Keystone assault.
-   *  Soft guard (§A): the dark should win mostly by the assault, not by attrition. */
-  readonly allBrokenWinShare: number;
+  /** Share of Shadowking wins that came via attrition (zero living Warlords) vs the
+   *  Keystone assault. Soft guard: the dark should win mostly by the assault. */
+  readonly attritionWinShare: number;
   /** Fraction of pledge rounds that fully blocked the strike. */
   readonly pledgeFullBlockRate: number;
   /** Fraction of games where any Gambit was seized. */
@@ -104,7 +103,7 @@ export interface PerCountStats {
   readonly games: number;
   readonly shadowkingWinRate: number;
   readonly meanRounds: number;
-  readonly meanRescues: number;
+  readonly meanEliminations: number;
   readonly gambitFireRate: number;
 }
 
@@ -135,7 +134,6 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
 
   const shadowkingWinRate = total ? rows.filter(r => r.metrics.shadowkingWin).length / total : 0;
   const meanRounds = mean(rows.map(r => r.metrics.rounds));
-  const meanRescues = mean(rows.map(r => r.metrics.rescueCount));
   // The §9 gambit check judges the HONEST gambler-free fire rate (excluding matchups
   // with a dedicated gambler archetype, which gambles by identity and inflates the
   // pooled number into a permanent FAIL). The pooled seize rate stays a diagnostic.
@@ -147,7 +145,6 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
     mkCheck(TARGETS.shadowkingWinRate.label, shadowkingWinRate, TARGETS.shadowkingWinRate),
     mkCheck(TARGETS.meanRounds.label, meanRounds, TARGETS.meanRounds),
     mkCheck(TARGETS.gambitFireRate.label, gambitFireRate, TARGETS.gambitFireRate),
-    mkCheck(TARGETS.meanRescues.label, meanRescues, TARGETS.meanRescues),
   ];
 
   // ── Win-rate by archetype (per-seat granularity, so homogeneous tables don't lie) ──
@@ -204,8 +201,6 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
 
   // ── Stage-5 diagnostics ──
   const sum = (f: (r: SweepRow) => number): number => rows.reduce((s, r) => s + f(r), 0);
-  const totalBreaks = sum(r => r.metrics.brokenCount);
-  const totalRescues = sum(r => r.metrics.rescueCount);
   const totalPledgeRounds = sum(r => r.metrics.pledgeRounds);
   const totalFullBlocks = sum(r => r.metrics.pledgeFullBlocks);
 
@@ -220,7 +215,7 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
       games: g.length,
       shadowkingWinRate: g.length ? g.filter(r => r.metrics.shadowkingWin).length / g.length : 0,
       meanRounds: mean(g.map(r => r.metrics.rounds)),
-      meanRescues: mean(g.map(r => r.metrics.rescueCount)),
+      meanEliminations: mean(g.map(r => r.metrics.eliminations)),
       gambitFireRate: g.length ? g.filter(r => r.metrics.gambitSeized).length / g.length : 0,
     };
   }
@@ -228,8 +223,8 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
   const totalOathsBroken = sum(r => r.metrics.oathsBroken);
   const totalOathsMatured = sum(r => r.metrics.oathsMatured);
   const diagnostics: SweepDiagnostics = {
-    breakRatePerGame: mean(rows.map(r => r.metrics.brokenCount)),
-    conditionalRescueRate: totalBreaks > 0 ? totalRescues / totalBreaks : 0,
+    eliminationsPerGame: mean(rows.map(r => r.metrics.eliminations)),
+    lastStandingWinRate: total ? rows.filter(r => r.metrics.lastStandingWin).length / total : 0,
     dkKillRate: mean(rows.map(r => r.metrics.dkKills)),
     oathsSwornPerGame: mean(rows.map(r => r.metrics.oathsSworn)),
     oathsBrokenPerGame: mean(rows.map(r => r.metrics.oathsBroken)),
@@ -242,9 +237,9 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
     meanAshedNodes: mean(rows.map(r => r.metrics.ashedNodes)),
     meanPlayerActions: mean(rows.map(r => r.metrics.playerActions)),
     meanActionsPerRound: mean(rows.map(r => r.metrics.rounds > 0 ? r.metrics.playerActions / r.metrics.rounds : 0)),
-    allBrokenWinShare: (() => {
+    attritionWinShare: (() => {
       const skWins = rows.filter(r => r.metrics.shadowkingWin).length;
-      return skWins ? rows.filter(r => r.metrics.allBrokenWin).length / skWins : 0;
+      return skWins ? rows.filter(r => r.metrics.attritionWin).length / skWins : 0;
     })(),
     pledgeFullBlockRate: totalPledgeRounds > 0 ? totalFullBlocks / totalPledgeRounds : 0,
     gambitSeizeRate: total ? rows.filter(r => r.metrics.gambitSeized).length / total : 0,
@@ -377,7 +372,7 @@ export function renderMarkdown(summary: SweepSummary, meta: ReportMeta): string 
   const actRows = Object.entries(d.perActEnd).sort()
     .map(([k, v]) => `| ${k} | ${v} | ${pct(v / summary.totalGames)} |`).join('\n');
   const countRows = Object.entries(d.perCount)
-    .map(([k, s]) => `| ${k}p | ${s.games} | ${pct(s.shadowkingWinRate)} | ${s.meanRounds.toFixed(1)} | ${s.meanRescues.toFixed(2)} | ${pct(s.gambitFireRate)} |`).join('\n');
+    .map(([k, s]) => `| ${k}p | ${s.games} | ${pct(s.shadowkingWinRate)} | ${s.meanRounds.toFixed(1)} | ${s.meanEliminations.toFixed(2)} | ${pct(s.gambitFireRate)} |`).join('\n');
 
   return `# Balance Sweep Report — ${meta.runId}
 
@@ -412,8 +407,8 @@ ${endRows}
 |---|---|---|
 | Gambit fire rate — gambler-free subset | ${pct(d.gambitFireRateNoGambler)} | the HONEST gambit number (judge the §9 band on this) |
 | Gambit seize / win rate (all matchups) | ${pct(d.gambitSeizeRate)} / ${pct(d.gambitWinRate)} | aggregate, inflated by the gambler archetype |
-| Breaks per game | ${d.breakRatePerGame.toFixed(2)} | rescue target is gated on this |
-| Conditional rescue rate (rescues / break) | ${pct(d.conditionalRescueRate)} | ~0 with breaks present ⇒ nobody bothers; low breaks ⇒ raise lethality |
+| Eliminations per game | ${d.eliminationsPerGame.toFixed(2)} | elimination tempo (§6); band set from scratch in V3-5 |
+| Last-standing win rate | ${pct(d.lastStandingWinRate)} | share of games decided by the last Warlord standing |
 | DK kills per game | ${d.dkKillRate.toFixed(2)} | combat lethality vs the dark / pushback supply |
 | Oaths sworn / broken per game | ${d.oathsSwornPerGame.toFixed(2)} / ${d.oathsBrokenPerGame.toFixed(2)} | social density (sworn) + betrayal drama (${pct(d.oathBreakShare)} of oaths broken) |
 | Forge tolls per game | ${d.tollsPerGame.toFixed(2)} | chokepoint leverage (rival-Forge passage tax) |
@@ -423,10 +418,10 @@ ${endRows}
 | Mean nodes ashed (doom progress) | ${d.meanAshedNodes.toFixed(2)} | how close the dark got |
 | Pledge full-block rate | ${pct(d.pledgeFullBlockRate)} | high ⇒ table over-blocks ⇒ dark too weak |
 | Decisions per game · per round | ${d.meanPlayerActions.toFixed(1)} · ${d.meanActionsPerRound.toFixed(2)} | session-length proxy (30–45 min scope — C2); flag if density drifts high |
-| All-broken share of SK wins | ${pct(d.allBrokenWinShare)} | §A soft guard — dark should win by the Keystone assault, not attrition; high ⇒ investigate |
+| Attrition share of SK wins | ${pct(d.attritionWinShare)} | soft guard — dark should win by the Keystone assault, not attrition; high ⇒ investigate |
 
 ## Per-player-count (strictness)
-| Count | Games | SK win | Rounds | Rescues | Gambit fire |
+| Count | Games | SK win | Rounds | Eliminations | Gambit fire |
 |---|---|---|---|---|---|
 ${countRows}
 

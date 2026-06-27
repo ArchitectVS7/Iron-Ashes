@@ -213,7 +213,6 @@ import {
   executeClaim,
   executeStrike,
   executeRaid,
-  executeRescue,
   executeRecruit,
   executeParley,
   executeSwearOath,
@@ -378,24 +377,6 @@ function handlePlayerAction(
       break;
     }
 
-    case 'RESCUE': {
-      if (action.targetPlayerIndex === undefined || action.targetPlayerIndex === null) {
-        throw new InvalidCommandError(
-          { type: 'PLAYER_ACTION', playerIndex, action },
-          'RESCUE requires a targetPlayerIndex',
-        );
-      }
-      try {
-        actionResult = executeRescue(state, playerIndex, action.targetPlayerIndex);
-      } catch (e: unknown) {
-        throw new InvalidCommandError(
-          { type: 'PLAYER_ACTION', playerIndex, action },
-          (e as Error).message,
-        );
-      }
-      break;
-    }
-
     case 'RECRUIT': {
       try {
         actionResult = executeRecruit(state, playerIndex);
@@ -492,8 +473,9 @@ function handlePlayerAction(
     state = advResult.state;
   }
 
-  // Check immediate loss after each action (§4.3)
-  // doom_complete checked before all_broken
+  // Check immediate loss after each action (§4.3): only doom_complete can end the game
+  // mid-action (the Keystone ashed). Elimination/deposal NEVER resolves here — it resolves
+  // ONLY at Dawn via resolveDeposals (§6, determinism §7 D5).
   const keystoneState = state.board.state.nodes[state.board.definition.keystoneId];
   if (keystoneState?.ashed) {
     state.gameEndReason = 'doom_complete';
@@ -504,19 +486,6 @@ function handlePlayerAction(
     events.push({
       type: 'GAME_OVER',
       reason: 'doom_complete',
-      winner: state.winner,
-    });
-  } else if (state.players.every(p => p.isBroken)) {
-    // All Warlords Broken at once ⇒ the dark has won by attrition — a Shadowking victory,
-    // NOT a draw (§A). Winner attribution mirrors doom_complete: in Blood Pact the traitor
-    // takes the dark's win unless exposed; in competitive there is no player winner.
-    state.gameEndReason = 'all_broken';
-    state.winner = (state.mode === 'blood_pact' && !state.bloodPactExposed)
-      ? state.bloodPactHolder
-      : null;
-    events.push({
-      type: 'GAME_OVER',
-      reason: 'all_broken',
       winner: state.winner,
     });
   }

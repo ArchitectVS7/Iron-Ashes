@@ -235,17 +235,17 @@ describe('Gambit System', () => {
       expect(computeTerritoryWinner(state)).toBe(0); // Earlier seat
     });
 
-    it('Broken players are ineligible', () => {
+    it('eliminated players are ineligible', () => {
       state.board.state.nodes['forge-nw'].owner = 0;
       state.board.state.nodes['holding-ne'].owner = 1;
-      state.players[0].isBroken = true;
+      state.players[0].isEliminated = true;
 
-      // Player 0 has more territory but is Broken
+      // Player 0 has more territory but is eliminated (§6)
       expect(computeTerritoryWinner(state)).toBe(1);
     });
 
-    it('returns null when all players are Broken', () => {
-      for (const p of state.players) p.isBroken = true;
+    it('returns null when all players are eliminated', () => {
+      for (const p of state.players) p.isEliminated = true;
       expect(computeTerritoryWinner(state)).toBeNull();
     });
 

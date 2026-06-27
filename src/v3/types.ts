@@ -124,12 +124,15 @@ export interface PlayerState {
   /** Human or AI. */
   readonly type: PlayerType;
 
-  /** Whether this player is in Broken state. */
-  isBroken: boolean;
-  /** Round number when the player entered Broken (null if not Broken). */
-  brokenSince: number | null;
-  /** Consecutive rounds spent Broken (for recovery cap / decay). */
-  brokenRoundsConsecutive: number;
+  /** Whether this Warlord has been eliminated from the game (§5.5/§6). Once true it
+   *  spectates (a Wraith in later stages) and is skipped in turn order. */
+  isEliminated: boolean;
+  /** Round in which this player was eliminated (null while alive). */
+  eliminatedRound: number | null;
+  /** Whether this Warlord is flagged for deposal (zero living strongholds, or its last
+   *  stronghold taken). The flag is set in ACTION; elimination RESOLVES ONLY AT DAWN in
+   *  seat order via `resolveDeposals` (§6, determinism §7 D5). */
+  deposed: boolean;
 
   /** Card hand — array of card power values. Persists between rounds. */
   hand: number[];
@@ -138,8 +141,6 @@ export interface PlayerState {
 
   /** Whether this player currently holds the Crown (recomputed at Dawn). */
   crownHeld: boolean;
-  /** Accumulated wounds toward the Broken threshold. */
-  wounds: number;
   /** Actions remaining this turn. */
   actionsRemaining: number;
 
@@ -273,8 +274,9 @@ export interface AuditEntry {
 export type GameEndReason =
   | 'territory_victory'
   | 'gambit_victory'
+  | 'last_standing'   // one living Warlord remains (the new elimination win, §6)
   | 'doom_complete'
-  | 'all_broken'
+  | 'attrition'       // zero living Warlords ⇒ Shadowking wins (the all_broken successor, §6/§12 #2)
   | null;
 
 // ─── Gambit ───────────────────────────────────────────────────────

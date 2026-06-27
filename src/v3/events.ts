@@ -28,6 +28,7 @@ export type GameEvent =
   | PledgeCommittedEvent
   | PledgeResolvedEvent
   | PlayerActedEvent
+  | PlayerEliminatedEvent
   | ActivePlayerChangedEvent
   | CrownChangedEvent
   | ActEscalatedEvent
@@ -92,6 +93,13 @@ export interface PlayerActedEvent {
   readonly playerIndex: number;
   readonly action: ActionType;
   readonly details: Record<string, unknown>;
+}
+
+/** A Warlord was eliminated at Dawn (deposed / zero living strongholds, §6). */
+export interface PlayerEliminatedEvent {
+  readonly type: 'PLAYER_ELIMINATED';
+  readonly playerIndex: number;
+  readonly round: number;
 }
 
 export interface ActivePlayerChangedEvent {

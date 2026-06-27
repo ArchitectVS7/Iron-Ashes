@@ -336,10 +336,14 @@ export function generateReactiveVoiceLine(
     case 'full_block':
       line = 'You held the line. It will not happen twice.';
       break;
-    case 'player_broken': {
-      const target = state.players.find(p => p.isBroken);
-      const name = target ? `Player ${target.index + 1}` : 'One of you';
-      line = `${name} falls. Their lands feed my hunger now.`;
+    case 'player_eliminated': {
+      // The most-recently-eliminated living-no-more Warlord (highest eliminatedRound,
+      // seat tiebreak) — the one this Dawn just deposed.
+      const fallen = state.players
+        .filter(p => p.isEliminated)
+        .sort((a, b) => (b.eliminatedRound ?? 0) - (a.eliminatedRound ?? 0) || a.index - b.index)[0];
+      const name = fallen ? `Player ${fallen.index + 1}` : 'One of you';
+      line = `${name} is deposed. Their lands feed my hunger now.`;
       break;
     }
     case 'crown_changed': {

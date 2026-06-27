@@ -3,13 +3,13 @@
  *
  * Public, breakable two-player pacts: swear (free), non-aggression while sworn,
  * Dawn fealty dividend + maturity bonus, break (banner burst + grudge/Ledger),
- * the no-same-round-break guard, ≤1 oath per player, and rescue auto-swearing.
+ * the no-same-round-break guard, and ≤1 oath per player.
  */
 
 import { describe, expect, it } from 'vitest';
 import { createGame } from '../../src/v3/setup.js';
 import {
-  executeSwearOath, executeBreakOath, executeRaid, executeRescue,
+  executeSwearOath, executeBreakOath, executeRaid,
   runOathUpkeep, findOath, areSworn,
 } from '../../src/v3/actions.js';
 import { GRUDGE_OATHBREAK, OATH_DURATION, OATH_DIVIDEND, OATH_LOYALTY_BONUS, OATH_BREAK_BANNERS } from '../../src/v3/tunables.js';
@@ -28,11 +28,11 @@ describe('Oaths (the passion spine)', () => {
       expect(() => executeSwearOath(s, 1, 2)).toThrow('already');
     });
 
-    it('rejects self, Broken, and unknown targets', () => {
+    it('rejects self and eliminated targets', () => {
       const s = createGame(2, 'competitive', 7);
       expect(() => executeSwearOath(s, 0, 0)).toThrow('yourself');
-      s.players[1].isBroken = true;
-      expect(() => executeSwearOath(s, 0, 1)).toThrow('Broken');
+      s.players[1].isEliminated = true;
+      expect(() => executeSwearOath(s, 0, 1)).toThrow('eliminated');
     });
   });
 
@@ -86,14 +86,6 @@ describe('Oaths (the passion spine)', () => {
     });
   });
 
-  describe('rescue auto-swears an Oath', () => {
-    it('a rescued ally becomes Sworn to the rescuer', () => {
-      const s = createGame(2, 'competitive', 7);
-      s.players[1].isBroken = true;
-      s.players[1].warlordNodeId = s.players[0].warlordNodeId;
-      s.players[0].hand = [1, 1, 1];
-      executeRescue(s, 0, 1);
-      expect(areSworn(s, 0, 1)).toBe(true);
-    });
-  });
+  // 'rescue auto-swears an Oath' removed (§8/§M): RESCUE is retired. The ally-RANSOM
+  // Oath-forging path returns with capture/ransom in 3d (§5.3).
 });

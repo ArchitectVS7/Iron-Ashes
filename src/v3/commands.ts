@@ -16,7 +16,6 @@ export type ActionType =
   | 'CLAIM'     // Claim current unclaimed Holding/Forge (cost 1 banner)
   | 'RAID'      // Initiate combat vs a co-located rival (§5.3)
   | 'STRIKE'    // Initiate combat vs a co-located Shadowking force (§5.3)
-  | 'RESCUE'    // Un-Break a co-located/adjacent ally (§5.4)
   | 'RECRUIT'   // Recruit a retinue piece
   | 'AUDIT'     // Reveal one opponent's last pledge (Blood Pact only, §10)
   | 'SWEAR_OATH' // Forge a public pact with a rival (§ Oaths) — free, no action point
@@ -30,7 +29,7 @@ export interface PlayerAction {
   readonly type: ActionType;
   /** Target node for movement (MARCH). */
   readonly targetNodeId?: string;
-  /** Target player for RAID / RESCUE. */
+  /** Target player for RAID / AUDIT / accusation. */
   readonly targetPlayerIndex?: number;
   /** Piece ID to move/recruit. */
   readonly pieceId?: string;

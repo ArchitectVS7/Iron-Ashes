@@ -243,7 +243,7 @@ export function computeTerritoryWinner(state: GameState): number | null {
   }> = [];
 
   for (const p of state.players) {
-    if (p.isBroken) continue; // Broken players ineligible
+    if (p.isEliminated) continue; // eliminated players ineligible
 
     let territory = 0;
     let ashedNeighbors = 0;
