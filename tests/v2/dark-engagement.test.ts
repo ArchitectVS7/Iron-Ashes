@@ -1,7 +1,7 @@
 /**
  * Dark Engagement tests (Stage 5-dark) — the dead-grudge fix.
  *
- * Validates the five coupled changes in DESIGN-V2-DARK-ENGAGEMENT.md:
+ * Validates the five coupled changes in design-history/DESIGN-V2-DARK-ENGAGEMENT.md:
  *   - DKs block CLAIM (forcing function) — see actions.test.ts.
  *   - Killing a DK on an unclaimed Holding/Forge CLAIMS it (win-currency payoff).
  *   - The grudge Mark is asymmetric by territory standing (catch-up lever).

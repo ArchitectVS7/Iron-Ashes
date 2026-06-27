@@ -3,7 +3,7 @@
  *
  * `computeMetrics` is pure and derives EVERYTHING from the final `GameState` +
  * its `actionLog` event stream — never a parallel re-implementation of the rules
- * (the fidelity lesson from docs/ML-SYSTEM-ANALYSIS.md). These feed the §9
+ * (the fidelity lesson from docs/design-history/ML-SYSTEM-ANALYSIS.md). These feed the §9
  * PASS/FAIL report and the win-rate-by-archetype / free-rider analysis.
  */
 

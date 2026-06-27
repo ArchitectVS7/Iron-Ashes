@@ -1,5 +1,5 @@
 /**
- * Oaths + Ledger tests (the passion spine — DESIGN-V2-OATHS.md).
+ * Oaths + Ledger tests (the passion spine — design-history/DESIGN-V2-OATHS.md).
  *
  * Public, breakable two-player pacts: swear (free), non-aggression while sworn,
  * Dawn fealty dividend + maturity bonus, break (banner burst + grudge/Ledger),

@@ -2,7 +2,7 @@
 /**
  * tune-5dark.mjs — coordinate-descent retune AFTER the Dark Engagement patch.
  *
- * The mechanic patch (DESIGN-V2-DARK-ENGAGEMENT.md) lifted SK-win 20.2%→23.9%
+ * The mechanic patch (design-history/DESIGN-V2-DARK-ENGAGEMENT.md) lifted SK-win 20.2%→23.9%
  * (above the 18-22 band) by adding engaged + scaled Death Knights. This search
  * finds the smallest knob change that pulls pooled SK-win back to ~20% WHILE
  * preserving the gains: DK-kills > 0, the narrowed per-count gradient, guards PASS.

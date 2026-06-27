@@ -6,7 +6,7 @@ Status of each sub-step is tracked in `docs/ROADMAP.md` §4 (4a–4f) and `docs/
 ## Context
 The v2 engine is at full spec parity (3a–3f). Stage 4 proves the game is **balanced across the
 strategy space** before Stage 5 tunes numbers. The v1 "ML" failed instructively
-(`docs/ML-SYSTEM-ANALYSIS.md`): a PPO/RL agent won 0/500 (degenerate, `Math.random()`-seeded, wrong
+(`docs/design-history/ML-SYSTEM-ANALYSIS.md`): a PPO/RL agent won 0/500 (degenerate, `Math.random()`-seeded, wrong
 5-action space, voting stubbed); the "21.8%" came from a separate greedy heuristic sim over a
 **parallel rules path** with one strategy. It measured a game that doesn't ship.
 

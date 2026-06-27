@@ -1,7 +1,7 @@
 # QA Review — Focus-Group Decisions vs. The Shipped Game (pre-human-playtest)
 
 > **Scope:** an independent, skeptical cross-check of every adopted focus-group design decision
-> (R1 `DESIGN-V2-FOCUS-GROUP.md`, R2 `-R2.md`, R3 `-R3.md`, the restored v1 market study, and the
+> (R1 `design-history/DESIGN-V2-FOCUS-GROUP.md`, R2 `-R2.md`, R3 `-R3.md`, the restored v1 market study, and the
 > three lead-designer forks) against what was actually built and tuned in `src/v2/` + `tests/v2/` +
 > the Stage-5 sim, up to **but not including** the human playtest (HEAD `fa3f922`, 437 tests green).
 > **Date:** 2026-06-24. **Method:** five parallel evidence sweeps over the engine/tests + a doc audit

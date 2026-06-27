@@ -92,9 +92,9 @@ conditional-rescue 6.6%; both must rise for 2-4 rescues/game).
 
 ## 5-dark — Dark Engagement mechanic patch (the dead-grudge fix)
 
-**Trigger:** the reconvened 5-expert focus group (`DESIGN-V2-FOCUS-GROUP-R2.md`) ruled the dormant
+**Trigger:** the reconvened 5-expert focus group (`design-history/DESIGN-V2-FOCUS-GROUP-R2.md`) ruled the dormant
 DK-engagement pillar (dkKills 0.00) a *structural inverted incentive*, not a number — and the user
-authorized a MECHANIC change before settling the per-count fork. Spec: `DESIGN-V2-DARK-ENGAGEMENT.md`.
+authorized a MECHANIC change before settling the per-count fork. Spec: `design-history/DESIGN-V2-DARK-ENGAGEMENT.md`.
 
 **Changes (five coupled):** (1) AI `darkHuntBias` knob + cards-aware `canStrikeWin` + `bestStepTowardHuntableDK`
 (the Hunt verb — the old gate compared base power only, so a power-3 Warlord never struck a power-4 DK);
@@ -155,7 +155,7 @@ identity ladder**: 2p **The Duel** / 3p **The Triumvirate** / 4p **The Carve-up*
 decay) is recorded but NOT built — it carries the proven 2p-explosion / dominance-flip risk and the
 gradient is no longer extreme. The pooled 18–22% SK-win target stands as the per-count contract.
 
-## 5d — Rescue/break economy (spec: DESIGN-V2-RESCUE-ECONOMY.md)
+## 5d — Rescue/break economy (spec: design-history/DESIGN-V2-RESCUE-ECONOMY.md)
 
 **Problem:** rescues 0.07/game (target 2–4). Two coupled gates: (1) breaks ~1/game — wounds came ONLY
 from PvP raids (rare, negative-sum) + lost strikes; the dark ashed nodes but never wounded a warlord;
@@ -196,9 +196,9 @@ the broken-lands ash so rescue *protects the table*) — ESCALATED to the user.
 Side note (5e): gambit honest fire drifted 25.2→28.0% (still > 10–20 band) — the separate gambit item,
 not a rescue regression; fold a small GAMBIT_SURCHARGE nerf into 5e.
 
-## Oaths + Ledger — the passion spine (spec: DESIGN-V2-OATHS.md)
+## Oaths + Ledger — the passion spine (spec: design-history/DESIGN-V2-OATHS.md)
 
-**Trigger:** the reconvened panel's 3rd session (`DESIGN-V2-FOCUS-GROUP-R3.md`) diagnosed the game as
+**Trigger:** the reconvened panel's 3rd session (`design-history/DESIGN-V2-FOCUS-GROUP-R3.md`) diagnosed the game as
 "sound but emotionally thin — no relationship between two players ever persists or can be betrayed." The
 convergent 3/5 headline: a public, breakable **Oath** between players, enforced by a villain that
 **remembers** (the **Ledger** = the existing grudge array; oathbreaking climbs it, so the dark hunts

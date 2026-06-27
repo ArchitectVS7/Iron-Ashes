@@ -1,10 +1,16 @@
-# Design v2 — Textual Algorithm (Stage 2)
+# Design v2 — Textual Algorithm (the engine spec)
 
+> **Role:** this is the **implementation spec** — pseudocode, the determinism contract, the state shape,
+> the reducer mapping, and the tunable registry. It is what the code is built and verified against.
+> For the **human-readable design** (what the game is and why), read [`GAME-DESIGN.md`](GAME-DESIGN.md),
+> which sits above this document; for the **player rules**, read [`USER-MANUAL.md`](USER-MANUAL.md). The
+> deliberation behind these decisions lives in [`design-history/`](design-history/).
+>
 > Status: Stage 2 deliverable — the mechanical spec the code (Stage 3) is built from.
-> **Hardened by the Stage-2.5 stress-test** (`docs/DESIGN-V2-STRESS-TEST.md`): P0/P1 fixes folded in
+> **Hardened by the Stage-2.5 stress-test** (`docs/design-history/DESIGN-V2-STRESS-TEST.md`): P0/P1 fixes folded in
 > below; P2 legibility items live in that punch list for Stage-3 UI work.
 > Date: 2026-06-21
-> Builds on: `docs/DESIGN-V2-FOCUS-GROUP.md` (Stage 1).
+> Builds on: `docs/design-history/DESIGN-V2-FOCUS-GROUP.md` (Stage 1).
 > Balance numbers: **Stage 5 (sim tuning) is COMPLETE** — final locked values live in
 > `src/v2/tunables.ts` (`DEFAULT_TUNABLES`); §9 records the validated metrics. (Original PRD numbers
 > in §§1–8 are design-time placeholders; trust tunables.ts.)
@@ -337,7 +343,7 @@ function dawnPhase(state):
   covers the pushback path too, not just pledge-dodging).
 - PUSHBACK is the players' lever against the map dying; it replaces the old "defeat a Death Knight → doom
   −1." (Off-spoke contribution may be required so the leader isn't their own best firefighter — ML-tune.)
-- **HUNT the dark (5-dark, `docs/DESIGN-V2-DARK-ENGAGEMENT.md`):** killing a Death Knight is a positive
+- **HUNT the dark (5-dark, `docs/design-history/DESIGN-V2-DARK-ENGAGEMENT.md`):** killing a Death Knight is a positive
   play, not just defense — the killer **claims the DK's node** (real win-currency) *and* drives back the
   front. A DK also **blocks CLAIM** on its node, so clearing one opens land. The catch is asymmetric
   grudge — see §5.6 (`GRUDGE_MARK_TOP_N`).
@@ -381,7 +387,7 @@ function combat(attacker, defender):
 ### 5.4 Broken Court & Rescue (no elimination, with teeth)
 - **Enter Broken** when accumulated wounds ≥ `BREAK_THRESHOLD` **[TUNABLE]** (one visible meter — a
   cracking shield — *not* a separate Penalty-Card economy).
-- **The dark's break-vector (5d, `docs/DESIGN-V2-RESCUE-ECONOMY.md`):** a landed strike on the dark's
+- **The dark's break-vector (5d, `docs/design-history/DESIGN-V2-RESCUE-ECONOMY.md`):** a landed strike on the dark's
   **named target** inflicts `LANDED_STRIKE_WOUNDS` — this is the primary path *into* Broken (combat losses
   are the other). So the dark itself, not just rivals, can crack a Warlord — which is what gives Rescue an
   economy to run on.
@@ -404,7 +410,7 @@ function combat(attacker, defender):
   party is already sworn.) **Rescue volume is STRUCTURALLY CAPPED** — pooled across 2–4p it sits near
   ~0.8/game, held down by the same break-supply the all_broken win-path feeds on (you can only rescue
   someone the dark/rivals actually broke; §9 band, tuning-log §5d).
-- **Oaths + the Ledger (`docs/DESIGN-V2-OATHS.md`):** public, breakable two-player pacts. **SWEAR_OATH is
+- **Oaths + the Ledger (`docs/design-history/DESIGN-V2-OATHS.md`):** public, breakable two-player pacts. **SWEAR_OATH is
   free** (§4.3); while sworn, the pair has **non-aggression** (no RAID between them, Forge tolls waived
   §2/§4.3) and each draws a **Dawn fealty dividend**. **BREAK_OATH consumes an action**, and **the dark
   hunts oathbreakers** — the "**Ledger**" is the grudge array (§5.6): renouncing an oath marks you. Typical
@@ -449,7 +455,7 @@ function chooseShadowkingIntent(state):
   most helpful front-pushers from becoming the permanent named target is delivered by the **asymmetric
   grudge Mark** (`GRUDGE_MARK_TOP_N`, below): trailing seats pay no grudge for killing a DK, so occasional
   heroism is safe and only the leader's sustained provocation makes you the target. Ties → lowest seat.
-- **Asymmetric DK-hunt grudge (5-dark, `docs/DESIGN-V2-DARK-ENGAGEMENT.md`):** killing a Death Knight both
+- **Asymmetric DK-hunt grudge (5-dark, `docs/design-history/DESIGN-V2-DARK-ENGAGEMENT.md`):** killing a Death Knight both
   **claims its node** (win-currency, §5.1/§5.4) and adds grudge — but the "now it hunts you" tax is paid
   **only by the leading seats** (`GRUDGE_MARK_TOP_N`). A trailing player can HUNT the dark for land and
   pushback nearly free; the leader who does it paints the target on their own back. This is what made
@@ -690,7 +696,7 @@ Built on top of the sealed-pledge substrate; absent unless `mode === 'blood_pact
 - Deep retinue/role economy (start minimal; expand once the loop is proven).
 - **P2 legibility/UX items** (pledge reveal as a threshold beat, blightLevel pip ladders, Gambit alarm
   banner, `SealedCommit<T>` primitive, Whisper-act onboarding, the dramatic "Last Dawn" cap ending) — see
-  `docs/DESIGN-V2-STRESS-TEST.md §P2`; implement during Stage-3 UI.
+  `docs/design-history/DESIGN-V2-STRESS-TEST.md §P2`; implement during Stage-3 UI.
 - **Primary open balance question for Stage 5 (ML):** is the Pledge free-rider incentive (§4.2 step 5)
   actually solved? This must be proven before the design is trusted.
 - *(Resolved in panel R2: win condition = Contested Throne + Gambit, §6; map = the Closing Ring with a
@@ -707,9 +713,9 @@ for every lever and its locked value; the named spec docs below + `docs/handoff/
 the evidence behind each.
 
 **Changelog (each mechanic, its stage tag, and its spec doc):**
-- **Dark engagement** (5-dark) — `docs/DESIGN-V2-DARK-ENGAGEMENT.md`. → §2 (DKs), §5.1, §5.6.
-- **Rescue/break economy** (5d) — `docs/DESIGN-V2-RESCUE-ECONOMY.md`. → §5.4.
-- **Oaths + the Ledger** (Oaths) — `docs/DESIGN-V2-OATHS.md`. → §4.3, §5.4, §5.6.
+- **Dark engagement** (5-dark) — `docs/design-history/DESIGN-V2-DARK-ENGAGEMENT.md`. → §2 (DKs), §5.1, §5.6.
+- **Rescue/break economy** (5d) — `docs/design-history/DESIGN-V2-RESCUE-ECONOMY.md`. → §5.4.
+- **Oaths + the Ledger** (Oaths) — `docs/design-history/DESIGN-V2-OATHS.md`. → §4.3, §5.4, §5.6.
 - **Forge-as-Gate tolls** (Stage T) — FOCUS-GROUP-R3 §4. → §2, §4.3.
 - **Sealed Pledge + the gambit fix** (Stage S) — FOCUS-GROUP-R3 §3. → §4.2 (+§0/§11 amendments), §6.
 - **Herald + political/martial stance** (Stage H) — FOCUS-GROUP-R3 §3. → §2, §4.3.

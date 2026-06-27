@@ -1,7 +1,7 @@
 /**
  * Rescue/break economy tests (Stage 5d).
  *
- * Validates the four coupled changes in DESIGN-V2-RESCUE-ECONOMY.md:
+ * Validates the four coupled changes in design-history/DESIGN-V2-RESCUE-ECONOMY.md:
  *   - LANDED_STRIKE_WOUNDS: the dark wounds (and can break) its named target.
  *   - RESCUE_TRIBUTE_BANNERS: rescue pays the rescuer in win-currency.
  *   - BREAK_THRESHOLD / RESCUE_COST are now in the injectable seam.
