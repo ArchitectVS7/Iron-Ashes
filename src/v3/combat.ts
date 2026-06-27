@@ -125,8 +125,9 @@ export interface LastStandResult {
 // ─── Combat Resolution ───────────────────────────────────────────
 
 /**
- * Calculate base piece power for a player at a node.
- * Warlord + any retinue pieces present.
+ * Calculate base piece power for a player at a node — the sum of every court piece
+ * they have there (§2): Warlord/Marshal (high combat), Steward (low), Herald (none).
+ * Each on-board `Piece` carries its archetype power (`archetypePower`, court.ts).
  */
 export function getPlayerPowerAtNode(state: GameState, playerIndex: number, nodeId: string): number {
   let power = 0;

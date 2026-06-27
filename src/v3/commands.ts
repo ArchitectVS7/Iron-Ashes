@@ -16,7 +16,7 @@ export type ActionType =
   | 'CLAIM'     // Claim current unclaimed Holding/Forge (cost 1 banner)
   | 'RAID'      // Initiate combat vs a co-located rival (§5.3)
   | 'STRIKE'    // Initiate combat vs a co-located Shadowking force (§5.3)
-  | 'RECRUIT'   // Recruit a retinue piece
+  | 'RECRUIT'   // Recruit a court piece (§2 archetypes; Herald stance today)
   | 'AUDIT'     // Reveal one opponent's last pledge (Blood Pact only, §10)
   | 'SWEAR_OATH' // Forge a public pact with a rival (§ Oaths) — free, no action point
   | 'BREAK_OATH' // Betray a sworn ally for a burst; climb the dark's Ledger (§ Oaths)

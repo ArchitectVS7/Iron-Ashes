@@ -80,8 +80,34 @@ export interface V2BoardState {
 
 // ─── Pieces ───────────────────────────────────────────────────────
 
-/** Player piece types (§2). The Herald is the political build's lone runner (§HL). */
-export type PieceType = 'warlord' | 'retinue' | 'herald';
+/**
+ * Court archetypes (§2). Each is a distinct piece with its own power / verb / passive:
+ *   warlord — leader (1/player); high power; its deposal = elimination.
+ *   marshal — the muscle; high combat; may declare Last Stand.
+ *   steward — the economy; low combat; adds Banners at its node each Dawn (STEWARD_INCOME).
+ *   herald  — the political reach; low combat; +HERALD_HAND_BONUS hand; PARLEY; never fights.
+ */
+export type Archetype = 'warlord' | 'marshal' | 'steward' | 'herald';
+
+/** Player board piece types (§2) — the on-board projection of a court archetype. */
+export type PieceType = Archetype;
+
+/**
+ * A piece in a player's COURT (§2) — the canonical roster entry. The court is the
+ * source of truth for who a player commands; on-board combat power reads the mirrored
+ * `Piece` on the node. `captiveOf` is the capture-economy placeholder (wired in 3d):
+ * null while the piece is free, else the captor's seat (a captive produces nothing).
+ */
+export interface CourtPiece {
+  /** Unique identifier (matches the on-board `Piece.id` while the piece is in play). */
+  readonly id: string;
+  /** Which archetype this piece is. */
+  readonly archetype: Archetype;
+  /** Node the piece currently sits on. */
+  node: string;
+  /** Captor's seat while held hostage, or null when free (capture economy, 3d). */
+  captiveOf: number | null;
+}
 
 /** A player-owned piece on the board. */
 export interface Piece {
@@ -146,6 +172,10 @@ export interface PlayerState {
 
   /** Node ID of this player's Warlord piece. */
   warlordNodeId: string;
+
+  /** The player's COURT (§2) — every piece they command (Warlord + recruited
+   *  Marshal/Steward/Herald). Seeded with the Warlord at setup; grown by Discovery (3c). */
+  court: CourtPiece[];
 
   // ── Herald / political-martial stance (§ Herald, FOCUS-GROUP-R3) ──
   /** Per-player hand cap (init HAND_LIMIT; raised by recruiting a Herald). */

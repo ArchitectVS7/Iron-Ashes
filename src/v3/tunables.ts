@@ -247,6 +247,20 @@ export const GRUDGE_MARK_TOP_N = TUNABLES_DATA.GRUDGE_MARK_TOP_N;
 /** Base combat power of a Warlord piece (consistent at setup and after moving). */
 export const WARLORD_POWER = TUNABLES_DATA.WARLORD_POWER;
 
+// ─── The Court — archetype powers + Steward income (§2, Stage 3b) ──
+// v3-native placeholders (the sim tunes them in Stage V3-5). Defined as plain literals
+// here rather than via TUNABLES_DATA because data/tunables.json is v2's gen-workflow
+// source; these fold into the JSON when v3 promotes. They ARE injectable (in the
+// Tunables registry below) so the balance search can reach them.
+/** High combat power of a Marshal piece — the muscle (§2). */
+export const MARSHAL_POWER = 3;
+/** Low combat power of a Steward piece — defends weakly on its node (§2). */
+export const STEWARD_POWER = 1;
+/** Combat power of a Herald piece — a courier, never fights (§2). */
+export const HERALD_PIECE_POWER = 0;
+/** Banners a free Steward adds at its node each Dawn (§2, §4.4). */
+export const STEWARD_INCOME = 1;
+
 /** Max cards the engine auto-commits to a single combat (value-aware, §5.3). */
 export const COMBAT_COMMIT_MAX = TUNABLES_DATA.COMBAT_COMMIT_MAX;
 
@@ -472,6 +486,11 @@ export interface Tunables {
   readonly HERALD_HAND_BONUS: number;
   readonly HERALD_COMBAT_PENALTY: number;
   readonly HERALD_PUSHBACK: number;
+  // ── The Court — archetype powers + Steward income (Stage 3b) ──
+  readonly MARSHAL_POWER: number;
+  readonly STEWARD_POWER: number;
+  readonly HERALD_PIECE_POWER: number;
+  readonly STEWARD_INCOME: number;
   // ── Anti-free-rider + dark-effect magnitudes (made injectable in C2 — see
   //    stage5-tuning-log §C2; defaults are byte-identical, the consumers just now
   //    read getTunables().X instead of the frozen module const, so a sweep can reach them) ──
@@ -517,6 +536,7 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   FORGE_TOLL_COST, SEALED_CORE_PLEDGE, GAMBIT_SELF_COVER_CARDS, BAILOUT_BASE_PCT,
   ACCUSE_MIN_SCORE, SABOTEUR_COVER, BLOOD_PACT_SPREAD_BONUS,
   HERALD_RECRUIT_COST, HERALD_HAND_BONUS, HERALD_COMBAT_PENALTY, HERALD_PUSHBACK,
+  MARSHAL_POWER, STEWARD_POWER, HERALD_PIECE_POWER, STEWARD_INCOME,
   PLEDGE_SHIELD_AMOUNT, PLEDGE_FAVOR_GRUDGE_REDUCTION,
   DK_MARCH_DISTANCE, SURGE_SPREAD_MULT, GAMBIT_ADJACENT_STRIKE_MULT,
   CARD_VALUE_MIN, CARD_VALUE_MAX, BASE_BANNER_INCOME,
@@ -585,6 +605,10 @@ export const TUNABLES = Object.freeze({
   OATH_BREAK_BANNERS,
   GRUDGE_OATHBREAK,
   WARLORD_POWER,
+  MARSHAL_POWER,
+  STEWARD_POWER,
+  HERALD_PIECE_POWER,
+  STEWARD_INCOME,
   COMBAT_COMMIT_MAX,
   RAID_DEFENSE_MARGIN,
   CARD_VALUE_MIN,

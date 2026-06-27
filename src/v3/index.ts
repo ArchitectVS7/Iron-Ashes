@@ -18,7 +18,9 @@ export type {
   AccusationOutcome,
   AccusationState,
   AccusationVote,
+  Archetype,
   AuditEntry,
+  CourtPiece,
   GameEndReason,
   GameMode,
   GamePhase,
@@ -116,6 +118,14 @@ export {
   hasRivalAtNode,
   hasSKForcesAtNode,
 } from './actions.js';
+
+// ── The Court (§2 archetypes) ──
+export {
+  addCourtPiece,
+  archetypePower,
+  canLastStand,
+  stewardIncome,
+} from './court.js';
 
 // ── Gambit ──
 export {

@@ -34,6 +34,7 @@ import {
 } from './combat.js';
 import { applyPushback } from './blight.js';
 import { getTunables } from './tunables.js';
+import { canLastStand } from './court.js';
 import { checkGambitSeize } from './gambit.js';
 
 // ─── Action Result ────────────────────────────────────────────────
@@ -179,6 +180,9 @@ export function executeMarch(
   }
 
   player.warlordNodeId = targetNodeId;
+  // Keep the canonical court roster in sync with the board (§2).
+  const warlordCourt = player.court.find(c => c.archetype === 'warlord');
+  if (warlordCourt) warlordCourt.node = targetNodeId;
 
   events.push({
     type: 'PLAYER_ACTED',
@@ -239,6 +243,8 @@ export function executeHeraldMarch(
     });
   }
   player.heraldNodeId = targetNodeId;
+  const heraldCourt = player.court.find(c => c.archetype === 'herald');
+  if (heraldCourt) heraldCourt.node = targetNodeId;
 
   events.push({
     type: 'PLAYER_ACTED',
@@ -277,6 +283,8 @@ export function resolveHeraldCaptures(state: GameState): GameEvent[] {
     player.stance = 'martial';
     player.handLimit = Math.max(0, player.handLimit - t.HERALD_HAND_BONUS);
     player.combatPenalty = Math.max(0, player.combatPenalty - t.HERALD_COMBAT_PENALTY);
+    // Drop the Herald from the canonical court roster (§2).
+    player.court = player.court.filter(c => c.archetype !== 'herald');
     events.push({
       type: 'PLAYER_ACTED',
       playerIndex: player.index,
@@ -456,7 +464,9 @@ export function executeRaid(
   // ── Last Stand (§5.3) — one-sided, final defender reversal ──
   let winner = combatResult.winner;
   let lastStandCards: number[] = [];
-  if (combatResult.lastStandAvailable) {
+  // Only "the muscle" (a Warlord or Marshal — §2) may stand. In a legal RAID the
+  // defender's Warlord is co-located, so this never narrows existing combat.
+  if (combatResult.lastStandAvailable && canLastStand(state, defenderIndex, nodeId)) {
     lastStandCards = chooseLastStandCards(
       state, defenderIndex, combatResult.attackPower, combatResult.defensePower, defenderCards,
     );
@@ -667,6 +677,13 @@ export function executeRecruit(
       nodeId: player.warlordNodeId,
     });
   }
+  // Record the Herald in the canonical court roster (§2).
+  player.court.push({
+    id: `herald-${playerIndex}`,
+    archetype: 'herald',
+    node: player.warlordNodeId,
+    captiveOf: null,
+  });
 
   events.push({
     type: 'PLAYER_ACTED',

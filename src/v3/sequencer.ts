@@ -21,6 +21,7 @@ import {
   getTunables,
 } from './tunables.js';
 import { livingStrongholdCount } from './combat.js';
+import { stewardIncome } from './court.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 import {
   applyDawnBlightAdvance,
@@ -593,6 +594,9 @@ export function generateBannersForPlayer(state: GameState, playerIndex: number):
       income += nodeDef.income;
     }
   }
+
+  // Steward income (§2/§4.4): each free Steward adds STEWARD_INCOME Banners at its node.
+  income += stewardIncome(state, playerIndex);
 
   // No Broken income subsidy (§8): the comeback economy is retired. Catch-up is now
   // capture-side (§5.4), not a flat income bonus.

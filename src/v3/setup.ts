@@ -66,6 +66,7 @@ function createPlayerState(
     crownHeld: false,
     actionsRemaining: 0,
     warlordNodeId: keepNodeId,
+    court: [{ id: `warlord-${index}`, archetype: 'warlord', node: keepNodeId, captiveOf: null }],
     handLimit: HAND_LIMIT,
     stance: 'martial',
     heraldNodeId: null,
