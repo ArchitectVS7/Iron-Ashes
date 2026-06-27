@@ -202,6 +202,48 @@ export interface Piece {
   nodeId: string;
 }
 
+/**
+ * A card sitting in the Shadowking's strike pool (§5.5, §13 P0-4 / §7 D7). Eliminated
+ * players' hands feed the pool; it fuels future strikes and is the wraith's ammunition.
+ * `id` is a monotonic per-game sequence number: LOWER id ⇒ OLDER. Both the Dawn decay
+ * (oldest removed-from-game) and a strike's consumption (lowest-card-id first) operate on
+ * the low-id end, so the pool behaves as a deterministic FIFO. `power` feeds Σ(card.power).
+ */
+export interface StrikePoolCard {
+  /** Monotonic insertion sequence — lower = older. Drives decay + consumption order. */
+  readonly id: number;
+  /** The card's power (the same scale as a hand card). */
+  readonly power: number;
+}
+
+/**
+ * A Wraith — an eliminated Warlord serving the dark in the afterlife (§5.5, §2). Each round
+ * it gets ONE bounded input (steer the dark's existing target/grudge, or add a visible strike-
+ * pool card), capped by WRAITH_INPUT_CAP. The bounded-input resolution is built in 3f; this
+ * record is created at elimination (the afterlife join) and resolved in original-seat order
+ * (§12 #24). De-weaponized: it scores on the dark's progress, never a chosen revenge face (P0-8).
+ */
+export interface Wraith {
+  /** The eliminated Warlord's original seat index (the afterlife identity). */
+  readonly seat: number;
+  /** Round the Warlord was eliminated (joined the dark). */
+  readonly eliminatedRound: number;
+}
+
+/**
+ * The dark's heart (§5.6) — the Kill-the-Dark objective. Spawns as a real on-map node at the
+ * Reckoning crossing (built in 3g). Present here so the state shape matches §2; `null` until
+ * Reckoning. ASSAULT_HEART commits damage its HP track over telegraphed rounds.
+ */
+export interface HeartState {
+  /** The on-map node the heart occupies. */
+  readonly nodeId: string;
+  /** Public HP track (HEART_HP at spawn). */
+  hp: number;
+  /** Whether the heart is exposed (assaultable). */
+  exposed: boolean;
+}
+
 /** Shadowking force types (§2). */
 export type ShadowkingForceType = 'death_knight' | 'blight';
 
@@ -268,6 +310,21 @@ export interface PlayerState {
    *  to PARLEY; a rival Warlord or Death Knight co-located with it captures it. */
   heraldNodeId: string | null;
 
+  // ── Death-Curse killer tracking (§5.5/§13 P0-9, §12 #26) ──
+  /** Seat of the most-recent RIVAL stronghold-stripping action against this player — the
+   *  "killer" (§12 #26). null if none, or if the most recent strip was dark-caused. NOT the
+   *  Death-Curse target itself (the curse is decoupled from eliminating — §13 P0-9). */
+  lastStrippedBy: number | null;
+  /** Whether the most-recent stronghold strip against this player was DARK-caused (auto-pressure
+   *  / strike). A dark-caused kill redirects the Death-Curse to the living BENEFICIARY (§12 #26). */
+  lastStripByDark: boolean;
+  /** The node of the most-recent stronghold strip — used to find the BENEFICIARY (nearest living
+   *  claimant of the ashed land) when the kill was dark-caused (§12 #26). null if none. */
+  lastStrippedNode: string | null;
+  /** Whether this player has BROKEN an Oath (§ Oaths) — a standing "oathbreaker" marker the
+   *  Death-Curse / dark-steer may target (§13 P0-9). Set by BREAK_OATH; never cleared. */
+  oathbreaker: boolean;
+
   // ── Blood Pact (Layer B) ──
   /** Whether this player holds the Blood Pact (traitor). */
   hasBloodPact: boolean;
@@ -301,6 +358,25 @@ export interface ShadowkingState {
   grudge: number[];
   /** Patience ratchet — rises when the table blocks; triggers escalation when full. */
   patience: number;
+
+  /** Cards fed by elimination (§5.5/§13 P0-4) — fuels future strikes + is the wraith's
+   *  ammunition. Capped at STRIKEPOOL_CAP; the oldest (lowest id) decays each Dawn. */
+  strikePool: StrikePoolCard[];
+  /** Monotonic id counter for new strikePool cards (lower id = older — drives FIFO decay
+   *  + lowest-card-id-first consumption). Never decremented; JSON-serializable. */
+  strikePoolSeq: number;
+  /** Eliminated Warlords serving the dark in the afterlife (§5.5). The bounded per-round
+   *  input is wired in 3f; the record is created at elimination. */
+  wraiths: Wraith[];
+  /** The dark's heart (§5.6) — null until it spawns at Reckoning (built in 3g). */
+  heart: HeartState | null;
+  /**
+   * Whether a REAL ASSAULT_HEART hit landed THIS round (§13 P0-5/P0-6). Suppresses the
+   * Reckoning auto-pressure (§6) — a stalled/token assault does NOT count. Reset to false at
+   * THREAT, set true by a landed assault in ACTION (the assault path is finalized in 3g, so it
+   * defaults false here ⇒ auto-pressure is active in every Reckoning Dawn until 3g wires it).
+   */
+  heartAssaultLiveThisRound: boolean;
 }
 
 // ─── Pledge ───────────────────────────────────────────────────────
@@ -332,6 +408,10 @@ export interface Oath {
   readonly swornRound: number;
   /** Strain accrued — ticks each Dawn; at OATH_DURATION the Oath matures. */
   strain: number;
+  /** Whether this Oath was forged by a Death BEQUEST (§5.5, §12 #23). A bequest-oath is EXEMPT
+   *  from the eliminated-player oath-dissolve sweep (it is meant to persist posthumously). The
+   *  Bequest that sets this is built in 3f; the dissolve hook reads it now. */
+  readonly viaBequest?: boolean;
 }
 
 // ─── Blood Pact / Accusation (Layer B, §10) ──────────────────────
@@ -465,6 +545,11 @@ export interface GameState {
    *  guard cap (§12 #25), captor-death freeing (§12 #6), and RANSOM. Empty in Layer A until
    *  a winning RAID elects CAPTURE_PIECE. */
   captives: CaptiveRecord[];
+
+  /** Cards REMOVED-FROM-GAME (§7 D4/D7): strikePool overflow/decay + consumed strikes leave the
+   *  game here (never reshuffled into the live stream — that would reorder draws + break replay).
+   *  The conservation invariant |hands| + |strikePool| + |removed| is constant between draws. */
+  removed: number[];
 
   // ── Blood Pact (Layer B) ──
   /** Player index holding the Blood Pact, or null (Layer A). */

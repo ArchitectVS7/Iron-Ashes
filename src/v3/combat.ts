@@ -28,9 +28,10 @@ import { flipDiscoveryToken } from './discovery.js';
 
 /**
  * Living owned production for a seat (Forges weighted) — the single source of
- * truth shared with `computeCrownHolder` / `computeTerritoryWinner`.
+ * truth shared with `computeCrownHolder` / `computeTerritoryWinner` and the
+ * Reckoning auto-pressure / Death-Curse targeting (§6/§13 P0-5/P0-9). Pure.
  */
-function productionOf(state: GameState, seat: number): number {
+export function productionOf(state: GameState, seat: number): number {
   let t = 0;
   for (const [id, ns] of Object.entries(state.board.state.nodes)) {
     if (ns.owner !== seat || ns.ashed) continue;

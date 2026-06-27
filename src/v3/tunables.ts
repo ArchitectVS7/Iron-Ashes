@@ -288,6 +288,21 @@ export const RANSOM_BANNERS = 2;
  *  Resource-negative to the pair → no value-neutral laundering loop (stress-test E2). < RANSOM_BANNERS. */
 export const RANSOM_SINK_CUT = 1;
 
+// ─── Elimination: strike pool, auto-pressure, death-curse (§5.5/§6, §13 P0-4/5/9; Stage 3e) ──
+// v3-native placeholders (the sim tunes them in Stage V3-5). Injectable below.
+/** Max cards the dark's strike pool holds (§13 P0-4): eliminated hands feed it, capped here;
+ *  the oldest decay each Dawn. Caps strike power so it does NOT scale with cumulative deaths. */
+export const STRIKEPOOL_CAP = 6;
+/** Cards removed-from-game from the strike pool each Dawn — the OLDEST (lowest id) first
+ *  (§13 P0-4 decay). Keeps the pool from being a permanent death-fuelled ratchet. */
+export const STRIKEPOOL_DECAY = 1;
+/** Living strongholds the Reckoning auto-pressure strips from the most-production/least-engaged
+ *  seat per Dawn (§6/§13 P0-5). The credible-executioner magnitude; the sim tunes it. */
+export const RECKONING_AUTOPRESSURE_NODES = 1;
+/** Extra grudge the Death-Curse fixes on its target for the rest of the game (§5.5). The Bequest
+ *  (3f) APPLIES it; 3e exposes the targeting rule (`deathCurseTarget`). */
+export const CURSE_GRUDGE = 3;
+
 // ─── Discovery (§5.1, Stage 3c) ───────────────────────────────────
 // The flip-outcome split (sum = 1.0) + the Blight-seed magnitudes. v3-native placeholders
 // (the sim tunes them in Stage V3-5). Injectable in the Tunables registry below.
@@ -541,6 +556,11 @@ export interface Tunables {
   readonly RANSOM_COST: number;
   readonly RANSOM_BANNERS: number;
   readonly RANSOM_SINK_CUT: number;
+  // ── Elimination: strike pool / auto-pressure / death-curse (Stage 3e) ──
+  readonly STRIKEPOOL_CAP: number;
+  readonly STRIKEPOOL_DECAY: number;
+  readonly RECKONING_AUTOPRESSURE_NODES: number;
+  readonly CURSE_GRUDGE: number;
   // ── Discovery (Stage 3c) ──
   readonly DISCOVERY_RECRUIT_PCT: number;
   readonly DISCOVERY_BLIGHT_PCT: number;
@@ -595,6 +615,7 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   CAPTURE_MARGIN, CAPTURE_MARGIN_STANDING_STEP, TRAILING_DEFENSE_BONUS, RECAPTURE_IMMUNE,
   CAPTIVE_GUARD_CAP, STEWARD_DENIED_TRICKLE, STEWARD_HOME_DEFENSE_BONUS,
   RANSOM_COST, RANSOM_BANNERS, RANSOM_SINK_CUT,
+  STRIKEPOOL_CAP, STRIKEPOOL_DECAY, RECKONING_AUTOPRESSURE_NODES, CURSE_GRUDGE,
   DISCOVERY_RECRUIT_PCT, DISCOVERY_BLIGHT_PCT, DISCOVERY_DK_PCT, DISCOVERY_BLIGHT_DELTA,
   PLEDGE_SHIELD_AMOUNT, PLEDGE_FAVOR_GRUDGE_REDUCTION,
   DK_MARCH_DISTANCE, SURGE_SPREAD_MULT, GAMBIT_ADJACENT_STRIKE_MULT,
@@ -678,6 +699,10 @@ export const TUNABLES = Object.freeze({
   RANSOM_COST,
   RANSOM_BANNERS,
   RANSOM_SINK_CUT,
+  STRIKEPOOL_CAP,
+  STRIKEPOOL_DECAY,
+  RECKONING_AUTOPRESSURE_NODES,
+  CURSE_GRUDGE,
   DISCOVERY_RECRUIT_PCT,
   DISCOVERY_BLIGHT_PCT,
   DISCOVERY_DK_PCT,

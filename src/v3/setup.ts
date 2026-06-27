@@ -75,6 +75,10 @@ function createPlayerState(
     stance: 'martial',
     heraldNodeId: null,
     combatPenalty: 0,
+    lastStrippedBy: null,
+    lastStripByDark: false,
+    lastStrippedNode: null,
+    oathbreaker: false,
     hasBloodPact: false,
   };
 }
@@ -206,6 +210,11 @@ export function createGame(
       telegraph: null,
       grudge: new Array(playerCount).fill(0),
       patience: 0,
+      strikePool: [],
+      strikePoolSeq: 0,
+      wraiths: [],
+      heart: null,
+      heartAssaultLiveThisRound: false,
     },
 
     crownHolder: null,
@@ -221,6 +230,7 @@ export function createGame(
     gambit: null,
     oaths: [],
     captives: [],
+    removed: [],
 
     bloodPactHolder,
     bloodPactExposed: false,

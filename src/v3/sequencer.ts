@@ -44,6 +44,12 @@ import {
   returnRoutedPieces,
 } from './capture.js';
 import {
+  applyReckoningAutoPressure,
+  decayStrikePool,
+  feedHandToStrikePool,
+  joinWraith,
+} from './elimination.js';
+import {
   evaluateGambitAtDawn,
   getEffectivePledgeWeight,
   computeTerritoryWinner,
@@ -77,6 +83,11 @@ export function nextPhase(current: GamePhase): GamePhase {
  */
 export function runThreatPhase(state: GameState): SequencerResult {
   const events: GameEvent[] = [];
+
+  // A fresh round starts with no live heart assault (§13 P0-6): the flag is set true only by a
+  // REAL ASSAULT_HEART hit during this round's ACTION (the assault path is finalized in 3g), and
+  // read by this round's Dawn auto-pressure. Defaults false here ⇒ auto-pressure is active.
+  state.shadowking.heartAssaultLiveThisRound = false;
 
   // Decay grudge at the start of each round (before targeting)
   events.push(...decayGrudge(state));
@@ -381,6 +392,15 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
     }
   }
 
+  // 3b. Strike-pool decay (§13 P0-4 / §7 D7): the OLDEST cards leave the game each Dawn, BEFORE
+  //     this Dawn's eliminations feed it — so freshly-fed cards survive at least one round.
+  events.push(...decayStrikePool(state));
+
+  // 3c. Reckoning AUTO-PRESSURE (§6 / §13 P0-5): the dark strips strongholds from the most-
+  //     production / least-engaged seat, BEFORE deposals resolve — a seat reduced to zero
+  //     strongholds is eliminated this same Dawn (the all_broken executioner successor).
+  events.push(...applyReckoningAutoPressure(state));
+
   // 4. Resolve deposals (§6, §7 D5): zero-stronghold / flagged Warlords are eliminated
   //    HERE, at Dawn, in seat order — never mid-action.
   events.push(...resolveDeposals(state));
@@ -478,9 +498,16 @@ export function resolveDeposals(state: GameState): GameEvent[] {
     p.crownHeld = false;
     p.actionsRemaining = 0;
 
-    // Eliminated player's standing Oaths dissolve cleanly — no oathbreaker grudge to the
-    // surviving partner (§12 #11).
-    state.oaths = state.oaths.filter(o => o.a !== seat && o.b !== seat);
+    // No free spoils (§5.5 / §13 P0-4): the eliminated hand feeds the dark's strikePool (capped +
+    // overflow removed-from-game) — NEVER the eliminator, never reshuffled. Then the Warlord joins
+    // the dark as a Wraith (the afterlife; bounded inputs wired in 3f).
+    events.push(...feedHandToStrikePool(state, seat));
+    joinWraith(state, seat);
+
+    // Eliminated player's standing Oaths dissolve cleanly — no oathbreaker grudge to the surviving
+    // partner (§12 #11) — EXCEPT a Death-Bequest oath, which is meant to persist posthumously
+    // (§12 #23; the Bequest that forges it is built in 3f, the exemption hook reads it now).
+    state.oaths = state.oaths.filter(o => (o.a !== seat && o.b !== seat) || o.viaBequest === true);
 
     // The deposed Warlord's remaining holdings ash (§2 Keep-ashing rule). Normally none
     // remain (they are at zero strongholds), but ash any owned living node defensively.

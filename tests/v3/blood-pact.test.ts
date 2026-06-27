@@ -101,7 +101,11 @@ describe('Suspicion Log (§10)', () => {
     let s = bloodPactGame(7);
     for (let r = 0; r < 8 && s.gameEndReason === null; r++) {
       s = apply(s, { type: 'ADVANCE_PHASE' }); // → PLEDGE
-      for (const p of s.players) s = apply(s, { type: 'SUBMIT_PLEDGE', playerIndex: p.index, amount: 1 });
+      // Only LIVING players pledge — Reckoning auto-pressure (3e) can eliminate a seat, whose
+      // hand has been fed to the strikePool (empty), so a forced pledge would be illegal.
+      for (const p of s.players) {
+        if (!p.isEliminated) s = apply(s, { type: 'SUBMIT_PLEDGE', playerIndex: p.index, amount: 1 });
+      }
       s = apply(s, { type: 'ADVANCE_PHASE' }); // resolve → ACTION
       // pass everyone
       for (const idx of s.turnOrder) {

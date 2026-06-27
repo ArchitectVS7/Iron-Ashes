@@ -47,8 +47,11 @@ describe('blood_pact sim', () => {
     expect(r.finalState.bloodPactHolder).toBe(0);
     const m = computeMetrics(r.finalState);
     expect(m.isBloodPact).toBe(true);
-    // Outcome flags are consistent: a traitor win implies the dark reached doom.
-    if (m.traitorWin) expect(m.gameEndReason).toBe('doom_complete');
+    // Outcome flags are consistent: a traitor win implies a Shadowking win — the dark ate the
+    // Keystone (doom_complete) OR deposed the whole table (attrition). The eliminated/standing
+    // traitor takes EITHER unless exposed (§6/§12 #5). (Was doom_complete-only pre-3e, when no
+    // elimination could fire — Reckoning auto-pressure now makes attrition reachable.)
+    if (m.traitorWin) expect(['doom_complete', 'attrition']).toContain(m.gameEndReason);
   });
 
   it('a blood_pact sweep terminates everywhere and the deduction surface is exercised', () => {

@@ -39,6 +39,9 @@ export type {
   ShadowkingForceType,
   ShadowkingState,
   ShadowkingTelegraph,
+  StrikePoolCard,
+  Wraith,
+  HeartState,
   V2BoardDef,
   V2BoardState,
   V2NodeDef,
@@ -143,6 +146,21 @@ export {
   freeCaptiveToOwner,
   resolveCaptivesAfterDeposals,
 } from './capture.js';
+
+// ── Elimination machinery (§5.5/§6, §13 P0-4/P0-5/P0-9; Stage 3e) ──
+export {
+  feedHandToStrikePool,
+  strikePoolPower,
+  decayStrikePool,
+  consumeStrikePower,
+  cardsAccountedFor,
+  joinWraith,
+  markStrippedByRival,
+  markStrippedByDark,
+  nearestClaimant,
+  deathCurseTarget,
+  applyReckoningAutoPressure,
+} from './elimination.js';
 
 // ── The Court (§2 archetypes) ──
 export {

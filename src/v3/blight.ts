@@ -91,6 +91,16 @@ export function ashNode(state: GameState, nodeId: string): GameEvent[] {
   nodeState.blightLevel = getTunables().BLIGHT_TO_ASH;
   nodeState.owner = null;
 
+  // Death-Curse killer tracking (§12 #26): the dark ashing an owned stronghold is a DARK-caused
+  // strip → the curse later redirects to the living BENEFICIARY (nearest claimant). Inlined (not
+  // via elimination.ts) to avoid an import cycle. Eliminated owners are settled at Dawn regardless.
+  if (previousOwner !== null) {
+    const victim = state.players[previousOwner];
+    victim.lastStrippedBy = null;
+    victim.lastStripByDark = true;
+    victim.lastStrippedNode = nodeId;
+  }
+
   events.push({
     type: 'NODE_ASHED',
     nodeId,

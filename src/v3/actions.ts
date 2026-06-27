@@ -43,6 +43,7 @@ import {
   routPiece,
 } from './capture.js';
 import { applyPushback } from './blight.js';
+import { markStrippedByRival } from './elimination.js';
 import { getTunables } from './tunables.js';
 import { canLastStand, archetypePower } from './court.js';
 import { checkGambitSeize } from './gambit.js';
@@ -570,6 +571,10 @@ export function executeRaid(
       if (nodeState && nodeState.owner === defenderIndex) {
         nodeState.owner = playerIndex;
 
+        // Death-Curse killer tracking (§12 #26): record the RIVAL strip — `killer` is the seat of
+        // the most-recent stronghold-stripping action (the curse is NEVER pointed back at it, §13 P0-9).
+        markStrippedByRival(state, defenderIndex, playerIndex, nodeId);
+
         // Depose pressure (§5.5/§6): taking a rival's LAST living stronghold flags them
         // `deposed`. The flag is set here in ACTION; the elimination RESOLVES AT DAWN in
         // seat order (resolveDeposals). Whisper protects against hopelessness (§12 #13,
@@ -755,6 +760,8 @@ export function executeBreakOath(
 
   const t = getTunables();
   state.players[playerIndex].banners += t.OATH_BREAK_BANNERS; // seize the moment
+  // Standing oathbreaker marker (§13 P0-9) — a deserving Death-Curse / dark-steer target.
+  state.players[playerIndex].oathbreaker = true;
 
   const events: GameEvent[] = [{
     type: 'PLAYER_ACTED',
