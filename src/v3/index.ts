@@ -160,7 +160,14 @@ export {
   nearestClaimant,
   deathCurseTarget,
   applyReckoningAutoPressure,
+  decideBequest,
+  applyDeathBequest,
+  boardLeaderSeat,
+  planWraithInputs,
+  applyWraithNudges,
+  applyWraithCardAdds,
 } from './elimination.js';
+export type { BequestChoice, WraithDecision } from './elimination.js';
 
 // ── The Court (§2 archetypes) ──
 export {

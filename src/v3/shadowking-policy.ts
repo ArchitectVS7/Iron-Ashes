@@ -419,5 +419,7 @@ export function chooseShadowkingIntent(state: GameState): ShadowkingTelegraph {
     struckPlayerIndex: targetIndex,
     steerQuadrant,
     firstPersonLine,
+    // Wraith card-adds (§5.5/§12 #24) accumulate here AFTER this telegraph is computed.
+    wraithStrikeBonus: 0,
   };
 }

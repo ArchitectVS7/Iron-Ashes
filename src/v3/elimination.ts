@@ -29,6 +29,8 @@ import type { GameState } from './types.js';
 import { getTunables } from './tunables.js';
 import { ashNode } from './blight.js';
 import { livingStrongholdCount, productionOf } from './combat.js';
+import { addGrudge } from './shadowking-policy.js';
+import { observableState, type ObservableState } from './observable.js';
 
 // ─── Strike pool (§13 P0-4 / §7 D7) ───────────────────────────────
 
@@ -283,6 +285,202 @@ function stripOneStronghold(state: GameState, seat: number): GameEvent[] {
       details: { deposed: true, by: 'dark', reason: 'reckoning_auto_pressure' },
     });
     events.push({ type: 'SK_VOICE_LINE', line: 'The tide has reached your gates. Kneel.', trigger: 'reckoning_auto_pressure' });
+  }
+  return events;
+}
+
+// ─── Death Bequest (the exit beat, §5.5 / §7 D8 / §12 #23 / §12 #26) ──
+
+/**
+ * An eliminated Warlord's ONE final choice (§5.5), resolved in `resolveDeposals` in seat order
+ * (§7 D8). BEQUEATH a held captive or remaining cards to a living ally (forging a POSTHUMOUS Oath,
+ * §12 #23), OR lay a DEATH-CURSE on the depersonalized target (§13 P0-9 / §12 #26).
+ */
+export type BequestChoice =
+  | { readonly kind: 'bequeath_captive'; readonly pieceId: string; readonly beneficiary: number }
+  | { readonly kind: 'bequeath_cards'; readonly beneficiary: number }
+  | { readonly kind: 'death_curse'; readonly target: number | null };
+
+/**
+ * Decide the Death Bequest for `dyingSeat` (§5.5, §7 D8) — a pure scripted `f(observableState)`:
+ * the dying player reads ONLY its own fogged projection (it can never peek under the fog).
+ *
+ * The scripted policy bequeaths to its STANDING oath ALLY when it has one. A standing Oath is proof
+ * the ally did NOT eliminate this player — raiding a sworn ally requires BREAK_OATH first, which
+ * dissolves the bond — so a bequest there never rewards the killer (§12 #4 "no free spoils"). The
+ * bond is sealed posthumously (the viaBequest Oath, exempt from dissolve — §12 #23). Among assets it
+ * prefers handing the ally a HELD captive (a hostage AND a posthumous Oath — but never gifting a
+ * captive back to its own owner), else its remaining cards. With NO standing ally it lays a
+ * DEATH-CURSE at the depersonalized leader/oathbreaker/beneficiary target (§13 P0-9 / §12 #26) and
+ * its hand feeds the dark by the default no-free-spoils path. Pure + deterministic.
+ */
+export function decideBequest(state: GameState, dyingSeat: number): BequestChoice {
+  const obs = observableState(state, dyingSeat);
+  const oath = obs.oaths.find(o => o.a === dyingSeat || o.b === dyingSeat);
+  if (oath) {
+    const ally = oath.a === dyingSeat ? oath.b : oath.a;
+    if (ally >= 0 && ally < obs.players.length && !obs.players[ally].isEliminated) {
+      const held = obs.captives
+        .filter(r => r.captorSeat === dyingSeat && r.ownerSeat !== ally)
+        .map(r => r.pieceId)
+        .sort();
+      if (held.length > 0) return { kind: 'bequeath_captive', pieceId: held[0], beneficiary: ally };
+      if (obs.players[dyingSeat].hand.length > 0) return { kind: 'bequeath_cards', beneficiary: ally };
+    }
+  }
+  return { kind: 'death_curse', target: deathCurseTarget(state, dyingSeat) };
+}
+
+/** Forge a POSTHUMOUS Oath (§12 #23) — low seat first, marked `viaBequest` so the eliminated-player
+ *  oath-dissolve sweep EXEMPTS it (it is meant to persist). The dying seat's pre-existing (non-
+ *  bequest) Oath with the same ally dissolves in that sweep, leaving exactly this posthumous bond. */
+function forgePosthumousOath(state: GameState, dyingSeat: number, beneficiary: number): void {
+  const a = Math.min(dyingSeat, beneficiary);
+  const b = Math.max(dyingSeat, beneficiary);
+  state.oaths.push({ a, b, swornRound: state.round, strain: 0, viaBequest: true });
+}
+
+/**
+ * Resolve the Death Bequest (§5.5, §7 D8) — called INSIDE `resolveDeposals` BEFORE the hand feeds
+ * the strike pool (so a card-bequest reaches the ally, not the dark). BEQUEATH forges a posthumous
+ * Oath (§12 #23); a captive bequest also re-assigns the captor BEFORE the captor-death freeing sweep,
+ * so the hostage survives. DEATH-CURSE intensifies the dark's grudge at the depersonalized target
+ * (§13 P0-9 / §12 #26). Returns events. Deterministic.
+ */
+export function applyDeathBequest(state: GameState, dyingSeat: number): GameEvent[] {
+  const events: GameEvent[] = [];
+  const choice = decideBequest(state, dyingSeat);
+
+  switch (choice.kind) {
+    case 'bequeath_captive': {
+      const rec = state.captives.find(r => r.pieceId === choice.pieceId && r.captorSeat === dyingSeat);
+      if (rec) {
+        rec.captorSeat = choice.beneficiary;
+        const piece = state.players[rec.ownerSeat].court.find(c => c.id === rec.pieceId);
+        if (piece) piece.captiveOf = choice.beneficiary;
+        forgePosthumousOath(state, dyingSeat, choice.beneficiary);
+        events.push({
+          type: 'PLAYER_ACTED', playerIndex: dyingSeat, action: 'PASS',
+          details: { bequest: 'captive', pieceId: choice.pieceId, beneficiary: choice.beneficiary },
+        });
+      }
+      break;
+    }
+    case 'bequeath_cards': {
+      const dying = state.players[dyingSeat];
+      const given = dying.hand.length;
+      state.players[choice.beneficiary].hand.push(...dying.hand);
+      dying.hand = [];
+      forgePosthumousOath(state, dyingSeat, choice.beneficiary);
+      events.push({
+        type: 'PLAYER_ACTED', playerIndex: dyingSeat, action: 'PASS',
+        details: { bequest: 'cards', cards: given, beneficiary: choice.beneficiary },
+      });
+      break;
+    }
+    case 'death_curse': {
+      if (choice.target !== null) {
+        events.push(...addGrudge(state, choice.target, getTunables().CURSE_GRUDGE, 'death_curse'));
+        events.push({
+          type: 'PLAYER_ACTED', playerIndex: dyingSeat, action: 'PASS',
+          details: { bequest: 'curse', target: choice.target },
+        });
+      }
+      break;
+    }
+  }
+  return events;
+}
+
+// ─── Wraith afterlife sweep (§5.5 / §13 P0-8 / §7 D6 / §12 #24) ────
+
+/** One resolved Wraith input for the round. */
+export interface WraithDecision {
+  /** The wraith's ORIGINAL seat index — the §12 #24 resolution order. */
+  readonly seat: number;
+  /** The bounded input chosen: a grudge/target nudge, or a strike-pool card-add. */
+  readonly kind: 'nudge' | 'card_add';
+}
+
+/**
+ * The current BOARD LEADER the dark's precedence already aims at (§13 P0-8): the most-production
+ * LIVING seat, lowest-seat tiebreak. The Wraith may only INTENSIFY this — never a personal face.
+ * null if none live. Pure.
+ */
+export function boardLeaderSeat(state: GameState): number | null {
+  const living = state.players.filter(p => !p.isEliminated);
+  if (living.length === 0) return null;
+  return [...living].sort((a, b) => {
+    const pd = productionOf(state, b.index) - productionOf(state, a.index);
+    return pd !== 0 ? pd : a.index - b.index;
+  })[0].index;
+}
+
+/** A single Wraith's scripted bounded input (§13 P0-8): spend strike-pool AMMO while any remains to
+ *  it (intensify the telegraphed strike), else nudge the dark's existing target. Pure
+ *  `f(observableState)` — the wraith reads only its own fogged projection. */
+function decideWraithInput(_obs: ObservableState, cardsAvailable: number): 'nudge' | 'card_add' {
+  return cardsAvailable > 0 ? 'card_add' : 'nudge';
+}
+
+/**
+ * Plan every Wraith's ONE bounded input this round (§5.5/§12 #24, §7 D6): resolve in ascending
+ * ORIGINAL-SEAT order, capped at WRAITH_INPUT_CAP TOTAL across all wraiths. Each wraith reads only
+ * its own observable projection. A `card_add` decrements the live strike-pool budget so later
+ * (higher-seat) wraiths fall back to a `nudge` once the ammo is spent — the ordering is legible and
+ * reproducible. Returns the plan; the sweep applies nudges BEFORE the telegraph, card-adds AFTER.
+ */
+export function planWraithInputs(state: GameState): WraithDecision[] {
+  const cap = getTunables().WRAITH_INPUT_CAP;
+  const plan: WraithDecision[] = [];
+  let cardsAvailable = state.shadowking.strikePool.length;
+  const ordered = [...state.shadowking.wraiths].sort((a, b) => a.seat - b.seat);
+  for (const w of ordered) {
+    if (plan.length >= cap) break;
+    const kind = decideWraithInput(observableState(state, w.seat), cardsAvailable);
+    if (kind === 'card_add') cardsAvailable -= 1;
+    plan.push({ seat: w.seat, kind });
+  }
+  return plan;
+}
+
+/**
+ * Apply the Wraith NUDGES (§13 P0-8) — BEFORE the telegraph is computed. Each nudge intensifies the
+ * dark's grudge on the current BOARD LEADER (its existing precedence) by WRAITH_GRUDGE_NUDGE — never
+ * a personal revenge face. Resolved in the plan's ascending-seat order (§12 #24). Returns events.
+ */
+export function applyWraithNudges(state: GameState, plan: readonly WraithDecision[]): GameEvent[] {
+  const events: GameEvent[] = [];
+  for (const d of plan) {
+    if (d.kind !== 'nudge') continue;
+    const leader = boardLeaderSeat(state);
+    if (leader === null) continue;
+    events.push(...addGrudge(state, leader, getTunables().WRAITH_GRUDGE_NUDGE, 'wraith_nudge'));
+  }
+  return events;
+}
+
+/**
+ * Apply the Wraith CARD-ADDS (§5.5/§12 #24) — AFTER the telegraph is computed. Each add consumes the
+ * LOWEST-card-id strike-pool card (§13 P0-4 FIFO) and commits its power to THIS round's telegraphed
+ * strike (`telegraph.wraithStrikeBonus`), so the Pledge must beat a higher threshold. Consumed cards
+ * are removed-from-game (the conservation invariant holds). No-op without a telegraph. Returns events.
+ */
+export function applyWraithCardAdds(state: GameState, plan: readonly WraithDecision[]): GameEvent[] {
+  const events: GameEvent[] = [];
+  const telegraph = state.shadowking.telegraph;
+  if (!telegraph) return events;
+  for (const d of plan) {
+    if (d.kind !== 'card_add') continue;
+    sortPoolOldestFirst(state);
+    const card = state.shadowking.strikePool.shift();
+    if (!card) break; // ammo spent (the planner caps to availability; stay safe regardless)
+    state.removed.push(card.power);
+    telegraph.wraithStrikeBonus = (telegraph.wraithStrikeBonus ?? 0) + card.power;
+    events.push({
+      type: 'PLAYER_ACTED', playerIndex: d.seat, action: 'PASS',
+      details: { wraith: 'card_add', power: card.power, strikeBonus: telegraph.wraithStrikeBonus },
+    });
   }
   return events;
 }

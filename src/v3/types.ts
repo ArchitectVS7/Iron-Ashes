@@ -346,6 +346,11 @@ export interface ShadowkingTelegraph {
   readonly steerQuadrant: number;
   /** The villain's first-person line (for UI/log). */
   readonly firstPersonLine: string;
+  /** Extra strike power committed by Wraith card-adds THIS round (§5.5, §12 #24). Mutable, optional
+   *  (absent ⇒ 0 — `chooseShadowkingIntent` always seeds it to 0). The THREAT-phase wraith sweep
+   *  raises it AFTER the telegraph is computed (one strikePool card per add, consumed from the
+   *  pool); the Pledge resolves against `doomCost + this`. */
+  wraithStrikeBonus?: number;
 }
 
 /** Shadowking aggregate state (§2, §5.6). */

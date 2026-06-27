@@ -302,6 +302,12 @@ export const RECKONING_AUTOPRESSURE_NODES = 1;
 /** Extra grudge the Death-Curse fixes on its target for the rest of the game (§5.5). The Bequest
  *  (3f) APPLIES it; 3e exposes the targeting rule (`deathCurseTarget`). */
 export const CURSE_GRUDGE = 3;
+/** Max Wraith inputs resolved per round, TOTAL across all wraiths (§5.5/§13 P0-8, §12 #24). Caps
+ *  the afterlife so a stack of dead Warlords can't co-pilot the dark into an instant win. */
+export const WRAITH_INPUT_CAP = 2;
+/** Grudge a single Wraith "nudge" intensifies on the dark's existing target — the BOARD LEADER,
+ *  not a chosen face (§13 P0-8). One step of intensity. The sim tunes it. */
+export const WRAITH_GRUDGE_NUDGE = 1;
 
 // ─── Discovery (§5.1, Stage 3c) ───────────────────────────────────
 // The flip-outcome split (sum = 1.0) + the Blight-seed magnitudes. v3-native placeholders
@@ -561,6 +567,8 @@ export interface Tunables {
   readonly STRIKEPOOL_DECAY: number;
   readonly RECKONING_AUTOPRESSURE_NODES: number;
   readonly CURSE_GRUDGE: number;
+  readonly WRAITH_INPUT_CAP: number;
+  readonly WRAITH_GRUDGE_NUDGE: number;
   // ── Discovery (Stage 3c) ──
   readonly DISCOVERY_RECRUIT_PCT: number;
   readonly DISCOVERY_BLIGHT_PCT: number;
@@ -616,6 +624,7 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   CAPTIVE_GUARD_CAP, STEWARD_DENIED_TRICKLE, STEWARD_HOME_DEFENSE_BONUS,
   RANSOM_COST, RANSOM_BANNERS, RANSOM_SINK_CUT,
   STRIKEPOOL_CAP, STRIKEPOOL_DECAY, RECKONING_AUTOPRESSURE_NODES, CURSE_GRUDGE,
+  WRAITH_INPUT_CAP, WRAITH_GRUDGE_NUDGE,
   DISCOVERY_RECRUIT_PCT, DISCOVERY_BLIGHT_PCT, DISCOVERY_DK_PCT, DISCOVERY_BLIGHT_DELTA,
   PLEDGE_SHIELD_AMOUNT, PLEDGE_FAVOR_GRUDGE_REDUCTION,
   DK_MARCH_DISTANCE, SURGE_SPREAD_MULT, GAMBIT_ADJACENT_STRIKE_MULT,
@@ -703,6 +712,8 @@ export const TUNABLES = Object.freeze({
   STRIKEPOOL_DECAY,
   RECKONING_AUTOPRESSURE_NODES,
   CURSE_GRUDGE,
+  WRAITH_INPUT_CAP,
+  WRAITH_GRUDGE_NUDGE,
   DISCOVERY_RECRUIT_PCT,
   DISCOVERY_BLIGHT_PCT,
   DISCOVERY_DK_PCT,

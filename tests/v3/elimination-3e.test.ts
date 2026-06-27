@@ -255,16 +255,17 @@ describe('Stage 3e — ordering + determinism (§7, §12)', () => {
     expect(s.shadowking.heartAssaultLiveThisRound).toBe(false);
   });
 
-  it('a bequest-oath survives the eliminated-player oath-dissolve sweep (§12 #23 hook)', () => {
+  it('a bequest-oath survives the eliminated-player oath-dissolve sweep (§12 #23)', () => {
     const s = createGame(3, 'competitive', 8);
     s.act = 'MARCH';
-    s.oaths.push({ a: 1, b: 2, swornRound: 1, strain: 0 });                  // normal oath
-    s.oaths.push({ a: 0, b: 2, swornRound: 1, strain: 0, viaBequest: true }); // bequest oath
+    // Seat 2 stands sworn to ally 0. Its Death Bequest (3f) seals that bond POSTHUMOUSLY (a viaBequest
+    // Oath), which the dissolve sweep EXEMPTS (§12 #23); the original NON-bequest oath dissolves.
+    s.oaths.push({ a: 0, b: 2, swornRound: 1, strain: 0 });
     stripSeat(s, 2);
     resolveDeposals(s);
-    // The normal oath involving the eliminated seat 2 dissolves; the bequest oath persists.
-    expect(s.oaths.some(o => o.a === 1 && o.b === 2)).toBe(false);
-    expect(s.oaths.some(o => o.viaBequest === true)).toBe(true);
+    // No NON-bequest oath of the eliminated seat survives; the posthumous bequest oath persists.
+    expect(s.oaths.some(o => (o.a === 2 || o.b === 2) && !o.viaBequest)).toBe(false);
+    expect(s.oaths.some(o => o.viaBequest === true && (o.a === 2 || o.b === 2))).toBe(true);
   });
 
   it('stronghold definition: a seat holding ANY living production node is NOT deposed (§12 #14)', () => {

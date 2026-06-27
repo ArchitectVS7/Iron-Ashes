@@ -44,10 +44,14 @@ import {
   returnRoutedPieces,
 } from './capture.js';
 import {
+  applyDeathBequest,
   applyReckoningAutoPressure,
+  applyWraithCardAdds,
+  applyWraithNudges,
   decayStrikePool,
   feedHandToStrikePool,
   joinWraith,
+  planWraithInputs,
 } from './elimination.js';
 import {
   evaluateGambitAtDawn,
@@ -92,11 +96,22 @@ export function runThreatPhase(state: GameState): SequencerResult {
   // Decay grudge at the start of each round (before targeting)
   events.push(...decayGrudge(state));
 
-  // Use the reactive policy to generate the telegraph
+  // Wraith afterlife sweep (§5.5/§13 P0-8, §12 #24, §7 D6): plan every wraith's ONE bounded input
+  // (ascending original-seat order, capped at WRAITH_INPUT_CAP). Grudge/target NUDGES apply NOW —
+  // BEFORE the telegraph is computed — so the dark's existing precedence (the board leader) is
+  // intensified, not redirected; card-adds apply AFTER, in this one fixed sweep.
+  const wraithPlan = planWraithInputs(state);
+  events.push(...applyWraithNudges(state, wraithPlan));
+
+  // Use the reactive policy to generate the telegraph (reads the post-nudge grudge)
   const telegraph = chooseShadowkingIntent(state);
   state.shadowking.telegraph = telegraph;
 
   events.push({ type: 'THREAT_DECLARED', telegraph });
+
+  // Wraith CARD-ADDS — AFTER telegraph: each consumes a strike-pool card and raises this round's
+  // telegraphed-strike threshold (§5.5/§12 #24).
+  events.push(...applyWraithCardAdds(state, wraithPlan));
 
   return { state, events };
 }
@@ -140,7 +155,9 @@ export function resolvePledgePhase(state: GameState): SequencerResult {
     throw new Error('Cannot resolve Pledge: no telegraph set (THREAT phase not run)');
   }
 
-  const C = telegraph.doomCost;
+  // The threshold the table must beat = the telegraphed doom cost PLUS any Wraith card-adds
+  // committed to this strike during THREAT (§5.5/§12 #24).
+  const C = telegraph.doomCost + (telegraph.wraithStrikeBonus ?? 0);
 
   // Compute effective total with Crown discount + Gambit surcharge (§6)
   let effective = 0;
@@ -497,6 +514,13 @@ export function resolveDeposals(state: GameState): GameEvent[] {
     p.deposed = true;
     p.crownHeld = false;
     p.actionsRemaining = 0;
+
+    // Death Bequest — the exit beat (§5.5 / §7 D8): the dying player's ONE final choice, resolved
+    // f(observableState, seed) in seat order BEFORE the hand feeds the pool. BEQUEATH a held captive
+    // or remaining cards to a living ally (forging a POSTHUMOUS, dissolve-exempt Oath — §12 #23),
+    // OR DEATH-CURSE the depersonalized target (§13 P0-9 / §12 #26). A card-bequest empties the hand
+    // here, so the strikePool feed below sees nothing left to take.
+    events.push(...applyDeathBequest(state, seat));
 
     // No free spoils (§5.5 / §13 P0-4): the eliminated hand feeds the dark's strikePool (capped +
     // overflow removed-from-game) — NEVER the eliminator, never reshuffled. Then the Warlord joins
