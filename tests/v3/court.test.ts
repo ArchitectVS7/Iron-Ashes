@@ -25,6 +25,7 @@ import { executeRecruit } from '../../src/v3/actions.js';
 import {
   HERALD_HAND_BONUS,
   MARSHAL_POWER,
+  STEWARD_DENIED_TRICKLE,
   STEWARD_INCOME,
   STEWARD_POWER,
   WARLORD_POWER,
@@ -79,14 +80,15 @@ describe('Stage 3b — Steward income (§2/§4.4)', () => {
     expect(stewardIncome(s, 0)).toBe(STEWARD_INCOME);
   });
 
-  it('two Stewards stack; a captured Steward funds no one (§12 #7)', () => {
+  it('two Stewards stack; a captured Steward only TRICKLES to its owner (§13 P0-3)', () => {
     const s = game();
     addCourtPiece(s, 0, 'steward', 'holding-ne');
     addCourtPiece(s, 0, 'steward', 'holding-nw');
     expect(stewardIncome(s, 0)).toBe(2 * STEWARD_INCOME);
-    // Hostage placeholder (3d): a held Steward produces nothing.
+    // Steward denial is PARTIAL (§13 P0-3, authoritative over §12 #7's "funds no one"): a held
+    // Steward still trickles STEWARD_DENIED_TRICKLE to its OWNER (never the captor).
     s.players[0].court.find(c => c.archetype === 'steward')!.captiveOf = 1;
-    expect(stewardIncome(s, 0)).toBe(STEWARD_INCOME);
+    expect(stewardIncome(s, 0)).toBe(STEWARD_INCOME + STEWARD_DENIED_TRICKLE);
   });
 
   it('a court with no Steward yields zero Steward income', () => {

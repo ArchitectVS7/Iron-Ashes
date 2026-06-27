@@ -27,14 +27,24 @@ import {
 import {
   applyCombatOutcome,
   chooseLastStandCards,
+  effectiveCaptureMargin,
   livingStrongholdCount,
   resolveCombat,
   resolveLastStand,
+  stewardHomeDefenseBonus,
+  trailingDefenseBonus,
   type CombatSetup,
 } from './combat.js';
+import {
+  canCapture,
+  capturePiece,
+  legalRaidTargets,
+  nearestStronghold,
+  routPiece,
+} from './capture.js';
 import { applyPushback } from './blight.js';
 import { getTunables } from './tunables.js';
-import { canLastStand } from './court.js';
+import { canLastStand, archetypePower } from './court.js';
 import { checkGambitSeize } from './gambit.js';
 import { flipDiscoveryToken, redeemBlightSeed } from './discovery.js';
 
@@ -415,8 +425,24 @@ export function executeStrike(
   return { state, events, actionConsumed: true };
 }
 
+/** The one effect a winning RAID may ELECT (§5.2) — one-effect-per-combat (never combined). */
+export type RaidEffect = 'TAKE_LAND' | 'ROUT_PIECE' | 'CAPTURE_PIECE';
+
+/** A winning RAID's elected outcome (§5.2). `targetPieceId` picks the routed/captured retainer;
+ *  omitted ⇒ the deterministic default (lowest-pieceId legal target). */
+export interface RaidElect {
+  readonly effect: RaidEffect;
+  readonly targetPieceId?: string;
+}
+
 /**
- * RAID — initiate combat vs a co-located rival (§5.3).
+ * RAID — initiate combat vs a co-located rival (§5.2/§5.3). On a win the attacker ELECTS exactly
+ * ONE of {TAKE_LAND, ROUT_PIECE, CAPTURE_PIECE} (`elect`; default TAKE_LAND): node-loss and
+ * capture are NEVER combined (one-effect-per-combat). CAPTURE_PIECE requires the final combat
+ * margin ≥ `effectiveCaptureMargin` (rises with the attacker's standing — §13 P0-2) and is
+ * blocked against a defender's LAST retainer in Whisper (§13 P0-10). ROUT is a tempo loss, not
+ * removal (§13 P0-1). The catch-up + Steward-home defense grades are folded into the combat
+ * (§13 P0-2/P0-3) via `defenseBonus`.
  */
 export function executeRaid(
   state: GameState,
@@ -424,6 +450,7 @@ export function executeRaid(
   defenderIndex: number,
   attackerCards: number[],
   defenderCards: number[],
+  elect: RaidElect = { effect: 'TAKE_LAND' },
 ): ActionResult {
   const events: GameEvent[] = [];
   const player = state.players[playerIndex];
@@ -459,7 +486,11 @@ export function executeRaid(
     defHandCopy.splice(idx, 1);
   }
 
-  // Resolve combat
+  // Resolve combat. The defender's standing (catch-up, §13 P0-2) + Steward home grade
+  // (§13 P0-3) are added as a defenseBonus — the production leader's RAIDs are harder.
+  const defenseBonus =
+    trailingDefenseBonus(state, playerIndex, defenderIndex) +
+    stewardHomeDefenseBonus(state, defenderIndex, nodeId);
   const setup: CombatSetup = {
     combatType: 'RAID',
     attackerIndex: playerIndex,
@@ -467,6 +498,7 @@ export function executeRaid(
     attackerCards,
     defenderCards,
     defenderIndex,
+    defenseBonus,
   };
 
   const combatResult = resolveCombat(state, setup);
@@ -474,6 +506,7 @@ export function executeRaid(
 
   // ── Last Stand (§5.3) — one-sided, final defender reversal ──
   let winner = combatResult.winner;
+  let finalMargin = combatResult.margin;
   let lastStandCards: number[] = [];
   // Only "the muscle" (a Warlord or Marshal — §2) may stand. In a legal RAID the
   // defender's Warlord is co-located, so this never narrows existing combat.
@@ -484,6 +517,7 @@ export function executeRaid(
     if (lastStandCards.length > 0) {
       const stand = resolveLastStand(combatResult, lastStandCards);
       winner = stand.winner;
+      finalMargin = stand.margin;
       events.push({
         type: 'PLAYER_ACTED',
         playerIndex: defenderIndex,
@@ -510,24 +544,45 @@ export function executeRaid(
     }
   }
 
-  // If the attacker (still) won, transfer ownership of the node.
+  // If the attacker (still) won, apply the ELECTED outcome — exactly ONE effect (§5.2). Node-loss
+  // and capture are never combined.
   if (winner === 'attacker') {
-    const nodeState = state.board.state.nodes[nodeId];
-    if (nodeState && nodeState.owner === defenderIndex) {
-      nodeState.owner = playerIndex;
+    if (elect.effect === 'CAPTURE_PIECE') {
+      // Margin-gated (§5.2) by the standing-scaled threshold (§13 P0-2).
+      const need = effectiveCaptureMargin(state, playerIndex);
+      if (finalMargin < need) {
+        throw new Error(`Cannot CAPTURE: margin ${finalMargin} < required ${need} (standing-scaled)`);
+      }
+      const target = elect.targetPieceId ?? legalRaidTargets(state, defenderIndex, nodeId)[0];
+      if (target === undefined || !canCapture(state, defenderIndex, nodeId, target)) {
+        throw new Error(
+          'Cannot CAPTURE: no legal target (none present, immune, or Whisper last-retainer protection §13 P0-10)',
+        );
+      }
+      events.push(...capturePiece(state, playerIndex, defenderIndex, target));
+    } else if (elect.effect === 'ROUT_PIECE') {
+      const target = elect.targetPieceId ?? legalRaidTargets(state, defenderIndex, nodeId)[0];
+      if (target === undefined) throw new Error('Cannot ROUT: no legal target retainer present');
+      events.push(...routPiece(state, defenderIndex, target));
+    } else {
+      // TAKE_LAND (default): transfer ownership of the contested node only.
+      const nodeState = state.board.state.nodes[nodeId];
+      if (nodeState && nodeState.owner === defenderIndex) {
+        nodeState.owner = playerIndex;
 
-      // Depose pressure (§5.5/§6): taking a rival's LAST living stronghold flags them
-      // `deposed`. The flag is set here in ACTION; the elimination RESOLVES AT DAWN in
-      // seat order (resolveDeposals). Whisper protects against hopelessness (§12 #13,
-      // §13 P0-10) — a last stronghold cannot be lost pre-March. (Capture verb 3d.)
-      if (state.act !== 'WHISPER' && livingStrongholdCount(state, defenderIndex) === 0) {
-        state.players[defenderIndex].deposed = true;
-        events.push({
-          type: 'PLAYER_ACTED',
-          playerIndex: defenderIndex,
-          action: 'PASS',
-          details: { deposed: true, by: playerIndex, reason: 'last_stronghold_raided' },
-        });
+        // Depose pressure (§5.5/§6): taking a rival's LAST living stronghold flags them
+        // `deposed`. The flag is set here in ACTION; the elimination RESOLVES AT DAWN in
+        // seat order (resolveDeposals). Whisper protects against hopelessness (§12 #13,
+        // §13 P0-10) — a last stronghold cannot be lost pre-March.
+        if (state.act !== 'WHISPER' && livingStrongholdCount(state, defenderIndex) === 0) {
+          state.players[defenderIndex].deposed = true;
+          events.push({
+            type: 'PLAYER_ACTED',
+            playerIndex: defenderIndex,
+            action: 'PASS',
+            details: { deposed: true, by: playerIndex, reason: 'last_stronghold_raided' },
+          });
+        }
       }
     }
   }
@@ -535,8 +590,103 @@ export function executeRaid(
   return { state, events, actionConsumed: true };
 }
 
-// RESCUE removed (§8): the Broken Court is retired, so there is no Broken ally to
-// un-break. Its rebuild as RANSOM (free a captive; §5.3) arrives with capture in 3d.
+/**
+ * RANSOM — free a captive (yours or an ally's), replacing the retired RESCUE (§5.3, §8). The
+ * ransomer spends RANSOM_COST cards (DESTROYED) + RANSOM_BANNERS banners; of those banners a
+ * fixed RANSOM_SINK_CUT is DESTROYED (the sink — resource-negative to the pair, no laundering
+ * loop, stress-test E2) and the rest go to the captor. The freed piece returns to the owner's
+ * nearest stronghold, capture/rout-immune for RECAPTURE_IMMUNE rounds. An ALLY-ransom (actor ≠
+ * owner) with BOTH parties oath-free and consenting forges an Oath (§5.3, §M).
+ *
+ * Locality: the actor must be the owner, or have its Warlord co-located/adjacent to the captor's
+ * hold (the captor's Warlord node).
+ */
+export function executeRansom(
+  state: GameState,
+  actorIndex: number,
+  captivePieceId: string,
+  consent: boolean = true,
+): ActionResult {
+  const events: GameEvent[] = [];
+  const t = getTunables();
+
+  const record = state.captives.find(r => r.pieceId === captivePieceId);
+  if (!record) throw new Error(`Cannot RANSOM: no captive ${captivePieceId}`);
+
+  const actor = state.players[actorIndex];
+  const owner = state.players[record.ownerSeat];
+  const captor = state.players[record.captorSeat];
+  if (actor.isEliminated) throw new Error('Cannot RANSOM: actor is eliminated');
+
+  // Locality (§5.3): actor is the owner, or its Warlord is at/adjacent to the captor's hold.
+  if (actorIndex !== record.ownerSeat) {
+    const hold = captor.warlordNodeId;
+    const here = actor.warlordNodeId;
+    if (here !== hold && !areAdjacent(state, here, hold)) {
+      throw new Error("Cannot RANSOM: actor's Warlord is not at/adjacent to the captor's hold");
+    }
+  }
+
+  // Affordability — RANSOM_COST cards + RANSOM_BANNERS banners.
+  if (actor.hand.length < t.RANSOM_COST) {
+    throw new Error(`Cannot RANSOM: need ${t.RANSOM_COST} cards, have ${actor.hand.length}`);
+  }
+  if (actor.banners < t.RANSOM_BANNERS) {
+    throw new Error(`Cannot RANSOM: need ${t.RANSOM_BANNERS} banners, have ${actor.banners}`);
+  }
+
+  // Pay: destroy RANSOM_COST cards (lowest-value first, keeping the best for combat — 4g fidelity).
+  for (let k = 0; k < t.RANSOM_COST && actor.hand.length > 0; k++) {
+    let minIdx = 0;
+    for (let j = 1; j < actor.hand.length; j++) if (actor.hand[j] < actor.hand[minIdx]) minIdx = j;
+    actor.hand.splice(minIdx, 1);
+  }
+  // Pay banners: the sink is DESTROYED; the remainder goes to the captor (resource-negative pair).
+  actor.banners -= t.RANSOM_BANNERS;
+  captor.banners += t.RANSOM_BANNERS - t.RANSOM_SINK_CUT;
+
+  // Free the piece → owner's nearest stronghold (fallback: the owner's Warlord node), immune.
+  state.captives = state.captives.filter(r => r !== record);
+  const cp = owner.court.find(c => c.id === record.pieceId);
+  if (cp) {
+    const node = nearestStronghold(state, owner.index) ?? owner.warlordNodeId;
+    cp.captiveOf = null;
+    cp.routedReturnRound = null;
+    cp.recaptureImmuneUntil = state.round + t.RECAPTURE_IMMUNE;
+    cp.node = node;
+    const ns = state.board.state.nodes[node];
+    if (ns) {
+      ns.pieces.push({
+        id: cp.id, type: cp.archetype, owner: owner.index,
+        power: archetypePower(cp.archetype), nodeId: node,
+      });
+    }
+  }
+
+  events.push({
+    type: 'PLAYER_ACTED',
+    playerIndex: actorIndex,
+    action: 'RANSOM',
+    details: {
+      captive: captivePieceId, owner: record.ownerSeat, captor: record.captorSeat,
+      cards: t.RANSOM_COST, banners: t.RANSOM_BANNERS, sink: t.RANSOM_SINK_CUT,
+    },
+  });
+
+  // Ally-ransom (§5.3, §M): both oath-free + consenting → forge an Oath (its non-aggression
+  // replaces the retired rescue-debt). Self-ransom never forges.
+  if (
+    actorIndex !== record.ownerSeat && consent &&
+    findOath(state, actorIndex) === null && findOath(state, record.ownerSeat) === null
+  ) {
+    events.push(...forgeOath(state, actorIndex, record.ownerSeat, 'ransom'));
+  }
+
+  return { state, events, actionConsumed: true };
+}
+
+// RESCUE removed (§8): the Broken Court is retired, so there is no Broken ally to un-break.
+// It was rebuilt as RANSOM (free a captive; §5.3) — see `executeRansom` above.
 
 // ─── Oaths (§ Oaths) ──────────────────────────────────────────────
 
@@ -694,6 +844,8 @@ export function executeRecruit(
     archetype: 'herald',
     node: player.warlordNodeId,
     captiveOf: null,
+    routedReturnRound: null,
+    recaptureImmuneUntil: 0,
   });
 
   events.push({

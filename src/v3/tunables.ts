@@ -258,8 +258,35 @@ export const MARSHAL_POWER = 3;
 export const STEWARD_POWER = 1;
 /** Combat power of a Herald piece — a courier, never fights (§2). */
 export const HERALD_PIECE_POWER = 0;
-/** Banners a free Steward adds at its node each Dawn (§2, §4.4). */
-export const STEWARD_INCOME = 1;
+/** Banners a FREE Steward adds at its node each Dawn (§2, §4.4). [TUNABLE] */
+export const STEWARD_INCOME = 2;
+
+// ─── Capture & Ransom (§5.2/§5.3, §13 P0-1/P0-2/P0-3/P0-10; Stage 3d) ──
+// v3-native placeholders (the sim tunes them in Stage V3-5). Injectable below.
+/** Combat margin a winning RAID needs to ELECT CAPTURE_PIECE (§5.2). Rises with the
+ *  attacker's standing (the military catch-up lever, §13 P0-2) — see `effectiveCaptureMargin`. */
+export const CAPTURE_MARGIN = 2;
+/** Per-rank rise of the effective CAPTURE_MARGIN for each living seat the attacker outranks —
+ *  the production leader must win by more to capture (§13 P0-2, the military catch-up lever). */
+export const CAPTURE_MARGIN_STANDING_STEP = 1;
+/** Defensive combat bonus a TRAILING seat gets when raided BY the production leader (§13 P0-2). */
+export const TRAILING_DEFENSE_BONUS = 1;
+/** Rounds a freed / returned piece is capture-and-rout immune (§5.3 — kills the recapture pump). */
+export const RECAPTURE_IMMUNE = 1;
+/** Captives a captor may hold per living Marshal/stronghold (§5.3 guard cap; over-cap → §12 #25). */
+export const CAPTIVE_GUARD_CAP = 1;
+/** Steward denial is PARTIAL (§13 P0-3): a captured/routed Steward still trickles this many
+ *  Banners to its OWNER (never the captor) — denial can't freeze the board to the cap. < STEWARD_INCOME. */
+export const STEWARD_DENIED_TRICKLE = 1;
+/** Elevated defense grade a Steward gets defending on its home node (§13 P0-3). */
+export const STEWARD_HOME_DEFENSE_BONUS = 1;
+/** Cards the ransomer spends to free a captive (destroyed — resource-negative, §5.3). */
+export const RANSOM_COST = 1;
+/** Banners the ransomer pays to free a captive (§5.3). */
+export const RANSOM_BANNERS = 2;
+/** Of the RANSOM_BANNERS, this many are DESTROYED (the sink) — the rest go to the captor.
+ *  Resource-negative to the pair → no value-neutral laundering loop (stress-test E2). < RANSOM_BANNERS. */
+export const RANSOM_SINK_CUT = 1;
 
 // ─── Discovery (§5.1, Stage 3c) ───────────────────────────────────
 // The flip-outcome split (sum = 1.0) + the Blight-seed magnitudes. v3-native placeholders
@@ -503,6 +530,17 @@ export interface Tunables {
   readonly STEWARD_POWER: number;
   readonly HERALD_PIECE_POWER: number;
   readonly STEWARD_INCOME: number;
+  // ── Capture & Ransom (Stage 3d) ──
+  readonly CAPTURE_MARGIN: number;
+  readonly CAPTURE_MARGIN_STANDING_STEP: number;
+  readonly TRAILING_DEFENSE_BONUS: number;
+  readonly RECAPTURE_IMMUNE: number;
+  readonly CAPTIVE_GUARD_CAP: number;
+  readonly STEWARD_DENIED_TRICKLE: number;
+  readonly STEWARD_HOME_DEFENSE_BONUS: number;
+  readonly RANSOM_COST: number;
+  readonly RANSOM_BANNERS: number;
+  readonly RANSOM_SINK_CUT: number;
   // ── Discovery (Stage 3c) ──
   readonly DISCOVERY_RECRUIT_PCT: number;
   readonly DISCOVERY_BLIGHT_PCT: number;
@@ -554,6 +592,9 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   ACCUSE_MIN_SCORE, SABOTEUR_COVER, BLOOD_PACT_SPREAD_BONUS,
   HERALD_RECRUIT_COST, HERALD_HAND_BONUS, HERALD_COMBAT_PENALTY, HERALD_PUSHBACK,
   MARSHAL_POWER, STEWARD_POWER, HERALD_PIECE_POWER, STEWARD_INCOME,
+  CAPTURE_MARGIN, CAPTURE_MARGIN_STANDING_STEP, TRAILING_DEFENSE_BONUS, RECAPTURE_IMMUNE,
+  CAPTIVE_GUARD_CAP, STEWARD_DENIED_TRICKLE, STEWARD_HOME_DEFENSE_BONUS,
+  RANSOM_COST, RANSOM_BANNERS, RANSOM_SINK_CUT,
   DISCOVERY_RECRUIT_PCT, DISCOVERY_BLIGHT_PCT, DISCOVERY_DK_PCT, DISCOVERY_BLIGHT_DELTA,
   PLEDGE_SHIELD_AMOUNT, PLEDGE_FAVOR_GRUDGE_REDUCTION,
   DK_MARCH_DISTANCE, SURGE_SPREAD_MULT, GAMBIT_ADJACENT_STRIKE_MULT,
@@ -627,6 +668,16 @@ export const TUNABLES = Object.freeze({
   STEWARD_POWER,
   HERALD_PIECE_POWER,
   STEWARD_INCOME,
+  CAPTURE_MARGIN,
+  CAPTURE_MARGIN_STANDING_STEP,
+  TRAILING_DEFENSE_BONUS,
+  RECAPTURE_IMMUNE,
+  CAPTIVE_GUARD_CAP,
+  STEWARD_DENIED_TRICKLE,
+  STEWARD_HOME_DEFENSE_BONUS,
+  RANSOM_COST,
+  RANSOM_BANNERS,
+  RANSOM_SINK_CUT,
   DISCOVERY_RECRUIT_PCT,
   DISCOVERY_BLIGHT_PCT,
   DISCOVERY_DK_PCT,

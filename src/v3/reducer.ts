@@ -213,6 +213,7 @@ import {
   executeClaim,
   executeStrike,
   executeRaid,
+  executeRansom,
   executeRecruit,
   executeParley,
   executeSwearOath,
@@ -366,8 +367,27 @@ function handlePlayerAction(
       const defCards = defender ? chooseCombatCommit(defender.hand, defBase, atkBase, 1) : [];
       try {
         actionResult = executeRaid(
-          state, playerIndex, action.targetPlayerIndex, atkCards, defCards
+          state, playerIndex, action.targetPlayerIndex, atkCards, defCards,
+          { effect: action.raidEffect ?? 'TAKE_LAND', targetPieceId: action.pieceId },
         );
+      } catch (e: unknown) {
+        throw new InvalidCommandError(
+          { type: 'PLAYER_ACTION', playerIndex, action },
+          (e as Error).message,
+        );
+      }
+      break;
+    }
+
+    case 'RANSOM': {
+      if (!action.pieceId) {
+        throw new InvalidCommandError(
+          { type: 'PLAYER_ACTION', playerIndex, action },
+          'RANSOM requires a pieceId (the captive to free)',
+        );
+      }
+      try {
+        actionResult = executeRansom(state, playerIndex, action.pieceId, action.consent ?? true);
       } catch (e: unknown) {
         throw new InvalidCommandError(
           { type: 'PLAYER_ACTION', playerIndex, action },

@@ -14,14 +14,18 @@
 export type ActionType =
   | 'MARCH'     // Move a piece 1 node (cost 1 banner)
   | 'CLAIM'     // Claim current unclaimed Holding/Forge (cost 1 banner)
-  | 'RAID'      // Initiate combat vs a co-located rival (§5.3)
+  | 'RAID'      // Initiate combat vs a co-located rival; elect one effect on a win (§5.2)
   | 'STRIKE'    // Initiate combat vs a co-located Shadowking force (§5.3)
+  | 'RANSOM'    // Free a captive (yours or an ally's) for cards/banners (§5.3)
   | 'RECRUIT'   // Recruit a court piece (§2 archetypes; Herald stance today)
   | 'AUDIT'     // Reveal one opponent's last pledge (Blood Pact only, §10)
   | 'SWEAR_OATH' // Forge a public pact with a rival (§ Oaths) — free, no action point
   | 'BREAK_OATH' // Betray a sworn ally for a burst; climb the dark's Ledger (§ Oaths)
   | 'PARLEY'    // Herald pushes back the dark without spending a card (§ Herald)
   | 'PASS';     // End actions early
+
+/** A winning RAID's elected outcome (§5.2) — one effect per combat. */
+export type RaidEffect = 'TAKE_LAND' | 'ROUT_PIECE' | 'CAPTURE_PIECE';
 
 /** A player action with its parameters. */
 export interface PlayerAction {
@@ -31,8 +35,12 @@ export interface PlayerAction {
   readonly targetNodeId?: string;
   /** Target player for RAID / AUDIT / accusation. */
   readonly targetPlayerIndex?: number;
-  /** Piece ID to move/recruit. */
+  /** Piece ID to move/recruit, OR the captive's pieceId for RANSOM. */
   readonly pieceId?: string;
+  /** RAID only: the elected outcome on a win (§5.2). Omitted ⇒ TAKE_LAND. */
+  readonly raidEffect?: RaidEffect;
+  /** RANSOM only (ally-ransom): whether BOTH parties consent to forge an Oath (§5.3). Default true. */
+  readonly consent?: boolean;
 }
 
 // ─── Command Union ────────────────────────────────────────────────

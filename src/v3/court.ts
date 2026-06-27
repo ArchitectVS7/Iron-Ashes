@@ -55,7 +55,9 @@ export function addCourtPiece(
   const ordinal = player.court.filter(c => c.archetype === archetype).length;
   const id = `${archetype}-${playerIndex}-${ordinal}`;
 
-  player.court.push({ id, archetype, node: nodeId, captiveOf: null });
+  player.court.push({
+    id, archetype, node: nodeId, captiveOf: null, routedReturnRound: null, recaptureImmuneUntil: 0,
+  });
 
   const ns = state.board.state.nodes[nodeId];
   if (ns) {
@@ -77,15 +79,18 @@ export function addCourtPiece(
 }
 
 /**
- * Total Steward income for a player this Dawn (§2, §4.4): STEWARD_INCOME per FREE
- * Steward in the court. A captured Steward (captiveOf set) funds no one (§2 / §12 #7).
- * Pure — folded into `generateBannersForPlayer`.
+ * Total Steward income for a player this Dawn (§2, §4.4): a FREE Steward funds its owner
+ * STEWARD_INCOME at its node. Steward denial is PARTIAL (§13 P0-3): a captured OR routed
+ * Steward still trickles STEWARD_DENIED_TRICKLE to its OWNER (never the captor — §12 #7) so
+ * denial can't freeze the board to the cap. Pure — folded into `generateBannersForPlayer`.
  */
 export function stewardIncome(state: GameState, playerIndex: number): number {
   const t = getTunables();
   let income = 0;
   for (const c of state.players[playerIndex].court) {
-    if (c.archetype === 'steward' && c.captiveOf === null) income += t.STEWARD_INCOME;
+    if (c.archetype !== 'steward') continue;
+    const denied = c.captiveOf !== null || c.routedReturnRound !== null;
+    income += denied ? t.STEWARD_DENIED_TRICKLE : t.STEWARD_INCOME;
   }
   return income;
 }

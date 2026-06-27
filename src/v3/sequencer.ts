@@ -39,6 +39,11 @@ import {
   resolveHeraldCaptures,
 } from './actions.js';
 import {
+  enforceGuardCap,
+  resolveCaptivesAfterDeposals,
+  returnRoutedPieces,
+} from './capture.js';
+import {
   evaluateGambitAtDawn,
   getEffectivePledgeWeight,
   computeTerritoryWinner,
@@ -310,6 +315,13 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
   // 1c. Herald captures (§HL): a lone runner caught by a rival Warlord or the dark is lost.
   events.push(...resolveHeraldCaptures(state));
 
+  // 1d. Capture economy upkeep (§5.2/§5.3) — AFTER banner income so a routed/held Steward's
+  //     denial bites for one Dawn (the tempo cost): routed retainers return to the owner's
+  //     nearest stronghold (capture/rout-immune, §13 P0-1), then over-cap captives are
+  //     force-released (lowest pieceId, to original owner — §12 #25).
+  events.push(...returnRoutedPieces(state));
+  events.push(...enforceGuardCap(state));
+
   // 2. Draw cards up to each player's hand limit (per-player — a Herald raises it; §Herald).
   for (const playerIndex of state.turnOrder) {
     const p = state.players[playerIndex];
@@ -485,6 +497,11 @@ export function resolveDeposals(state: GameState): GameEvent[] {
     const voiceLine = generateReactiveVoiceLine(state, 'player_eliminated');
     if (voiceLine) events.push(voiceLine);
   }
+
+  // After all deposals: captives whose captor died are FREED to their owners (§12 #6); captives
+  // whose owner died are removed-from-game (§12 #22). Done post-loop so freeing reads the final
+  // elimination snapshot (a simultaneous owner+captor death never double-resolves).
+  events.push(...resolveCaptivesAfterDeposals(state));
 
   return events;
 }

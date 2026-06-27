@@ -76,6 +76,59 @@ export function territoryRank(state: GameState, playerIndex: number): number {
   return rank;
 }
 
+/**
+ * Number of LIVING seats the attacker out-ranks (strictly better standing). The leader
+ * out-ranks everyone living; the last place out-ranks no one. Drives the military catch-up
+ * lever (§13 P0-2): both `effectiveCaptureMargin` and `isProductionLeader`. Pure.
+ */
+function ranksBelow(state: GameState, attackerSeat: number): number {
+  const myRank = territoryRank(state, attackerSeat);
+  let n = 0;
+  for (const p of state.players) {
+    if (p.index === attackerSeat || p.isEliminated) continue;
+    if (territoryRank(state, p.index) > myRank) n++;
+  }
+  return n;
+}
+
+/**
+ * The combat margin a winning RAID by `attackerSeat` needs to ELECT CAPTURE_PIECE (§5.2).
+ * RISES with standing (§13 P0-2 — the military catch-up lever): the production leader must
+ * win by more to capture, while a trailing seat captures on a slimmer win. Pure.
+ */
+export function effectiveCaptureMargin(state: GameState, attackerSeat: number): number {
+  const t = getTunables();
+  return t.CAPTURE_MARGIN + t.CAPTURE_MARGIN_STANDING_STEP * ranksBelow(state, attackerSeat);
+}
+
+/** Whether `seat` is the (living) production leader — territory rank 0 (§7.6 tiebreak). Pure. */
+export function isProductionLeader(state: GameState, seat: number): boolean {
+  return territoryRank(state, seat) === 0;
+}
+
+/**
+ * The defender's standing-based defensive bonus vs this RAID (§13 P0-2): a TRAILING seat gets
+ * `TRAILING_DEFENSE_BONUS` when raided BY the production leader — catch-up lives in the combat
+ * currency the snowball runs on, not a comeback subsidy. Pure.
+ */
+export function trailingDefenseBonus(state: GameState, attackerSeat: number, defenderSeat: number): number {
+  if (isProductionLeader(state, attackerSeat) && !isProductionLeader(state, defenderSeat)) {
+    return getTunables().TRAILING_DEFENSE_BONUS;
+  }
+  return 0;
+}
+
+/**
+ * A defender's Steward home-defense bonus on `nodeId` (§13 P0-3): each FREE Steward the
+ * defender has standing on the node defends at an elevated grade. Pure.
+ */
+export function stewardHomeDefenseBonus(state: GameState, defenderSeat: number, nodeId: string): number {
+  const ns = state.board.state.nodes[nodeId];
+  if (!ns) return 0;
+  const stewards = ns.pieces.filter(p => p.owner === defenderSeat && p.type === 'steward').length;
+  return stewards * getTunables().STEWARD_HOME_DEFENSE_BONUS;
+}
+
 // ─── Types ────────────────────────────────────────────────────────
 
 export type CombatType = 'RAID' | 'STRIKE';
@@ -93,6 +146,12 @@ export interface CombatSetup {
   defenderCards: number[];
   /** Index of the defending player (for RAID). null for STRIKE. */
   defenderIndex: number | null;
+  /**
+   * Extra defensive power added to the defender (RAID only) — the catch-up + Steward home
+   * grades (§13 P0-2/P0-3). `executeRaid` computes it from standing/Stewards and passes it in;
+   * the low-level combat-arithmetic unit tests omit it (defaults to 0), so they stay pure.
+   */
+  defenseBonus?: number;
 }
 
 export interface CombatResult {
@@ -185,12 +244,13 @@ export function resolveCombat(state: GameState, setup: CombatSetup): CombatResul
     // STRIKE vs Shadowking — SK forces defend
     defensePower = getShadowkingPowerAtNode(state, nodeId);
   } else {
-    // RAID vs rival
+    // RAID vs rival — base pieces + committed cards + the standing/Steward defense bonus
+    // (§13 P0-2/P0-3, supplied by executeRaid; 0 in the pure arithmetic unit tests).
     const basePowerDef = defenderIndex !== null
       ? getPlayerPowerAtNode(state, defenderIndex, nodeId)
       : 0;
     const cardPowerDef = defenderCards.reduce((sum, v) => sum + v, 0);
-    defensePower = basePowerDef + cardPowerDef;
+    defensePower = basePowerDef + cardPowerDef + (setup.defenseBonus ?? 0);
   }
 
   // Determine winner

@@ -156,8 +156,36 @@ export interface CourtPiece {
   readonly archetype: Archetype;
   /** Node the piece currently sits on. */
   node: string;
-  /** Captor's seat while held hostage, or null when free (capture economy, 3d). */
+  /** Captor's seat while held hostage, or null when free (capture economy, §5.2). A captive
+   *  has no on-board mirror, produces nothing, and is not gained by the captor (§2/§12 #7). */
   captiveOf: number | null;
+  /** Rout state (P0-1): if non-null, this piece was ROUTED in combat and is OFF-BOARD, due to
+   *  return to its owner's nearest stronghold at the named round's Dawn. ROUT is a TEMPO loss,
+   *  never removal (§5.2/§13 P0-1). null while the piece is on the board or held captive. */
+  routedReturnRound: number | null;
+  /** Round until which this piece is capture/rout-IMMUNE (§5.3 recapture immunity). Set when a
+   *  piece returns from a rout or is freed by RANSOM; a piece is immune while `round < this`.
+   *  0 = no immunity. Kills the recapture grief pump (stress-test E1). */
+  recaptureImmuneUntil: number;
+}
+
+/**
+ * A hostage in the capture economy (§5.2/§5.3, §2 `captives[]`). The authoritative ledger
+ * for guard-cap enforcement (§12 #25), captor-death freeing (§12 #6), and ransom. Mirrors
+ * the held piece's `CourtPiece.captiveOf`. A captive produces nothing and is never gained by
+ * the captor; the Warlord is NEVER directly captured (deposal via zero-strongholds only).
+ */
+export interface CaptiveRecord {
+  /** The captured piece's id (matches its `CourtPiece.id` in the owner's court). */
+  readonly pieceId: string;
+  /** Seat that owns the captured piece (it returns here when freed). */
+  readonly ownerSeat: number;
+  /** Seat currently holding the captive (the captor). */
+  captorSeat: number;
+  /** Round the capture happened. */
+  readonly capturedRound: number;
+  /** Round until which the freed piece will be capture/rout-immune once ransomed (§5.3). */
+  recaptureImmuneUntil: number;
 }
 
 /** A player-owned piece on the board. */
@@ -432,6 +460,11 @@ export interface GameState {
 
   /** Active Oaths — public, breakable two-player pacts (§ Oaths). Each player in ≤1. */
   oaths: Oath[];
+
+  /** Hostages in the capture economy (§5.2/§5.3, §2). The authoritative ledger for the
+   *  guard cap (§12 #25), captor-death freeing (§12 #6), and RANSOM. Empty in Layer A until
+   *  a winning RAID elects CAPTURE_PIECE. */
+  captives: CaptiveRecord[];
 
   // ── Blood Pact (Layer B) ──
   /** Player index holding the Blood Pact, or null (Layer A). */

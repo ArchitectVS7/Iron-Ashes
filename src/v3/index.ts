@@ -20,6 +20,7 @@ export type {
   AccusationVote,
   Archetype,
   AuditEntry,
+  CaptiveRecord,
   CourtPiece,
   GameEndReason,
   GameMode,
@@ -106,6 +107,10 @@ export {
   getPlayerPowerAtNode,
   getShadowkingPowerAtNode,
   livingStrongholdCount,
+  effectiveCaptureMargin,
+  isProductionLeader,
+  trailingDefenseBonus,
+  stewardHomeDefenseBonus,
 } from './combat.js';
 export type { CombatSetup, CombatResult, CombatType, LastStandResult } from './combat.js';
 
@@ -115,12 +120,29 @@ export {
   executeClaim,
   executeStrike,
   executeRaid,
+  executeRansom,
   executeRecruit,
   areAdjacent,
   isPlayerAtNode,
   hasRivalAtNode,
   hasSKForcesAtNode,
 } from './actions.js';
+export type { RaidEffect, RaidElect } from './actions.js';
+
+// ── Capture & Ransom economy (§5.2/§5.3, §13 P0-1/2/3/10) ──
+export {
+  capturePiece,
+  routPiece,
+  nearestStronghold,
+  legalRaidTargets,
+  freeRetainerCount,
+  canCapture,
+  returnRoutedPieces,
+  enforceGuardCap,
+  guardCapacity,
+  freeCaptiveToOwner,
+  resolveCaptivesAfterDeposals,
+} from './capture.js';
 
 // ── The Court (§2 archetypes) ──
 export {
