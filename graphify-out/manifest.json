@@ -653,5 +653,10 @@
     "mtime": 1782517690.4088428,
     "ast_hash": "4fe7d3060fc31236fa868002fc64ebf5",
     "semantic_hash": ""
+  },
+  "docs/UAT-6b.md": {
+    "mtime": 1782520842.6727848,
+    "ast_hash": "960b0f4f58d517f49fc640564f17a514",
+    "semantic_hash": ""
   }
 }
