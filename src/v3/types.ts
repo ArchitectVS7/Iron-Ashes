@@ -71,6 +71,57 @@ export interface V2NodeState {
   pieces: Piece[];
   /** Shadowking forces present on this node. */
   shadowkingForces: ShadowkingForce[];
+  /**
+   * The Discovery token (§5.1) — ENGINE-ONLY hidden state. Pre-bound at setup on every
+   * neutral Holding as `f(seed, nodeId)` (§7 D1/D9), frozen here, revealed (never re-drawn)
+   * by a CLAIM flip (§12 #19). `null` for nodes that never carried a token (Keeps/Forges/
+   * Approaches/Keystone). Deciders must NEVER read the content — only the back-sigil — and
+   * receive it via `observableState` (§7 D2), which redacts unflipped content.
+   */
+  hiddenToken: HiddenToken | null;
+}
+
+// ─── Discovery tokens (§5.1, §7 D1/D2/D9) ─────────────────────────
+
+/** The three things a face-down Discovery token can contain (§5.1). */
+export type TokenKind = 'recruit' | 'blight_seed' | 'death_knight';
+
+/**
+ * The pre-flip back-sigil — the ONLY observable derived from token content (§13 P0-12).
+ * `g(content)` has an exhaustively specified codomain `{ bright, dark }`: a partial telegraph
+ * that hints reward-vs-risk without revealing the exact payload, so CLAIM is press-your-luck.
+ *   bright — a recruit waits (safe upside).
+ *   dark   — a risk waits: either a Blight-seed (fightable, with a bonus) or a Death-Knight
+ *            (the ambiguity is the whole point — see `backSigil`).
+ */
+export type BackSigil = 'bright' | 'dark';
+
+/**
+ * A pre-bound Discovery token (§5.1). Bound at setup from the namespaced sub-stream
+ * `SeededRandom(hash(seed, nodeId))` (§7 D9) and frozen. A flip sets `flipped = true` and
+ * resolves the effect from this frozen content — never a lazy live-stream draw (§7 D1), so
+ * the layout is claim-order-independent and not save-scummable.
+ */
+export interface HiddenToken {
+  /** What this token resolves to on flip. */
+  readonly kind: TokenKind;
+  /** The partial telegraph `sigil = g(kind)` — the sole observable (§13 P0-12, §7 D2). */
+  readonly sigil: BackSigil;
+  /** Recruit only: the discovered retainer's archetype (Marshal/Steward). null otherwise. */
+  readonly archetype: Archetype | null;
+  /** Recruit only: the retainer's seeded name. null otherwise. */
+  readonly retainerName: string | null;
+  /**
+   * Blight-seed only: the bonus recruit pre-bound under the SAME node key (§7 D9), granted
+   * when the seed's fightable threat is cleared (STRIKE). null for other kinds.
+   */
+  readonly bonusArchetype: Archetype | null;
+  /** Blight-seed only: the bonus retainer's seeded name. null otherwise. */
+  readonly bonusName: string | null;
+  /** Whether this token has been flipped (revealed). Bound `false`; a CLAIM flips it. */
+  flipped: boolean;
+  /** Blight-seed only: whether the cleared-threat bonus recruit has been granted. */
+  bonusClaimed: boolean;
 }
 
 /** Runtime board state — all node states keyed by ID. */

@@ -261,6 +261,18 @@ export const HERALD_PIECE_POWER = 0;
 /** Banners a free Steward adds at its node each Dawn (§2, §4.4). */
 export const STEWARD_INCOME = 1;
 
+// ─── Discovery (§5.1, Stage 3c) ───────────────────────────────────
+// The flip-outcome split (sum = 1.0) + the Blight-seed magnitudes. v3-native placeholders
+// (the sim tunes them in Stage V3-5). Injectable in the Tunables registry below.
+/** P(flip reveals a recruit) — the safe upside (§5.1, ≈60%). */
+export const DISCOVERY_RECRUIT_PCT = 0.6;
+/** P(flip reveals a Blight-seed) — the fightable-risk middle (§5.1, ≈25%). */
+export const DISCOVERY_BLIGHT_PCT = 0.25;
+/** P(flip spawns a Death-Knight) — the harsh tail (§5.1, ≈15%). DERIVED: 1 − the other two. */
+export const DISCOVERY_DK_PCT = 0.15;
+/** Front-delta a Blight-seed inflicts on the CLAIMED node (§5.1, §12 #19) — you own blighted land. */
+export const DISCOVERY_BLIGHT_DELTA = 1;
+
 /** Max cards the engine auto-commits to a single combat (value-aware, §5.3). */
 export const COMBAT_COMMIT_MAX = TUNABLES_DATA.COMBAT_COMMIT_MAX;
 
@@ -491,6 +503,11 @@ export interface Tunables {
   readonly STEWARD_POWER: number;
   readonly HERALD_PIECE_POWER: number;
   readonly STEWARD_INCOME: number;
+  // ── Discovery (Stage 3c) ──
+  readonly DISCOVERY_RECRUIT_PCT: number;
+  readonly DISCOVERY_BLIGHT_PCT: number;
+  readonly DISCOVERY_DK_PCT: number;
+  readonly DISCOVERY_BLIGHT_DELTA: number;
   // ── Anti-free-rider + dark-effect magnitudes (made injectable in C2 — see
   //    stage5-tuning-log §C2; defaults are byte-identical, the consumers just now
   //    read getTunables().X instead of the frozen module const, so a sweep can reach them) ──
@@ -537,6 +554,7 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   ACCUSE_MIN_SCORE, SABOTEUR_COVER, BLOOD_PACT_SPREAD_BONUS,
   HERALD_RECRUIT_COST, HERALD_HAND_BONUS, HERALD_COMBAT_PENALTY, HERALD_PUSHBACK,
   MARSHAL_POWER, STEWARD_POWER, HERALD_PIECE_POWER, STEWARD_INCOME,
+  DISCOVERY_RECRUIT_PCT, DISCOVERY_BLIGHT_PCT, DISCOVERY_DK_PCT, DISCOVERY_BLIGHT_DELTA,
   PLEDGE_SHIELD_AMOUNT, PLEDGE_FAVOR_GRUDGE_REDUCTION,
   DK_MARCH_DISTANCE, SURGE_SPREAD_MULT, GAMBIT_ADJACENT_STRIKE_MULT,
   CARD_VALUE_MIN, CARD_VALUE_MAX, BASE_BANNER_INCOME,
@@ -609,6 +627,10 @@ export const TUNABLES = Object.freeze({
   STEWARD_POWER,
   HERALD_PIECE_POWER,
   STEWARD_INCOME,
+  DISCOVERY_RECRUIT_PCT,
+  DISCOVERY_BLIGHT_PCT,
+  DISCOVERY_DK_PCT,
+  DISCOVERY_BLIGHT_DELTA,
   COMBAT_COMMIT_MAX,
   RAID_DEFENSE_MARGIN,
   CARD_VALUE_MIN,

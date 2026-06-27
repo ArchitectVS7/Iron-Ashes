@@ -121,6 +121,7 @@ export function createInitialBoardState(definition: V2BoardDef): V2BoardState {
       blightLevel: 0,
       pieces: [],
       shadowkingForces: [],
+      hiddenToken: null,
     };
   }
 

@@ -42,6 +42,9 @@ export type {
   V2BoardState,
   V2NodeDef,
   V2NodeState,
+  BackSigil,
+  HiddenToken,
+  TokenKind,
 } from './types.js';
 
 // ── Commands ──
@@ -159,6 +162,28 @@ export {
   DEFAULT_AI_POLICY,
 } from './ai-player.js';
 export type { AIPolicy } from './ai-player.js';
+
+// ── Discovery (§5.1, §7 D1/D2/D9) ──
+export {
+  bindHiddenTokens,
+  deriveToken,
+  backSigil,
+  hashSeedNode,
+  makeFlipDeathKnight,
+  makeBlightSeedForce,
+  blightSeedRedeemable,
+} from './discovery.js';
+
+// ── Observable projection (§7 D2) ──
+export { observableState, SEED_REDACTED } from './observable.js';
+export type {
+  ObservableState,
+  ObservableToken,
+  ObservableNodeState,
+  ObservableBoardState,
+  RedactedToken,
+  RedactedSeed,
+} from './observable.js';
 
 // ── Tunables ──
 export { TUNABLES } from './tunables.js';

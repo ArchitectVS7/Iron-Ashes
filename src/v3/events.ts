@@ -15,6 +15,7 @@ import type {
   GamePhase,
   PledgeTier,
   ShadowkingTelegraph,
+  TokenKind,
 } from './types.js';
 import type { ActionType } from './commands.js';
 
@@ -41,7 +42,8 @@ export type GameEvent =
   | AuditResultEvent
   | AccusationOpenedEvent
   | AccusationVoteCastEvent
-  | AccusationResolvedEvent;
+  | AccusationResolvedEvent
+  | DiscoveryFlippedEvent;
 
 // ─── Individual Events ────────────────────────────────────────────
 
@@ -187,6 +189,21 @@ export interface AccusationVoteCastEvent {
   readonly type: 'ACCUSATION_VOTE_CAST';
   readonly playerIndex: number;
   readonly agree: boolean;
+}
+
+// ─── Stage 3c: Discovery (§5.1) ──────────────────────────────────
+
+/** A CLAIM flipped a Holding's face-down Discovery token, revealing its content (§12 #19). */
+export interface DiscoveryFlippedEvent {
+  readonly type: 'DISCOVERY_FLIPPED';
+  /** The node whose token was flipped. */
+  readonly nodeId: string;
+  /** Player who flipped it (the claimer). */
+  readonly playerIndex: number;
+  /** What was revealed. */
+  readonly kind: TokenKind;
+  /** Recruit: the retainer's archetype/name; otherwise null. */
+  readonly retainerName: string | null;
 }
 
 /** The accusation resolved (correct / wrong / fizzled). */

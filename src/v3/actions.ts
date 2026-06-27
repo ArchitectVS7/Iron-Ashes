@@ -36,6 +36,7 @@ import { applyPushback } from './blight.js';
 import { getTunables } from './tunables.js';
 import { canLastStand } from './court.js';
 import { checkGambitSeize } from './gambit.js';
+import { flipDiscoveryToken, redeemBlightSeed } from './discovery.js';
 
 // ─── Action Result ────────────────────────────────────────────────
 
@@ -338,7 +339,8 @@ export function executeClaim(
     throw new Error(`Cannot CLAIM: need ${claimCost} banner, have ${player.banners}`);
   }
 
-  // Execute
+  // Execute — pay, then take ownership of the claimed node (§12 #19: you OWN it, even when
+  // the flip is a risk).
   player.banners -= claimCost;
   nodeState.owner = playerIndex;
 
@@ -348,6 +350,10 @@ export function executeClaim(
     action: 'CLAIM',
     details: { nodeId, tier: nodeDef.tier },
   });
+
+  // Discovery (§5.1, §12 #19): a Holding's face-down token FLIPS first — reveal of frozen,
+  // pre-bound state (§7 D1), never a live draw. Forges carry no token (hiddenToken === null).
+  events.push(...flipDiscoveryToken(state, playerIndex, nodeId));
 
   return { state, events, actionConsumed: true };
 }
@@ -400,6 +406,11 @@ export function executeStrike(
   // Apply outcome
   const outcomeEvents = applyCombatOutcome(state, setup, combatResult.winner);
   events.push(...outcomeEvents);
+
+  // Discovery redemption (§5.1, §7 D9): if this STRIKE cleared a Blight-seed's fightable
+  // threat, the pre-bound bonus recruit joins the striker's court — a bad flip became a
+  // decision, not a dice-loss.
+  events.push(...redeemBlightSeed(state, playerIndex, nodeId));
 
   return { state, events, actionConsumed: true };
 }

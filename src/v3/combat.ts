@@ -22,6 +22,7 @@ import type { GameState } from './types.js';
 import { FORGE_WEIGHT, getTunables } from './tunables.js';
 import { applyPushback } from './blight.js';
 import { addGrudge } from './shadowking-policy.js';
+import { flipDiscoveryToken } from './discovery.js';
 
 // ─── Territory standing (Stage 5-dark) ────────────────────────────
 
@@ -409,6 +410,10 @@ export function applyCombatOutcome(
           action: 'CLAIM',
           details: { nodeId, tier: nodeDef.tier, viaDkKill: true },
         });
+        // Acquiring a Holding this way still FLIPS its face-down Discovery token (§5.1) —
+        // an owned Holding must never linger with an unrevealed token (the token sits UNDER
+        // the node, distinct from the guardian DK just cleared). No-op for a Forge.
+        events.push(...flipDiscoveryToken(state, attackerIndex, nodeId));
       }
 
       // Asymmetric grudge Mark (Stage 5-dark): only the LEADING seats pay the "the

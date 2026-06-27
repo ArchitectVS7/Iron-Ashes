@@ -17,6 +17,7 @@
 
 import { SeededRandom } from '../utils/seeded-random.js';
 import { buildClosingRing, createInitialBoardState } from './board.js';
+import { bindHiddenTokens } from './discovery.js';
 import { computeCrownHolder, generateBannersForPlayer } from './sequencer.js';
 import {
   STARTING_HAND,
@@ -160,6 +161,11 @@ export function createGame(
   for (const force of forces) {
     boardState.nodes[force.nodeId].shadowkingForces.push({ ...force });
   }
+
+  // 3b. Pre-bind every neutral Holding's Discovery token (§3, §7 D1/D9). Uses the namespaced
+  //     sub-streams `SeededRandom(hash(seed, nodeId))` ONLY — it does NOT draw from `rng`, so
+  //     it is position-independent and never perturbs the turn-order / Blood-Pact draws below.
+  bindHiddenTokens(boardState, boardDef, seed);
 
   // 4. Shuffle turn order (§3: assigned LAST to not perturb earlier RNG)
   const turnOrder = rng.shuffle(
