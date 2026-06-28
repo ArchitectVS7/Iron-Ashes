@@ -26,9 +26,16 @@ import type { Command, PlayerAction } from './commands.js';
 import type { GameEvent } from './events.js';
 import type { GameState } from './types.js';
 import { applyCommand, type CommandResult } from './reducer.js';
-import { getPlayerPowerAtNode, getShadowkingPowerAtNode, chooseCombatCommit } from './combat.js';
+import {
+  getPlayerPowerAtNode, getShadowkingPowerAtNode, chooseCombatCommit,
+  effectiveCaptureMargin, trailingDefenseBonus, stewardHomeDefenseBonus,
+} from './combat.js';
 import { hasSKForcesAtNode, hasRivalAtNode, findOath, areSworn, parleyTarget } from './actions.js';
-import { ASHED_TRAVERSE_EXTRA_COST, COMBAT_COMMIT_MAX, FORGE_WEIGHT, getTunables } from './tunables.js';
+import { legalRaidTargets, canCapture } from './capture.js';
+import {
+  ASHED_TRAVERSE_EXTRA_COST, COMBAT_COMMIT_MAX, FORGE_WEIGHT, RAID_DEFENSE_MARGIN, getTunables,
+} from './tunables.js';
+import type { RaidEffect } from './commands.js';
 import { SeededRandom } from '../utils/seeded-random.js';
 
 // ─── Policy ───────────────────────────────────────────────────────
@@ -117,6 +124,30 @@ export interface AIPolicy {
    * (under-provision when everyone hopes someone else covers; waste when several do).
    */
   readonly bailoutTrust?: number;
+
+  // ── Stage V3-4b verb knobs (OPTIONAL; the new v3 verbs the sim must exercise) ──
+  // Neutral (undefined ⇒ 0) reproduces the pre-4b archetype behaviour. They only steer
+  // NON-default policies (archetypeAction); the DEFAULT_AI_POLICY path is untouched.
+
+  /**
+   * 0..1 — on a winning RAID, propensity to ELECT a piece-effect (CAPTURE/ROUT) over the
+   * default TAKE_LAND (§5.2). CAPTURE fires when the predicted margin clears the standing-
+   * scaled gate AND a legal capturable retainer is present; otherwise it ROUTs (a throw-safe
+   * tempo blow). Neutral 0 ⇒ the RAID always takes land (the pre-4b path). Captures feed the
+   * RANSOM/attachment economy the sim measures.
+   */
+  readonly captureBias?: number;
+  /**
+   * 0..1 — propensity to RANSOM one of your OWN captured retainers back when affordable
+   * (RANSOM_COST cards + RANSOM_BANNERS banners). Self-ransom has no locality cost (§5.3).
+   * Neutral 0. The capture→ransom-back loop is the §13 attachment proxy.
+   */
+  readonly ransomBias?: number;
+  /**
+   * 0..1 — in RECKONING, propensity to ASSAULT_HEART the dark's exposed heart (and to MARCH
+   * the Warlord toward the Keystone to reach it) — the kill-the-dark commit (§5.6). Neutral 0.
+   */
+  readonly heartBias?: number;
 }
 
 /** A moderately-cooperative economic player — the Stage-3c baseline (the neutral point). */
@@ -292,6 +323,61 @@ function canStrikeWin(state: GameState, playerIndex: number, nodeId: string): bo
   const cards = chooseCombatCommit(state.players[playerIndex].hand, base, skPower, COMBAT_COMMIT_MAX);
   const total = base + cards.reduce((s, v) => s + v, 0);
   return total > skPower;
+}
+
+/**
+ * Predict the FINAL margin of a RAID by `attacker` on `defender` at `node`, mirroring the
+ * reducer's value-aware commits (combat-arithmetic only — no RNG). The reducer sizes the
+ * attacker to beat the defender's BASE power + RAID_DEFENSE_MARGIN and gives the defender its
+ * single best card; `executeRaid` adds the standing/Steward defenseBonus.
+ *
+ * Margin = atkPower − defPower. A POSITIVE margin means the attacker wins the FIRST exchange.
+ * Crucially, `chooseLastStandCards` only ever commits cards when they FULLY reverse the result
+ * (else it commits none) — so when the attacker ultimately WINS, the final margin equals THIS
+ * predicted margin. That makes a margin-gated CAPTURE election throw-safe: either the defender
+ * reverses (defender wins ⇒ no capture branch) or it cannot (margin unchanged ⇒ gate holds).
+ * Pure `f(state)`.
+ */
+function predictRaidMargin(state: GameState, attacker: number, defender: number, node: string): number {
+  const atkBase = getPlayerPowerAtNode(state, attacker, node);
+  const defBase = getPlayerPowerAtNode(state, defender, node);
+  const atkCards = chooseCombatCommit(state.players[attacker].hand, atkBase, defBase + RAID_DEFENSE_MARGIN, COMBAT_COMMIT_MAX);
+  const defCards = chooseCombatCommit(state.players[defender].hand, defBase, atkBase, 1);
+  const defenseBonus = trailingDefenseBonus(state, attacker, defender) + stewardHomeDefenseBonus(state, defender, node);
+  const atkPower = atkBase + atkCards.reduce((s, v) => s + v, 0);
+  const defPower = defBase + defCards.reduce((s, v) => s + v, 0) + defenseBonus;
+  return atkPower - defPower;
+}
+
+/**
+ * Build a RAID action, electing a piece-effect when `captureBias` fires and a retainer is present
+ * (§5.2). Throw-safe by construction (see `predictRaidMargin`):
+ *   • CAPTURE — only when a legal capturable target exists AND the predicted margin clears the
+ *     standing-scaled `effectiveCaptureMargin` (so the reducer's margin gate can never reject it).
+ *   • ROUT    — when we predict a win (margin > 0) but cannot or will not capture; no margin gate.
+ *   • TAKE_LAND (default) — otherwise, the unchanged pre-4b shape `{ type, targetPlayerIndex }`
+ *     (NO raidEffect/pieceId fields), so an empty-roster RAID stays byte-identical.
+ * Pure `f(state, seed)` via the supplied decision RNG.
+ */
+function raidWithElect(
+  state: GameState, attacker: number, defender: number, node: string,
+  captureBias: number, rng: SeededRandom,
+): PlayerAction {
+  const plain: PlayerAction = { type: 'RAID', targetPlayerIndex: defender };
+  const targets = legalRaidTargets(state, defender, node);
+  if (targets.length === 0 || captureBias <= 0 || rng.float() >= captureBias) return plain;
+
+  const margin = predictRaidMargin(state, attacker, defender, node);
+  const capTarget = targets.find(id => canCapture(state, defender, node, id));
+  if (capTarget !== undefined && margin >= effectiveCaptureMargin(state, attacker)) {
+    const effect: RaidEffect = 'CAPTURE_PIECE';
+    return { type: 'RAID', targetPlayerIndex: defender, raidEffect: effect, pieceId: capTarget };
+  }
+  if (margin > 0) {
+    const effect: RaidEffect = 'ROUT_PIECE';
+    return { type: 'RAID', targetPlayerIndex: defender, raidEffect: effect, pieceId: targets[0] };
+  }
+  return plain;
 }
 
 /**
@@ -539,8 +625,36 @@ function firstStepTowardNearestRival(state: GameState, playerIndex: number): str
   return null;
 }
 
-// rescuableAlly / bestStepTowardBrokenAlly removed (§8): no Broken ally to seek or
-// rescue. Capture/RANSOM-seeking AI behaviour arrives with the verb in 3d.
+/**
+ * First legal step toward the nearest node hosting a rival Warlord that ALSO has a capturable
+ * retainer standing on it (§5.2) — the capture-hunt target. Such a node is where a winning RAID
+ * can elect CAPTURE; retainers cluster on a rival's freshly-recruited Holdings, so this steers a
+ * capture-biased raider toward a real hostage opportunity (the alternative — waiting to stand on
+ * one by chance — never fires). Skips sworn allies. BFS, ZoC-respecting, deterministic. Null if
+ * none reachable or already co-located with one (the RAID step then fires). Pure `f(state)`.
+ */
+function bestStepTowardCapturableRival(state: GameState, playerIndex: number): string | null {
+  const def = state.board.definition;
+  const start = state.players[playerIndex].warlordNodeId;
+  const hostsCapturable = (nodeId: string): boolean => {
+    const r = hasRivalAtNode(state, playerIndex, nodeId);
+    if (r === null || areSworn(state, playerIndex, r)) return false;
+    return legalRaidTargets(state, r, nodeId).some(id => canCapture(state, r, nodeId, id));
+  };
+  const visited = new Set<string>([start]);
+  const queue: Array<{ node: string; firstStep: string | null }> = [{ node: start, firstStep: null }];
+  while (queue.length > 0) {
+    const cur = queue.shift()!;
+    if (cur.firstStep !== null && hostsCapturable(cur.node)) return cur.firstStep;
+    for (const nb of def.nodes[cur.node].connections) {
+      if (visited.has(nb)) continue;
+      if (stepBlocked(state, playerIndex, nb)) continue;
+      visited.add(nb);
+      queue.push({ node: nb, firstStep: cur.firstStep ?? nb });
+    }
+  }
+  return null;
+}
 
 /** First step for the Herald (§HL) toward a SAFE node ADJACENT to the blighted front (so it
  *  can PARLEY from cover — parleyTarget reads here+neighbours). The runner ROUTES AROUND nodes
@@ -609,6 +723,9 @@ function archetypeAction(
   const parleyBias = policy.parleyBias ?? 0;
   const oathWillingness = policy.oathWillingness ?? 0;
   const oathLoyalty = policy.oathLoyalty ?? 1;
+  const captureBias = policy.captureBias ?? 0;
+  const ransomBias = policy.ransomBias ?? 0;
+  const heartBias = policy.heartBias ?? 0;
   // A traitor sabotaging the table won't push the front back (it wants the doom).
   const sabotaging = (policy.saboteurPledgeSuppression ?? 0) > 0 && player.hasBloodPact;
 
@@ -654,6 +771,35 @@ function archetypeAction(
     }
   }
 
+  // 0e. RANSOM one of your OWN captured retainers back (§5.3) — self-ransom (no locality cost)
+  //     when affordable. The capture→ransom-back loop is the §13 attachment proxy the sim measures.
+  if (ransomBias > 0) {
+    const tr = getTunables();
+    const mineCaptive = state.captives.find(r => r.ownerSeat === playerIndex);
+    if (mineCaptive && player.hand.length >= tr.RANSOM_COST && player.banners >= tr.RANSOM_BANNERS
+        && rng.float() < ransomBias) {
+      return { type: 'RANSOM', pieceId: mineCaptive.pieceId };
+    }
+  }
+
+  // 0f. KILL THE DARK (§5.6) — in Reckoning, ASSAULT the dark's exposed heart at the Keystone (or
+  //     MARCH the Warlord toward it to get there). A saboteur traitor WANTS the doom, so it abstains.
+  const heart = state.shadowking.heart;
+  if (heartBias > 0 && !sabotaging && state.act === 'RECKONING'
+      && heart !== null && heart.exposed && heart.hp > 0) {
+    if (here === heart.nodeId) {
+      if (player.hand.length >= getTunables().HEART_ASSAULT_MIN_COMMIT && rng.float() < heartBias) {
+        return { type: 'ASSAULT_HEART' };
+      }
+    } else if (rng.float() < heartBias) {
+      const step = firstStepTowardNode(state, playerIndex, heart.nodeId);
+      if (step !== null && player.banners >= marchCostFor(state, playerIndex, step)
+            && tollAcceptable(state, playerIndex, step, forgeValuation)) {
+        return { type: 'MARCH', targetNodeId: step };
+      }
+    }
+  }
+
   // 0. CONTEST a live rival Gambit — a Gambit win ends the game, so this is the
   //    most urgent thing on the board. Raid the claimant off the Keystone if
   //    co-located, else march toward it. (The saboteur traitor WANTS others to
@@ -680,12 +826,26 @@ function archetypeAction(
   // 2. RAID a co-located rival we can beat (aggressor / opportunist). Sworn allies
   //    are off-limits (BREAK_OATH first) — guard so we never propose an illegal RAID.
   const rival = hasRivalAtNode(state, playerIndex, here);
+
+  // 2-pre. CAPTURE POUNCE — if we stand on a rival Warlord that has a capturable retainer AND the
+  //        predicted margin clears the standing-scaled gate (so the reducer can't reject it), elect
+  //        CAPTURE now, independent of `aggression` (a capture-biased cooperator/turtle still pounces
+  //        a winnable hostage). The margin gate makes this throw-safe (see predictRaidMargin).
+  if (captureBias > 0 && rival !== null && !areSworn(state, playerIndex, rival)) {
+    const capTargets = legalRaidTargets(state, rival, here).filter(id => canCapture(state, rival, here, id));
+    if (capTargets.length > 0
+        && predictRaidMargin(state, playerIndex, rival, here) >= effectiveCaptureMargin(state, playerIndex)
+        && rng.float() < captureBias) {
+      const effect: RaidEffect = 'CAPTURE_PIECE';
+      return { type: 'RAID', targetPlayerIndex: rival, raidEffect: effect, pieceId: capTargets[0] };
+    }
+  }
   if (rival !== null && aggression > 0 && !areSworn(state, playerIndex, rival)) {
     const mine = getPlayerPowerAtNode(state, playerIndex, here);
     const theirs = getPlayerPowerAtNode(state, rival, here);
     if (mine >= theirs) {
       const eff = Math.min(1, aggression + (isLeader(state, rival) ? raidLeaderBias : 0));
-      if (rng.float() < eff) return { type: 'RAID', targetPlayerIndex: rival };
+      if (rng.float() < eff) return raidWithElect(state, playerIndex, rival, here, captureBias, rng);
     }
   }
 
@@ -723,6 +883,17 @@ function archetypeAction(
   //     the win check; here we just close the distance.
   if (darkHunt > 0 && rng.float() < darkHunt) {
     const step = bestStepTowardHuntableDK(state, playerIndex);
+    if (step !== null && player.banners >= marchCostFor(state, playerIndex, step)
+          && tollAcceptable(state, playerIndex, step, forgeValuation)) {
+      return { type: 'MARCH', targetNodeId: step };
+    }
+  }
+
+  // 4c. CAPTURE HUNT — a capture-biased raider marches toward the nearest rival Warlord that has a
+  //     capturable retainer (§5.2), so the RAID step (2) can then elect CAPTURE on arrival. Without
+  //     this the raider would have to stand on a hostage by chance — which essentially never happens.
+  if (captureBias > 0 && aggression > 0 && rival === null && rng.float() < captureBias) {
+    const step = bestStepTowardCapturableRival(state, playerIndex);
     if (step !== null && player.banners >= marchCostFor(state, playerIndex, step)
           && tollAcceptable(state, playerIndex, step, forgeValuation)) {
       return { type: 'MARCH', targetNodeId: step };

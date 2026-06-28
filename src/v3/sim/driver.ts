@@ -17,6 +17,7 @@ import { applyCommand } from '../reducer.js';
 import { runAIPledge, runAITurn, DEFAULT_AI_POLICY, type AIPolicy } from '../ai-player.js';
 import { chooseAccusation, chooseAccusationVote } from '../blood-pact.js';
 import { withTunables, type Tunables } from '../tunables.js';
+import { territoryOf } from './metrics.js';
 import type { Command } from '../commands.js';
 import type { GameMode, GameState } from '../types.js';
 
@@ -46,6 +47,13 @@ export interface GameRunResult {
   readonly steps: number;
   /** True if the run hit `maxSteps` before terminating (a bug signal). */
   readonly hitGuard: boolean;
+  /**
+   * The territory leader (most living forge-weighted production, lowest-seat tiebreak among the
+   * non-eliminated) snapshotted the first time the game reaches the MARCH act — the mid-game
+   * marker for the snowball↔turtle signal. null if the game ended before MARCH. Derived in the
+   * driver because it needs a live mid-game snapshot, not the final state.
+   */
+  readonly midGameLeader: number | null;
 }
 
 const DEFAULT_MAX_STEPS = 5000;
@@ -77,9 +85,16 @@ function runHeadlessGame(cfg: GameRunConfig): GameRunResult {
 
   let steps = 0;
   let accusedThroughRound = 0;
+  let midGameLeader: number | null = null;
 
   while (state.gameEndReason === null && steps < maxSteps) {
     steps++;
+    // Snapshot the mid-game territory leader the first time the game reaches MARCH (the snowball
+    // signal denominator). WHISPER=early, MARCH=mid, RECKONING=late — so the MARCH leader is the
+    // honest "who was ahead at mid-game" the report compares against the eventual winner.
+    if (midGameLeader === null && state.act === 'MARCH') {
+      midGameLeader = territoryLeader(state);
+    }
     switch (state.phase) {
       case 'THREAT':
         state = apply(state, { type: 'ADVANCE_PHASE' });
@@ -131,7 +146,20 @@ function runHeadlessGame(cfg: GameRunConfig): GameRunResult {
     }
   }
 
-  return { finalState: state, steps, hitGuard: state.gameEndReason === null };
+  return { finalState: state, steps, hitGuard: state.gameEndReason === null, midGameLeader };
+}
+
+/** The living seat with the most forge-weighted production (lowest-seat tiebreak), or null if none
+ *  are alive. The snowball-signal leader snapshot. Pure. */
+function territoryLeader(state: GameState): number | null {
+  let bestSeat: number | null = null;
+  let bestTerr = -1;
+  for (const p of state.players) {
+    if (p.isEliminated) continue;
+    const terr = territoryOf(state, p.index);
+    if (terr > bestTerr) { bestTerr = terr; bestSeat = p.index; }
+  }
+  return bestSeat;
 }
 
 /**

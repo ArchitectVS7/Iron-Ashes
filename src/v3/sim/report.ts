@@ -5,8 +5,17 @@
  * renders the markdown. NO boilerplate "recommended next steps" (the v1 anti-pattern).
  */
 
+import type { Act } from '../types.js';
+import { ROUND_CAP } from '../tunables.js';
 import type { ArchetypeId } from './archetypes.js';
 import type { SweepRow } from './sweep.js';
+
+/** Sim-side spectator dead-time floor (NOT an engine tunable): a seat eliminated before this
+ *  fraction of ROUND_CAP is flagged as too-early "dead time" for a human in that seat (§13). */
+export const DEAD_TIME_FLOOR = 0.5;
+
+/** No-archetype-dominates guard threshold: a per-seat win rate above this flags a dominant strategy. */
+export const ARCHETYPE_WINRATE_GUARD = 0.30;
 
 // ─── §9 target bands ──────────────────────────────────────────────
 export const TARGETS = {
@@ -97,6 +106,40 @@ export interface SweepDiagnostics {
   readonly perActEnd: Readonly<Record<string, number>>;
   /** Primary metrics split by player count (strictness check). */
   readonly perCount: Readonly<Record<number, PerCountStats>>;
+
+  // ── Stage V3-4b diagnostics (the new-verb fire rates + the v3 defeat/snowball signals) ──
+  /** Mean retainers CAPTURED per game (§5.2 capture-economy fire rate; 0 ⇒ the verb never fires). */
+  readonly capturesPerGame: number;
+  /** Mean RANSOMs paid per game (§5.3). */
+  readonly ransomsPerGame: number;
+  /** Capture→ransom-back attachment proxy: ransoms / captures (§13; ~how often a captive is bought back). */
+  readonly captureToRansomRate: number;
+  /** Mean ASSAULT_HEART actions per game (§5.6 kill-the-dark commit fire rate). */
+  readonly heartAssaultsPerGame: number;
+  /** Fraction of games where the dark's heart was broken — the Kill-the-Dark FIRE rate (§5.6). */
+  readonly killTheDarkRate: number;
+  /** Dark-win split by PATH as a share of ALL games (§6): Keystone assault vs deposed-table attrition,
+   *  plus the last-standing PLAYER ending for context. */
+  readonly darkWinByPath: Readonly<{ doom_complete: number; attrition: number; last_standing: number }>;
+  /** Mean earliest-elimination round over games with a deposal (the dead-time numerator). */
+  readonly meanEarliestEliminationRound: number;
+  /** Spectator dead-time proxy: mean(earliest elimination round / ROUND_CAP) over games with a deposal. */
+  readonly deadTimeProxy: number;
+  /** Fraction of ALL games where someone died before ROUND_CAP × DEAD_TIME_FLOOR (the flag). */
+  readonly earlyDeathFlagRate: number;
+  /** Elimination-timing distribution — count of deposals by the Act they fell in. */
+  readonly eliminationActMix: Readonly<Record<Act, number>>;
+  /** Snowball signal: among games with a winner AND a mid-game (MARCH) leader, fraction the
+   *  mid-game leader went on to WIN (high ⇒ snowball; low ⇒ turtle/comeback). */
+  readonly midGameLeaderWinRate: number;
+  /** Comeback-from-behind rate: 1 − midGameLeaderWinRate over the same subset. */
+  readonly comebackRate: number;
+  /** Discovery-flip outcome mix as shares of all flips (§5.1). */
+  readonly discoveryFlipMix: Readonly<Record<string, number>>;
+  /** The single highest per-seat archetype win rate among archetypes with enough appearances. */
+  readonly topArchetypeWinRate: number;
+  /** Whether NO archetype exceeds the ARCHETYPE_WINRATE_GUARD (~30%) — the no-dominant-strategy guard. */
+  readonly archetypeWinRateGuardPass: boolean;
 }
 
 export interface PerCountStats {
@@ -222,6 +265,33 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
 
   const totalOathsBroken = sum(r => r.metrics.oathsBroken);
   const totalOathsMatured = sum(r => r.metrics.oathsMatured);
+
+  // ── Stage V3-4b: new-verb fire rates + defeat/snowball signals ──
+  const totalCaptures = sum(r => r.metrics.captures);
+  const totalRansoms = sum(r => r.metrics.ransoms);
+  const elimGames = rows.filter(r => r.metrics.earliestEliminationRound !== null);
+  const eliminationActMix: Record<Act, number> = { WHISPER: 0, MARCH: 0, RECKONING: 0 };
+  for (const r of rows) for (const a of r.metrics.eliminationActs) eliminationActMix[a] += 1;
+
+  const flipTotals: Record<string, number> = { recruit: 0, blight_seed: 0, death_knight: 0 };
+  for (const r of rows) for (const k of Object.keys(flipTotals)) flipTotals[k] += r.metrics.discoveryFlips[k as keyof typeof r.metrics.discoveryFlips];
+  const flipSum = flipTotals.recruit + flipTotals.blight_seed + flipTotals.death_knight;
+  const discoveryFlipMix: Record<string, number> = {
+    recruit: flipSum ? flipTotals.recruit / flipSum : 0,
+    blight_seed: flipSum ? flipTotals.blight_seed / flipSum : 0,
+    death_knight: flipSum ? flipTotals.death_knight / flipSum : 0,
+  };
+
+  // Snowball signal: did the mid-game (MARCH) territory leader go on to win?
+  const snowballRows = rows.filter(r => r.metrics.winner !== null && r.midGameLeader !== null);
+  const midGameLeaderWinRate = snowballRows.length
+    ? snowballRows.filter(r => r.metrics.winner === r.midGameLeader).length / snowballRows.length : 0;
+
+  // No-dominant-strategy guard (~30% per-seat win rate, among archetypes with enough appearances).
+  const minAppear = Math.max(20, total * 0.05);
+  const eligible = winRateByArchetype.filter(a => a.seatAppearances >= minAppear);
+  const topArchetypeWinRate = eligible.reduce((m, a) => Math.max(m, a.winRate), 0);
+
   const diagnostics: SweepDiagnostics = {
     eliminationsPerGame: mean(rows.map(r => r.metrics.eliminations)),
     lastStandingWinRate: total ? rows.filter(r => r.metrics.lastStandingWin).length / total : 0,
@@ -247,6 +317,30 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
     gambitFireRateNoGambler: noGambler.length ? noGambler.filter(r => r.metrics.gambitSeized).length / noGambler.length : 0,
     perActEnd,
     perCount,
+
+    capturesPerGame: mean(rows.map(r => r.metrics.captures)),
+    ransomsPerGame: mean(rows.map(r => r.metrics.ransoms)),
+    captureToRansomRate: totalCaptures > 0 ? totalRansoms / totalCaptures : 0,
+    heartAssaultsPerGame: mean(rows.map(r => r.metrics.heartAssaults)),
+    killTheDarkRate: total ? rows.filter(r => r.metrics.heartKilled).length / total : 0,
+    darkWinByPath: {
+      doom_complete: total ? rows.filter(r => r.metrics.darkWinPath === 'doom_complete').length / total : 0,
+      attrition: total ? rows.filter(r => r.metrics.darkWinPath === 'attrition').length / total : 0,
+      last_standing: total ? rows.filter(r => r.metrics.lastStandingWin).length / total : 0,
+    },
+    meanEarliestEliminationRound: elimGames.length
+      ? mean(elimGames.map(r => r.metrics.earliestEliminationRound as number)) : 0,
+    deadTimeProxy: elimGames.length
+      ? mean(elimGames.map(r => (r.metrics.earliestEliminationRound as number) / ROUND_CAP)) : 0,
+    earlyDeathFlagRate: total
+      ? rows.filter(r => r.metrics.earliestEliminationRound !== null
+          && (r.metrics.earliestEliminationRound as number) < ROUND_CAP * DEAD_TIME_FLOOR).length / total : 0,
+    eliminationActMix,
+    midGameLeaderWinRate,
+    comebackRate: snowballRows.length ? 1 - midGameLeaderWinRate : 0,
+    discoveryFlipMix,
+    topArchetypeWinRate,
+    archetypeWinRateGuardPass: topArchetypeWinRate <= ARCHETYPE_WINRATE_GUARD,
   };
 
   return {
@@ -424,6 +518,21 @@ ${endRows}
 | Count | Games | SK win | Rounds | Eliminations | Gambit fire |
 |---|---|---|---|---|---|
 ${countRows}
+
+## V3-4b diagnostics — new-verb fire rates + defeat/snowball signals
+| Diagnostic | Value | Reading |
+|---|---|---|
+| Captures / Ransoms per game | ${d.capturesPerGame.toFixed(2)} / ${d.ransomsPerGame.toFixed(2)} | capture-economy + ransom fire rates (0 ⇒ the verb never fires in sweeps) |
+| Capture→ransom-back rate | ${pct(d.captureToRansomRate)} | §13 attachment proxy (ransoms / captures) |
+| Heart assaults per game | ${d.heartAssaultsPerGame.toFixed(2)} | ASSAULT_HEART commit fire rate (§5.6) |
+| Kill-the-Dark fire rate | ${pct(d.killTheDarkRate)} | share of games where the table broke the heart |
+| Dark win by path (doom / attrition) | ${pct(d.darkWinByPath.doom_complete)} / ${pct(d.darkWinByPath.attrition)} | the §6 dark-win split; last-standing player ending ${pct(d.darkWinByPath.last_standing)} |
+| Mean earliest elimination · dead-time proxy | ${d.meanEarliestEliminationRound.toFixed(1)} · ${pct(d.deadTimeProxy)} | spectator dead-time = earliest deposal / ROUND_CAP(${ROUND_CAP}) |
+| Early-death flag rate (< ${Math.round(ROUND_CAP * DEAD_TIME_FLOOR)} rounds) | ${pct(d.earlyDeathFlagRate)} | games where a seat died before ROUND_CAP × ${DEAD_TIME_FLOOR} (a human there is a spectator too long) |
+| Eliminations by Act (W/M/R) | ${d.eliminationActMix.WHISPER} / ${d.eliminationActMix.MARCH} / ${d.eliminationActMix.RECKONING} | elimination-timing distribution |
+| Mid-game leader win rate · comeback | ${pct(d.midGameLeaderWinRate)} · ${pct(d.comebackRate)} | snowball↔turtle: does the MARCH-act leader win? |
+| Discovery flips (recruit/blight/DK) | ${pct(d.discoveryFlipMix.recruit)} / ${pct(d.discoveryFlipMix.blight_seed)} / ${pct(d.discoveryFlipMix.death_knight)} | §5.1 flip outcome mix |
+| Top archetype win rate (≤ ${pct(ARCHETYPE_WINRATE_GUARD)} guard) | ${pct(d.topArchetypeWinRate)} | ${verdict(d.archetypeWinRateGuardPass)} — no single strategy should dominate |
 
 ## End Act
 | Act | Count | Share |

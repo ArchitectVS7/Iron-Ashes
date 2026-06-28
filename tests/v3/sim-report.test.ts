@@ -35,11 +35,20 @@ function mkMetrics(p: Partial<GameMetrics> & { winner: number | null }): GameMet
     pledgeFullBlocks: p.pledgeFullBlocks ?? 0,
     playerActions: p.playerActions ?? 26,
     heraldCaptures: p.heraldCaptures ?? 0,
-  };
+    captures: p.captures ?? 0,
+    ransoms: p.ransoms ?? 0,
+    heartAssaults: p.heartAssaults ?? 0,
+    heartKilled: p.heartKilled ?? false,
+    darkWinPath: p.darkWinPath ?? (p.winner === null ? 'doom_complete' : null),
+    eliminationRounds: p.eliminationRounds ?? [],
+    eliminationActs: p.eliminationActs ?? [],
+    earliestEliminationRound: p.earliestEliminationRound ?? null,
+    discoveryFlips: p.discoveryFlips ?? { recruit: 0, blight_seed: 0, death_knight: 0 },
+  } as GameMetrics;
 }
 
-function mkRow(seats: ArchetypeId[], m: GameMetrics): SweepRow {
-  return { seed: 0, playerCount: seats.length, mode: 'competitive', matchupId: 'test', seatArchetypes: seats, steps: 10, hitGuard: false, metrics: m };
+function mkRow(seats: ArchetypeId[], m: GameMetrics, midGameLeader: number | null = null): SweepRow {
+  return { seed: 0, playerCount: seats.length, mode: 'competitive', matchupId: 'test', seatArchetypes: seats, steps: 10, hitGuard: false, metrics: m, midGameLeader };
 }
 
 const SEATS: ArchetypeId[] = ['aggressor', 'turtle', 'opportunist', 'cooperator'];
@@ -101,5 +110,74 @@ describe('summarize', () => {
     expect(md).toContain('§9 targets');
     expect(md).toContain('Shadowking win rate');
     expect(md).toMatch(/PASS|FAIL/);
+    // The V3-4b diagnostics section is rendered too.
+    expect(md).toContain('V3-4b diagnostics');
+    expect(md).toContain('Kill-the-Dark fire rate');
+    expect(md).toContain('Mid-game leader win rate');
+  });
+});
+
+describe('summarize — V3-4b diagnostics', () => {
+  it('computes capture/ransom fire rates and the capture→ransom-back attachment proxy', () => {
+    const rows: SweepRow[] = [
+      ...Array.from({ length: 4 }, () => mkRow(SEATS, mkMetrics({ winner: 0, captures: 2, ransoms: 1 }))),
+      ...Array.from({ length: 4 }, () => mkRow(SEATS, mkMetrics({ winner: 1 }))), // no captures
+    ];
+    const d = summarize(rows).diagnostics;
+    expect(d.capturesPerGame).toBeCloseTo(8 / 8); // 8 captures over 8 games
+    expect(d.ransomsPerGame).toBeCloseTo(4 / 8);
+    expect(d.captureToRansomRate).toBeCloseTo(4 / 8); // 4 ransoms / 8 captures
+  });
+
+  it('measures Kill-the-Dark fire rate and the dark-win-by-path split', () => {
+    const rows: SweepRow[] = [
+      mkRow(SEATS, mkMetrics({ winner: null, shadowkingWin: true, darkWinPath: 'doom_complete', heartKilled: false })),
+      mkRow(SEATS, mkMetrics({ winner: null, shadowkingWin: true, attritionWin: true, darkWinPath: 'attrition' })),
+      mkRow(SEATS, mkMetrics({ winner: 0, heartKilled: true })), // table broke the heart, then a player won
+      mkRow(SEATS, mkMetrics({ winner: 1, lastStandingWin: true })),
+    ];
+    const d = summarize(rows).diagnostics;
+    expect(d.killTheDarkRate).toBeCloseTo(1 / 4);
+    expect(d.darkWinByPath.doom_complete).toBeCloseTo(1 / 4);
+    expect(d.darkWinByPath.attrition).toBeCloseTo(1 / 4);
+    expect(d.darkWinByPath.last_standing).toBeCloseTo(1 / 4);
+  });
+
+  it('computes the spectator dead-time proxy + the early-death flag (ROUND_CAP × DEAD_TIME_FLOOR)', () => {
+    const rows: SweepRow[] = [
+      mkRow(SEATS, mkMetrics({ winner: 0, earliestEliminationRound: 3, eliminationActs: ['MARCH'] })),  // 3/14 ≈ 0.21 → early
+      mkRow(SEATS, mkMetrics({ winner: 0, earliestEliminationRound: 12, eliminationActs: ['RECKONING'] })), // 12/14 → late
+      mkRow(SEATS, mkMetrics({ winner: 0, earliestEliminationRound: null })), // nobody died
+    ];
+    const d = summarize(rows).diagnostics;
+    // dead-time proxy averages only the two games WITH an elimination.
+    expect(d.deadTimeProxy).toBeCloseTo(((3 / 14) + (12 / 14)) / 2);
+    expect(d.meanEarliestEliminationRound).toBeCloseTo((3 + 12) / 2);
+    // one of THREE games flagged early (3 < 14 × 0.5 = 7).
+    expect(d.earlyDeathFlagRate).toBeCloseTo(1 / 3);
+    expect(d.eliminationActMix.MARCH).toBe(1);
+    expect(d.eliminationActMix.RECKONING).toBe(1);
+  });
+
+  it('reads the snowball signal: did the mid-game leader win?', () => {
+    const rows: SweepRow[] = [
+      mkRow(SEATS, mkMetrics({ winner: 0 }), 0), // leader 0 won
+      mkRow(SEATS, mkMetrics({ winner: 1 }), 0), // leader 0 lost (comeback)
+      mkRow(SEATS, mkMetrics({ winner: 2 }), 2), // leader 2 won
+      mkRow(SEATS, mkMetrics({ winner: null }), 3), // no winner → excluded from the subset
+    ];
+    const d = summarize(rows).diagnostics;
+    expect(d.midGameLeaderWinRate).toBeCloseTo(2 / 3);
+    expect(d.comebackRate).toBeCloseTo(1 / 3);
+  });
+
+  it('flags a dominant archetype against the ~30% per-seat win-rate guard', () => {
+    // aggressor (seat 0) wins every game → its per-seat win rate is 100% > 30%.
+    const dom: SweepRow[] = Array.from({ length: 40 }, () => mkRow(SEATS, mkMetrics({ winner: 0 })));
+    expect(summarize(dom).diagnostics.archetypeWinRateGuardPass).toBe(false);
+    expect(summarize(dom).diagnostics.topArchetypeWinRate).toBeCloseTo(1);
+    // a balanced field stays under the guard.
+    const bal: SweepRow[] = Array.from({ length: 40 }, (_, i) => mkRow(SEATS, mkMetrics({ winner: i % 4 })));
+    expect(summarize(bal).diagnostics.archetypeWinRateGuardPass).toBe(true);
   });
 });

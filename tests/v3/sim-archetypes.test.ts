@@ -15,11 +15,20 @@ import { ARCHETYPES, ARCHETYPE_IDS, policyOf } from '../../src/v3/sim/archetypes
 import { playHeadlessGame, type SeatPolicies } from '../../src/v3/sim/driver.js';
 import { WARLORD_POWER } from '../../src/v3/tunables.js';
 import { applyCommand } from '../../src/v3/reducer.js';
-import type { GameState } from '../../src/v3/types.js';
+import { addCourtPiece } from '../../src/v3/court.js';
+import type { GameState, HeartState } from '../../src/v3/types.js';
 import type { Command } from '../../src/v3/commands.js';
+import type { AIPolicy as Policy } from '../../src/v3/ai-player.js';
 
 function apply(state: GameState, cmd: Command): GameState {
   return applyCommand(state, cmd).state;
+}
+
+/** Force the game into the ACTION phase with `seat` active so a chosen action can be applied. */
+function enterAction(state: GameState, seat: number): void {
+  state.phase = 'ACTION';
+  state.activePlayerIndex = seat;
+  state.players[seat].actionsRemaining = 2;
 }
 
 function placeWarlord(state: GameState, idx: number, nodeId: string): void {
@@ -83,6 +92,59 @@ describe('archetype decision branches', () => {
     const coop = choosePledge(state, seat, 7, ARCHETYPES.cooperator.policy);
     const base = choosePledge(state, seat, 7, DEFAULT_AI_POLICY);
     expect(coop).toBeGreaterThan(base);
+  });
+
+  it('a capture-biased raider ELECTS CAPTURE when it stands on a winnable rival retainer (V3-4b)', () => {
+    const state = createGame(2, 'competitive', 42);
+    state.act = 'MARCH'; // past WHISPER → no last-retainer protection
+    const node = state.board.definition.holdingIds[0];
+    placeWarlord(state, 0, node);
+    placeWarlord(state, 1, node);
+    addCourtPiece(state, 1, 'marshal', node); // rival has a capturable retainer here
+    state.players[0].hand = [9, 9, 9];         // strong → predicted margin clears the capture gate
+    state.players[1].hand = [];                // weak defender (no commit / Last Stand)
+    enterAction(state, 0);
+    const policy: Policy = { ...ARCHETYPES.aggressor.policy, captureBias: 1, aggression: 1 };
+    const action = chooseAction(state, 0, 7, policy);
+    expect(action.type).toBe('RAID');
+    expect(action.targetPlayerIndex).toBe(1);
+    expect(action.raidEffect).toBe('CAPTURE_PIECE');
+    expect(action.pieceId).toBe('marshal-1-0');
+    // The reducer accepts it (throw-safe election) and the captive lands in the roster.
+    const after = applyCommand(state, { type: 'PLAYER_ACTION', playerIndex: 0, action }).state;
+    expect(after.captives.some(c => c.pieceId === 'marshal-1-0' && c.captorSeat === 0)).toBe(true);
+  });
+
+  it('a heart-biased archetype ASSAULTs the exposed dark heart in Reckoning (V3-4b)', () => {
+    const state = createGame(2, 'competitive', 42);
+    state.act = 'RECKONING';
+    const ks = state.board.definition.keystoneId;
+    const heart: HeartState = { nodeId: ks, hp: 12, exposed: true, committedBySeat: [0, 0], raidLeader: null };
+    state.shadowking.heart = heart;
+    placeWarlord(state, 0, ks);
+    state.players[0].hand = [5, 5];
+    enterAction(state, 0);
+    const policy: Policy = { ...ARCHETYPES.gambler.policy, heartBias: 1 };
+    const action = chooseAction(state, 0, 7, policy);
+    expect(action.type).toBe('ASSAULT_HEART');
+    const after = applyCommand(state, { type: 'PLAYER_ACTION', playerIndex: 0, action }).state;
+    expect(after.shadowking.heart!.hp).toBeLessThan(12); // a real hit landed
+  });
+
+  it('a ransom-biased archetype RANSOMs its own captured retainer back when affordable (V3-4b)', () => {
+    const state = createGame(2, 'competitive', 42);
+    state.act = 'MARCH';
+    // Seat 0 owns a marshal currently captive of seat 1.
+    addCourtPiece(state, 0, 'marshal', state.board.definition.holdingIds[0]);
+    const cp = state.players[0].court.find(c => c.archetype === 'marshal')!;
+    cp.captiveOf = 1;
+    state.captives.push({ pieceId: cp.id, ownerSeat: 0, captorSeat: 1, capturedRound: state.round, recaptureImmuneUntil: 0 });
+    state.players[0].hand = [3, 3];
+    state.players[0].banners = 9;
+    const policy: Policy = { ...ARCHETYPES.turtle.policy, ransomBias: 1 };
+    const action = chooseAction(state, 0, 7, policy);
+    expect(action.type).toBe('RANSOM');
+    expect(action.pieceId).toBe(cp.id);
   });
 
   it('choosers stay deterministic for a fixed archetype', () => {

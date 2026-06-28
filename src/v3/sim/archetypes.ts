@@ -31,16 +31,39 @@ export interface Archetype {
   readonly policy: AIPolicy;
 }
 
+/**
+ * Stage V3-4b verb knobs, layered ON TOP of the gen policies here (NOT in data/archetypes.json —
+ * the gen substrate stays pristine; these sim-only knobs make the new v3 verbs FIRE in sweeps so
+ * the diagnostic metrics are non-zero). Distinct per archetype so the capture/ransom/heart fire
+ * rates spread instead of one strategy hogging the mechanic. The saboteur abstains (it wants the
+ * doom). `baseline` is deliberately excluded — it MUST stay the DEFAULT_AI_POLICY object reference.
+ */
+type VerbKnobs = Pick<AIPolicy, 'captureBias' | 'ransomBias' | 'heartBias'>;
+const VERB_KNOBS: Readonly<Record<Exclude<ArchetypeId, 'baseline'>, VerbKnobs>> = {
+  aggressor: { captureBias: 0.7, heartBias: 0.5 },
+  turtle: { ransomBias: 0.7, heartBias: 0.2 },
+  opportunist: { captureBias: 0.5, ransomBias: 0.6, heartBias: 0.4 },
+  cooperator: { captureBias: 0.2, ransomBias: 0.6, heartBias: 0.6 },
+  gambler: { captureBias: 0.3, heartBias: 0.8 },
+  saboteur: {},
+};
+
+/** Merge the verb knobs onto a gen policy (a new object; never mutates the gen data). */
+function withVerbs(base: AIPolicy, knobs: VerbKnobs): AIPolicy {
+  return { ...base, ...knobs };
+}
+
 /** The roster. `baseline` reuses DEFAULT_AI_POLICY by reference (identity guard); the
- *  6 strategy vectors flow from data/archetypes.json via archetypes.gen.ts. */
+ *  6 strategy vectors flow from data/archetypes.json via archetypes.gen.ts, then get the
+ *  Stage-4b verb knobs layered on here (sim-only — see VERB_KNOBS). */
 export const ARCHETYPES: Readonly<Record<ArchetypeId, Archetype>> = Object.freeze({
   baseline: { id: 'baseline', label: 'Baseline economic', policy: DEFAULT_AI_POLICY },
-  aggressor: { id: 'aggressor', label: ARCHETYPE_DATA.aggressor.label, policy: ARCHETYPE_DATA.aggressor.policy },
-  turtle: { id: 'turtle', label: ARCHETYPE_DATA.turtle.label, policy: ARCHETYPE_DATA.turtle.policy },
-  opportunist: { id: 'opportunist', label: ARCHETYPE_DATA.opportunist.label, policy: ARCHETYPE_DATA.opportunist.policy },
-  cooperator: { id: 'cooperator', label: ARCHETYPE_DATA.cooperator.label, policy: ARCHETYPE_DATA.cooperator.policy },
-  gambler: { id: 'gambler', label: ARCHETYPE_DATA.gambler.label, policy: ARCHETYPE_DATA.gambler.policy },
-  saboteur: { id: 'saboteur', label: ARCHETYPE_DATA.saboteur.label, policy: ARCHETYPE_DATA.saboteur.policy },
+  aggressor: { id: 'aggressor', label: ARCHETYPE_DATA.aggressor.label, policy: withVerbs(ARCHETYPE_DATA.aggressor.policy, VERB_KNOBS.aggressor) },
+  turtle: { id: 'turtle', label: ARCHETYPE_DATA.turtle.label, policy: withVerbs(ARCHETYPE_DATA.turtle.policy, VERB_KNOBS.turtle) },
+  opportunist: { id: 'opportunist', label: ARCHETYPE_DATA.opportunist.label, policy: withVerbs(ARCHETYPE_DATA.opportunist.policy, VERB_KNOBS.opportunist) },
+  cooperator: { id: 'cooperator', label: ARCHETYPE_DATA.cooperator.label, policy: withVerbs(ARCHETYPE_DATA.cooperator.policy, VERB_KNOBS.cooperator) },
+  gambler: { id: 'gambler', label: ARCHETYPE_DATA.gambler.label, policy: withVerbs(ARCHETYPE_DATA.gambler.policy, VERB_KNOBS.gambler) },
+  saboteur: { id: 'saboteur', label: ARCHETYPE_DATA.saboteur.label, policy: withVerbs(ARCHETYPE_DATA.saboteur.policy, VERB_KNOBS.saboteur) },
 });
 
 export const ARCHETYPE_IDS: readonly ArchetypeId[] =

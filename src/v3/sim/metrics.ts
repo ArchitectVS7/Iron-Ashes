@@ -7,8 +7,11 @@
  * PASS/FAIL report and the win-rate-by-archetype / free-rider analysis.
  */
 
-import type { Act, GameEndReason, GameState } from '../types.js';
+import type { Act, GameEndReason, GameState, TokenKind } from '../types.js';
 import { FORGE_WEIGHT } from '../tunables.js';
+
+/** Distribution of Discovery-flip reveals across a game (§5.1 outcome mix). */
+export type DiscoveryFlipMix = Readonly<Record<TokenKind, number>>;
 
 export interface GameMetrics {
   readonly gameEndReason: GameEndReason;
@@ -74,10 +77,33 @@ export interface GameMetrics {
   /** Total ACTION decisions players took this game (incl. PASS) — the session-length /
    *  decision-density proxy for the 30–45 min scope target (C2; no balance role). */
   readonly playerActions: number;
+
+  // ── Stage V3-4b diagnostics (the new-verb fire rates + the v3 defeat/snowball signals) ──
+  /** Retainers CAPTURED via a winning RAID this game (§5.2 — the capture-economy fire rate). */
+  readonly captures: number;
+  /** RANSOMs paid this game (§5.3 — feeds the capture→ransom-back attachment proxy). */
+  readonly ransoms: number;
+  /** ASSAULT_HEART actions this game (§5.6 — the kill-the-dark commit fire rate). */
+  readonly heartAssaults: number;
+  /** The dark's heart was broken (darkDefeated) — the Kill-the-Dark fire signal (§5.6). */
+  readonly heartKilled: boolean;
+  /** WHICH dark-win path this game took, else null (the §6 by-path split): the Keystone assault
+   *  (doom_complete) vs the deposed-table successor (attrition). */
+  readonly darkWinPath: 'doom_complete' | 'attrition' | null;
+  /** The round each Warlord was eliminated, in chronological order (elimination-timing). */
+  readonly eliminationRounds: readonly number[];
+  /** The Act in force at each elimination (parallel to eliminationRounds) — the timing distribution. */
+  readonly eliminationActs: readonly Act[];
+  /** Earliest seat-elimination round, or null if nobody was deposed — the spectator dead-time proxy
+   *  numerator (dead-time = earliest / ROUND_CAP; flagged below DEAD_TIME_FLOOR in the report). */
+  readonly earliestEliminationRound: number | null;
+  /** Discovery-flip outcome mix this game (§5.1): recruit / blight_seed / death_knight counts. */
+  readonly discoveryFlips: DiscoveryFlipMix;
 }
 
-/** Living owned production (Holdings + weighted Forges) for one seat. */
-function territoryOf(state: GameState, seat: number): number {
+/** Living owned production (Holdings + weighted Forges) for one seat. Exported so the headless
+ *  driver can snapshot the mid-game territory leader (the snowball↔turtle signal) consistently. */
+export function territoryOf(state: GameState, seat: number): number {
   let t = 0;
   for (const [id, ns] of Object.entries(state.board.state.nodes)) {
     if (ns.owner !== seat || ns.ashed) continue;
@@ -121,9 +147,24 @@ export function computeMetrics(state: GameState): GameMetrics {
   let parleyCount = 0;
   let heraldCaptures = 0;
   let playerActions = 0;
+  let captures = 0;
+  let ransoms = 0;
+  let heartAssaults = 0;
+  const eliminationRounds: number[] = [];
+  const eliminationActs: Act[] = [];
+  const discoveryFlips: Record<TokenKind, number> = { recruit: 0, blight_seed: 0, death_knight: 0 };
+  // Track the Act in force as we scan the chronological log, so each elimination records the Act it
+  // fell in (the log carries no Act field — ACT_ESCALATED is the only signal). Starts at WHISPER.
+  let currentAct: Act = 'WHISPER';
   for (const e of state.actionLog) {
     if (e.type === 'PLAYER_ELIMINATED') {
       eliminations++;
+      eliminationRounds.push(e.round);
+      eliminationActs.push(currentAct);
+    } else if (e.type === 'ACT_ESCALATED') {
+      currentAct = e.newAct;
+    } else if (e.type === 'DISCOVERY_FLIPPED') {
+      discoveryFlips[e.kind] += 1;
     } else if (e.type === 'PLAYER_ACTED') {
       playerActions++;
       if (e.action === 'SWEAR_OATH') oathsSworn++;
@@ -131,6 +172,9 @@ export function computeMetrics(state: GameState): GameMetrics {
       if (e.action === 'RECRUIT' && e.details?.stance === 'political') heraldsRecruited++;
       if (e.action === 'RECRUIT' && e.details?.heraldCaptured === true) heraldCaptures++;
       if (e.action === 'PARLEY') parleyCount++;
+      if (e.action === 'RANSOM') ransoms++;
+      if (e.action === 'ASSAULT_HEART') heartAssaults++;
+      if (e.action === 'RAID' && e.details?.capture !== undefined) captures++;
       if (e.action === 'MARCH' && typeof e.details?.toll === 'number' && e.details.toll > 0) tollsPaid++;
       if (e.details?.oathMatured === true) oathsMatured++;
       if (e.details?.gambitSeized === true) gambitSeized = true;
@@ -186,5 +230,16 @@ export function computeMetrics(state: GameState): GameMetrics {
     pledgeRounds,
     pledgeFullBlocks,
     playerActions,
+
+    captures,
+    ransoms,
+    heartAssaults,
+    heartKilled: state.shadowking.darkDefeated === true,
+    darkWinPath: state.gameEndReason === 'doom_complete' ? 'doom_complete'
+      : state.gameEndReason === 'attrition' ? 'attrition' : null,
+    eliminationRounds,
+    eliminationActs,
+    earliestEliminationRound: eliminationRounds.length ? Math.min(...eliminationRounds) : null,
+    discoveryFlips,
   };
 }
