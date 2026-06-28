@@ -19,7 +19,8 @@
     "handoff:check": "node scripts/handoff-check.mjs",
     "gen:data": "node scripts/gen-data.mjs",
     "gen:data:check": "node scripts/gen-data.mjs --check",
-    "sim": "npm run gen:data:check && tsc && node scripts/sim.mjs"
+    "sim": "npm run gen:data:check && tsc && node scripts/sim.mjs",
+    "sim:v3": "tsc && node scripts/sim-v3.mjs"
   },
   "keywords": [
     "board-game",
