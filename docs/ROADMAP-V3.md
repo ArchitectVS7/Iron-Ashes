@@ -26,8 +26,12 @@ built a turtle meta; two new subsystems were non-deterministic). Those fixes are
 > - `docs/handoff/state.json` stays pointed at the **v2** status until the v3 code sprint opens its own
 >   stage (see §7).
 
-**Immediate next action:** **Stage V3-5 (balance) — but two findings need a DESIGN CALL first** (see §8
-2026-06-27 V3-4 baseline). The v3 **ENGINE is feature-complete and the sim runs** (Stages V3-3a→3h + V3-4
+**Immediate next action:** **V3-5 balance WAVE 2** (after two user design calls — captures-ceiling +
+gambit-approach; see §8 2026-06-28 wave-1). Wave 1 LANDED THE CORE: dark 20.7/19.4% in band (2-seed),
+attrition capped to 27/31% of dark-wins, doom share 15/13% (up from 6.1) — **pillar #1 restored, hybrid
+met.** Remaining 2-seed-stable misses → wave 2: gambit-fire 40% (too high) + gambler dominance 43–46%;
+captures stuck at ~0.17/game (structural — retainer supply capped by 4 token-Holdings); Blood-Pact traitor
+hot 32–34% (deferred 5e). Engine green: v3 510 tests, v2 451. The v3 **ENGINE is feature-complete and the sim runs** (Stages V3-3a→3h + V3-4
 all DONE; `npm run sim:v3`). Verified: typecheck PASS, determinism clean, **v3 = 510 tests green**, **v2 =
 451 green**; all games terminate at 2/3/4p + both modes. The untuned baseline (sim-results/sample-v3/REPORT.md)
 surfaced two issues that are likely **structural, not pure tuning**: (1) the dark wins ~76% by **attrition**,
@@ -213,6 +217,20 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-06-28** — **V3-5 TUNING WAVE 1 (2-seed validated; commits `bf396ac`/`f071719`/`a215461`; 5c made no
+  change — honest).** **Core objective LANDED:** 5b disabled the Reckoning auto-pressure (`RECKONING_AUTOPRESSURE_NODES`
+  1→0) + `BLIGHT_TO_ASH` 3→2 + `SPREAD_AMOUNT_BASE` 7→3 → dark win 25.2→**20.7/19.4%** (band, 2-seed stable),
+  attrition share of dark-wins 75.7→**26.7/31.3%** (≤40 cap met), doom share 6.1→**15.2/13.3%** (co-primary),
+  rounds 10.8, guards hold. **The hybrid call is met and pillar #1 ("doom is the map") is restored.** 5a made
+  captures FIRE (intent-aware combat sizing + a default-AI capture economy; 0.01→**0.17/game**, 17.5×) but hit a
+  **structural ceiling**: only 4 token-Holdings cap retainer supply (~1.5/game) and a retainer is capturable only
+  while co-located with its Warlord — reaching the 0.5–2 band needs a board/§2/§5.1 change (more retainer supply).
+  **Stable misses → WAVE 2:** (a) gambit-fire (gambler-free) **40%** + gambler dominance **43–46%** — 5c proved
+  the seize-gate trades 1:1 against dark-win (cover 4→5 fixes gambit but pushes dark to 23%) and `GAMBIT_SURCHARGE`
+  is inert (claimant races the Keystone, never pledges); the real fix is a true gambit **WIN-gate** and/or lowering
+  the gambler archetype's `gambitAmbition`, possibly with a metric split (incidental vs deliberate Keystone hold).
+  (b) captures-ceiling (above) — a USER design call. (c) Blood-Pact traitor hot **32–34%** / exposure low (the 5b
+  doom-path fix fed the traitor's win) — deferred to a v3 5e-equivalent. **Two user calls open before wave 2.**
 - **2026-06-28** — **V3-5 DESIGN DIRECTION SET (user call).** (1) Doom/attrition inversion → **HYBRID**: tune so
   doom and attrition are co-primary (target **attrition ≤ ~40% of dark wins**, doom share up from 6.1%) — keep the
   knockout stakes without burying the Keystone race; the main lever is weakening the Reckoning auto-pressure /
