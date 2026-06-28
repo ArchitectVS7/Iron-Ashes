@@ -27,16 +27,31 @@ import type { GameEvent } from './events.js';
 import type { GameState } from './types.js';
 import { applyCommand, type CommandResult } from './reducer.js';
 import {
-  getPlayerPowerAtNode, getShadowkingPowerAtNode, chooseCombatCommit,
+  getPlayerPowerAtNode, getShadowkingPowerAtNode, chooseCombatCommit, chooseRaidAttackCommit,
   effectiveCaptureMargin, trailingDefenseBonus, stewardHomeDefenseBonus,
 } from './combat.js';
 import { hasSKForcesAtNode, hasRivalAtNode, findOath, areSworn, parleyTarget } from './actions.js';
 import { legalRaidTargets, canCapture } from './capture.js';
 import {
-  ASHED_TRAVERSE_EXTRA_COST, COMBAT_COMMIT_MAX, FORGE_WEIGHT, RAID_DEFENSE_MARGIN, getTunables,
+  ASHED_TRAVERSE_EXTRA_COST, COMBAT_COMMIT_MAX, FORGE_WEIGHT, getTunables,
 } from './tunables.js';
 import type { RaidEffect } from './commands.js';
 import { SeededRandom } from '../utils/seeded-random.js';
+
+/**
+ * Hunt radius (board steps) for the DEFAULT policy's modest capture-positioning (Stage 5a). The
+ * greedy baseline only detours toward a capturable rival hostage within this many steps — an
+ * opportunistic pounce-on-the-way, never a cross-map chase — so captures stay rare-but-dramatic
+ * and never become a dominant strategy. Not a balance tunable (an AI-heuristic constant).
+ */
+const CAPTURE_HUNT_RADIUS = 3;
+
+/**
+ * Per-turn chance the DEFAULT policy redeems one of its own captured retainers (Stage 5a). Held
+ * below 1 so only SOME captures are bought back — the capture→ransom-back attachment proxy (§13)
+ * should land in the ~20–40% band, not redeem every hostage. Not a balance tunable (AI heuristic).
+ */
+const DEFAULT_SELF_RANSOM_CHANCE = 0.10;
 
 // ─── Policy ───────────────────────────────────────────────────────
 
@@ -338,10 +353,14 @@ function canStrikeWin(state: GameState, playerIndex: number, nodeId: string): bo
  * reverses (defender wins ⇒ no capture branch) or it cannot (margin unchanged ⇒ gate holds).
  * Pure `f(state)`.
  */
-function predictRaidMargin(state: GameState, attacker: number, defender: number, node: string): number {
+function predictRaidMargin(
+  state: GameState, attacker: number, defender: number, node: string, capture = false,
+): number {
   const atkBase = getPlayerPowerAtNode(state, attacker, node);
   const defBase = getPlayerPowerAtNode(state, defender, node);
-  const atkCards = chooseCombatCommit(state.players[attacker].hand, atkBase, defBase + RAID_DEFENSE_MARGIN, COMBAT_COMMIT_MAX);
+  // Mirror the reducer's INTENT-sized commit (chooseRaidAttackCommit) so a capture
+  // check predicts the SAME margin the reducer will realize (throw-safe, §5.2 / Stage 5a).
+  const atkCards = chooseRaidAttackCommit(state, attacker, defender, node, capture);
   const defCards = chooseCombatCommit(state.players[defender].hand, defBase, atkBase, 1);
   const defenseBonus = trailingDefenseBonus(state, attacker, defender) + stewardHomeDefenseBonus(state, defender, node);
   const atkPower = atkBase + atkCards.reduce((s, v) => s + v, 0);
@@ -367,13 +386,15 @@ function raidWithElect(
   const targets = legalRaidTargets(state, defender, node);
   if (targets.length === 0 || captureBias <= 0 || rng.float() >= captureBias) return plain;
 
-  const margin = predictRaidMargin(state, attacker, defender, node);
   const capTarget = targets.find(id => canCapture(state, defender, node, id));
-  if (capTarget !== undefined && margin >= effectiveCaptureMargin(state, attacker)) {
+  // Capture uses the INTENT-sized margin (the reducer up-sizes a capture commit); ROUT/land
+  // use the thin default-sized margin — each predicted exactly as the reducer will realize.
+  if (capTarget !== undefined
+      && predictRaidMargin(state, attacker, defender, node, true) >= effectiveCaptureMargin(state, attacker)) {
     const effect: RaidEffect = 'CAPTURE_PIECE';
     return { type: 'RAID', targetPlayerIndex: defender, raidEffect: effect, pieceId: capTarget };
   }
-  if (margin > 0) {
+  if (predictRaidMargin(state, attacker, defender, node) > 0) {
     const effect: RaidEffect = 'ROUT_PIECE';
     return { type: 'RAID', targetPlayerIndex: defender, raidEffect: effect, pieceId: targets[0] };
   }
@@ -551,6 +572,7 @@ export function chooseAction(
 function baselineAction(state: GameState, playerIndex: number, seed: number): PlayerAction {
   const player = state.players[playerIndex];
   const nodeId = player.warlordNodeId;
+  const rng = decisionRng(state, playerIndex, seed, 1 + player.actionsRemaining);
 
   // 1. STRIKE co-located Shadowking forces if we can win and have a card to commit.
   if (hasSKForcesAtNode(state, nodeId) && player.hand.length > 0) {
@@ -561,13 +583,52 @@ function baselineAction(state: GameState, playerIndex: number, seed: number): Pl
     }
   }
 
+  // 1b. CAPTURE POUNCE (Stage 5a — captures rare-but-dramatic in normal play). Even the greedy
+  //     economic baseline seizes a clean hostage: if it stands on an unsworn rival Warlord that
+  //     has a capturable retainer AND its intent-sized RAID clears the standing-scaled gate (so
+  //     the reducer can't reject it — predictRaidMargin is mirror-exact), it elects CAPTURE. This
+  //     is deterministic and self-limiting: a co-located capturable target is rare, so it fires as
+  //     a real scene, not a dominant tactic. (No positioning detour — the baseline doesn't hunt;
+  //     it only pounces what its claim-march path already walks it onto.)
+  const rivalHere = hasRivalAtNode(state, playerIndex, nodeId);
+  if (rivalHere !== null && !areSworn(state, playerIndex, rivalHere)) {
+    const capTarget = legalRaidTargets(state, rivalHere, nodeId)
+      .find(id => canCapture(state, rivalHere, nodeId, id));
+    if (capTarget !== undefined
+        && predictRaidMargin(state, playerIndex, rivalHere, nodeId, true)
+             >= effectiveCaptureMargin(state, playerIndex)) {
+      return { type: 'RAID', targetPlayerIndex: rivalHere, raidEffect: 'CAPTURE_PIECE', pieceId: capTarget };
+    }
+  }
+
+  // 1c. SELF-RANSOM (Stage 5a) — buy a captured retainer of our own back when affordable, so the
+  //     capture→ransom-back loop closes in normal play (the §13 attachment proxy) rather than
+  //     leaving hostages to rot. Resource-negative (RANSOM_COST cards + RANSOM_BANNERS), so it's
+  //     self-limiting; the default policy only redeems when it can comfortably pay.
+  const tr = getTunables();
+  const mineCaptive = state.captives.find(r => r.ownerSeat === playerIndex);
+  if (mineCaptive && player.hand.length > tr.RANSOM_COST && player.banners >= tr.RANSOM_BANNERS
+      && rng.float() < DEFAULT_SELF_RANSOM_CHANCE) {
+    return { type: 'RANSOM', pieceId: mineCaptive.pieceId };
+  }
+
   // 2. CLAIM the node we're standing on, if it's worth banking and we can afford it.
   if (player.banners >= 1 && claimValue(state, nodeId) > 0) {
     return { type: 'CLAIM' };
   }
 
+  // 2b. CAPTURE APPROACH (Stage 5a — modest positioning) — if no claim under us and a capturable
+  //     rival hostage sits within a short radius, step toward it so the pounce (1b) can fire next
+  //     turn. Distance-bounded so the greedy baseline makes an opportunistic detour, never a
+  //     cross-map chase — captures stay rare-but-dramatic, not a dominant strategy.
+  if (rivalHere === null) {
+    const capStep = bestStepTowardCapturableRival(state, playerIndex, CAPTURE_HUNT_RADIUS);
+    if (capStep !== null && player.banners >= marchCostFor(state, playerIndex, capStep)) {
+      return { type: 'MARCH', targetNodeId: capStep };
+    }
+  }
+
   // 3. MARCH toward the best reachable claimable node, if affordable.
-  const rng = decisionRng(state, playerIndex, seed, 1 + player.actionsRemaining);
   const step = bestStepToward(state, playerIndex, rng);
   if (step !== null && player.banners >= marchCostFor(state, playerIndex, step)) {
     return { type: 'MARCH', targetNodeId: step };
@@ -633,7 +694,9 @@ function firstStepTowardNearestRival(state: GameState, playerIndex: number): str
  * one by chance — never fires). Skips sworn allies. BFS, ZoC-respecting, deterministic. Null if
  * none reachable or already co-located with one (the RAID step then fires). Pure `f(state)`.
  */
-function bestStepTowardCapturableRival(state: GameState, playerIndex: number): string | null {
+function bestStepTowardCapturableRival(
+  state: GameState, playerIndex: number, maxDist = Infinity,
+): string | null {
   const def = state.board.definition;
   const start = state.players[playerIndex].warlordNodeId;
   const hostsCapturable = (nodeId: string): boolean => {
@@ -642,15 +705,17 @@ function bestStepTowardCapturableRival(state: GameState, playerIndex: number): s
     return legalRaidTargets(state, r, nodeId).some(id => canCapture(state, r, nodeId, id));
   };
   const visited = new Set<string>([start]);
-  const queue: Array<{ node: string; firstStep: string | null }> = [{ node: start, firstStep: null }];
+  const queue: Array<{ node: string; firstStep: string | null; dist: number }>
+    = [{ node: start, firstStep: null, dist: 0 }];
   while (queue.length > 0) {
     const cur = queue.shift()!;
     if (cur.firstStep !== null && hostsCapturable(cur.node)) return cur.firstStep;
+    if (cur.dist >= maxDist) continue; // bound the hunt radius (modest positioning)
     for (const nb of def.nodes[cur.node].connections) {
       if (visited.has(nb)) continue;
       if (stepBlocked(state, playerIndex, nb)) continue;
       visited.add(nb);
-      queue.push({ node: nb, firstStep: cur.firstStep ?? nb });
+      queue.push({ node: nb, firstStep: cur.firstStep ?? nb, dist: cur.dist + 1 });
     }
   }
   return null;
@@ -834,7 +899,7 @@ function archetypeAction(
   if (captureBias > 0 && rival !== null && !areSworn(state, playerIndex, rival)) {
     const capTargets = legalRaidTargets(state, rival, here).filter(id => canCapture(state, rival, here, id));
     if (capTargets.length > 0
-        && predictRaidMargin(state, playerIndex, rival, here) >= effectiveCaptureMargin(state, playerIndex)
+        && predictRaidMargin(state, playerIndex, rival, here, true) >= effectiveCaptureMargin(state, playerIndex)
         && rng.float() < captureBias) {
       const effect: RaidEffect = 'CAPTURE_PIECE';
       return { type: 'RAID', targetPlayerIndex: rival, raidEffect: effect, pieceId: capTargets[0] };

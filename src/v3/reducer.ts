@@ -227,6 +227,7 @@ import {
 import { executeAssaultHeart } from './heart.js';
 import {
   chooseCombatCommit,
+  chooseRaidAttackCommit,
   getPlayerPowerAtNode,
   getShadowkingPowerAtNode,
 } from './combat.js';
@@ -364,7 +365,12 @@ function handlePlayerAction(
       const node = player.warlordNodeId;
       const atkBase = getPlayerPowerAtNode(state, playerIndex, node);
       const defBase = defender ? getPlayerPowerAtNode(state, action.targetPlayerIndex, node) : 0;
-      const atkCards = chooseCombatCommit(player.hand, atkBase, defBase + RAID_DEFENSE_MARGIN, COMBAT_COMMIT_MAX);
+      // Capture-intent RAIDs size UP to clear the standing-scaled capture margin (§5.2, Stage 5a);
+      // TAKE_LAND/ROUT keep the thin pre-5a sizing. Shared with the AI's predictor (throw-safe).
+      const atkCards = defender
+        ? chooseRaidAttackCommit(state, playerIndex, action.targetPlayerIndex, node,
+            action.raidEffect === 'CAPTURE_PIECE')
+        : chooseCombatCommit(player.hand, atkBase, defBase + RAID_DEFENSE_MARGIN, COMBAT_COMMIT_MAX);
       const defCards = defender ? chooseCombatCommit(defender.hand, defBase, atkBase, 1) : [];
       try {
         actionResult = executeRaid(

@@ -19,7 +19,7 @@
 
 import type { GameEvent } from './events.js';
 import type { GameState } from './types.js';
-import { FORGE_WEIGHT, getTunables } from './tunables.js';
+import { FORGE_WEIGHT, RAID_DEFENSE_MARGIN, COMBAT_COMMIT_MAX, getTunables } from './tunables.js';
 import { applyPushback } from './blight.js';
 import { addGrudge } from './shadowking-policy.js';
 import { flipDiscoveryToken } from './discovery.js';
@@ -342,6 +342,48 @@ export function chooseCombatCommit(
   }
   if (sum >= need) return chosen;
   return [sorted[0]]; // can't win — commit the best single card, not the whole hand
+}
+
+/**
+ * The attacker's card commit for a RAID, sized by INTENT (§5.2, Stage 5a — captures
+ * rare-but-dramatic). The single source of truth shared by the reducer (which actually
+ * executes the RAID) and the AI's `predictRaidMargin` (which checks the capture gate) —
+ * keeping them MIRRORED is what makes a margin-gated CAPTURE election throw-safe.
+ *
+ *   • A TAKE_LAND/ROUT raid sizes to barely beat the defender's BASE + `RAID_DEFENSE_MARGIN`
+ *     (the pre-5a behaviour) — a thin win is enough to take land or rout.
+ *   • A CAPTURE raid sizes to clear the standing-scaled `effectiveCaptureMargin` against the
+ *     defender's REAL first-exchange defense (best single card + standing/Steward grade). The
+ *     4b note: a barely-won RAID never clears the capture margin, so without this up-sizing the
+ *     AI essentially never gets to elect CAPTURE. Capped at `COMBAT_COMMIT_MAX`; when the hand
+ *     can't reach the bar `chooseCombatCommit` returns a non-clearing commit and the gate (and
+ *     the AI's predicted-margin check) simply rejects the capture — never a throw.
+ *
+ * Pure `f(state)`.
+ */
+export function chooseRaidAttackCommit(
+  state: GameState,
+  attackerSeat: number,
+  defenderSeat: number,
+  nodeId: string,
+  capture: boolean,
+): number[] {
+  const atkBase = getPlayerPowerAtNode(state, attackerSeat, nodeId);
+  const defBase = getPlayerPowerAtNode(state, defenderSeat, nodeId);
+  const hand = state.players[attackerSeat].hand;
+  if (!capture) {
+    return chooseCombatCommit(hand, atkBase, defBase + RAID_DEFENSE_MARGIN, COMBAT_COMMIT_MAX);
+  }
+  // Capture intent: beat the defender's actual first-exchange defense by the capture margin.
+  const defCards = chooseCombatCommit(state.players[defenderSeat].hand, defBase, atkBase, 1);
+  const defBest = defCards.reduce((s, v) => s + v, 0);
+  const defenseBonus =
+    trailingDefenseBonus(state, attackerSeat, defenderSeat) +
+    stewardHomeDefenseBonus(state, defenderSeat, nodeId);
+  const defPower = defBase + defBest + defenseBonus;
+  const margin = effectiveCaptureMargin(state, attackerSeat);
+  // Want atkPower ≥ defPower + margin; chooseCombatCommit makes atkPower > targetPower.
+  return chooseCombatCommit(hand, atkBase, defPower + margin - 1, COMBAT_COMMIT_MAX);
 }
 
 /**
