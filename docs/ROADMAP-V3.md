@@ -26,11 +26,14 @@ built a turtle meta; two new subsystems were non-deterministic). Those fixes are
 > - `docs/handoff/state.json` stays pointed at the **v2** status until the v3 code sprint opens its own
 >   stage (see §7).
 
-**Immediate next action:** **Stage V3-3i (UI port)**, then **Stage V3-4 (sim harness)**. The v3 **ENGINE is
-feature-complete** — Stages V3-3a→3h all DONE, built by two orchestrated sub-agent pipeline runs (each stage
-codes+tests+commits on green; a red stage halts). Verified independently after each run: typecheck PASS, lint
-PASS, determinism clean, **v3 = 497 tests green**, **v2 = 451 still green**. What remains: 3i (UI), then
-re-point the sim harness (V3-4) and re-validate balance from scratch (V3-5).
+**Immediate next action:** **Stage V3-5 (balance) — but two findings need a DESIGN CALL first** (see §8
+2026-06-27 V3-4 baseline). The v3 **ENGINE is feature-complete and the sim runs** (Stages V3-3a→3h + V3-4
+all DONE; `npm run sim:v3`). Verified: typecheck PASS, determinism clean, **v3 = 510 tests green**, **v2 =
+451 green**; all games terminate at 2/3/4p + both modes. The untuned baseline (sim-results/sample-v3/REPORT.md)
+surfaced two issues that are likely **structural, not pure tuning**: (1) the dark wins ~76% by **attrition**,
+not by ashing the Keystone (doom only 6.1% of games) — inverts design pillar #1 "doom is the map"; (2) the
+**capture/ransom economy fires ~0** (0.01/game) — the marquee redesign mechanic is effectively dead in sim.
+3i (UI) still pending after balance.
 
 **Recorded debt (resolve-or-record, from the 3a/3b sub-agents):** `data/tunables.json` + `data/archetypes.json`
 still list the removed Broken/Rescue levers (`rescueWillingness` etc.) — **inert** (the engine reads the cleaned
@@ -210,6 +213,25 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-06-27** — **Stage V3-4 COMPLETE — sim re-pointed + FIRST DIAGNOSTIC BASELINE** (commits
+  `6ac25a1`/`3d6acaf`/`44f92f6`; baseline at `sim-results/sample-v3/REPORT.md`, 4200 games untuned, **NO
+  tuning** — the v3 Stage-5a equivalent). `npm run sim:v3` works; v3 510 tests green, v2 451 green.
+  **Headline (untuned):** dark win **25.2%** (band 18–22, too STRONG; per-count 2p 17.2 / 3p 31.5 / 4p 26.9),
+  rounds 10.4 ✅, gambit-fire 33.4% (too HIGH), gambler archetype 42.3% (dominance guard FAIL). Endings:
+  last_standing 28.7% / territory 26.7% / gambit 19.4% / attrition 19.1% / doom 6.1%. Dead-time OK (0 Whisper
+  deposals, early-death 7.8%, mean earliest deposal r9.7/14). Comeback 65.1% (tips AWAY from snowball — not a
+  turtle/snowball problem). **The V3-5 target list, prioritized:**
+  1. **DESIGN CALL — the doom/attrition inversion** (highest): the dark wins **75.7% of its wins by attrition**,
+     doom_complete only 6.1% of games — design pillar #1 ("doom is the map") is bypassed by the elimination /
+     Reckoning auto-pressure killing the table before the Blight reaches the Keystone. Decide: accept a
+     knockout-centric v3 (tune the dark to band, attrition stays primary) vs. restore doom-as-primary (weaken
+     auto-pressure so the Blight→Keystone race is the dark's main win). Likely structural, not pure tuning.
+  2. **Capture/ransom ~0** (0.01/game): the marquee mechanic is dead in sim — structural per 4b (a RAID needs
+     rival-Warlord + rival-retinue + attacker co-located, and a barely-win commit rarely clears `CAPTURE_MARGIN`).
+     Fix via `CAPTURE_MARGIN`/commit tuning + AI positioning; may need an engine look.
+  3. Dark too strong at 3p/4p → tune down to 18–22 (intertwined with #1).
+  4. Gambit too easy (fire 33.4%, gambler 42.3%) → raise the seize gate / surcharge.
+  5. Blood-Pact traitor win 0% (doom path starved by #1) — deferred to a v3 5e-equivalent; helped by fixing #1.
 - **2026-06-27** — **Stages V3-3d→3h COMPLETE — the v3 ENGINE is feature-complete** (commits
   `7b3fdb6`/`56a4199`/`e60f45c`/`a4811f9`/`5709c92`, second sub-agent pipeline run). **Independently verified:**
   `tsc --noEmit` PASS, `eslint src/v3 tests/v3` PASS, no real `Math.random`/`Date.now`/`: any` in `src/v3`,
