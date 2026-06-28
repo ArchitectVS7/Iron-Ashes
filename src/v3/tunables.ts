@@ -49,8 +49,13 @@ export const DK_POWER = TUNABLES_DATA.DK_POWER;
 /** Combat power of a Blight token (static, blocking). */
 export const BLIGHT_POWER = TUNABLES_DATA.BLIGHT_POWER;
 
-/** Blight level at which a node becomes permanently ashed. */
-export const BLIGHT_TO_ASH = TUNABLES_DATA.BLIGHT_TO_ASH;
+/** Blight level at which a node becomes permanently ashed.
+ *  Stage V3-5b LOCKED 3 → 2 (v3-native literal, NOT the v2 JSON value — recorded debt: v3 has no
+ *  JSON gen-path yet, so the retune lives as a src/v3 literal; v2/data still read 3). With the
+ *  Reckoning executioner disabled (RECKONING_AUTOPRESSURE_NODES=0), nodes must ash one Dawn faster
+ *  so the steady Blight march reaches the Keystone before the round cap — this is the lever that
+ *  RAISES the doom_complete share (6.1% → ~15% of games). Pairs with SPREAD_AMOUNT_BASE 7→3. [TUNABLE] */
+export const BLIGHT_TO_ASH = 2;
 
 /** Blight-level reduction when a Death Knight is killed or a Forge reclaimed. */
 export const PUSHBACK = TUNABLES_DATA.PUSHBACK;
@@ -170,8 +175,13 @@ export const DAWN_BLIGHT_ADVANCE = TUNABLES_DATA.DAWN_BLIGHT_ADVANCE;
  * Parley pushback + deep-hand political pledging) weakened the dark, so SPREAD was raised
  * to compensate — Stage H needed 7 to recover SK-win to ~20% with Heralds active (2-seed
  * stable). See stage5-tuning-log.md §oaths/§herald.
- */
-export const SPREAD_AMOUNT_BASE = TUNABLES_DATA.SPREAD_AMOUNT_BASE;
+ * Stage V3-5b LOCKED 7 → 3 (v3-native literal, NOT the v2 JSON value — recorded debt, as
+ * BLIGHT_TO_ASH above). With the Reckoning executioner OFF, a high strike-spread was the
+ * remaining attrition pump (un-averted strikes ash player nodes → eliminations). Dropping it to
+ * 3 is the lever that CAPS attrition (share of dark wins 75.7% → ~27%) while the BLIGHT_TO_ASH=2
+ * Dawn march carries the doom path. It also flattens per-count (a hot spread over-killed at 4p):
+ * pooled SK lands ~21% with 2p/3p/4p all inside 16–24. See V3-5b report. [TUNABLE] */
+export const SPREAD_AMOUNT_BASE = 3;
 
 /** Extra banner cost to march through an ashed node (P0-3: traversable, not impassable). */
 export const ASHED_TRAVERSE_EXTRA_COST = TUNABLES_DATA.ASHED_TRAVERSE_EXTRA_COST;
@@ -297,8 +307,16 @@ export const STRIKEPOOL_CAP = 6;
  *  (§13 P0-4 decay). Keeps the pool from being a permanent death-fuelled ratchet. */
 export const STRIKEPOOL_DECAY = 1;
 /** Living strongholds the Reckoning auto-pressure strips from the most-production/least-engaged
- *  seat per Dawn (§6/§13 P0-5). The credible-executioner magnitude; the sim tunes it. */
-export const RECKONING_AUTOPRESSURE_NODES = 1;
+ *  seat per Dawn (§6/§13 P0-5). The credible-executioner magnitude; the sim tunes it.
+ *  Stage V3-5b LOCKED 1 → 0 (the load-bearing HYBRID lever): at 1 the auto-pressure was the
+ *  attrition executioner that wiped the table in Reckoning BEFORE the Blight reached the
+ *  Keystone — attrition was 75.7% of dark wins and doom_complete only 6.1% of games (pillar #1
+ *  inverted). Disabling it (the mechanic + injection path stay intact) cuts the table-wipe so
+ *  games run long enough for the doom clock to land: attrition share of dark wins 75.7% → ~27%,
+ *  doom-of-games 6.1% → ~15%, pooled SK 25.2% → ~21% (per-count flattened into 16–24). Attrition
+ *  is NOT eliminated — it persists via real combat/strike deposals (design call A: cap, don't
+ *  kill). Paired with BLIGHT_TO_ASH 3→2 + SPREAD_AMOUNT_BASE 7→3 below. See V3-5b report. [TUNABLE] */
+export const RECKONING_AUTOPRESSURE_NODES = 0;
 /** Extra grudge the Death-Curse fixes on its target for the rest of the game (§5.5). The Bequest
  *  (3f) APPLIES it; 3e exposes the targeting rule (`deathCurseTarget`). */
 export const CURSE_GRUDGE = 3;

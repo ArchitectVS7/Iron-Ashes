@@ -148,6 +148,9 @@ describe('Stage 3e — elimination feeds the dark + the wraith afterlife (§5.5,
 // ─── Reckoning auto-pressure (§6 / §13 P0-5/P0-6) ─────────────────
 
 describe('Stage 3e — Reckoning auto-pressure targeting (§13 P0-5/P0-6)', () => {
+  // NB (Stage 5b): the SHIPPED default RECKONING_AUTOPRESSURE_NODES is now 0 (the executioner is
+  // disabled by default — see tunables.ts §5b), so the mechanic tests inject NODES:1 explicitly to
+  // exercise the still-present code path.
   it('strips the MOST-PRODUCTION seat first (a non-Keep stronghold), marking it dark-caused', () => {
     const s = createGame(3, 'competitive', 5);
     s.act = 'RECKONING';
@@ -156,7 +159,7 @@ describe('Stage 3e — Reckoning auto-pressure targeting (§13 P0-5/P0-6)', () =
     s.board.state.nodes[h[1]].owner = 1;
     const before = livingStrongholdCount(s, 1);
 
-    const events = applyReckoningAutoPressure(s);
+    const events = withTunables({ RECKONING_AUTOPRESSURE_NODES: 1 }, () => applyReckoningAutoPressure(s));
 
     expect(livingStrongholdCount(s, 1)).toBe(before - 1);     // one holding ashed
     expect(s.players[1].lastStripByDark).toBe(true);
@@ -186,7 +189,7 @@ describe('Stage 3e — Reckoning auto-pressure targeting (§13 P0-5/P0-6)', () =
     const s = createGame(2, 'competitive', 9);
     s.act = 'RECKONING';
     // Both hold only their Keep (tie on production + grudge) → lowest seat 0 is targeted.
-    applyReckoningAutoPressure(s);
+    withTunables({ RECKONING_AUTOPRESSURE_NODES: 1 }, () => applyReckoningAutoPressure(s));
     expect(s.players[0].deposed).toBe(true);
     expect(s.players[0].lastStripByDark).toBe(true);
     // The Keep is NOT ashed yet — that happens at resolveDeposals once the seat is eliminated.
@@ -197,7 +200,9 @@ describe('Stage 3e — Reckoning auto-pressure targeting (§13 P0-5/P0-6)', () =
     const s = createGame(2, 'competitive', 21);
     s.act = 'RECKONING';
     // Reduce both to only their Keep so a single Dawn of pressure + the zero-stronghold rule bites.
-    const { state: after } = runDawnPhase(s, new SeededRandom(21));
+    // Inject NODES:1 — Stage 5b ships the executioner OFF by default (hybrid doom/attrition).
+    const { state: after } = withTunables(
+      { RECKONING_AUTOPRESSURE_NODES: 1 }, () => runDawnPhase(s, new SeededRandom(21)));
     // At least one seat is pressured/eliminated this Dawn (deterministic; the exact end may be
     // last_standing or attrition depending on seat order, but the dark is now a credible executioner).
     expect(after.players.some(p => p.isEliminated || p.deposed)).toBe(true);

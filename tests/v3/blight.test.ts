@@ -31,7 +31,7 @@ import {
   isKeystoneAshed,
   resolveStrike,
 } from '../../src/v3/blight.js';
-import { BLIGHT_TO_ASH, ACT_THRESHOLDS, SPREAD_AMOUNT_BASE } from '../../src/v3/tunables.js';
+import { BLIGHT_TO_ASH, ACT_THRESHOLDS, SPREAD_AMOUNT_BASE, withTunables } from '../../src/v3/tunables.js';
 import type { GameState } from '../../src/v3/types.js';
 
 describe('Blight System', () => {
@@ -113,8 +113,12 @@ describe('Blight System', () => {
 
   describe('applyPushback()', () => {
     it('reduces blightLevel', () => {
-      advanceBlightOnNode(state, 'holding-ne', 2, 'strike');
-      applyPushback(state, 'holding-ne', 1);
+      // Inject BLIGHT_TO_ASH=3 so blight=2 stays below the ash threshold (Stage 5b ships ASH=2,
+      // at which level 2 would ash the node and pin it — this test exercises pushback on a live node).
+      withTunables({ BLIGHT_TO_ASH: 3 }, () => {
+        advanceBlightOnNode(state, 'holding-ne', 2, 'strike');
+        applyPushback(state, 'holding-ne', 1);
+      });
       expect(state.board.state.nodes['holding-ne'].blightLevel).toBe(1);
     });
 

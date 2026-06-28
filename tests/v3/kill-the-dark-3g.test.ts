@@ -143,9 +143,10 @@ describe('Stage 3g — ASSAULT_HEART accrues hits and liveness suppresses auto-p
     expect(s.shadowking.heartAssaultLiveThisRound).toBe(true);
 
     // Live → no auto-pressure. Flip the flag off → the dark strips again (the executioner).
-    expect(applyReckoningAutoPressure(s)).toEqual([]);
+    // NB: Stage 5b ships RECKONING_AUTOPRESSURE_NODES=0 by default; inject 1 to exercise the strip.
+    expect(withTunables({ RECKONING_AUTOPRESSURE_NODES: 1 }, () => applyReckoningAutoPressure(s))).toEqual([]);
     s.shadowking.heartAssaultLiveThisRound = false;
-    expect(applyReckoningAutoPressure(s).length).toBeGreaterThan(0);
+    expect(withTunables({ RECKONING_AUTOPRESSURE_NODES: 1 }, () => applyReckoningAutoPressure(s)).length).toBeGreaterThan(0);
   });
 });
 

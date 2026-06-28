@@ -50,7 +50,7 @@ describe('tunable seam', () => {
     expect(doomCost('WHISPER', 3)).toBe(5);    // pivot: ceil(6*3/4 + 0)
     expect(doomCost('WHISPER', 4)).toBe(12);   // ceil(6*4/4 + 6*1) = 6 + 6
     expect(doomCost('RECKONING', 4)).toBe(18); // ceil(12*4/4 + 6*1) = 12 + 6
-    expect(getTunables().SPREAD_AMOUNT_BASE).toBe(7); // 5c 5 → 5-dark 4 → Oaths 5 → Herald 7 → A 6 → HL 7
+    expect(getTunables().SPREAD_AMOUNT_BASE).toBe(3); // …→ HL 7 → V3-5b 3 (hybrid doom/attrition: low strike-spread cuts attrition)
   });
 
   it('deathKnightCount scales the dark army with player count when DK_PER_PLAYER>0', () => {
