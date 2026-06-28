@@ -213,6 +213,14 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-06-28** — **V3-5 DESIGN DIRECTION SET (user call).** (1) Doom/attrition inversion → **HYBRID**: tune so
+  doom and attrition are co-primary (target **attrition ≤ ~40% of dark wins**, doom share up from 6.1%) — keep the
+  knockout stakes without burying the Keystone race; the main lever is weakening the Reckoning auto-pressure /
+  elimination tempo (which both lowers dark-win AND lets games run long enough for the Blight to reach the
+  Keystone). (2) Capture economy → **RARE BUT DRAMATIC**: fire a few times a game (**target ~0.5–2 captures/game**,
+  up from 0.01) via `CAPTURE_MARGIN`/win-commit + a modest AI positioning nudge — a real scene, not a dominant loop.
+  **V3-5 bands:** dark 18–22 pooled (from 25.2) + credible per-count 16–24; attrition ≤40% of SK-wins; gambit-fire
+  10–20 (from 33.4) + no archetype >30% (gambler is 42.3); rounds 10–16; dead-time low (hold). Blood-Pact 5e deferred.
 - **2026-06-27** — **Stage V3-4 COMPLETE — sim re-pointed + FIRST DIAGNOSTIC BASELINE** (commits
   `6ac25a1`/`3d6acaf`/`44f92f6`; baseline at `sim-results/sample-v3/REPORT.md`, 4200 games untuned, **NO
   tuning** — the v3 Stage-5a equivalent). `npm run sim:v3` works; v3 510 tests green, v2 451 green.
