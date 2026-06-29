@@ -147,6 +147,51 @@ describe('Gambit System', () => {
       expect(result.outcome).toBe('gambit_victory');
       expect(state.winner).toBe(0);
     });
+
+    // ── Win-gate (Stage 5h, §6): no conversion while the dark's heart is exposed at the Keystone ──
+    it('does NOT declare a Gambit while the heart is exposed at the Keystone', () => {
+      const ks = state.board.definition.keystoneId;
+      state.players[0].warlordNodeId = ks;
+      state.gambit = { claimant: 0, declaredRound: 0, named: false };
+      state.shadowking.heart = {
+        nodeId: ks, hp: 12, exposed: true, committedBySeat: [0, 0, 0, 0], raidLeader: null,
+      };
+
+      const result = evaluateGambitAtDawn(state);
+      // Stalled, not declared — the throne can't be claimed over a beating heart.
+      expect(state.gambit!.named).toBe(false);
+      expect(state.gameEndReason).not.toBe('gambit_victory');
+      expect(result.events.some(e =>
+        e.type === 'PLAYER_ACTED' && 'gambitStalled' in (e as { details: Record<string, unknown> }).details
+      )).toBe(true);
+    });
+
+    it('does NOT award Gambit victory while the heart is exposed at the Keystone', () => {
+      const ks = state.board.definition.keystoneId;
+      state.players[0].warlordNodeId = ks;
+      state.gambit = { claimant: 0, declaredRound: 1, named: true };
+      state.shadowking.heart = {
+        nodeId: ks, hp: 6, exposed: true, committedBySeat: [0, 0, 0, 0], raidLeader: null,
+      };
+
+      const result = evaluateGambitAtDawn(state);
+      expect(result.outcome).not.toBe('gambit_victory');
+      expect(state.winner).toBeNull();
+    });
+
+    it('awards Gambit victory once the heart is broken (no longer exposed)', () => {
+      const ks = state.board.definition.keystoneId;
+      state.players[0].warlordNodeId = ks;
+      state.gambit = { claimant: 0, declaredRound: 1, named: true };
+      // Heart at 0 HP, no longer exposed — the gate lifts.
+      state.shadowking.heart = {
+        nodeId: ks, hp: 0, exposed: false, committedBySeat: [0, 0, 0, 0], raidLeader: 0,
+      };
+
+      const result = evaluateGambitAtDawn(state);
+      expect(result.outcome).toBe('gambit_victory');
+      expect(state.winner).toBe(0);
+    });
   });
 
   describe('getEffectivePledgeWeight()', () => {

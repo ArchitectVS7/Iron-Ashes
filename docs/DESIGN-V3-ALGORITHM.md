@@ -300,7 +300,16 @@ Check order fixed and deterministic; **loss preempts win**; all snapshots post-e
 - **Last Warlord standing** *(new, from elimination)* — one living Warlord remains → that player wins
   (subject to loss-preempt).
 - **Territory** *(as v2)* — most living production at `ROUND_CAP`.
-- **The Crown's Gambit** *(as v2 §6)* — hold the Keystone the named round.
+- **The Crown's Gambit** *(as v2 §6)* — hold the Keystone the named round. **Heart win-gate
+  (Stage 5h, §5.6):** the throne cannot be claimed while the dark's HEART still beats beneath it —
+  while the heart is **exposed at the Keystone** (its HP > 0 in Reckoning), a Gambit can neither be
+  **declared** (named) nor **converted** to a win; the claimant merely garrisons a contested
+  crossing. This removes the *incidental* throne-wins of heart-assaulters who sit the Keystone to
+  break the heart (the heart/Keystone conflation): to take the throne in Reckoning you must first
+  **Kill the Dark**, whose collapse displaces the raid force off the crossing (§13 P0-7) and opens
+  the post-dark scramble. A Gambit that converts **before** Reckoning (the heart has not yet risen)
+  or **after** the dark falls is unaffected — so the deliberate Gambit stays a live, special play
+  while the cheap incidental win is gone.
 - **Kill the Dark → the scramble** *(new, §5.6)* — slaying the dark removes the loss clock and triggers the
   short two-act resolution; the *winner* is whoever wins that resolution, not automatically the raid-leader.
 

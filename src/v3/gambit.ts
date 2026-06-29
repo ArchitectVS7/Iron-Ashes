@@ -134,6 +134,24 @@ export function evaluateGambitAtDawn(
     return { outcome: 'collapsed', events };
   }
 
+  // Win-gate (§6, Stage 5h): the throne cannot be claimed while the dark's HEART still beats
+  // beneath it. While the heart is EXPOSED at the Keystone (Reckoning, §5.6), a Gambit can neither
+  // be DECLARED nor CONVERTED — the claimant merely garrisons a contested crossing. This removes
+  // the INCIDENTAL throne-wins of heart-assaulters who sit the Keystone to break the heart (the
+  // heart/Keystone conflation): to take the throne in Reckoning you must first KILL the dark, which
+  // displaces the raid force off the crossing (§13 P0-7) and opens the post-dark scramble. A Gambit
+  // that converts BEFORE Reckoning (the heart has not yet risen) or AFTER the dark falls is unaffected.
+  const heart = state.shadowking.heart;
+  if (heart !== null && heart.exposed && heart.hp > 0 && heart.nodeId === keystoneId) {
+    events.push({
+      type: 'PLAYER_ACTED',
+      playerIndex: claimant,
+      action: 'PASS',
+      details: { gambitStalled: true, reason: 'heart_exposed' },
+    });
+    return { outcome: 'declared', events };
+  }
+
   // If the Gambit was already named (declared last Dawn), check for victory
   if (state.gambit.named) {
     // Check: traitor cannot win the Gambit
