@@ -124,6 +124,16 @@ export interface SweepDiagnostics {
   readonly gambitDeliberateConversionNoGambler: number;
   /** Gambler-free top per-seat archetype win rate (Q2 — is dominance gambler-driven?). */
   readonly topArchetypeWinRateNoGambler: number;
+  /** Stage 5i (cooperator-dominance investigation): the gambler-free per-seat win rate of `baseline`
+   *  alone. `baseline` is the engine DEFAULT_AI_POLICY that ALSO fills every `oneVsField` filler seat,
+   *  so it is structurally over-represented as "the field" — this isolates how much of the gambler-free
+   *  dominance breach is the neutral default rather than a deliberately-chosen strategy. */
+  readonly baselineWinRateNoGambler: number;
+  /** Stage 5i: the TOP deliberately-chosen STRATEGY archetype (excludes both `gambler` and the
+   *  `baseline` default) gambler-free, by per-seat win rate — and its id. The cooperator is the top
+   *  strategy here; this surfaces whether ANY chosen strategy actually breaches the 30% guard. */
+  readonly topStrategyArchetypeNoGambler: ArchetypeId | null;
+  readonly topStrategyWinRateNoGambler: number;
   /** End-Act distribution (which Act games finish in). */
   readonly perActEnd: Readonly<Record<string, number>>;
   /** Primary metrics split by player count (strictness check). */
@@ -341,6 +351,17 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
   for (const [id, ap] of ngAppear) {
     if (ap >= ngMinAppear) topArchetypeWinRateNoGambler = Math.max(topArchetypeWinRateNoGambler, (ngWins.get(id) ?? 0) / ap);
   }
+  // Stage 5i: split the gambler-free dominance into the neutral DEFAULT (`baseline`, also the
+  // oneVsField filler) vs the top deliberately-CHOSEN strategy — the cooperator-investigation lens.
+  const baselineNgAppear = ngAppear.get('baseline') ?? 0;
+  const baselineWinRateNoGambler = baselineNgAppear ? (ngWins.get('baseline') ?? 0) / baselineNgAppear : 0;
+  let topStrategyArchetypeNoGambler: ArchetypeId | null = null;
+  let topStrategyWinRateNoGambler = 0;
+  for (const [id, ap] of ngAppear) {
+    if (id === 'baseline' || ap < ngMinAppear) continue;
+    const wr = (ngWins.get(id) ?? 0) / ap;
+    if (wr > topStrategyWinRateNoGambler) { topStrategyWinRateNoGambler = wr; topStrategyArchetypeNoGambler = id; }
+  }
 
   const diagnostics: SweepDiagnostics = {
     eliminationsPerGame: mean(rows.map(r => r.metrics.eliminations)),
@@ -376,6 +397,9 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
     gambitDeliberateConversionNoGambler: gambitFireDeliberateNoGambler > 0
       ? gambitWinDeliberateNoGambler / gambitFireDeliberateNoGambler : 0,
     topArchetypeWinRateNoGambler,
+    baselineWinRateNoGambler,
+    topStrategyArchetypeNoGambler,
+    topStrategyWinRateNoGambler,
     perActEnd,
     perCount,
 
@@ -604,6 +628,8 @@ ${countRows}
 | Gambler-free Gambit WIN / DELIBERATE-WIN rate | ${pct(d.gambitWinRateNoGambler)} / ${pct(d.gambitWinDeliberateNoGambler)} | does it fire a lot but win rarely? |
 | Deliberate conversion (win / deliberate-fire) | ${pct(d.gambitDeliberateConversionNoGambler)} | Q3 — deliberate fire that actually converts to a Gambit win |
 | Top archetype win rate — gambler-free | ${pct(d.topArchetypeWinRateNoGambler)} | Q2 — is the dominance FAIL gambler-driven? (vs ${pct(d.topArchetypeWinRate)} with gambler) |
+| 5i: baseline (default/field-filler) win rate — gambler-free | ${pct(d.baselineWinRateNoGambler)} | the gambler-free breach is the NEUTRAL DEFAULT, structurally over-weighted as the oneVsField filler — not a chosen strategy |
+| 5i: top CHOSEN strategy — gambler-free | ${d.topStrategyArchetypeNoGambler ?? 'n/a'} @ ${pct(d.topStrategyWinRateNoGambler)} | best deliberately-picked strategy (excl. baseline+gambler); under the ${pct(ARCHETYPE_WINRATE_GUARD)} guard ⇒ cooperator dominance is a pairwise artifact |
 
 ## End Act
 | Act | Count | Share |
