@@ -26,14 +26,16 @@ built a turtle meta; two new subsystems were non-deterministic). Those fixes are
 > - `docs/handoff/state.json` stays pointed at the **v2** status until the v3 code sprint opens its own
 >   stage (see §7).
 
-**Immediate next action:** **V3-5 WAVE 3** (one user gambit-fix call + the newly-found cooperator-dominance
-item). Waves 1–2 landed the core (2-seed stable): dark 21.3/20.1%, attrition 26/28% of dark-wins, doom
-15.7/14.6%, rounds 10.9; **captures loosened → 0.34/game** (2.1×, rare-but-dramatic); core bands HOLD.
-**Wave-2's key finding (5f):** the gambit "40% fire" is mostly **incidental** Keystone occupation — the
-**deliberate** claim rate is ~16.3%, already IN band. The §9 gambit FAIL is largely a measurement artifact;
-the real issues are (a) the **heart spawns ON the Keystone**, so heart-assaulters incidentally win the
-gambit (~10.6pp of cheap wins), and (b) the no-dominance fail is **partly the COOPERATOR (~34%)**, not just
-the gambler. Engine green: v3 513 tests, v2 451. Blood-Pact traitor hot 34% still deferred (5e-equivalent). The v3 **ENGINE is feature-complete and the sim runs** (Stages V3-3a→3h + V3-4
+**Immediate next action:** confirm the **dominance-guard framing** (Option A, below — recommended) → then
+**Blood-Pact 5e-equivalent re-tune** and **3i UI port**. **v3 COMPETITIVE BALANCE is essentially LOCKED,
+2-seed stable** (after V3-5 waves 1–3): dark 21.4/20.7% in band (per-count 16–24 credible), attrition 26/30%
+of dark-wins, doom 15.7/14.5% (co-primary), captures 0.35/0.36 (rare-but-dramatic), rounds 11.3, free-rider
++ termination OK. **5h gambit win-gate** (no declare/convert while the dark heart sits the Keystone) removed
+the ~10.6pp incidental throne-wins → gambit_victory 23→10%, deliberate fire ~18% (in band), conversion 26→12%,
+dark stayed flat (no compensation needed). **5i proved the no-dominance "fail" is an ARTIFACT:** gambler-free
+the top is BASELINE (33%, a oneVsField-filler over-representation); the top *chosen strategy* is the cooperator
+at **27.5% — already under the 30% guard**. Engine green: v3 516, v2 451. Remaining v3: dominance framing,
+Blood-Pact 5e (traitor hot 34%), 3i UI, V3-6 playtest. The v3 **ENGINE is feature-complete and the sim runs** (Stages V3-3a→3h + V3-4
 all DONE; `npm run sim:v3`). Verified: typecheck PASS, determinism clean, **v3 = 510 tests green**, **v2 =
 451 green**; all games terminate at 2/3/4p + both modes. The untuned baseline (sim-results/sample-v3/REPORT.md)
 surfaced two issues that are likely **structural, not pure tuning**: (1) the dark wins ~76% by **attrition**,
@@ -219,6 +221,23 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-06-29** — **V3-5 TUNING WAVE 3 (2-seed validated; commits `66c785c`/`53d4e4a`/`e417b4b`) — COMPETITIVE
+  BALANCE ESSENTIALLY LOCKED.** **5h gambit WIN-gate** (user Option B): a Crown's Gambit can be neither declared
+  nor converted while the dark's heart is exposed at the Keystone (the heart spawns ON the Keystone, so
+  ASSAULT_HEART convergers were winning the throne by accident). Result (gambler-free, 2-seed): total gambit win
+  15.5→2.3/2.4%, **incidental cheap wins ~11pp → ~0.1pp (GONE)**, deliberate fire preserved ~18% (in 10-20 band),
+  conversion 26→12% (a rare special play); gambit_victory share 23.4→10.5%; gambler 45→40%. **No dark compensation
+  needed** — removed wins flowed to territory, not doom/attrition, so dark stayed flat 21.4% (the rule change is
+  in `gambit.ts` `evaluateGambitAtDawn`; spec §6 updated). **5i cooperator investigation (diagnosis only):
+  PREMISE CORRECTED** — gambler-free the 30%-guard breach is BASELINE (33.4%, a oneVsField filler
+  over-representation + weak strategy-bots), NOT the cooperator (25.5–27.5%, already under the guard). The
+  cooperator's edge is a pairwise stress-bot ARTIFACT (it crushes weak bots, loses to baseline 1.3%; wins 98% by
+  outlasting the self-eliminating aggressor; its territory is *below* field; oath levers are NOT the cause —
+  banners are only the 3rd tiebreak). **Fix options (user call): A (RECOMMENDED, zero-risk) — judge the guard on
+  the top deliberately-CHOSEN strategy, excluding baseline filler (analogous to gambler-free) → cooperator 27.5%
+  PASSES; B — buff the under-tuned aggressor via the sim override layer so round-robins tighten (cooperator −3-5pp,
+  no engine lever); C — real lever nerf, NOT recommended.** 5j: all 8 core bands HOLD 2-seed; report refreshed.
+  **Remaining v3: dominance framing → Blood-Pact 5e re-tune (traitor hot 34%) → 3i UI port → V3-6 playtest.**
 - **2026-06-29** — **V3-5 TUNING WAVE 2 (2-seed validated; commits `4710372`/`7bd4104`/`383a962`).** **5e
   loosened the capture rule** (a winning RAID may capture a co-located rival retainer even without its Warlord
   present; all other brakes intact) → captures **0.16→0.34/game** (2.1×, the rare-but-dramatic feel) and **all
