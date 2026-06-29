@@ -26,12 +26,14 @@ built a turtle meta; two new subsystems were non-deterministic). Those fixes are
 > - `docs/handoff/state.json` stays pointed at the **v2** status until the v3 code sprint opens its own
 >   stage (see §7).
 
-**Immediate next action:** **V3-5 balance WAVE 2** (after two user design calls — captures-ceiling +
-gambit-approach; see §8 2026-06-28 wave-1). Wave 1 LANDED THE CORE: dark 20.7/19.4% in band (2-seed),
-attrition capped to 27/31% of dark-wins, doom share 15/13% (up from 6.1) — **pillar #1 restored, hybrid
-met.** Remaining 2-seed-stable misses → wave 2: gambit-fire 40% (too high) + gambler dominance 43–46%;
-captures stuck at ~0.17/game (structural — retainer supply capped by 4 token-Holdings); Blood-Pact traitor
-hot 32–34% (deferred 5e). Engine green: v3 510 tests, v2 451. The v3 **ENGINE is feature-complete and the sim runs** (Stages V3-3a→3h + V3-4
+**Immediate next action:** **V3-5 WAVE 3** (one user gambit-fix call + the newly-found cooperator-dominance
+item). Waves 1–2 landed the core (2-seed stable): dark 21.3/20.1%, attrition 26/28% of dark-wins, doom
+15.7/14.6%, rounds 10.9; **captures loosened → 0.34/game** (2.1×, rare-but-dramatic); core bands HOLD.
+**Wave-2's key finding (5f):** the gambit "40% fire" is mostly **incidental** Keystone occupation — the
+**deliberate** claim rate is ~16.3%, already IN band. The §9 gambit FAIL is largely a measurement artifact;
+the real issues are (a) the **heart spawns ON the Keystone**, so heart-assaulters incidentally win the
+gambit (~10.6pp of cheap wins), and (b) the no-dominance fail is **partly the COOPERATOR (~34%)**, not just
+the gambler. Engine green: v3 513 tests, v2 451. Blood-Pact traitor hot 34% still deferred (5e-equivalent). The v3 **ENGINE is feature-complete and the sim runs** (Stages V3-3a→3h + V3-4
 all DONE; `npm run sim:v3`). Verified: typecheck PASS, determinism clean, **v3 = 510 tests green**, **v2 =
 451 green**; all games terminate at 2/3/4p + both modes. The untuned baseline (sim-results/sample-v3/REPORT.md)
 surfaced two issues that are likely **structural, not pure tuning**: (1) the dark wins ~76% by **attrition**,
@@ -217,6 +219,20 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-06-29** — **V3-5 TUNING WAVE 2 (2-seed validated; commits `4710372`/`7bd4104`/`383a962`).** **5e
+  loosened the capture rule** (a winning RAID may capture a co-located rival retainer even without its Warlord
+  present; all other brakes intact) → captures **0.16→0.34/game** (2.1×, the rare-but-dramatic feel) and **all
+  wave-1 core bands HOLD** (dark 21.3/20.1, attrition 26/28%, doom 15.7/14.6, rounds 10.9, per-count credible)
+  with no compensating nudge. **5f gambit investigation (diagnosis only — added a deliberate/incidental metric
+  split, byte-identical):** the headline ~39% gambit-fire is **~57% incidental** Keystone occupation; the
+  **deliberate** claim rate is **~16.3%, already IN the 10–20% band**. Root cause of the incidental: the
+  **dark's heart spawns ON the Keystone** (heart.ts), so ASSAULT_HEART convergers occupy the Keystone, get
+  named, and win the gambit without a deliberate claim (~10.6pp of cheap incidental wins dominate the ~15%
+  total gambit wins). The **no-dominance fail is PARTLY non-gambit**: removing the gambler drops top-archetype
+  45→~34.5%, still >30% — the gambler-free top is the **COOPERATOR (~34%)**. **Open → wave 3:** gambit fix =
+  A1 judge-on-deliberate (metric, zero-risk) vs A2 block incidental gambit wins (rule; fixes the heart/Keystone
+  conflation) vs B win-gate (higher SK risk); PLUS the separate cooperator dominance (investigate like 5f).
+  5g: all 5 core bands 2-seed stable; report refreshed.
 - **2026-06-28** — **V3-5 TUNING WAVE 1 (2-seed validated; commits `bf396ac`/`f071719`/`a215461`; 5c made no
   change — honest).** **Core objective LANDED:** 5b disabled the Reckoning auto-pressure (`RECKONING_AUTOPRESSURE_NODES`
   1→0) + `BLIGHT_TO_ASH` 3→2 + `SPREAD_AMOUNT_BASE` 7→3 → dark win 25.2→**20.7/19.4%** (band, 2-seed stable),
