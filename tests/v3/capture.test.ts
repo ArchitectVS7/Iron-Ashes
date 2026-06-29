@@ -90,6 +90,37 @@ describe('Stage 3d — elect exactly one effect (§5.2)', () => {
   });
 });
 
+describe('Stage 5e — loosened co-location: capture a retainer with NO owner Warlord present (§5.2)', () => {
+  it('a winning, margin-clearing RAID CAPTURES an unguarded retainer whose Warlord is elsewhere', () => {
+    const s = arena();
+    // The defender's retainer sits at NODE, but its Warlord marches OFF the node entirely.
+    addCourtPiece(s, 1, 'marshal', NODE);
+    const ns = s.board.state.nodes[NODE];
+    ns.pieces = ns.pieces.filter(p => p.id !== 'warlord-1'); // pull the defender Warlord off
+    s.players[1].warlordNodeId = 'keep-1';
+    s.players[1].court[0].node = 'keep-1';
+    expect(s.players[1].warlordNodeId).not.toBe(NODE);
+
+    s.players[0].hand = [4, 4, 4];
+    const r = executeRaid(s, 0, 1, [4, 4, 4], [], { effect: 'CAPTURE_PIECE', targetPieceId: 'marshal-1-0' });
+    // The unguarded retainer is taken even though its Warlord was absent.
+    expect(s.captives.map(c => c.pieceId)).toEqual(['marshal-1-0']);
+    expect(r.state.board.state.nodes[NODE].pieces.some(p => p.id === 'marshal-1-0')).toBe(false);
+    expect(s.players[1].court.find(c => c.id === 'marshal-1-0')!.captiveOf).toBe(0);
+  });
+
+  it('a RAID against a seat with NO force at the node is still illegal (Warlord never directly capturable)', () => {
+    const s = arena();
+    const ns = s.board.state.nodes[NODE];
+    // Defender has neither Warlord nor retainer here.
+    ns.pieces = ns.pieces.filter(p => p.owner !== 1);
+    s.players[1].warlordNodeId = 'keep-1';
+    s.players[1].court[0].node = 'keep-1';
+    s.players[0].hand = [4, 4, 4];
+    expect(() => executeRaid(s, 0, 1, [4, 4, 4], [])).toThrow(/has no force at/);
+  });
+});
+
 describe('Stage 3d — capture margin gate rises with standing (§5.2/§13 P0-2)', () => {
   it('the production leader needs a strictly larger margin than a trailing seat', () => {
     const s = createGame(4, 'competitive', 11);

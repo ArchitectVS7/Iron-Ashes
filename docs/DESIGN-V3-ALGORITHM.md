@@ -211,6 +211,14 @@ attacker picks one            // never TAKE_LAND + CAPTURE together — one effe
   is **never** directly capturable; it can only be `deposed` by losing its last stronghold (§6). Capturing
   the *last non-Warlord piece* in a quadrant, then taking the Warlord's last stronghold, is the multi-turn
   siege path to elimination.
+- **Loosened co-location `[Stage 5e]`:** a RAID is legal whenever the defender has **any on-board piece**
+  at the node — the defender's Warlord need NOT be co-located. So a winning, margin-clearing RAID may
+  CAPTURE an **unguarded co-located retainer** (a Marshal/Steward sitting on a freshly-recruited Holding
+  while its Warlord is elsewhere). Every other brake is intact: the Warlord is never directly capturable
+  (deposal is §6-only); the standing-scaled `CAPTURE_MARGIN` gate; one-effect-per-combat; ROUT-as-tempo;
+  the captive guard cap; and Whisper last-retainer protection. The combat resolves on the defender's
+  power **at that node** (an unguarded retainer defends with little base power, so the margin gate is the
+  real cost — but the leader still needs the standing-scaled margin to seize one).
 - **Severity ramp (Blight-gated, replaces the act cliff):** in Whisper a RAID captures ≤1 non-Warlord and
   **cannot take a last stronghold**; in March, free; in Reckoning, the Warlord's last stronghold is
   reachable → depose. Gate on Blight level so the tide lowers protection table-wide together.

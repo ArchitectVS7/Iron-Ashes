@@ -457,10 +457,15 @@ export function executeRaid(
   const player = state.players[playerIndex];
   const nodeId = player.warlordNodeId;
 
-  // Validate rival is at the same node
+  // Validate the rival has a force here. Loosened (§5.2, Stage 5e): a RAID is legal when the
+  // defender's Warlord is co-located OR the defender has ANY on-board piece at the node — so a
+  // winning, margin-clearing RAID may CAPTURE an unguarded co-located retainer even with its
+  // Warlord elsewhere. (The Warlord itself is never directly capturable; deposal stays §6-only.)
   const defender = state.players[defenderIndex];
-  if (defender.warlordNodeId !== nodeId) {
-    throw new Error(`Cannot RAID: Player ${defenderIndex + 1} is not at ${nodeId}`);
+  const defenderHasForceHere =
+    state.board.state.nodes[nodeId]?.pieces.some(p => p.owner === defenderIndex) ?? false;
+  if (defender.warlordNodeId !== nodeId && !defenderHasForceHere) {
+    throw new Error(`Cannot RAID: Player ${defenderIndex + 1} has no force at ${nodeId}`);
   }
 
   // Oath (§ Oaths): sworn allies cannot RAID each other — you must BREAK_OATH first.

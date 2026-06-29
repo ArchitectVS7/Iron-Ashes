@@ -31,7 +31,7 @@ import {
   effectiveCaptureMargin, trailingDefenseBonus, stewardHomeDefenseBonus,
 } from './combat.js';
 import { hasSKForcesAtNode, hasRivalAtNode, findOath, areSworn, parleyTarget } from './actions.js';
-import { legalRaidTargets, canCapture } from './capture.js';
+import { legalRaidTargets, canCapture, capturableRetainerOwnersAt } from './capture.js';
 import {
   ASHED_TRAVERSE_EXTRA_COST, COMBAT_COMMIT_MAX, FORGE_WEIGHT, getTunables,
 } from './tunables.js';
@@ -402,6 +402,27 @@ function raidWithElect(
 }
 
 /**
+ * The best CAPTURE the attacker can elect at `node` under the loosened rule (§5.2, Stage 5e):
+ * the lowest-seat unsworn rival with a co-located capturable retainer whose intent-sized RAID
+ * clears the standing-scaled `effectiveCaptureMargin` (so the reducer's gate can never reject it
+ * — predictRaidMargin is mirror-exact). The retainer's Warlord NEED NOT be present. Returns the
+ * defender seat + piece, or null when no margin-clearing hostage stands here. Pure `f(state)`.
+ */
+function bestLooseCaptureAt(
+  state: GameState, attacker: number, node: string,
+): { defender: number; pieceId: string } | null {
+  for (const seat of capturableRetainerOwnersAt(state, attacker, node)) {
+    if (areSworn(state, attacker, seat)) continue;
+    const pieceId = legalRaidTargets(state, seat, node).find(id => canCapture(state, seat, node, id));
+    if (pieceId !== undefined
+        && predictRaidMargin(state, attacker, seat, node, true) >= effectiveCaptureMargin(state, attacker)) {
+      return { defender: seat, pieceId };
+    }
+  }
+  return null;
+}
+
+/**
  * First legal step from the Warlord toward the nearest huntable Death Knight — one
  * sitting on a claimable (unclaimed, living Holding/Forge) node, i.e. ground the
  * dark is denying us. Returns null if none reachable (Stage 5-dark). BFS,
@@ -583,22 +604,16 @@ function baselineAction(state: GameState, playerIndex: number, seed: number): Pl
     }
   }
 
-  // 1b. CAPTURE POUNCE (Stage 5a — captures rare-but-dramatic in normal play). Even the greedy
-  //     economic baseline seizes a clean hostage: if it stands on an unsworn rival Warlord that
-  //     has a capturable retainer AND its intent-sized RAID clears the standing-scaled gate (so
+  // 1b. CAPTURE POUNCE (Stage 5a; Stage 5e loosened). Even the greedy economic baseline seizes a
+  //     clean hostage: if an unsworn rival has a capturable retainer here — its Warlord present OR
+  //     NOT (§5.2 loosened rule) — and the intent-sized RAID clears the standing-scaled gate (so
   //     the reducer can't reject it — predictRaidMargin is mirror-exact), it elects CAPTURE. This
-  //     is deterministic and self-limiting: a co-located capturable target is rare, so it fires as
-  //     a real scene, not a dominant tactic. (No positioning detour — the baseline doesn't hunt;
-  //     it only pounces what its claim-march path already walks it onto.)
-  const rivalHere = hasRivalAtNode(state, playerIndex, nodeId);
-  if (rivalHere !== null && !areSworn(state, playerIndex, rivalHere)) {
-    const capTarget = legalRaidTargets(state, rivalHere, nodeId)
-      .find(id => canCapture(state, rivalHere, nodeId, id));
-    if (capTarget !== undefined
-        && predictRaidMargin(state, playerIndex, rivalHere, nodeId, true)
-             >= effectiveCaptureMargin(state, playerIndex)) {
-      return { type: 'RAID', targetPlayerIndex: rivalHere, raidEffect: 'CAPTURE_PIECE', pieceId: capTarget };
-    }
+  //     is deterministic and self-limiting: a margin-clearing hostage is uncommon, so it fires as
+  //     a real scene, not a dominant tactic. (No positioning detour here — the baseline doesn't
+  //     hunt; it only pounces what its claim-march path already walks it onto.)
+  const pounce = bestLooseCaptureAt(state, playerIndex, nodeId);
+  if (pounce !== null) {
+    return { type: 'RAID', targetPlayerIndex: pounce.defender, raidEffect: 'CAPTURE_PIECE', pieceId: pounce.pieceId };
   }
 
   // 1c. SELF-RANSOM (Stage 5a) — buy a captured retainer of our own back when affordable, so the
@@ -621,7 +636,7 @@ function baselineAction(state: GameState, playerIndex: number, seed: number): Pl
   //     rival hostage sits within a short radius, step toward it so the pounce (1b) can fire next
   //     turn. Distance-bounded so the greedy baseline makes an opportunistic detour, never a
   //     cross-map chase — captures stay rare-but-dramatic, not a dominant strategy.
-  if (rivalHere === null) {
+  if (hasRivalAtNode(state, playerIndex, nodeId) === null) {
     const capStep = bestStepTowardCapturableRival(state, playerIndex, CAPTURE_HUNT_RADIUS);
     if (capStep !== null && player.banners >= marchCostFor(state, playerIndex, capStep)) {
       return { type: 'MARCH', targetNodeId: capStep };
@@ -687,23 +702,25 @@ function firstStepTowardNearestRival(state: GameState, playerIndex: number): str
 }
 
 /**
- * First legal step toward the nearest node hosting a rival Warlord that ALSO has a capturable
- * retainer standing on it (§5.2) — the capture-hunt target. Such a node is where a winning RAID
- * can elect CAPTURE; retainers cluster on a rival's freshly-recruited Holdings, so this steers a
- * capture-biased raider toward a real hostage opportunity (the alternative — waiting to stand on
- * one by chance — never fires). Skips sworn allies. BFS, ZoC-respecting, deterministic. Null if
- * none reachable or already co-located with one (the RAID step then fires). Pure `f(state)`.
+ * First legal step toward the nearest node hosting an unsworn rival's capturable retainer (§5.2,
+ * Stage 5e loosened — the retainer's Warlord NEED NOT be present) — the capture-hunt target. Such
+ * a node is where a winning RAID can elect CAPTURE; retainers cluster on a rival's freshly-recruited
+ * Holdings, so this steers a capture-biased raider toward a real hostage opportunity (the alternative
+ * — waiting to stand on one by chance — never fires). Skips sworn allies. BFS, ZoC-respecting,
+ * deterministic. Null if none reachable or already co-located with one (the RAID step then fires).
+ * Pure `f(state)`.
  */
 function bestStepTowardCapturableRival(
   state: GameState, playerIndex: number, maxDist = Infinity,
 ): string | null {
   const def = state.board.definition;
   const start = state.players[playerIndex].warlordNodeId;
-  const hostsCapturable = (nodeId: string): boolean => {
-    const r = hasRivalAtNode(state, playerIndex, nodeId);
-    if (r === null || areSworn(state, playerIndex, r)) return false;
-    return legalRaidTargets(state, r, nodeId).some(id => canCapture(state, r, nodeId, id));
-  };
+  // Loosened (§5.2, Stage 5e): a node "hosts a hostage" if ANY unsworn rival has a capturable
+  // retainer there — its Warlord NEED NOT be co-located. This is the common case (retainers
+  // cluster on freshly-recruited Holdings away from the Warlord), so the capture-hunt now finds
+  // far more real opportunities than the old Warlord-co-location gate.
+  const hostsCapturable = (nodeId: string): boolean =>
+    capturableRetainerOwnersAt(state, playerIndex, nodeId).some(r => !areSworn(state, playerIndex, r));
   const visited = new Set<string>([start]);
   const queue: Array<{ node: string; firstStep: string | null; dist: number }>
     = [{ node: start, firstStep: null, dist: 0 }];
@@ -892,17 +909,16 @@ function archetypeAction(
   //    are off-limits (BREAK_OATH first) — guard so we never propose an illegal RAID.
   const rival = hasRivalAtNode(state, playerIndex, here);
 
-  // 2-pre. CAPTURE POUNCE — if we stand on a rival Warlord that has a capturable retainer AND the
-  //        predicted margin clears the standing-scaled gate (so the reducer can't reject it), elect
-  //        CAPTURE now, independent of `aggression` (a capture-biased cooperator/turtle still pounces
-  //        a winnable hostage). The margin gate makes this throw-safe (see predictRaidMargin).
-  if (captureBias > 0 && rival !== null && !areSworn(state, playerIndex, rival)) {
-    const capTargets = legalRaidTargets(state, rival, here).filter(id => canCapture(state, rival, here, id));
-    if (capTargets.length > 0
-        && predictRaidMargin(state, playerIndex, rival, here, true) >= effectiveCaptureMargin(state, playerIndex)
-        && rng.float() < captureBias) {
+  // 2-pre. CAPTURE POUNCE (Stage 5e loosened) — if an unsworn rival has a capturable retainer here
+  //        — its Warlord present OR NOT (§5.2 loosened rule) — and the predicted margin clears the
+  //        standing-scaled gate (so the reducer can't reject it), elect CAPTURE now, independent of
+  //        `aggression` (a capture-biased cooperator/turtle still pounces a winnable hostage). The
+  //        margin gate makes this throw-safe (see predictRaidMargin).
+  if (captureBias > 0 && rng.float() < captureBias) {
+    const loose = bestLooseCaptureAt(state, playerIndex, here);
+    if (loose !== null) {
       const effect: RaidEffect = 'CAPTURE_PIECE';
-      return { type: 'RAID', targetPlayerIndex: rival, raidEffect: effect, pieceId: capTargets[0] };
+      return { type: 'RAID', targetPlayerIndex: loose.defender, raidEffect: effect, pieceId: loose.pieceId };
     }
   }
   if (rival !== null && aggression > 0 && !areSworn(state, playerIndex, rival)) {
@@ -954,9 +970,10 @@ function archetypeAction(
     }
   }
 
-  // 4c. CAPTURE HUNT — a capture-biased raider marches toward the nearest rival Warlord that has a
-  //     capturable retainer (§5.2), so the RAID step (2) can then elect CAPTURE on arrival. Without
-  //     this the raider would have to stand on a hostage by chance — which essentially never happens.
+  // 4c. CAPTURE HUNT — a capture-biased raider marches toward the nearest unsworn rival's capturable
+  //     retainer (§5.2, Stage 5e loosened — the retainer's Warlord need not be there), so the pounce
+  //     (2-pre) can elect CAPTURE on arrival. Without this the raider would have to stand on a hostage
+  //     by chance — which essentially never happens.
   if (captureBias > 0 && aggression > 0 && rival === null && rng.float() < captureBias) {
     const step = bestStepTowardCapturableRival(state, playerIndex);
     if (step !== null && player.banners >= marchCostFor(state, playerIndex, step)

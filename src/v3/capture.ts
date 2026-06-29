@@ -101,6 +101,23 @@ export function legalRaidTargets(state: GameState, defenderSeat: number, nodeId:
   return ids.sort();
 }
 
+/**
+ * Rival seats (sorted) that have a CAPTURABLE, electable retainer standing at `nodeId` right now —
+ * regardless of whether that seat's Warlord is co-located (§5.2, Stage 5e loosened rule). Each
+ * returned seat has at least one `canCapture` target here, so a winning margin-clearing RAID can
+ * elect CAPTURE against it even with the owner Warlord elsewhere. The Warlord is never a target;
+ * sworn-ally filtering is the caller's job (this module has no Oath dependency). Pure `f(state)`. */
+export function capturableRetainerOwnersAt(state: GameState, playerIndex: number, nodeId: string): number[] {
+  const ns = state.board.state.nodes[nodeId];
+  if (!ns) return [];
+  const owners = [...new Set(
+    ns.pieces.filter(p => p.owner !== playerIndex && CAPTURABLE.has(p.type)).map(p => p.owner),
+  )].sort((a, b) => a - b);
+  return owners.filter(
+    seat => legalRaidTargets(state, seat, nodeId).some(id => canCapture(state, seat, nodeId, id)),
+  );
+}
+
 /** Count a defender's FREE retainers (non-Warlord court pieces on the board) — drives the
  *  Whisper last-retainer protection (§13 P0-10). Pure. */
 export function freeRetainerCount(state: GameState, defenderSeat: number): number {
