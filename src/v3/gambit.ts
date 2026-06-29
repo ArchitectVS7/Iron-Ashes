@@ -36,6 +36,10 @@ import { generateReactiveVoiceLine } from './shadowking-policy.js';
 export function checkGambitSeize(
   state: GameState,
   playerIndex: number,
+  /** Diagnostic-ONLY (Stage 5f): the AI's stated intent for the march that landed here, copied
+   *  verbatim into the seize event's details so the sim can split deliberate vs incidental gambit
+   *  fire. 'ambition'|'contest' ⇒ deliberate; undefined ⇒ incidental occupation. No rule reads it. */
+  gambitIntent?: 'ambition' | 'contest',
 ): GameEvent[] {
   const events: GameEvent[] = [];
   const keystoneId = state.board.definition.keystoneId;
@@ -79,7 +83,9 @@ export function checkGambitSeize(
     type: 'PLAYER_ACTED',
     playerIndex,
     action: 'PASS',
-    details: { gambitSeized: true },
+    // gambitIntent is diagnostic metadata only (Stage 5f): 'ambition'|'contest' ⇒ a DELIBERATE
+    // claim/contest; 'incidental' ⇒ the Warlord landed here pursuing some other goal.
+    details: { gambitSeized: true, gambitIntent: gambitIntent ?? 'incidental' },
   });
 
   return events;

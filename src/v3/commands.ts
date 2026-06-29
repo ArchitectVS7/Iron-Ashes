@@ -42,6 +42,15 @@ export interface PlayerAction {
   readonly raidEffect?: RaidEffect;
   /** RANSOM only (ally-ransom): whether BOTH parties consent to forge an Oath (§5.3). Default true. */
   readonly consent?: boolean;
+  /**
+   * MARCH only, diagnostic-ONLY (Stage 5f gambit investigation): why the AI chose to step toward
+   * the Keystone. 'ambition' = a deliberate Gambit claim (the gambitAmbition path); 'contest' =
+   * marching to deny/displace a rival's live Gambit. Absent ⇒ the march has some OTHER goal (heart
+   * hunt, capture, defence) and any resulting Keystone occupation is INCIDENTAL. Carries NO balance
+   * effect — the reducer only copies it into the seize event's details so metrics can split
+   * deliberate vs incidental gambit-fire. Never read by any rule.
+   */
+  readonly gambitIntent?: 'ambition' | 'contest';
 }
 
 // ─── Command Union ────────────────────────────────────────────────

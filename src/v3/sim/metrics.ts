@@ -32,6 +32,17 @@ export interface GameMetrics {
 
   /** A Crown's Gambit was seized at least once this game. */
   readonly gambitSeized: boolean;
+  /** Stage 5f split of `gambitSeized`: a DELIBERATE seize fired this game — the Warlord marched
+   *  onto the Keystone via the Gambit path (gambitAmbition claim or a gambitContest displace,
+   *  tagged `gambitIntent` on the move). The honest "a player went for the throne" fire signal. */
+  readonly gambitSeizeDeliberate: boolean;
+  /** Stage 5f split of `gambitSeized`: an INCIDENTAL seize fired this game — a Warlord sat the
+   *  Keystone pursuing some OTHER goal (heart hunt, capture, defence) with no deliberate claim. */
+  readonly gambitSeizeIncidental: boolean;
+  /** Stage 5f: this game's Gambit WIN came from a deliberate claim (the winner's initiating seize
+   *  was 'ambition'|'contest'). False when there was no Gambit win. A win implies a held claim, so
+   *  an unattributed gambit_victory is treated as deliberate. */
+  readonly gambitWinDeliberate: boolean;
   /** Number of Warlords eliminated (deposed at Dawn) this game (§6). */
   readonly eliminations: number;
 
@@ -134,6 +145,11 @@ export function computeMetrics(state: GameState): GameMetrics {
 
   let eliminations = 0;
   let gambitSeized = false;
+  let gambitSeizeDeliberate = false;
+  let gambitSeizeIncidental = false;
+  // Latest seize intent per claimant (Stage 5f) — used to attribute a Gambit WIN to a deliberate
+  // claim vs an incidental occupation that held long enough to be named.
+  const seizeIntentByPlayer = new Map<number, string>();
   let accusationsResolved = 0;
   let accusationsCorrect = 0;
   let dkKills = 0;
@@ -177,7 +193,17 @@ export function computeMetrics(state: GameState): GameMetrics {
       if (e.action === 'RAID' && e.details?.capture !== undefined) captures++;
       if (e.action === 'MARCH' && typeof e.details?.toll === 'number' && e.details.toll > 0) tollsPaid++;
       if (e.details?.oathMatured === true) oathsMatured++;
-      if (e.details?.gambitSeized === true) gambitSeized = true;
+      if (e.details?.gambitSeized === true) {
+        gambitSeized = true;
+        const intent = e.details?.gambitIntent;
+        if (intent === 'ambition' || intent === 'contest') {
+          gambitSeizeDeliberate = true;
+          seizeIntentByPlayer.set(e.playerIndex, intent);
+        } else {
+          gambitSeizeIncidental = true;
+          seizeIntentByPlayer.set(e.playerIndex, 'incidental');
+        }
+      }
     } else if (e.type === 'ACCUSATION_RESOLVED') {
       accusationsResolved++;
       if (e.outcome === 'correct') accusationsCorrect++;
@@ -205,6 +231,13 @@ export function computeMetrics(state: GameState): GameMetrics {
     lastStandingWin: state.gameEndReason === 'last_standing',
     attritionWin: state.gameEndReason === 'attrition',
     gambitSeized: gambitSeized || state.gameEndReason === 'gambit_victory',
+    gambitSeizeDeliberate,
+    gambitSeizeIncidental,
+    // A Gambit win implies the claimant HELD the Keystone through a declaration, so attribute it to
+    // a deliberate claim unless the winner's recorded seize intent was explicitly 'incidental'.
+    gambitWinDeliberate: state.gameEndReason === 'gambit_victory'
+      && state.winner !== null
+      && seizeIntentByPlayer.get(state.winner) !== 'incidental',
     eliminations,
     territoryPerSeat: state.players.map(p => territoryOf(state, p.index)),
     meanPledgePerSeat: meanPledges(state, playerCount),

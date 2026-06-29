@@ -897,7 +897,9 @@ function archetypeAction(
       const step = firstStepTowardNode(state, playerIndex, ks);
       if (step !== null && player.banners >= marchCostFor(state, playerIndex, step)
             && tollAcceptable(state, playerIndex, step, forgeValuation)) {
-        return { type: 'MARCH', targetNodeId: step };
+        // gambitIntent is diagnostic-only (Stage 5f): a contest march toward the Keystone that
+        // ends up occupying it is a DELIBERATE gambit-path act, not incidental.
+        return { type: 'MARCH', targetNodeId: step, gambitIntent: 'contest' };
       }
     }
   }
@@ -955,7 +957,8 @@ function archetypeAction(
     const step = firstStepTowardNode(state, playerIndex, state.board.definition.keystoneId);
     if (step !== null && player.banners >= marchCostFor(state, playerIndex, step)
           && tollAcceptable(state, playerIndex, step, forgeValuation)) {
-      return { type: 'MARCH', targetNodeId: step };
+      // gambitIntent is diagnostic-only (Stage 5f): this is the deliberate gambitAmbition claim path.
+      return { type: 'MARCH', targetNodeId: step, gambitIntent: 'ambition' };
     }
   }
 

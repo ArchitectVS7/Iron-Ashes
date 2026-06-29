@@ -17,10 +17,13 @@ function mkMetrics(p: Partial<GameMetrics> & { winner: number | null }): GameMet
     actReached: 'MARCH',
     shadowkingWin: p.shadowkingWin ?? (p.winner === null),
     territoryWin: p.winner !== null,
-    gambitWin: false,
+    gambitWin: p.gambitWin ?? false,
     lastStandingWin: p.lastStandingWin ?? false,
     attritionWin: p.attritionWin ?? false,
     gambitSeized: p.gambitSeized ?? false,
+    gambitSeizeDeliberate: p.gambitSeizeDeliberate ?? false,
+    gambitSeizeIncidental: p.gambitSeizeIncidental ?? false,
+    gambitWinDeliberate: p.gambitWinDeliberate ?? false,
     eliminations: p.eliminations ?? 0,
     territoryPerSeat: p.territoryPerSeat ?? [0, 0, 0, 0],
     meanPledgePerSeat: p.meanPledgePerSeat ?? [1, 1, 1, 1],
@@ -100,6 +103,29 @@ describe('summarize', () => {
     // eliminations per game = total eliminations (12) / 12 games = 1.0.
     expect(d.eliminationsPerGame).toBeCloseTo(1);
     expect(d.perCount[4].games).toBe(12);
+  });
+
+  it('splits gambler-free gambit-fire into deliberate vs incidental (Stage 5f)', () => {
+    // 8 gambler-free games: 2 deliberate seizes (one a deliberate WIN), 4 pure incidental, 2 no fire.
+    const rows: SweepRow[] = [
+      ...Array.from({ length: 1 }, () => mkRow(SEATS, mkMetrics({
+        winner: 0, gambitWin: true, gambitSeized: true, gambitSeizeDeliberate: true, gambitWinDeliberate: true,
+      }))),
+      ...Array.from({ length: 1 }, () => mkRow(SEATS, mkMetrics({
+        winner: 1, gambitSeized: true, gambitSeizeDeliberate: true,
+      }))),
+      ...Array.from({ length: 4 }, () => mkRow(SEATS, mkMetrics({
+        winner: 2, gambitSeized: true, gambitSeizeIncidental: true,
+      }))),
+      ...Array.from({ length: 2 }, () => mkRow(SEATS, mkMetrics({ winner: 3 }))),
+    ];
+    const d = summarize(rows).diagnostics;
+    expect(d.gambitFireRateNoGambler).toBeCloseTo(6 / 8); // 6 of 8 games saw a seize
+    expect(d.gambitFireDeliberateNoGambler).toBeCloseTo(2 / 8);
+    expect(d.gambitFireIncidentalNoGambler).toBeCloseTo(4 / 8); // pure-incidental games only
+    expect(d.gambitDeliberateShareNoGambler).toBeCloseTo((2 / 8) / (6 / 8)); // deliberate share of fire
+    expect(d.gambitWinDeliberateNoGambler).toBeCloseTo(1 / 8);
+    expect(d.gambitDeliberateConversionNoGambler).toBeCloseTo((1 / 8) / (2 / 8)); // deliberate win/fire
   });
 
   it('renders markdown with the target table and verdicts', () => {

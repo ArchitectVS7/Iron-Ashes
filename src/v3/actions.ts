@@ -109,6 +109,10 @@ export function executeMarch(
   state: GameState,
   playerIndex: number,
   targetNodeId: string,
+  /** Diagnostic-ONLY (Stage 5f gambit investigation): the AI's stated intent, forwarded to
+   *  checkGambitSeize so a Keystone seize records whether it was a deliberate Gambit pursuit
+   *  ('ambition'|'contest') or an incidental occupation. No balance effect. */
+  gambitIntent?: 'ambition' | 'contest',
 ): ActionResult {
   const events: GameEvent[] = [];
   const player = state.players[playerIndex];
@@ -205,7 +209,7 @@ export function executeMarch(
 
   // Check if player just marched onto the Keystone (§6 — Gambit seize)
   if (targetNodeId === state.board.definition.keystoneId) {
-    events.push(...checkGambitSeize(state, playerIndex));
+    events.push(...checkGambitSeize(state, playerIndex, gambitIntent));
   }
 
   return { state, events, actionConsumed: true };

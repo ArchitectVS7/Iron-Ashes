@@ -313,7 +313,7 @@ function handlePlayerAction(
       try {
         actionResult = action.pieceId === 'herald'
           ? executeHeraldMarch(state, playerIndex, action.targetNodeId)
-          : executeMarch(state, playerIndex, action.targetNodeId);
+          : executeMarch(state, playerIndex, action.targetNodeId, action.gambitIntent);
       } catch (e: unknown) {
         throw new InvalidCommandError(
           { type: 'PLAYER_ACTION', playerIndex, action },

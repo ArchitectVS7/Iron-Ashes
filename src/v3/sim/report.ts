@@ -102,6 +102,28 @@ export interface SweepDiagnostics {
   readonly gambitWinRate: number;
   /** THE honest gambit-fire number: seize rate over matchups with NO dedicated gambler. */
   readonly gambitFireRateNoGambler: number;
+
+  // ── Stage 5f: deliberate-vs-incidental gambit-fire split (gambit INVESTIGATION, no fix) ──
+  /** Gambler-free DELIBERATE fire rate: fraction of gambler-free games with ≥1 deliberate seize
+   *  (the Warlord marched onto the Keystone via the Gambit path). The honest "went for the throne". */
+  readonly gambitFireDeliberateNoGambler: number;
+  /** Gambler-free INCIDENTAL fire rate: fraction of gambler-free games where a seize fired ONLY
+   *  from an incidental occupation (no deliberate claim that game). */
+  readonly gambitFireIncidentalNoGambler: number;
+  /** Of the gambler-free fire (gambitFireRateNoGambler), the share whose games had a deliberate
+   *  seize. Answers "what % of the ~39% fire is deliberate vs incidental". */
+  readonly gambitDeliberateShareNoGambler: number;
+  /** All-matchup deliberate / incidental fire rates (context; inflated by the gambler archetype). */
+  readonly gambitFireDeliberateAll: number;
+  readonly gambitFireIncidentalAll: number;
+  /** Gambler-free Gambit WIN rate (fraction of gambler-free games won via the Gambit). */
+  readonly gambitWinRateNoGambler: number;
+  /** Gambler-free DELIBERATE gambit-win rate — for the fire-a-lot-win-rarely comparison (Q3). */
+  readonly gambitWinDeliberateNoGambler: number;
+  /** Gambler-free deliberate conversion: deliberate gambit-win / deliberate fire (Q3 headline). */
+  readonly gambitDeliberateConversionNoGambler: number;
+  /** Gambler-free top per-seat archetype win rate (Q2 — is dominance gambler-driven?). */
+  readonly topArchetypeWinRateNoGambler: number;
   /** End-Act distribution (which Act games finish in). */
   readonly perActEnd: Readonly<Record<string, number>>;
   /** Primary metrics split by player count (strictness check). */
@@ -292,6 +314,34 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
   const eligible = winRateByArchetype.filter(a => a.seatAppearances >= minAppear);
   const topArchetypeWinRate = eligible.reduce((m, a) => Math.max(m, a.winRate), 0);
 
+  // ── Stage 5f: deliberate-vs-incidental gambit-fire split (investigation, no fix) ──
+  const rate = (subset: readonly SweepRow[], pred: (r: SweepRow) => boolean): number =>
+    subset.length ? subset.filter(pred).length / subset.length : 0;
+  const gambitFireDeliberateNoGambler = rate(noGambler, r => r.metrics.gambitSeizeDeliberate);
+  // INCIDENTAL fire rate counts games where a seize fired but NO deliberate seize did (pure incidental).
+  const gambitFireIncidentalNoGambler = rate(noGambler,
+    r => r.metrics.gambitSeized && !r.metrics.gambitSeizeDeliberate);
+  const gambitFireRateNoGamblerVal = rate(noGambler, r => r.metrics.gambitSeized);
+  const gambitFireDeliberateAll = rate(rows, r => r.metrics.gambitSeizeDeliberate);
+  const gambitFireIncidentalAll = rate(rows,
+    r => r.metrics.gambitSeized && !r.metrics.gambitSeizeDeliberate);
+  const gambitWinRateNoGambler = rate(noGambler, r => r.metrics.gambitWin);
+  const gambitWinDeliberateNoGambler = rate(noGambler, r => r.metrics.gambitWinDeliberate);
+  // Gambler-free top per-seat archetype win rate (recompute over the gambler-free subset).
+  const ngAppear = new Map<ArchetypeId, number>();
+  const ngWins = new Map<ArchetypeId, number>();
+  for (const r of noGambler) {
+    r.seatArchetypes.forEach((id, seat) => {
+      ngAppear.set(id, (ngAppear.get(id) ?? 0) + 1);
+      if (r.metrics.winner === seat) ngWins.set(id, (ngWins.get(id) ?? 0) + 1);
+    });
+  }
+  const ngMinAppear = Math.max(20, noGambler.length * 0.05);
+  let topArchetypeWinRateNoGambler = 0;
+  for (const [id, ap] of ngAppear) {
+    if (ap >= ngMinAppear) topArchetypeWinRateNoGambler = Math.max(topArchetypeWinRateNoGambler, (ngWins.get(id) ?? 0) / ap);
+  }
+
   const diagnostics: SweepDiagnostics = {
     eliminationsPerGame: mean(rows.map(r => r.metrics.eliminations)),
     lastStandingWinRate: total ? rows.filter(r => r.metrics.lastStandingWin).length / total : 0,
@@ -314,7 +364,18 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
     pledgeFullBlockRate: totalPledgeRounds > 0 ? totalFullBlocks / totalPledgeRounds : 0,
     gambitSeizeRate: total ? rows.filter(r => r.metrics.gambitSeized).length / total : 0,
     gambitWinRate: total ? rows.filter(r => r.metrics.gambitWin).length / total : 0,
-    gambitFireRateNoGambler: noGambler.length ? noGambler.filter(r => r.metrics.gambitSeized).length / noGambler.length : 0,
+    gambitFireRateNoGambler: gambitFireRateNoGamblerVal,
+    gambitFireDeliberateNoGambler,
+    gambitFireIncidentalNoGambler,
+    gambitDeliberateShareNoGambler: gambitFireRateNoGamblerVal > 0
+      ? gambitFireDeliberateNoGambler / gambitFireRateNoGamblerVal : 0,
+    gambitFireDeliberateAll,
+    gambitFireIncidentalAll,
+    gambitWinRateNoGambler,
+    gambitWinDeliberateNoGambler,
+    gambitDeliberateConversionNoGambler: gambitFireDeliberateNoGambler > 0
+      ? gambitWinDeliberateNoGambler / gambitFireDeliberateNoGambler : 0,
+    topArchetypeWinRateNoGambler,
     perActEnd,
     perCount,
 
@@ -533,6 +594,16 @@ ${countRows}
 | Mid-game leader win rate · comeback | ${pct(d.midGameLeaderWinRate)} · ${pct(d.comebackRate)} | snowball↔turtle: does the MARCH-act leader win? |
 | Discovery flips (recruit/blight/DK) | ${pct(d.discoveryFlipMix.recruit)} / ${pct(d.discoveryFlipMix.blight_seed)} / ${pct(d.discoveryFlipMix.death_knight)} | §5.1 flip outcome mix |
 | Top archetype win rate (≤ ${pct(ARCHETYPE_WINRATE_GUARD)} guard) | ${pct(d.topArchetypeWinRate)} | ${verdict(d.archetypeWinRateGuardPass)} — no single strategy should dominate |
+
+## Gambit investigation (Stage 5f — deliberate vs incidental)
+| Diagnostic | Value | Reading |
+|---|---|---|
+| Gambler-free fire rate (DELIBERATE / INCIDENTAL) | ${pct(d.gambitFireDeliberateNoGambler)} / ${pct(d.gambitFireIncidentalNoGambler)} | split of the ${pct(d.gambitFireRateNoGambler)} honest fire — deliberate = a Gambit-path claim; incidental = a piece sat the Keystone for another reason |
+| Deliberate share of gambler-free fire | ${pct(d.gambitDeliberateShareNoGambler)} | what % of the honest fire is a real Gambit claim |
+| All-matchup fire (DELIBERATE / INCIDENTAL) | ${pct(d.gambitFireDeliberateAll)} / ${pct(d.gambitFireIncidentalAll)} | context (inflated by the gambler archetype) |
+| Gambler-free Gambit WIN / DELIBERATE-WIN rate | ${pct(d.gambitWinRateNoGambler)} / ${pct(d.gambitWinDeliberateNoGambler)} | does it fire a lot but win rarely? |
+| Deliberate conversion (win / deliberate-fire) | ${pct(d.gambitDeliberateConversionNoGambler)} | Q3 — deliberate fire that actually converts to a Gambit win |
+| Top archetype win rate — gambler-free | ${pct(d.topArchetypeWinRateNoGambler)} | Q2 — is the dominance FAIL gambler-driven? (vs ${pct(d.topArchetypeWinRate)} with gambler) |
 
 ## End Act
 | Act | Count | Share |
