@@ -26,8 +26,10 @@ built a turtle meta; two new subsystems were non-deterministic). Those fixes are
 > - `docs/handoff/state.json` stays pointed at the **v2** status until the v3 code sprint opens its own
 >   stage (see §7).
 
-**Immediate next action:** **Blood-Pact 5e re-tune** (user call), then **3i UI port**. **v3 competitive
-balance is LOCKED** (dominance settled — Option A, confirmed by the noise pass). **Calibration decided
+**Immediate next action:** **3i UI port** + the **difficulty-setting feature**, then the **V3-6 human
+playtest**. **v3 BALANCE IS COMPLETE — both modes, 2-seed stable** (the Phase-5 equivalent): competitive
+LOCKED + noise-robustness-checked; **Blood-Pact 5e DONE** (traitor win 18.6/16.1%, exposure 56.9/58.6%,
+accuracy ~71%, accusations 0.81 — all four bands in band, 2-seed stable; competitive byte-identical). **Calibration decided
 (user): the dark's strength becomes a DIFFICULTY SETTING** — a feature scaling the dark (doomCost curve) by
 an expected-play-quality tier, calibrated off the noise data (dark-win ~+0.5pp per 1% error), default picked
 at the V3-6 playtest; recorded as a planned feature (build near the UI/playtest, not now). Current lock =
@@ -153,15 +155,17 @@ Workflow (same as v2): **① idea → ② textual algorithm → ③ code → ④
     the cap; competitive (flag off) byte-identical. Full BP re-tune deferred to a v3 5e-equivalent.
   - [ ] **3i. UI — render-from-state** — port `src/ui-v2`; add the new controls + the **mandated legibility**
     (Exposure meter, pre-commit combat-margin, the "Hold" rail, the capture/heart scene beats — §13 P0-11).
-- [ ] **Stage V3-4 — Sim harness** — port `src/v2/sim/` to the v3 reducer + AI; new archetypes that exercise
-  capture/ransom/discovery/heart/wraith. **New metrics (ALGORITHM §9):** captures/game, ransoms/game,
-  elimination-timing distribution, **spectator dead-time** (flag any human eliminated before
-  `ROUND_CAP × DEAD_TIME_FLOOR`), Kill-the-Dark fire rate, the snowball↔turtle balance, an attachment proxy
-  (capture→ransom-back rate).
-- [ ] **Stage V3-5 — Balance validation** — re-tune `tunables` (v3) to bands. ⚠️ **Re-validate the Shadowking
-  win-rate FROM SCRATCH** — retiring `all_broken` changed a dark win-path; do NOT assume v2's 18–22% transfers.
-  Watch the three load-bearing metrics (snowball↔turtle, captures/elimination-timing, dead-time) from sweep #1.
-  Set a **design-level per-turn time budget** (the RAID elect-chain × 4 archetypes inflation risk).
+- [x] **Stage V3-4 — Sim harness** — DONE. `npm run sim:v3`; all v3 metrics (captures/ransoms, elimination
+  timing, dead-time, kill-the-dark, snowball↔turtle, attachment proxy) + the bounded-rationality `errorRate`
+  noise axis. Games terminate deterministically at 2/3/4p + both modes.
+- [x] **Stage V3-5 — Balance validation — COMPLETE (both modes, 2-seed stable).** Competitive (waves 1–3 +
+  noise pass): dark 21% in band, doom co-primary (hybrid), captures rare-but-dramatic, gambit win-gated,
+  dominance settled (Option A), noise-robustness-checked. Blood-Pact (5e): traitor win ~17%, exposure ~58%,
+  accuracy ~71%, accusations 0.81 — 2-seed stable, competitive byte-identical. Tunable journey logged in §8.
+- [ ] **3i — UI port** — port `src/ui-v2` to v3 + new controls + the §13 P0-11 legibility (Exposure meter,
+  pre-commit margin, the "Hold" rail, capture/heart scene beats). *(Carried from Stage V3-3; the last engine-side stage.)*
+- [ ] **Difficulty-setting feature** — the calibration decision (§8 2026-06-29): a `difficulty` tier scaling
+  the dark (doomCost curve) by an assumed play-quality, calibrated off the noise data; default chosen at playtest.
 - [ ] **Stage V3-6 — UI polish + human playtest** — walk a v3 `human-playtest-checklist.md` (the elimination
   feel, the Wraith engagement, the two-act ending, capture-as-scene, the 30–45 min length with 4 archetypes).
 
@@ -225,6 +229,15 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-06-29** — **V3-5e BLOOD-PACT RE-TUNE COMPLETE (2-seed; commits `ec973d4`/`38718cb`) → v3 BALANCE
+  COMPLETE, BOTH MODES.** Two mode-gated levers: `BLOOD_PACT_SPREAD_BONUS` 1→0 (the on-top doom bonus was
+  redundant once the competitive 5b doom-path buff made `doom_complete` — the traitor's win — far more
+  reachable) + `SABOTEUR_COVER` 0.745→0.78 (a touch more cover lifts exposure into band). Result (2-seed):
+  traitor win 34.4→**18.6/16.1%** (band 12–20 ✅), exposure 52.5→**56.9/58.6%** (band 40–70 ✅), accuracy
+  86.3→**70.7/72.3%** (≥45 ✅), accusations 0.61→**0.81/0.81** (≤2.5 ✅) — **all four bands HOLD, 2-seed
+  stable**, cleaner than v2's 5e (which never centered win+exposure). **Competitive BYTE-IDENTICAL** (verified:
+  competitive `summary.json` == locked reference; both levers mode-gated, inert with the flag off). 532 v3
+  green, 451 v2 green. **Remaining v3: 3i UI port + the difficulty-setting feature → V3-6 human playtest.**
 - **2026-06-29** — **TWO USER DECISIONS off the noise pass.** (1) **Dominance = Option A, ADOPTED** (judge
   the no-dominance guard on the top deliberately-chosen strategy, excluding the baseline engine-default filler;
   confirmed safe by the noise robustness) → **competitive balance LOCKED.** (2) **Calibration = a DIFFICULTY
