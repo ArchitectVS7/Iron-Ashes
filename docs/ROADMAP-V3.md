@@ -26,8 +26,11 @@ built a turtle meta; two new subsystems were non-deterministic). Those fixes are
 > - `docs/handoff/state.json` stays pointed at the **v2** status until the v3 code sprint opens its own
 >   stage (see §7).
 
-**Immediate next action:** confirm the **dominance-guard framing** (Option A, below — recommended) → then
-**Blood-Pact 5e-equivalent re-tune** and **3i UI port**. **v3 COMPETITIVE BALANCE is essentially LOCKED,
+**Immediate next action:** a **calibration-philosophy design call** (the noise pass found the dark is tuned
+to *flawless* play and is fragile to human error) → then **Blood-Pact 5e re-tune** and **3i UI port**. The
+**dominance question is SETTLED: Option A adopted** — the noise pass confirmed it (under universal error the
+win-share field flattens toward even and *nothing* grows; the cooperator regresses further under the 30%
+guard → it was a bot-tuning artifact). So **v3 competitive balance is LOCKED** under principled framing. **v3 COMPETITIVE BALANCE is essentially LOCKED,
 2-seed stable** (after V3-5 waves 1–3): dark 21.4/20.7% in band (per-count 16–24 credible), attrition 26/30%
 of dark-wins, doom 15.7/14.5% (co-primary), captures 0.35/0.36 (rare-but-dramatic), rounds 11.3, free-rider
 + termination OK. **5h gambit win-gate** (no declare/convert while the dark heart sits the Keystone) removed
@@ -221,6 +224,23 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-06-29** — **V3-5 BOUNDED-RATIONALITY ("d20") NOISE PASS (commits `59d24e3`/`ed4fee7`; report
+  `sim-results/sample-v3/NOISE_SWEEP.md`).** Added a seeded `errorRate` AI knob (a failed "skill check" →
+  a uniformly-random LEGAL action / perturbed pledge; **byte-identical at 0**, all noise via SeededRandom,
+  determinism + legality tested; v3 532 green). Swept the locked competitive suite (4200 games/level) at
+  errorRate {0,.05,.10,.15,.20}. **THREE READS:** (a) **DOMINANCE SETTLED → Option A safe:** every archetype's
+  win-share regresses toward even as everyone errs (gambler 40.9→32.8, cooperator 27.5→23.5, baseline 33.4→21.6)
+  — nothing grows, the signature of an ARTIFACT, not a real edge; **the no-dominance guard passes on the top
+  CHOSEN strategy → competitive balance LOCKED.** (b) **NEW FINDING — the dark is calibrated to FLAWLESS play
+  and is fragile to human error:** dark-win 21.4→24.5(5%)→26.9(10%)→29.0(15%)→31.6%(20%), ~+0.5pp per +1% error,
+  worst at 3-4p (→35.6/33.1% at 20%); mechanism = pledging is COORDINATION, so a failed check under-pledges and
+  *helps the dark*. Crucially the **path mix stays healthy** (extra wins via doom_complete 15.7→21.3%, NOT
+  attrition; attrition ≤40 and rounds 10-16 hold every level) — the shape is robust, only the *rate* climbs.
+  (c) **Rare-but-dramatic SURVIVES:** captures 0.35→0.31, deliberate gambit fire stays in 10-20 every level.
+  **OPEN — calibration philosophy (design call):** target balance at flawless play (skill-gradient: sloppy
+  tables lose more, by design) vs re-calibrate to a realistic error level vs a difficulty knob; lean = keep
+  flawless calibration + revisit with real error data at the V3-6 human playtest. `errorRate` is now a standing
+  AI-realism validation axis (NOT a §9 lever; locked numbers untouched, proven byte-identical at 0).
 - **2026-06-29** — **V3-5 TUNING WAVE 3 (2-seed validated; commits `66c785c`/`53d4e4a`/`e417b4b`) — COMPETITIVE
   BALANCE ESSENTIALLY LOCKED.** **5h gambit WIN-gate** (user Option B): a Crown's Gambit can be neither declared
   nor converted while the dark's heart is exposed at the Keystone (the heart spawns ON the Keystone, so
