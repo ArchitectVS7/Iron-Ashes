@@ -26,11 +26,12 @@ built a turtle meta; two new subsystems were non-deterministic). Those fixes are
 > - `docs/handoff/state.json` stays pointed at the **v2** status until the v3 code sprint opens its own
 >   stage (see §7).
 
-**Immediate next action:** a **calibration-philosophy design call** (the noise pass found the dark is tuned
-to *flawless* play and is fragile to human error) → then **Blood-Pact 5e re-tune** and **3i UI port**. The
-**dominance question is SETTLED: Option A adopted** — the noise pass confirmed it (under universal error the
-win-share field flattens toward even and *nothing* grows; the cooperator regresses further under the 30%
-guard → it was a bot-tuning artifact). So **v3 competitive balance is LOCKED** under principled framing. **v3 COMPETITIVE BALANCE is essentially LOCKED,
+**Immediate next action:** **Blood-Pact 5e re-tune** (user call), then **3i UI port**. **v3 competitive
+balance is LOCKED** (dominance settled — Option A, confirmed by the noise pass). **Calibration decided
+(user): the dark's strength becomes a DIFFICULTY SETTING** — a feature scaling the dark (doomCost curve) by
+an expected-play-quality tier, calibrated off the noise data (dark-win ~+0.5pp per 1% error), default picked
+at the V3-6 playtest; recorded as a planned feature (build near the UI/playtest, not now). Current lock =
+the "flawless-play" calibration point (errorRate 0 → 18–22%), which is the natural top difficulty tier. **v3 COMPETITIVE BALANCE is essentially LOCKED,
 2-seed stable** (after V3-5 waves 1–3): dark 21.4/20.7% in band (per-count 16–24 credible), attrition 26/30%
 of dark-wins, doom 15.7/14.5% (co-primary), captures 0.35/0.36 (rare-but-dramatic), rounds 11.3, free-rider
 + termination OK. **5h gambit win-gate** (no declare/convert while the dark heart sits the Keystone) removed
@@ -224,6 +225,13 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-06-29** — **TWO USER DECISIONS off the noise pass.** (1) **Dominance = Option A, ADOPTED** (judge
+  the no-dominance guard on the top deliberately-chosen strategy, excluding the baseline engine-default filler;
+  confirmed safe by the noise robustness) → **competitive balance LOCKED.** (2) **Calibration = a DIFFICULTY
+  SETTING:** the dark-is-fragile-to-error finding becomes a feature — a `difficulty` tier scaling the dark's
+  strength (the doomCost curve / a dark scalar) by an assumed play-quality, calibrated off the noise mapping
+  (~+0.5pp dark-win per 1% error), default chosen at the V3-6 playtest. PLANNED FEATURE (build near the UI; the
+  current errorRate-0 lock = the top "flawless-play" tier). **Next work = Blood-Pact 5e re-tune.**
 - **2026-06-29** — **V3-5 BOUNDED-RATIONALITY ("d20") NOISE PASS (commits `59d24e3`/`ed4fee7`; report
   `sim-results/sample-v3/NOISE_SWEEP.md`).** Added a seeded `errorRate` AI knob (a failed "skill check" →
   a uniformly-random LEGAL action / perturbed pledge; **byte-identical at 0**, all noise via SeededRandom,
