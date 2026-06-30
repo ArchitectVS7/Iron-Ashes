@@ -34,4 +34,20 @@ describe('runSweep', () => {
     expect(homogeneous('cooperator').seatsFor(2)).toEqual(['cooperator', 'cooperator']);
     expect(standardMatchups().length).toBeGreaterThan(5);
   });
+
+  // ── Stage 5l: the noise sweep is a reproducible f(config) at errorRate>0 too ──
+  it('table-wide errorRate>0 is deterministic — same config ⇒ byte-identical rows (§7)', () => {
+    const cfg = {
+      seeds: [11, 47, 909], playerCounts: [2, 4] as const, modes: ['competitive'] as const,
+      matchups: [MIXED_CANONICAL, oneVsField('cooperator')], errorRate: 0.15,
+    };
+    expect(JSON.stringify(runSweep(cfg))).toBe(JSON.stringify(runSweep(cfg)));
+  });
+
+  it('errorRate 0 / omitted ⇒ byte-identical sweep, and errorRate>0 actually moves it', () => {
+    const base = { seeds: [3, 8, 21], playerCounts: [4] as const, modes: ['competitive'] as const, matchups: [MIXED_CANONICAL] };
+    const clean = JSON.stringify(runSweep(base));
+    expect(JSON.stringify(runSweep({ ...base, errorRate: 0 }))).toBe(clean);
+    expect(JSON.stringify(runSweep({ ...base, errorRate: 0.3 }))).not.toBe(clean);
+  });
 });
