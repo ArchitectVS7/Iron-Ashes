@@ -430,13 +430,27 @@ export const SUSPICION_LOG_ROUNDS = TUNABLES_DATA.SUSPICION_LOG_ROUNDS;
 /** Blood Pact traitor cover (§5e): fraction of rounds the traitor pledges COVER (medium tier,
  *  invisible to the Suspicion Log) vs SABOTAGE (suppress → the detectable 'none' tell). Higher =
  *  blends more = survives + wins more, dark advances less. The PRIMARY 5e lever. Saboteur-only
- *  (gated on hasBloodPact) so competitive is unaffected. [TUNABLE] */
-export const SABOTEUR_COVER = TUNABLES_DATA.SABOTEUR_COVER;
+ *  (gated on hasBloodPact) so competitive is unaffected. [TUNABLE]
+ *
+ *  Stage 5m re-tune (2026-06-29): held as a literal here (NOT in data/tunables.json, which is
+ *  out of scope for this stage) so the BP-mode-gated value can move without touching the shared
+ *  data file. Raised 0.745 → 0.78 paired with BLOOD_PACT_SPREAD_BONUS 1 → 0: the post-5b doom
+ *  path made the traitor win too freely (34.4%); a touch more cover pulls exposure into the 40-70
+ *  band while keeping the traitor in a real ~1-in-5 (win 17-19%) across seeds. Mode-gated, so
+ *  competitive stays byte-identical. (Recorded, owned decision — no deferred debt.) */
+export const SABOTEUR_COVER = 0.78;
 
 /** Blood Pact ONLY (§5e): extra base blight spread on the dark's strike — the pact feeds the
  *  dark, so it burns hotter when a traitor is at the table. Gives the (hidden) traitor a real path
- *  to the doom_complete win + makes the dark scarier for the loyalists. Competitive = 0 (untouched). [TUNABLE] */
-export const BLOOD_PACT_SPREAD_BONUS = TUNABLES_DATA.BLOOD_PACT_SPREAD_BONUS;
+ *  to the doom_complete win + makes the dark scarier for the loyalists. Competitive = 0 (untouched). [TUNABLE]
+ *
+ *  Stage 5m re-tune (2026-06-29): held as a literal here (NOT in data/tunables.json, out of scope
+ *  for this stage). Lowered 1 → 0: the competitive 5b doom-path buff (BLIGHT_TO_ASH/SPREAD/Reckoning
+ *  auto-pressure) already made doom_complete — the traitor's win condition — far more reachable, so
+ *  this on-top bonus over-juiced the traitor (win 34.4% vs the 12-20 target). At 0 the traitor still
+ *  reaches doom via the buffed competitive path; win lands ~17-19% and is caught ~50-60% of the time
+ *  (see Stage 5m tuning notes). Mode-gated ⇒ competitive byte-identical. */
+export const BLOOD_PACT_SPREAD_BONUS = 0;
 
 /** Suspicion the loyalists demand before ACCUSING (§5e — the evidence bar). Higher = accuse
  *  only on strong evidence → fewer, more accurate accusations (and a blending traitor survives

@@ -29,10 +29,14 @@ describe('saboteur', () => {
     const seat = (struck + 1) % 4;
     state.players[seat].hand = [2, 2, 2, 2, 2, 2];
 
+    // Seed 1 lands on a SABOTAGE round (the cover-vs-sabotage blend coin floats 0.979 ≥
+    // SABOTEUR_COVER), so the traitor suppresses rather than blends — that is the branch this
+    // test exercises. (A COVER round would instead push the pledge UP to the medium tier to
+    // pass as loyal; that path is covered by the sweep tests + the Stage-5m balance sim.)
     state.players[seat].hasBloodPact = true;
-    const asTraitor = choosePledge(state, seat, 7, ARCHETYPES.saboteur.policy);
+    const asTraitor = choosePledge(state, seat, 1, ARCHETYPES.saboteur.policy);
     state.players[seat].hasBloodPact = false;
-    const asLoyal = choosePledge(state, seat, 7, ARCHETYPES.saboteur.policy);
+    const asLoyal = choosePledge(state, seat, 1, ARCHETYPES.saboteur.policy);
 
     expect(asTraitor).toBeLessThan(asLoyal); // hides a thin pledge when it's the traitor
   });
