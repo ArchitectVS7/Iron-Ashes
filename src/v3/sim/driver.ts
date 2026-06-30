@@ -40,6 +40,13 @@ export interface GameRunConfig {
   readonly bloodPactSeat?: number;
   /** Per-run tunable overrides (Stage-5 balance search). Unspecified = defaults. */
   readonly tunables?: Partial<Tunables>;
+  /**
+   * TABLE-WIDE bounded-rationality / human-error rate (Stage 5k), 0..1. Applied to EVERY seat that
+   * does not already set its own `errorRate` (per-seat policies win). An AI-REALISM axis, not a §9
+   * lever. Unspecified / 0 ⇒ flawless play and byte-identical to the locked build (no policy is
+   * rewrapped, so the default seat keeps its exact object identity / baseline brain).
+   */
+  readonly errorRate?: number;
 }
 
 export interface GameRunResult {
@@ -70,7 +77,17 @@ export function playHeadlessGame(cfg: GameRunConfig): GameRunResult {
 function runHeadlessGame(cfg: GameRunConfig): GameRunResult {
   const { seed, playerCount, mode } = cfg;
   const maxSteps = cfg.maxSteps ?? DEFAULT_MAX_STEPS;
-  const policyFor = (seat: number): AIPolicy => cfg.seatPolicies?.[seat] ?? DEFAULT_AI_POLICY;
+  // Table-wide bounded-rationality (Stage 5k): layer `errorRate` onto any seat that doesn't set its
+  // own. Only rewrap when the table rate is a POSITIVE number AND the seat hasn't specified one —
+  // so at 0/undefined every policy keeps its exact object identity (the DEFAULT seat stays on the
+  // baseline brain and the game is byte-identical to the locked build).
+  const tableError = cfg.errorRate;
+  const policyFor = (seat: number): AIPolicy => {
+    const base = cfg.seatPolicies?.[seat] ?? DEFAULT_AI_POLICY;
+    return tableError && tableError > 0 && base.errorRate === undefined
+      ? { ...base, errorRate: tableError }
+      : base;
+  };
 
   const apply = (state: GameState, cmd: Command): GameState => applyCommand(state, cmd).state;
 

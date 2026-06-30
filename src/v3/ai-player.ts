@@ -53,6 +53,20 @@ const CAPTURE_HUNT_RADIUS = 3;
  */
 const DEFAULT_SELF_RANSOM_CHANCE = 0.10;
 
+/**
+ * `decisionRng` salt for the Stage-5k bounded-rationality roll. Folded the same way as every other
+ * decision salt (kept < 10 so it stays inside this player's `playerIndex*10` band and never collides
+ * with another seat's stream). Chosen DISJOINT from the normal-path salts already in use:
+ *   - choosePledge uses salts 0,1,2; the error roll uses `PLEDGE_ERROR_SALT` (5).
+ *   - chooseAction's brain uses `1 + actionsRemaining` (2,3); the error roll uses
+ *     `ACTION_ERROR_SALT_BASE + actionsRemaining` (6,7 — ACTIONS_NORMAL=2), folding actionsRemaining
+ *     so the two actions in one turn roll INDEPENDENTLY (not the same value).
+ * These streams are NEVER consumed elsewhere, so drawing from them cannot perturb the chosen-best
+ * computation — at errorRate>0 a non-firing roll yields the byte-identical chosen action.
+ */
+const ACTION_ERROR_SALT_BASE = 5;
+const PLEDGE_ERROR_SALT = 5;
+
 // ─── Policy ───────────────────────────────────────────────────────
 
 /**
@@ -163,6 +177,22 @@ export interface AIPolicy {
    * the Warlord toward the Keystone to reach it) — the kill-the-dark commit (§5.6). Neutral 0.
    */
   readonly heartBias?: number;
+
+  // ── Stage 5k bounded-rationality ("d20") knob (OPTIONAL; default 0 ⇒ flawless play) ──
+  /**
+   * 0..1 — bounded-rationality / human-error rate. At EACH AI decision (chooseAction AND
+   * choosePledge) a seeded "skill check" is rolled: with probability `errorRate` the agent FAILS
+   * and takes a uniformly-random LEGAL action instead of its chosen best (for choosePledge, a
+   * uniformly-random valid pledge amount in [0, handSize]) — the "d20 vs a skill check" model.
+   * This is an AI-REALISM axis, NOT a §9 balance lever: it does not change any locked tunable.
+   *
+   * DETERMINISM (§7): the roll is drawn from a `SeededRandom` sub-stream (NOT Math.random), so a
+   * given (playerCount, mode, seed, errorRate) is byte-identical across runs. At errorRate 0 (or
+   * undefined — the DEFAULT) NO rng draw happens, preserving the locked rng stream exactly, so the
+   * whole game is byte-identical to the pre-5k build. The fallback action is always LEGAL (drawn
+   * from the same guaranteed-legal pool the reducer accepts — never an illegal/rejected command).
+   */
+  readonly errorRate?: number;
 }
 
 /** A moderately-cooperative economic player — the Stage-3c baseline (the neutral point). */
@@ -206,6 +236,19 @@ export function choosePledge(
 
   const handSize = player.hand.length;
   if (handSize === 0) return 0;
+
+  // Bounded-rationality "d20" (Stage 5k). At errorRate 0 (default) this block is skipped and NO rng
+  // draw occurs (byte-identical to the locked build). At errorRate>0 a FAILED skill check short-
+  // circuits the heuristic with a uniformly-random VALID pledge in [0, handSize] (the reducer
+  // accepts any amount in that range — always legal). Drawn from a DISJOINT sub-stream so a
+  // non-firing roll leaves the normal pledge computation below byte-identical.
+  const errorRate = policy.errorRate ?? 0;
+  if (errorRate > 0) {
+    const errRng = decisionRng(state, playerIndex, seed, PLEDGE_ERROR_SALT);
+    if (errRng.float() < errorRate) {
+      return errRng.int(0, handSize);
+    }
+  }
 
   const C = telegraph.doomCost;
   if (C <= 0) return 0;
@@ -577,10 +620,94 @@ export function chooseAction(
   seed: number,
   policy: AIPolicy = DEFAULT_AI_POLICY,
 ): PlayerAction {
-  if (policy === DEFAULT_AI_POLICY) {
+  // Bounded-rationality "d20" (Stage 5k). At errorRate 0 (default) this whole block is skipped
+  // and NO rng draw occurs — the decision is byte-identical to the pre-5k locked build. At
+  // errorRate>0 we draw the roll from a DISJOINT sub-stream, so a non-firing roll still returns
+  // the byte-identical chosen-best below (the chosen-best streams are untouched).
+  const errorRate = policy.errorRate ?? 0;
+  if (errorRate > 0) {
+    const player = state.players[playerIndex];
+    const rng = decisionRng(state, playerIndex, seed, ACTION_ERROR_SALT_BASE + player.actionsRemaining);
+    if (rng.float() < errorRate) {
+      // FAILED skill check → a uniformly-random LEGAL action (never the rejected/no-op path).
+      return rng.pick(legalActions(state, playerIndex));
+    }
+  }
+
+  // Brain selection: the DEFAULT economic baseline, OR the default with ONLY a bounded-rationality
+  // errorRate layered on (table-wide noise must NOT silently switch a default seat to the archetype
+  // brain — that would confound "default brain + noise" with "different brain"). Everything else is
+  // a knob-driven archetype.
+  if (usesBaselineBrain(policy)) {
     return baselineAction(state, playerIndex, seed);
   }
   return archetypeAction(state, playerIndex, seed, policy);
+}
+
+/**
+ * Does `policy` drive the BASELINE economic brain? True iff it is the DEFAULT object, or the
+ * DEFAULT with only `errorRate` layered on (so table-wide bounded-rationality noise keeps a default
+ * seat on the baseline brain). Any real archetype knob makes it a knob-driven archetype. Pure.
+ */
+function usesBaselineBrain(policy: AIPolicy): boolean {
+  if (policy === DEFAULT_AI_POLICY) return true;
+  const strip = (p: AIPolicy): string[] =>
+    Object.keys(p).filter(k => k !== 'errorRate').sort();
+  const keys = strip(policy);
+  const defKeys = strip(DEFAULT_AI_POLICY);
+  if (keys.length !== defKeys.length) return false;
+  const rec = policy as unknown as Record<string, unknown>;
+  const defRec = DEFAULT_AI_POLICY as unknown as Record<string, unknown>;
+  return keys.every((k, i) => k === defKeys[i] && rec[k] === defRec[k]);
+}
+
+/**
+ * Enumerate the GUARANTEED-legal actions for `playerIndex` at the current ACTION decision point
+ * (Stage 5k). Every entry mirrors the reducer's own legality checks (the same patterns the normal
+ * choosers use to propose accepted commands), so a uniformly-random pick can NEVER be rejected:
+ *   - STRIKE  — a co-located Shadowking force (the reducer sizes the commit; cards optional).
+ *   - RAID    — a co-located UNSWORN rival force (plain TAKE_LAND; losing raids are legal & worse).
+ *   - CLAIM   — an unclaimed, living, non-DK-blocked Holding/Forge under us, banner affordable.
+ *   - MARCH   — each adjacent node passing Zone-of-Control + banner/toll affordability.
+ *   - SWEAR_OATH — an oath-free living rival (free action).
+ *   - RANSOM  — one of OUR captives, when cards+banners afford it (self-ransom, no locality).
+ *   - PASS    — always legal (the floor; the list is never empty, so `pick` never throws).
+ * Pure `f(state)`.
+ */
+function legalActions(state: GameState, playerIndex: number): PlayerAction[] {
+  const player = state.players[playerIndex];
+  const here = player.warlordNodeId;
+  const out: PlayerAction[] = [];
+
+  if (hasSKForcesAtNode(state, here)) out.push({ type: 'STRIKE' });
+
+  const rival = hasRivalAtNode(state, playerIndex, here);
+  if (rival !== null && !areSworn(state, playerIndex, rival)) {
+    out.push({ type: 'RAID', targetPlayerIndex: rival });
+  }
+
+  if (player.banners >= 1 && claimValue(state, here) > 0) out.push({ type: 'CLAIM' });
+
+  for (const nb of state.board.definition.nodes[here].connections) {
+    if (stepBlocked(state, playerIndex, nb)) continue;
+    if (player.banners >= marchCostFor(state, playerIndex, nb)) {
+      out.push({ type: 'MARCH', targetNodeId: nb });
+    }
+  }
+
+  if (findOath(state, playerIndex) === null) {
+    const ally = oathTargetFor(state, playerIndex);
+    if (ally !== null) out.push({ type: 'SWEAR_OATH', targetPlayerIndex: ally });
+  }
+
+  const tr = getTunables();
+  const mineCaptive = state.captives.find(r => r.ownerSeat === playerIndex);
+  if (mineCaptive && player.hand.length >= tr.RANSOM_COST && player.banners >= tr.RANSOM_BANNERS) {
+    out.push({ type: 'RANSOM', pieceId: mineCaptive.pieceId });
+  }
+
+  out.push({ type: 'PASS' });
+  return out;
 }
 
 /**

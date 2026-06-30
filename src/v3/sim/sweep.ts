@@ -19,6 +19,12 @@ export interface SweepConfig {
   readonly maxStepsPerGame?: number;
   /** Per-run tunable overrides applied to every game in the sweep (Stage-5 search). */
   readonly tunables?: Partial<Tunables>;
+  /**
+   * TABLE-WIDE bounded-rationality / human-error rate (Stage 5k), 0..1, applied to every seat that
+   * doesn't set its own. An AI-REALISM axis, not a §9 lever. Unspecified / 0 ⇒ flawless play
+   * (byte-identical to the locked sweep).
+   */
+  readonly errorRate?: number;
 }
 
 export interface SweepRow {
@@ -49,7 +55,7 @@ export function runSweep(cfg: SweepConfig): SweepRow[] {
         for (const seed of cfg.seeds) {
           const run = playHeadlessGame({
             seed, playerCount, mode, seatPolicies, maxSteps: cfg.maxStepsPerGame,
-            bloodPactSeat, tunables: cfg.tunables,
+            bloodPactSeat, tunables: cfg.tunables, errorRate: cfg.errorRate,
           });
           rows.push({
             seed, playerCount, mode,
