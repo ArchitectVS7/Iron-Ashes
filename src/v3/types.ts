@@ -597,4 +597,33 @@ export interface GameState {
 
   /** The game mode for this session. */
   readonly mode: GameMode;
+
+  /**
+   * Human-only Death Bequest overrides (§13 P0-11 UI), keyed by the dying seat. When present and
+   * still LEGAL for a seat, `decideBequest` returns it instead of the scripted policy — so an
+   * eliminated human chooses its own exit beat. Set ONLY by the SET_BEQUEST command (interactive
+   * path); the sim/AI NEVER set it, so every headless run stays byte-identical (§7). Optional +
+   * JSON-serializable; absent by default.
+   */
+  pendingBequests?: Record<number, BequestChoiceInput>;
+
+  /**
+   * Human-only Wraith input overrides (§13 P0-11 UI), keyed by the wraith's seat: the ONE bounded
+   * afterlife input it chooses this round ('nudge' | 'card_add'). `planWraithInputs` consults it for
+   * that seat (falling back to 'nudge' when 'card_add' has no ammo); absent ⇒ the scripted decision.
+   * Set ONLY by the SET_WRAITH_INPUT command; the sim/AI never set it ⇒ byte-identical replay (§7).
+   */
+  wraithInputs?: Record<number, WraithInputKind>;
 }
+
+/** The ONE bounded input a Wraith may pick (§5.5) — used by the human-override seam. */
+export type WraithInputKind = 'nudge' | 'card_add';
+
+/**
+ * A human's chosen Death Bequest (§5.5, §13 P0-11 UI) — the structural mirror of elimination.ts's
+ * `BequestChoice`, defined here so `GameState` can carry the override without a value-import cycle.
+ */
+export type BequestChoiceInput =
+  | { readonly kind: 'bequeath_captive'; readonly pieceId: string; readonly beneficiary: number }
+  | { readonly kind: 'bequeath_cards'; readonly beneficiary: number }
+  | { readonly kind: 'death_curse'; readonly target: number | null };

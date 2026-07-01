@@ -150,3 +150,38 @@ button.primary { background: var(--accent); color: #1a1206; border: none; font-w
 .tier-low  { color: #fca5a5; }
 .tier-medium { color: var(--muted); }
 .tier-high { color: #86efac; }
+
+/* ── Exposure meter (§13 P0-11) — colour-coded danger legibility ── */
+.exposure-meter .exp-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.exp { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600;
+  border: 1px solid var(--line); border-radius: 4px; padding: 2px 6px; }
+.exp .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.exp-safe { color: #86efac; }
+.exp-can-lose-land { color: var(--accent); }
+.exp-can-be-deposed { color: #fca5a5; border-color: var(--danger); }
+.exp-deposed { color: var(--danger); border-color: var(--danger); background: rgba(239,68,68,0.12); }
+.exp-eliminated { color: var(--muted); opacity: 0.6; }
+
+/* ── Hold Rail — hostages ── */
+.captive-list { list-style: none; padding-left: 0 !important; display: flex; flex-direction: column; gap: 3px; }
+.captive-list li { display: flex; align-items: center; gap: 5px; }
+.captive-list .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.immune { color: #86efac; }
+
+/* ── RAID capture election + projected margin ── */
+.raid-block { border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; margin: 4px 0; }
+.raid-head { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.raid-elects { display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* ── Wraith input + Death Bequest panels ── */
+.wraith-input, .panel.bequest { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 8px; }
+.panel.bequest.blocking { border: 1px solid var(--danger); border-radius: 8px; padding: 10px; background: rgba(239,68,68,0.08); }
+.panel-subtitle { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.wraith-btn, .bequest .action-btns button { display: block; width: 100%; text-align: left; margin: 3px 0; }
+.wraith-btn.selected { border-color: var(--accent); color: var(--accent); }
+
+/* ── Narration kinds ── */
+.narration { list-style: none; padding-left: 0; font-size: 13px; display: flex; flex-direction: column; gap: 3px; }
+.narr.villain { color: var(--danger); font-style: italic; }
+.narr.beat { color: var(--accent); }
+.narr.system { color: var(--ink); }

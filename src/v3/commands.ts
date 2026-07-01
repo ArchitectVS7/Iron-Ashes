@@ -62,7 +62,9 @@ export type Command =
   | PlayerActionCommand
   | LastStandCommitCommand
   | InitiateAccusationCommand
-  | AccusationVoteCommand;
+  | AccusationVoteCommand
+  | SetBequestCommand
+  | SetWraithInputCommand;
 
 /** Advance to the next phase (or next round at Dawn → Threat). */
 export interface AdvancePhaseCommand {
@@ -104,4 +106,26 @@ export interface AccusationVoteCommand {
   readonly type: 'ACCUSATION_VOTE';
   readonly playerIndex: number;
   readonly agree: boolean;
+}
+
+/**
+ * Record an eliminated-but-not-yet-resolved human's Death Bequest choice (§5.5, §13 P0-11 UI). The
+ * reducer stores it in `state.pendingBequests[playerIndex]`; `decideBequest` consults it (when
+ * legal) at Dawn. Interactive-only — the sim/AI never dispatch it, so headless replay is unchanged.
+ */
+export interface SetBequestCommand {
+  readonly type: 'SET_BEQUEST';
+  readonly playerIndex: number;
+  readonly choice: import('./types.js').BequestChoiceInput;
+}
+
+/**
+ * Record a human Wraith's ONE bounded afterlife input for this round (§5.5, §13 P0-11 UI). Stored in
+ * `state.wraithInputs[playerIndex]` and consulted by `planWraithInputs` at the next THREAT sweep.
+ * Interactive-only; the sim/AI never dispatch it.
+ */
+export interface SetWraithInputCommand {
+  readonly type: 'SET_WRAITH_INPUT';
+  readonly playerIndex: number;
+  readonly kind: import('./types.js').WraithInputKind;
 }

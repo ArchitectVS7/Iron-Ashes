@@ -316,7 +316,37 @@ export type BequestChoice =
  * DEATH-CURSE at the depersonalized leader/oathbreaker/beneficiary target (§13 P0-9 / §12 #26) and
  * its hand feeds the dark by the default no-free-spoils path. Pure + deterministic.
  */
+/**
+ * Is a human-chosen Death Bequest override still legal for `dyingSeat` (§13 P0-11 UI)? Mirrors the
+ * scripted policy's own guards so an override can never do something the engine wouldn't: a
+ * beneficiary must be a living OTHER seat; a captive bequest must be a captive this seat actually
+ * holds whose owner is not the beneficiary; a card bequest needs cards in hand; a curse target must
+ * be null or a valid seat. Invalid overrides silently fall back to the scripted policy. Pure.
+ */
+function isBequestLegal(state: GameState, dyingSeat: number, choice: BequestChoice): boolean {
+  const living = (seat: number): boolean =>
+    seat >= 0 && seat < state.players.length && !state.players[seat].isEliminated;
+  switch (choice.kind) {
+    case 'bequeath_captive': {
+      if (choice.beneficiary === dyingSeat || !living(choice.beneficiary)) return false;
+      const rec = state.captives.find(r => r.pieceId === choice.pieceId && r.captorSeat === dyingSeat);
+      return rec !== undefined && rec.ownerSeat !== choice.beneficiary;
+    }
+    case 'bequeath_cards':
+      return choice.beneficiary !== dyingSeat && living(choice.beneficiary)
+        && state.players[dyingSeat].hand.length > 0;
+    case 'death_curse':
+      return choice.target === null || living(choice.target);
+  }
+}
+
 export function decideBequest(state: GameState, dyingSeat: number): BequestChoice {
+  // Human-only override (§13 P0-11 UI): an eliminated human may have chosen its own exit beat via
+  // SET_BEQUEST. Use it when present AND still legal; else fall through to the scripted policy. The
+  // sim/AI never set `pendingBequests`, so headless replay is byte-identical (§7).
+  const override = state.pendingBequests?.[dyingSeat];
+  if (override && isBequestLegal(state, dyingSeat, override)) return override;
+
   const obs = observableState(state, dyingSeat);
   const oath = obs.oaths.find(o => o.a === dyingSeat || o.b === dyingSeat);
   if (oath) {
@@ -464,7 +494,13 @@ export function planWraithInputs(state: GameState): WraithDecision[] {
   });
   for (const w of ordered) {
     if (plan.length >= cap) break;
-    const kind = decideWraithInput(observableState(state, w.seat), cardsAvailable);
+    // Human-only override (§13 P0-11 UI): an eliminated human wraith may have picked its ONE input
+    // via SET_WRAITH_INPUT. Honour it — but 'card_add' still needs ammo (else fall back to 'nudge'),
+    // preserving the bounded-input invariant. The sim/AI never set `wraithInputs` ⇒ byte-identical.
+    const wanted = state.wraithInputs?.[w.seat];
+    const kind = wanted !== undefined
+      ? (wanted === 'card_add' && cardsAvailable > 0 ? 'card_add' : 'nudge')
+      : decideWraithInput(observableState(state, w.seat), cardsAvailable);
     if (kind === 'card_add') cardsAvailable -= 1;
     plan.push({ seat: w.seat, kind, isTraitor: w.seat === traitorSeat });
   }

@@ -93,6 +93,12 @@ export function applyCommand(state: GameState, command: Command): CommandResult 
     case 'ACCUSATION_VOTE':
       return handleAccusationVote(newState, command.playerIndex, command.agree);
 
+    case 'SET_BEQUEST':
+      return handleSetBequest(newState, command.playerIndex, command.choice);
+
+    case 'SET_WRAITH_INPUT':
+      return handleSetWraithInput(newState, command.playerIndex, command.kind);
+
     default: {
       // Exhaustive check
       const _exhaustive: never = command;
@@ -536,6 +542,62 @@ function handlePlayerAction(
   state.actionLog.push(...events);
 
   return { state, events };
+}
+
+// ─── Human-only exit-beat overrides (§13 P0-11 UI) ────────────────
+
+/**
+ * Record an eliminated-but-not-yet-resolved human's Death Bequest choice. Legal while the seat is
+ * flagged `deposed` (about to be eliminated at Dawn) and not yet eliminated. Stored on state; the
+ * scripted `decideBequest` validates + consults it. Sim/AI never dispatch this ⇒ byte-identical.
+ */
+function handleSetBequest(
+  state: GameState,
+  playerIndex: number,
+  choice: import('./types.js').BequestChoiceInput,
+): CommandResult {
+  const player = state.players[playerIndex];
+  if (!player) {
+    throw new InvalidCommandError({ type: 'SET_BEQUEST', playerIndex, choice }, `Player ${playerIndex} does not exist`);
+  }
+  if (player.isEliminated) {
+    throw new InvalidCommandError(
+      { type: 'SET_BEQUEST', playerIndex, choice },
+      `Cannot SET_BEQUEST: Player ${playerIndex + 1} is already eliminated`,
+    );
+  }
+  // A living player may record its "will" whenever it is in danger (its exposure meter has reached
+  // can-be-DEPOSED). The choice is stored but only CONSUMED — and re-validated — at the Dawn the
+  // seat actually dies (`decideBequest`); if the player survives it is simply never read.
+  const pending = { ...(state.pendingBequests ?? {}) };
+  pending[playerIndex] = choice;
+  state.pendingBequests = pending;
+  return { state, events: [] };
+}
+
+/**
+ * Record a human Wraith's ONE bounded input for the coming THREAT sweep. Legal while the seat is
+ * eliminated (a wraith). `planWraithInputs` consults it (falling back to 'nudge' without ammo).
+ */
+function handleSetWraithInput(
+  state: GameState,
+  playerIndex: number,
+  kind: import('./types.js').WraithInputKind,
+): CommandResult {
+  const player = state.players[playerIndex];
+  if (!player) {
+    throw new InvalidCommandError({ type: 'SET_WRAITH_INPUT', playerIndex, kind }, `Player ${playerIndex} does not exist`);
+  }
+  if (!player.isEliminated) {
+    throw new InvalidCommandError(
+      { type: 'SET_WRAITH_INPUT', playerIndex, kind },
+      `Cannot SET_WRAITH_INPUT: Player ${playerIndex + 1} is not a Wraith`,
+    );
+  }
+  const inputs = { ...(state.wraithInputs ?? {}) };
+  inputs[playerIndex] = kind;
+  state.wraithInputs = inputs;
+  return { state, events: [] };
 }
 
 function handleLastStandCommit(

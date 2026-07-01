@@ -50,6 +50,8 @@ export type {
   BackSigil,
   HiddenToken,
   TokenKind,
+  BequestChoiceInput,
+  WraithInputKind,
 } from './types.js';
 
 // ── Commands ──
@@ -61,6 +63,8 @@ export type {
   SubmitPledgeCommand,
   PlayerActionCommand,
   LastStandCommitCommand,
+  SetBequestCommand,
+  SetWraithInputCommand,
 } from './commands.js';
 
 // ── Events ──
@@ -115,6 +119,8 @@ export {
   isProductionLeader,
   trailingDefenseBonus,
   stewardHomeDefenseBonus,
+  chooseCombatCommit,
+  chooseRaidAttackCommit,
 } from './combat.js';
 export type { CombatSetup, CombatResult, CombatType, LastStandResult } from './combat.js';
 
@@ -130,6 +136,9 @@ export {
   isPlayerAtNode,
   hasRivalAtNode,
   hasSKForcesAtNode,
+  findOath,
+  areSworn,
+  parleyTarget,
 } from './actions.js';
 export type { RaidEffect, RaidElect } from './actions.js';
 
@@ -243,7 +252,7 @@ export type {
 } from './observable.js';
 
 // ── Tunables ──
-export { TUNABLES } from './tunables.js';
+export { TUNABLES, HERALD_RECRUIT_COST } from './tunables.js';
 
 // ── Sequencer (for advanced/test use) ──
 export {
