@@ -26,9 +26,17 @@ built a turtle meta; two new subsystems were non-deterministic). Those fixes are
 > - `docs/handoff/state.json` stays pointed at the **v2** status until the v3 code sprint opens its own
 >   stage (see §7).
 
-**Immediate next action:** the **V3-6 human playtest** (`npm run dev` → `/index-v3.html`) — plus, optionally,
-the **difficulty-setting feature**. **v3 IS FUNCTIONALLY COMPLETE END-TO-END:** design → engine → sim →
-balance (both modes, 2-seed) → **3i UI DONE** (`src/ui-v3`, all verbs wired incl. capture-election / Ransom /
+**Immediate next action:** the **V3-6 HUMAN PLAYTEST** (`npm run dev` → `/index-v3.html`; walk
+`docs/human-playtest-checklist-v3.md`) — the ball is now in the human's court. Everything build-able is
+DONE: **v3 IS FUNCTIONALLY COMPLETE END-TO-END** (design → engine → sim → balance both modes → UI →
+difficulty selector → playtest checklist). v3 586 tests green, v2 451, tsc + `vite build` clean, default
+balance byte-identical. The playtest sets the difficulty default + drives the styled-UI pass + any felt-experience tuning.
+
+*(Prior-status prose accumulated below is historical; the accurate running record is §8. Also note the
+"DESIGN sprint / CODE sprint NOT STARTED" header at the top of §0 is stale — the code sprint is essentially
+done; kept only because §8 is the authoritative timeline.)*
+
+**[historical]** balance (both modes, 2-seed) → **3i UI DONE** (`src/ui-v3`, all verbs wired incl. capture-election / Ransom /
 ASSAULT_HEART / Wraith / Bequest, the §13 P0-11 legibility, jsdom E2E over full competitive + Blood-Pact
 games). v3 569 tests green, v2 451 green, tsc + `vite build` clean, and the competitive sim is **byte-identical
 to the locked balance** (the UI's two sim-neutral human-only commands don't perturb it). Only the difficulty
@@ -173,8 +181,13 @@ Workflow (same as v2): **① idea → ② textual algorithm → ③ code → ④
   jsdom E2E plays full competitive + Blood-Pact games via real DOM clicks (drives an elimination + a heart
   assault). v3 569 tests; competitive sim **byte-identical** to the locked balance. Functional/unstyled — the
   styled pass follows the playtest.
-- [ ] **Difficulty-setting feature** — the calibration decision (§8 2026-06-29): a `difficulty` tier scaling
-  the dark (doomCost curve) by an assumed play-quality, calibrated off the noise data; default chosen at playtest.
+- [x] **Difficulty-setting feature** — DONE (`08a5899`/`2bbab87`). A `difficulty` tier (warlord/knight/squire)
+  scaling the dark via the doomCost curve, calibrated at flawless play to **21% / 17.5% / 13%**; **warlord =
+  DEFAULT = the locked balance (byte-identical, re-verified)**. Wired through the sim (`SweepConfig.difficulty`)
+  and the UI (a selector on the `src/ui-v3` start screen, applied via the `withTunables` seam around each step).
+  Emergent property: only the HARD tier amplifies under error (→25%); knight/squire are forgiving (~flat). Known
+  limit: the doomCost floors at 1 card at 2p, so tiers only bite at 3p/4p (2p ≈23% across tiers). **The playtest
+  picks the shipped default** (checklist item 11).
 - [ ] **Stage V3-6 — UI polish + human playtest** — walk a v3 `human-playtest-checklist.md` (the elimination
   feel, the Wraith engagement, the two-act ending, capture-as-scene, the 30–45 min length with 4 archetypes).
 
@@ -238,6 +251,18 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-01** — **DIFFICULTY-SETTING FEATURE COMPLETE + PLAYTEST CHECKLIST → v3 READY FOR PLAYTEST**
+  (commits `08a5899`/`2bbab87`/`4511db2`). A `difficulty` tier (**warlord / knight / squire**) scales the dark
+  via the doomCost curve, calibrated at flawless play to **21% / 17.5% / 13%** dark-win; **warlord = DEFAULT =
+  the locked balance, byte-identical** (re-verified: `sim:v3` default summary.json == locked reference). Wired
+  through the sim (`SweepConfig.difficulty`) and the UI (a selector on the `src/ui-v3` start screen applied via
+  the `withTunables` seam around each engine step). **Honest emergent finding:** only HARD amplifies under human
+  error (→25% at ~7%); knight/squire are *forgiving* (~flat) because a weaker doomCost floor is blockable even
+  with degraded pledges — so the tiers read as "brutal-if-sloppy / steady / easy". **Known limit:** doomCost
+  floors at 1 card at 2p, so the tiers only bite at 3p/4p (2p ≈23% across tiers) — a future 2p-specific lever if
+  needed. Also added `docs/human-playtest-checklist-v3.md` (11 human-only items). v3 586 tests, v2 451, `vite
+  build` clean. **v3 is now FUNCTIONALLY COMPLETE + PLAYTEST-READY** — next is the V3-6 human playtest, which
+  sets the difficulty default + drives the styled-UI pass.
 - **2026-07-01** — **Stage 3i UI PORT COMPLETE → v3 FUNCTIONALLY COMPLETE END-TO-END** (commits
   `3e9934c`/`6b51976`/`aebc27a`). New `src/ui-v3` ported from `src/ui-v2`, wired to the v3 engine, rendering
   from `observableState` (never leaks unflipped tokens / seed, §7 D2). Every v3 verb has a control routed
