@@ -28,6 +28,7 @@ export type {
   GameState,
   GambitState,
   NodeTier,
+  Oath,
   Piece,
   PieceType,
   PledgeEntry,
