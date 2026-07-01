@@ -26,10 +26,13 @@ built a turtle meta; two new subsystems were non-deterministic). Those fixes are
 > - `docs/handoff/state.json` stays pointed at the **v2** status until the v3 code sprint opens its own
 >   stage (see §7).
 
-**Immediate next action:** **3i UI port** + the **difficulty-setting feature**, then the **V3-6 human
-playtest**. **v3 BALANCE IS COMPLETE — both modes, 2-seed stable** (the Phase-5 equivalent): competitive
-LOCKED + noise-robustness-checked; **Blood-Pact 5e DONE** (traitor win 18.6/16.1%, exposure 56.9/58.6%,
-accuracy ~71%, accusations 0.81 — all four bands in band, 2-seed stable; competitive byte-identical). **Calibration decided
+**Immediate next action:** the **V3-6 human playtest** (`npm run dev` → `/index-v3.html`) — plus, optionally,
+the **difficulty-setting feature**. **v3 IS FUNCTIONALLY COMPLETE END-TO-END:** design → engine → sim →
+balance (both modes, 2-seed) → **3i UI DONE** (`src/ui-v3`, all verbs wired incl. capture-election / Ransom /
+ASSAULT_HEART / Wraith / Bequest, the §13 P0-11 legibility, jsdom E2E over full competitive + Blood-Pact
+games). v3 569 tests green, v2 451 green, tsc + `vite build` clean, and the competitive sim is **byte-identical
+to the locked balance** (the UI's two sim-neutral human-only commands don't perturb it). Only the difficulty
+feature + the human playtest remain. **Calibration decided
 (user): the dark's strength becomes a DIFFICULTY SETTING** — a feature scaling the dark (doomCost curve) by
 an expected-play-quality tier, calibrated off the noise data (dark-win ~+0.5pp per 1% error), default picked
 at the V3-6 playtest; recorded as a planned feature (build near the UI/playtest, not now). Current lock =
@@ -162,8 +165,14 @@ Workflow (same as v2): **① idea → ② textual algorithm → ③ code → ④
   noise pass): dark 21% in band, doom co-primary (hybrid), captures rare-but-dramatic, gambit win-gated,
   dominance settled (Option A), noise-robustness-checked. Blood-Pact (5e): traitor win ~17%, exposure ~58%,
   accuracy ~71%, accusations 0.81 — 2-seed stable, competitive byte-identical. Tunable journey logged in §8.
-- [ ] **3i — UI port** — port `src/ui-v2` to v3 + new controls + the §13 P0-11 legibility (Exposure meter,
-  pre-commit margin, the "Hold" rail, capture/heart scene beats). *(Carried from Stage V3-3; the last engine-side stage.)*
+- [x] **3i — UI port** — DONE (`3e9934c`/`6b51976`/`aebc27a`). New `src/ui-v3` (renders from `observableState`,
+  fog-respecting) + `index-v3.html` + `vite.config.ts` (both UIs bundle; v2 untouched). Every verb wired via
+  `applyCommand` (incl. the capture election, Ransom, ASSAULT_HEART, and — via two sim-neutral human-only
+  commands `SET_WRAITH_INPUT`/`SET_BEQUEST` — the Wraith input + Death Bequest); §13 P0-11 legibility
+  (Exposure meter + "tide reached you" beat, pre-commit margin, captives Hold rail, capture/heart scene beats).
+  jsdom E2E plays full competitive + Blood-Pact games via real DOM clicks (drives an elimination + a heart
+  assault). v3 569 tests; competitive sim **byte-identical** to the locked balance. Functional/unstyled — the
+  styled pass follows the playtest.
 - [ ] **Difficulty-setting feature** — the calibration decision (§8 2026-06-29): a `difficulty` tier scaling
   the dark (doomCost curve) by an assumed play-quality, calibrated off the noise data; default chosen at playtest.
 - [ ] **Stage V3-6 — UI polish + human playtest** — walk a v3 `human-playtest-checklist.md` (the elimination
@@ -229,6 +238,18 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-01** — **Stage 3i UI PORT COMPLETE → v3 FUNCTIONALLY COMPLETE END-TO-END** (commits
+  `3e9934c`/`6b51976`/`aebc27a`). New `src/ui-v3` ported from `src/ui-v2`, wired to the v3 engine, rendering
+  from `observableState` (never leaks unflipped tokens / seed, §7 D2). Every v3 verb has a control routed
+  through `applyCommand`; the Wraith input + Death Bequest — which were engine-auto scripted policies with no
+  command surface (like v2's Last-Stand gap) — got two **sim-neutral human-only** commands
+  (`SET_WRAITH_INPUT`/`SET_BEQUEST`; optional `pendingBequests`/`wraithInputs` state consulted only when
+  present+legal, else the scripted fallback → sim/AI never set them). §13 P0-11 legibility all present. jsdom
+  E2E plays full competitive + Blood-Pact games via real DOM clicks (incl. an elimination → Wraith/Bequest and
+  a heart assault). **VERIFIED:** v3 569 green, v2 451 green, tsc + eslint + `vite build` (both UIs) clean, and
+  the competitive sim `summary.json` is **byte-identical** to the locked reference — the engine-touch did not
+  move balance. Functional/unstyled UI; playable via `npm run dev` → `/index-v3.html`. **Remaining v3: the
+  difficulty-setting feature + the V3-6 human playtest.**
 - **2026-06-29** — **V3-5e BLOOD-PACT RE-TUNE COMPLETE (2-seed; commits `ec973d4`/`38718cb`) → v3 BALANCE
   COMPLETE, BOTH MODES.** Two mode-gated levers: `BLOOD_PACT_SPREAD_BONUS` 1→0 (the on-top doom bonus was
   redundant once the competitive 5b doom-path buff made `doom_complete` — the traitor's win — far more
