@@ -4,7 +4,7 @@
  * is pure, and `playHeadlessGame` is reproducible — so `runSweep` is `f(config)`.
  */
 
-import type { GameMode } from '../types.js';
+import type { Difficulty, GameMode } from '../types.js';
 import type { Tunables } from '../tunables.js';
 import { playHeadlessGame } from './driver.js';
 import { policyOf, type ArchetypeId } from './archetypes.js';
@@ -25,6 +25,12 @@ export interface SweepConfig {
    * (byte-identical to the locked sweep).
    */
   readonly errorRate?: number;
+  /**
+   * DARK-STRENGTH difficulty tier (§D1) applied to every game in the sweep. Unspecified ⇒ `warlord`
+   * (the locked reference) ⇒ byte-identical to the locked competitive sweep. Layered UNDER
+   * `tunables` (an explicit balance-search override still wins) — see driver.playHeadlessGame.
+   */
+  readonly difficulty?: Difficulty;
 }
 
 export interface SweepRow {
@@ -56,6 +62,7 @@ export function runSweep(cfg: SweepConfig): SweepRow[] {
           const run = playHeadlessGame({
             seed, playerCount, mode, seatPolicies, maxSteps: cfg.maxStepsPerGame,
             bloodPactSeat, tunables: cfg.tunables, errorRate: cfg.errorRate,
+            difficulty: cfg.difficulty,
           });
           rows.push({
             seed, playerCount, mode,

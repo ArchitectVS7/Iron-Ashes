@@ -26,7 +26,9 @@ import {
   deathKnightCount,
   getTunables,
 } from './tunables.js';
+import { DEFAULT_DIFFICULTY } from './difficulty.js';
 import type {
+  Difficulty,
   GameMode,
   GameState,
   PlayerState,
@@ -119,12 +121,17 @@ function createInitialForces(
  * @param mode — 'competitive' or 'blood_pact'
  * @param seed — the RNG seed for the entire session
  * @param humanCount — how many human players (rest are AI). Defaults to 1.
+ * @param difficulty — the DARK-STRENGTH tier (§D1). Defaults to `warlord` (HARD), the LOCKED
+ *   reference — so a default game is byte-identical to the current competitive build. The tier is
+ *   applied at play time through the getTunables/withTunables seam (setup itself never reads
+ *   doomCost, so the initial state is difficulty-independent apart from this stored field).
  */
 export function createGame(
   playerCount: number,
   mode: GameMode,
   seed: number,
   humanCount: number = 1,
+  difficulty: Difficulty = DEFAULT_DIFFICULTY,
 ): GameState {
   if (playerCount < 2 || playerCount > 4) {
     throw new Error(`playerCount must be 2-4, got ${playerCount}`);
@@ -246,6 +253,7 @@ export function createGame(
 
     actionLog: [],
     mode,
+    difficulty,
   };
 
   // 7. Compute initial Crown holder (§5.2)

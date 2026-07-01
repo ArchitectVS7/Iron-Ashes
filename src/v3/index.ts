@@ -8,6 +8,14 @@
 // ── Setup ──
 export { createGame } from './setup.js';
 
+// ── Difficulty (Stage D1 — dark-strength tiers via the doomCost curve) ──
+export {
+  DEFAULT_DIFFICULTY,
+  DIFFICULTY_TUNABLES,
+  difficultyTunables,
+  withDifficulty,
+} from './difficulty.js';
+
 // ── Reducer ──
 export { applyCommand, InvalidCommandError } from './reducer.js';
 export type { CommandResult } from './reducer.js';
@@ -15,6 +23,7 @@ export type { CommandResult } from './reducer.js';
 // ── Types ──
 export type {
   Act,
+  Difficulty,
   AccusationOutcome,
   AccusationState,
   AccusationVote,

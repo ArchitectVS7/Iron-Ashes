@@ -17,9 +17,10 @@ import { applyCommand } from '../reducer.js';
 import { runAIPledge, runAITurn, DEFAULT_AI_POLICY, type AIPolicy } from '../ai-player.js';
 import { chooseAccusation, chooseAccusationVote } from '../blood-pact.js';
 import { withTunables, type Tunables } from '../tunables.js';
+import { DEFAULT_DIFFICULTY, difficultyTunables } from '../difficulty.js';
 import { territoryOf } from './metrics.js';
 import type { Command } from '../commands.js';
-import type { GameMode, GameState } from '../types.js';
+import type { Difficulty, GameMode, GameState } from '../types.js';
 
 /** Per-seat AI policy assignment (index = seat). Missing seats use the default. */
 export type SeatPolicies = ReadonlyArray<AIPolicy>;
@@ -40,6 +41,12 @@ export interface GameRunConfig {
   readonly bloodPactSeat?: number;
   /** Per-run tunable overrides (Stage-5 balance search). Unspecified = defaults. */
   readonly tunables?: Partial<Tunables>;
+  /**
+   * DARK-STRENGTH difficulty tier (§D1). Applied as a doomCost-curve override UNDER `tunables`
+   * (so an explicit balance-search override still wins). Unspecified ⇒ `warlord` (the locked
+   * reference) ⇒ byte-identical to the current build. Also stored on the created GameState.
+   */
+  readonly difficulty?: Difficulty;
   /**
    * TABLE-WIDE bounded-rationality / human-error rate (Stage 5k), 0..1. Applied to EVERY seat that
    * does not already set its own `errorRate` (per-seat policies win). An AI-REALISM axis, not a §9
@@ -70,8 +77,12 @@ const DEFAULT_MAX_STEPS = 5000;
  * Pure `f(config)` — no `Math.random`, no `Date.now`; the AI seed is the game seed.
  */
 export function playHeadlessGame(cfg: GameRunConfig): GameRunResult {
-  // Scope the tunable overrides for the whole game (leak-safe; default = current values).
-  return withTunables(cfg.tunables ?? {}, () => runHeadlessGame(cfg));
+  // Scope the tunable overrides for the whole game (leak-safe; default = current values). The
+  // difficulty tier's doomCost curve is applied FIRST, with any explicit `tunables` layered on top
+  // (the balance search still wins). `warlord` (default) pins the locked values ⇒ byte-identical.
+  const difficulty = cfg.difficulty ?? DEFAULT_DIFFICULTY;
+  const merged = { ...difficultyTunables(difficulty), ...(cfg.tunables ?? {}) };
+  return withTunables(merged, () => runHeadlessGame(cfg));
 }
 
 function runHeadlessGame(cfg: GameRunConfig): GameRunResult {
@@ -91,8 +102,9 @@ function runHeadlessGame(cfg: GameRunConfig): GameRunResult {
 
   const apply = (state: GameState, cmd: Command): GameState => applyCommand(state, cmd).state;
 
-  // humanCount 0 → every seat is AI-controlled.
-  let state = createGame(playerCount, mode, seed, 0);
+  // humanCount 0 → every seat is AI-controlled. The difficulty tier is stored on the state (its
+  // doomCost curve is already scoped by playHeadlessGame's withTunables wrapper).
+  let state = createGame(playerCount, mode, seed, 0, cfg.difficulty ?? DEFAULT_DIFFICULTY);
 
   // Sim-only: assign the Blood Pact to an AI seat (real play forbids it, §10).
   if (mode === 'blood_pact' && cfg.bloodPactSeat !== undefined && state.players[cfg.bloodPactSeat]) {

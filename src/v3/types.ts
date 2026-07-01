@@ -16,6 +16,14 @@ export type GamePhase = 'THREAT' | 'PLEDGE' | 'ACTION' | 'DAWN';
 /** Game modes — Layer A (competitive) or Layer B (blood_pact). */
 export type GameMode = 'competitive' | 'blood_pact';
 
+/**
+ * Difficulty tiers (Stage D1) — a DARK-STRENGTH setting scaling the dark via the DOOM_COST curve.
+ * A descending martial-rank ladder (harder → easier): `warlord` (HARD, DEFAULT — the locked
+ * reference, byte-identical to the current build), `knight` (NORMAL), `squire` (EASY). See
+ * `difficulty.ts` for the calibrated per-tier doomCost overrides + the flawless-play tier table.
+ */
+export type Difficulty = 'warlord' | 'knight' | 'squire';
+
 /** Escalation acts — the noose tightens visibly (§5.5). */
 export type Act = 'WHISPER' | 'MARCH' | 'RECKONING';
 
@@ -597,6 +605,14 @@ export interface GameState {
 
   /** The game mode for this session. */
   readonly mode: GameMode;
+
+  /**
+   * The difficulty tier for this session (Stage D1) — a DARK-STRENGTH setting applied through the
+   * getTunables/withTunables seam as a doomCost-curve override. `warlord` (DEFAULT) is the locked
+   * reference (byte-identical to the current build). Part of the determinism key: same
+   * `(playerCount, mode, seed, difficulty)` ⇒ an identical game.
+   */
+  readonly difficulty: Difficulty;
 
   /**
    * Human-only Death Bequest overrides (§13 P0-11 UI), keyed by the dying seat. When present and
