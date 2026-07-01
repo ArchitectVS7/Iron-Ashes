@@ -23,6 +23,8 @@
 import {
   createGame,
   applyCommand,
+  withDifficulty,
+  DEFAULT_DIFFICULTY,
   choosePledge,
   runAIPledge,
   runAITurn,
@@ -47,6 +49,7 @@ import {
   type ObservableState,
   type BequestChoiceInput,
   type WraithInputKind,
+  type Difficulty,
 } from '../v3/index.js';
 
 /** A short on-screen narration line (villain voice, beats, results). */
@@ -78,6 +81,9 @@ export class GameSession {
   state: GameState;
   readonly humanIndex = 0;
   readonly seed: number;
+  /** The DARK-STRENGTH difficulty tier (§D1) — its doomCost curve is applied to every engine
+   *  step via the getTunables/withDifficulty seam, so the chosen tier actually bites in play. */
+  readonly difficulty: Difficulty;
 
   /** Called after any state change so the host can re-render. */
   onChange: () => void = () => {};
@@ -94,10 +100,17 @@ export class GameSession {
   /** The human's last-seen exposure — drives the one-shot "the tide has reached you" beat (P0-11). */
   private prevHumanExposure: Exposure | null = null;
 
-  constructor(playerCount: number, mode: GameMode, seed: number) {
+  constructor(
+    playerCount: number,
+    mode: GameMode,
+    seed: number,
+    difficulty: Difficulty = DEFAULT_DIFFICULTY,
+  ) {
     this.seed = seed;
-    // Seat 0 is the lone human; the rest are AI.
-    this.state = createGame(playerCount, mode, seed, 1);
+    this.difficulty = difficulty;
+    // Seat 0 is the lone human; the rest are AI. The tier's doomCost curve is scoped around setup
+    // (harmless — setup never reads doomCost) and every subsequent engine step below.
+    this.state = withDifficulty(difficulty, () => createGame(playerCount, mode, seed, 1, difficulty));
     this.pump();
   }
 
@@ -109,7 +122,10 @@ export class GameSession {
   // ─── Core dispatch ──────────────────────────────────────────────
 
   private dispatch(cmd: Command): void {
-    const result = applyCommand(this.state, cmd);
+    // Scope the tier's doomCost curve around EVERY reducer step — the Shadowking telegraph (and its
+    // doomCost) is computed inside applyCommand's THREAT→PLEDGE advance, so the chosen difficulty
+    // must be active here for it to bite. `warlord` scopes the locked reference values (identity).
+    const result = withDifficulty(this.difficulty, () => applyCommand(this.state, cmd));
     this.state = result.state;
     this.recentEvents = result.events;
     this.absorbNarration(result.events);
@@ -247,7 +263,7 @@ export class GameSession {
             return; // the human's turn
           }
           if (active !== this.humanIndex && !p.isEliminated && p.actionsRemaining > 0) {
-            this.state = runAITurn(this.state, active, this.seed).state;
+            this.state = withDifficulty(this.difficulty, () => runAITurn(this.state, active, this.seed).state);
             continue;
           }
           // Active seat is exhausted or eliminated.
@@ -280,7 +296,7 @@ export class GameSession {
     for (const p of this.state.players) {
       if (p.index === this.humanIndex || p.isEliminated) continue;
       if (this.state.pledgeBuffer.some(e => e.playerIndex === p.index)) continue;
-      this.state = runAIPledge(this.state, p.index, this.seed).state;
+      this.state = withDifficulty(this.difficulty, () => runAIPledge(this.state, p.index, this.seed).state);
     }
   }
 
