@@ -200,4 +200,80 @@ describe('UI E2E (v3) — each control drives the engine through the DOM', () =>
     expect(session.lastError).toBeNull();
     expect(session.state.pendingBequests?.[0]).toBeDefined();
   });
+
+  it('clicking a PLEDGE button routes SUBMIT_PLEDGE through the DOM', () => {
+    const session = new GameSession(4, 'competitive', 42); // paused at THREAT
+    mountView(root, session);
+    click(root.querySelector<HTMLElement>('[data-action="advance-threat"]')!); // THREAT → PLEDGE
+    expect(session.phase).toBe('PLEDGE');
+    const pledge = root.querySelector<HTMLElement>('[data-action^="pledge:"]');
+    expect(pledge, 'a pledge control should be present at PLEDGE').not.toBeNull();
+    click(pledge!);
+    expect(session.lastError).toBeNull();
+    // The pledge resolved and the flow advanced off the PLEDGE phase (a recorded pledge round).
+    expect(session.state.pledgeHistory.length).toBeGreaterThan(0);
+    expect(session.phase).not.toBe('PLEDGE');
+  });
+
+  it('clicking RANSOM routes a RANSOM through the DOM (frees the captive)', () => {
+    const session = toHumanTurnDom('competitive');
+    const human = session.state.players[0];
+    const piece = human.court[0];
+    // A captive the human OWNS, held by P1 — the owner is always in reach (§5.3), so RANSOM is legal.
+    session.state.captives.push({ pieceId: piece.id, ownerSeat: 0, captorSeat: 1, capturedRound: 1, recaptureImmuneUntil: 0 });
+    human.banners = 9;
+    human.hand = [3, 3, 3, 3];
+    rerender(session);
+    const btn = root.querySelector<HTMLElement>(`[data-action="ransom:${piece.id}"]`);
+    expect(btn, 'a ransom control should be present for an owned captive').not.toBeNull();
+    click(btn!);
+    expect(session.lastError).toBeNull();
+    expect(session.state.captives.some(c => c.pieceId === piece.id)).toBe(false);
+  });
+
+  it('clicking ASSAULT_HEART routes an ASSAULT_HEART through the DOM (damages the heart)', () => {
+    const session = toHumanTurnDom('competitive');
+    const keystone = session.state.board.definition.keystoneId;
+    // Raise the heart in Reckoning, stand the Warlord on it, and arm a hand.
+    session.state.act = 'RECKONING';
+    session.state.players[0].warlordNodeId = keystone;
+    session.state.board.state.nodes[keystone].pieces.push({ id: 'warlord-0', type: 'warlord', owner: 0, power: 5, nodeId: keystone });
+    session.state.shadowking.heart = { nodeId: keystone, hp: 12, exposed: true, committedBySeat: [0, 0, 0, 0], raidLeader: null };
+    session.state.players[0].hand = [9, 9, 9, 9];
+    rerender(session);
+    const btn = root.querySelector<HTMLElement>('[data-action="assault-heart"]');
+    expect(btn, 'the assault-heart control should be present at an exposed heart').not.toBeNull();
+    click(btn!);
+    expect(session.lastError).toBeNull();
+    expect(session.state.shadowking.heart!.hp).toBeLessThan(12);
+  });
+
+  it('clicking AUDIT routes an AUDIT through the DOM (Blood Pact)', () => {
+    const session = toHumanTurnDom('blood_pact', 7);
+    expect(session.isHumanTurn).toBe(true);
+    expect(session.state.pledgeHistory.length, 'a pledge round should be on record').toBeGreaterThan(0);
+    session.state.players[0].banners = 20;
+    rerender(session);
+    const btn = root.querySelector<HTMLElement>('[data-action^="audit:"]');
+    expect(btn, 'an audit control should be present in Blood Pact').not.toBeNull();
+    click(btn!);
+    expect(session.lastError).toBeNull();
+    expect(session.state.auditLog.length).toBeGreaterThan(0);
+  });
+
+  it('clicking ACCUSE routes an INITIATE_ACCUSATION through the DOM (Blood Pact)', () => {
+    const session = toHumanTurnDom('blood_pact', 7);
+    expect(session.isHumanTurn).toBe(true);
+    session.state.accusationLockoutUntilRound = 0;
+    session.state.bloodPactExposed = false;
+    session.state.accusationState = null;
+    rerender(session);
+    const btn = root.querySelector<HTMLElement>('[data-action^="accuse:"]');
+    expect(btn, 'an accuse control should be present in Blood Pact').not.toBeNull();
+    click(btn!);
+    // The accusation opened + AI votes resolved through the reducer — no thrown handler, no silent error.
+    expect(session.lastError).toBeNull();
+    // Resolution fires an ACCUSATION_RESOLVED beat (correct / wrong / fizzle) — the full chain ran.
+    expect(session.narration.some(n => /accus|traitor|vindicated|fizzles/i.test(n.text))).toBe(true);
+  });
 });

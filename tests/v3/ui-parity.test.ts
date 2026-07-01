@@ -95,6 +95,21 @@ describe('UI parity (v3) — control surface for every action', () => {
     expect(renderApp(s)).toContain('data-action="audit:');
   });
 
+  it('ACCUSE: shown in Blood Pact on the human turn (not locked out)', () => {
+    const s = humanTurn('blood_pact');
+    s.state.accusationLockoutUntilRound = 0;
+    s.state.bloodPactExposed = false;
+    s.state.accusationState = null;
+    expect(renderApp(s)).toContain('data-action="accuse:');
+  });
+
+  it('PLEDGE: the pledge grid renders at the PLEDGE phase', () => {
+    const s = new GameSession(4, 'competitive', 42); // paused at THREAT
+    s.advanceFromThreat(); // THREAT → PLEDGE (human alive ⇒ pauses for the pledge)
+    expect(s.phase).toBe('PLEDGE');
+    expect(renderApp(s)).toContain('data-action="pledge:');
+  });
+
   it('RANSOM: shown for a captive the human owns', () => {
     const s = humanTurn('competitive');
     const h = s.state.players[0];
@@ -129,6 +144,10 @@ describe('UI parity (v3) — P0-11 legibility + full state display', () => {
     expect(html).toContain('class="standings"');
     expect(html).toMatch(/Round \d+\/\d+/);
     expect(html).toContain('<th>Hand</th>');
+  });
+
+  it('shows the human Court panel (archetypes + seats)', () => {
+    expect(renderApp(humanTurn('competitive'))).toContain('Your Court');
   });
 
   it('shows the Hold Rail (every hostage) when a capture exists', () => {
