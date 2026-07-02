@@ -36,6 +36,22 @@ import type {
   ShadowkingForce,
 } from './types.js';
 
+// ─── Faction names (§2/§3 — the Warlord's FIXED faction name) ─────
+
+/** Fixed faction names by seat (§3: `newWarlord(i, keeps[i], factionName[i])`). Not seeded —
+ *  the same seat is the same House in every game, so the table learns the colors. */
+export const FACTION_NAMES: readonly string[] = Object.freeze([
+  'House Emberfall', 'House Greyspear', 'House Ravenholt', 'House Duskmere',
+]);
+
+/** The Warlord's fixed one-line identity — its faction seat, not a seeded retainer line (§2). */
+const WARLORD_IDENTITY: readonly string[] = Object.freeze([
+  'the last banner raised from the cinders of the old capital',
+  'iron-shod highlanders who never once knelt to the throne',
+  'keepers of the raven-roads and every secret they carry',
+  'marsh-lords of the twilight fens, patient as the tide',
+]);
+
 // ─── Card Deck ────────────────────────────────────────────────────
 
 /**
@@ -70,7 +86,9 @@ function createPlayerState(
     actionsRemaining: 0,
     warlordNodeId: keepNodeId,
     court: [{
-      id: `warlord-${index}`, archetype: 'warlord', node: keepNodeId,
+      id: `warlord-${index}`, archetype: 'warlord',
+      name: FACTION_NAMES[index], identity: WARLORD_IDENTITY[index],
+      node: keepNodeId,
       captiveOf: null, routedReturnRound: null, recaptureImmuneUntil: 0,
     }],
     handLimit: HAND_LIMIT,

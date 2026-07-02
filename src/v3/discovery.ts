@@ -24,7 +24,7 @@ import {
   BLIGHT_POWER,
   DK_POWER,
 } from './tunables.js';
-import { addCourtPiece } from './court.js';
+import { addCourtPiece, RETAINER_NAMES } from './court.js';
 import type { GameEvent } from './events.js';
 import type {
   Archetype,
@@ -77,14 +77,8 @@ export function backSigil(kind: TokenKind): BackSigil {
 }
 
 // ─── Seeded retainer names ────────────────────────────────────────
-
-/** Deterministic name pool — a discovered retainer carries a seeded name (§2, §5.1). */
-const RETAINER_NAMES: readonly string[] = Object.freeze([
-  'Vael the Steadfast', 'Corin Ashborn', 'Mira of the Fens', 'Dorn Greycloak',
-  'Sela Ironwood', 'Bran the Quiet', 'Halric Stormwell', 'Ysolde Vance',
-  'Tomas Redhand', 'Nadia of Thorns', 'Garruk the Lesser', 'Eira Whitewater',
-  'Roald Blacktongue', 'Petra Sunder', 'Kael the Patient', 'Lyssa Crowfield',
-]);
+// The deterministic name pool lives in court.ts (`RETAINER_NAMES` — the court owns names);
+// each node's namespaced sub-stream picks from it here (§2, §5.1, §7 D9).
 
 /** Archetypes a Discovery flip can recruit — the board retainers (§ decision: Herald stays
  *  the dedicated RECRUIT-action stance build, never a discovery roll). */
@@ -211,7 +205,8 @@ export function flipDiscoveryToken(
   });
 
   if (token.kind === 'recruit' && (token.archetype === 'marshal' || token.archetype === 'steward')) {
-    events.push(...addCourtPiece(state, playerIndex, token.archetype, nodeId));
+    // The name persists onto the CourtPiece (§2 — names are state), copied from the PRE-BOUND token.
+    events.push(...addCourtPiece(state, playerIndex, token.archetype, nodeId, token.retainerName ?? undefined));
   } else if (token.kind === 'blight_seed') {
     node.blightLevel += getTunables().DISCOVERY_BLIGHT_DELTA;
     node.shadowkingForces.push(makeBlightSeedForce(nodeId));
@@ -237,7 +232,7 @@ export function redeemBlightSeed(
   if (!tok) return events;
   tok.bonusClaimed = true;
   if (tok.bonusArchetype === 'marshal' || tok.bonusArchetype === 'steward') {
-    events.push(...addCourtPiece(state, playerIndex, tok.bonusArchetype, nodeId));
+    events.push(...addCourtPiece(state, playerIndex, tok.bonusArchetype, nodeId, tok.bonusName ?? undefined));
   }
   return events;
 }

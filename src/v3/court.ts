@@ -22,6 +22,54 @@ import type { GameEvent } from './events.js';
 import type { Archetype, GameState } from './types.js';
 import { WARLORD_POWER, getTunables } from './tunables.js';
 
+// ─── Names + identity (§2 — "names are state") ────────────────────
+
+/** Deterministic name pool — a discovered retainer carries a seeded name (§2, §5.1). Lives here
+ *  (the court owns names); discovery.ts draws from it on each node's namespaced sub-stream (§7 D9). */
+export const RETAINER_NAMES: readonly string[] = Object.freeze([
+  'Vael the Steadfast', 'Corin Ashborn', 'Mira of the Fens', 'Dorn Greycloak',
+  'Sela Ironwood', 'Bran the Quiet', 'Halric Stormwell', 'Ysolde Vance',
+  'Tomas Redhand', 'Nadia of Thorns', 'Garruk the Lesser', 'Eira Whitewater',
+  'Roald Blacktongue', 'Petra Sunder', 'Kael the Patient', 'Lyssa Crowfield',
+]);
+
+/** One-line identity pool (§2) — indexed by a pure hash of the NAME (`identityFor`), so the
+ *  identity is derived state, never a fresh draw (§7 D1/D9). */
+const IDENTITY_LINES: readonly string[] = Object.freeze([
+  'swore an oath over a burned homestead, and keeps it',
+  'deserted a doomed banner once — never again',
+  'reads the blight-wind like a hunting hawk',
+  'carries a dead sibling\'s blade, sharpened nightly',
+  'laughs in the shield-wall; weeps at the muster-roll',
+  'owes the Hold a life-debt no coin can settle',
+  'maps every bolt-hole between here and the ash-line',
+  'buried three lords and trusts a fourth reluctantly',
+  'sings the old marching songs no one else remembers',
+  'counts the dark\'s knights the way misers count coin',
+  'walked out of an ashed village the only one standing',
+  'keeps a ledger of every slight — and every kindness',
+  'was promised land once; fights for the promise still',
+  'drills the levies at dawn, drinks with them at dusk',
+  'speaks little; the scars carry the argument',
+  'still lights a candle for the Hold that fell first',
+]);
+
+/** Pure FNV-1a-style hash of a string — the cosmetic-identity index (§7 D9: a pure function of
+ *  existing state, never an RNG draw). Local so court.ts stays import-free of discovery.ts. */
+function nameHash(s: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h = Math.imul(h ^ s.charCodeAt(i), 0x01000193) >>> 0;
+  }
+  return h >>> 0;
+}
+
+/** The one-line identity for a named piece — a PURE function of the name (§2, §7 D9). Same name
+ *  ⇒ same line, on every platform, with no stream consumed. */
+export function identityFor(name: string): string {
+  return IDENTITY_LINES[nameHash(name) % IDENTITY_LINES.length];
+}
+
 /**
  * The on-board combat power an archetype contributes (§2). Warlord/Marshal are the
  * fighters (high); Steward defends weakly; Herald is a courier (never fights). Pure.
@@ -43,20 +91,27 @@ export function archetypePower(archetype: Archetype): number {
  * Steward/Marshal place a board piece with their archetype power. Herald is NOT
  * routed here — its political hand/parley stance has bespoke setup in
  * `executeRecruit` (actions.ts); call that to recruit a Herald. Returns events.
+ *
+ * `name` is the piece's display name (§2 — names are state): the Discovery paths pass the
+ * PRE-BOUND token name (§7 D9). Callers that stand courts up directly (tests/sim fixtures) may
+ * omit it — the fallback is a pure hash of the piece id into the same pool (no stream consumed).
  */
 export function addCourtPiece(
   state: GameState,
   playerIndex: number,
   archetype: Exclude<Archetype, 'herald'>,
   nodeId: string,
+  name?: string,
 ): GameEvent[] {
   const player = state.players[playerIndex];
   // Deterministic unique id: archetype + seat + per-archetype ordinal.
   const ordinal = player.court.filter(c => c.archetype === archetype).length;
   const id = `${archetype}-${playerIndex}-${ordinal}`;
+  const pieceName = name ?? RETAINER_NAMES[nameHash(id) % RETAINER_NAMES.length];
 
   player.court.push({
-    id, archetype, node: nodeId, captiveOf: null, routedReturnRound: null, recaptureImmuneUntil: 0,
+    id, archetype, name: pieceName, identity: identityFor(pieceName),
+    node: nodeId, captiveOf: null, routedReturnRound: null, recaptureImmuneUntil: 0,
   });
 
   const ns = state.board.state.nodes[nodeId];
@@ -74,7 +129,7 @@ export function addCourtPiece(
     type: 'PLAYER_ACTED',
     playerIndex,
     action: 'RECRUIT',
-    details: { archetype, id, nodeId },
+    details: { archetype, id, nodeId, name: pieceName },
   }];
 }
 

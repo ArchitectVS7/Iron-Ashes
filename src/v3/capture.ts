@@ -157,7 +157,7 @@ export function capturePiece(state: GameState, captorSeat: number, defenderSeat:
   });
   return [{
     type: 'PLAYER_ACTED', playerIndex: captorSeat, action: 'RAID',
-    details: { capture: pieceId, owner: defenderSeat, archetype: cp.archetype },
+    details: { capture: pieceId, name: cp.name, owner: defenderSeat, archetype: cp.archetype },
   }];
 }
 
@@ -174,7 +174,7 @@ export function routPiece(state: GameState, defenderSeat: number, pieceId: strin
   cp.routedReturnRound = state.round; // returns at THIS round's Dawn (the next Dawn)
   return [{
     type: 'PLAYER_ACTED', playerIndex: defenderSeat, action: 'RAID',
-    details: { rout: pieceId, owner: defenderSeat, returnsRound: state.round },
+    details: { rout: pieceId, name: cp.name, owner: defenderSeat, returnsRound: state.round },
   }];
 }
 
@@ -203,7 +203,7 @@ export function returnRoutedPieces(state: GameState): GameEvent[] {
       addBoardPiece(state, player.index, cp.archetype, node, cp.id);
       events.push({
         type: 'PLAYER_ACTED', playerIndex: player.index, action: 'MARCH',
-        details: { routReturned: cp.id, to: node, immuneUntil: cp.recaptureImmuneUntil },
+        details: { routReturned: cp.id, name: cp.name, to: node, immuneUntil: cp.recaptureImmuneUntil },
       });
     }
   }
@@ -241,7 +241,7 @@ export function freeCaptiveToOwner(state: GameState, record: CaptiveRecord): Gam
   addBoardPiece(state, owner.index, cp.archetype, node, cp.id);
   return [{
     type: 'PLAYER_ACTED', playerIndex: record.ownerSeat, action: 'PASS',
-    details: { captiveFreed: record.pieceId, to: node, from: record.captorSeat },
+    details: { captiveFreed: record.pieceId, name: cp.name, to: node, from: record.captorSeat },
   }];
 }
 

@@ -172,6 +172,12 @@ export class GameSession {
               : `The Crown passes to Player ${e.newHolder + 1} — and with it, the target on their back.`,
           kind: 'beat',
         });
+      } else if (e.type === 'DISCOVERY_FLIPPED' && e.kind === 'recruit' && e.retainerName !== null) {
+        // The attachment beat (§2 — names are state): the flip introduces a NAMED retainer.
+        this.narration.unshift({
+          text: `✦ ${e.retainerName} joins Player ${e.playerIndex + 1}'s court.`,
+          kind: 'beat',
+        });
       } else if (e.type === 'PLAYER_ACTED') {
         this.absorbActBeat(e);
       } else if (e.type === 'GAME_OVER') {
@@ -181,12 +187,20 @@ export class GameSession {
     this.narration = this.narration.slice(0, 10);
   }
 
-  /** Stage CAPTURE and KILL-THE-DARK as scene beats out of the PLAYER_ACTED detail bag (§13 P0-11). */
+  /** Stage CAPTURE / RANSOM / KILL-THE-DARK as scene beats out of the PLAYER_ACTED detail bag
+   *  (§13 P0-11) — by NAME where the event carries one (§2: names drive attachment). */
   private absorbActBeat(e: Extract<GameEvent, { type: 'PLAYER_ACTED' }>): void {
     const d = (e.details ?? {}) as Record<string, unknown>;
     if (e.action === 'RAID' && d.capture !== undefined) {
+      const who = typeof d.name === 'string' ? d.name : "a rival's retainer";
       this.narration.unshift({
-        text: `⛓ CAPTURE — Player ${e.playerIndex + 1} drags a rival's retainer into their hold.`,
+        text: `⛓ CAPTURE — Player ${e.playerIndex + 1} drags ${who} into their hold.`,
+        kind: 'beat',
+      });
+    } else if (e.action === 'RANSOM') {
+      const who = typeof d.name === 'string' ? d.name : 'a captive';
+      this.narration.unshift({
+        text: `🔓 RANSOM — Player ${e.playerIndex + 1} buys ${who} free from Player ${Number(d.captor) + 1}.`,
         kind: 'beat',
       });
     } else if (e.action === 'ASSAULT_HEART') {
@@ -199,10 +213,13 @@ export class GameSession {
         kind: 'beat',
       });
     } else if (e.action === 'PASS' && d.bequest !== undefined) {
+      const gift = d.bequest === 'captive'
+        ? (typeof d.pieceName === 'string' ? `the captive ${d.pieceName}` : 'a captive')
+        : 'their cards';
       this.narration.unshift({
         text: d.bequest === 'curse'
           ? `A dying curse — Player ${e.playerIndex + 1} marks a hated rival for the dark.`
-          : `A final gift — Player ${e.playerIndex + 1} bequeaths ${d.bequest === 'captive' ? 'a captive' : 'their cards'} to an ally, sealing a posthumous Oath.`,
+          : `A final gift — Player ${e.playerIndex + 1} bequeaths ${gift} to an ally, sealing a posthumous Oath.`,
         kind: 'beat',
       });
     }

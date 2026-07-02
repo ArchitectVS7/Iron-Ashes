@@ -162,6 +162,13 @@ export interface CourtPiece {
   readonly id: string;
   /** Which archetype this piece is. */
   readonly archetype: Archetype;
+  /** Display name (§2 — "names are state"): a Discovery retainer carries its PRE-BOUND seeded
+   *  name (§7 D9); a starting Warlord carries its fixed faction name; a Herald carries the
+   *  faction's voice. Cosmetic — drives attachment + the UI Hold rail, never mechanics. */
+  readonly name: string;
+  /** One-line identity flavor (§2) — a PURE function of `name` (`identityFor`, court.ts),
+   *  never a live-stream draw (§7 D1/D9). Cosmetic. */
+  readonly identity: string;
   /** Node the piece currently sits on. */
   node: string;
   /** Captor's seat while held hostage, or null when free (capture economy, §5.2). A captive

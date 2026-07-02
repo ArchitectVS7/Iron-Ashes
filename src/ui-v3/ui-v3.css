@@ -140,6 +140,9 @@ button.primary { background: var(--accent); color: #1a1206; border: none; font-w
 .info-block small { color: var(--muted); }
 .court-list { list-style: none; padding-left: 0 !important; display: flex; flex-wrap: wrap; gap: 6px; }
 .court-list li { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 2px 6px; }
+.court-list li.held { opacity: 0.65; border-style: dashed; }
+.court-list .identity { color: var(--muted); font-size: 11px; }
+.standings .faction { color: var(--muted); font-size: 11px; }
 
 /* ── Suspicion (Blood Pact) ── */
 .suspicion { width: 100%; border-collapse: collapse; font-size: 13px; }

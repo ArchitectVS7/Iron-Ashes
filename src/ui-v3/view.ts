@@ -194,9 +194,10 @@ function renderStandings(s: ObservableState, human: number): string {
     if (p.index === human && p.hasBloodPact) tags.push('<span class="tag grudge" title="you hold the Blood Pact">traitor</span>');
     if (p.index === human) tags.push('<span class="tag you">You</span>');
     const living = p.court.filter(c => c.captiveOf === null).length;
+    const faction = p.court.find(c => c.archetype === 'warlord')?.name;
     return `
       <tr class="${p.isEliminated ? 'dead' : ''}">
-        <td><span class="dot" style="background:${color}"></span>P${p.index + 1}</td>
+        <td><span class="dot" style="background:${color}"></span>P${p.index + 1}${faction ? ` <small class="faction">${esc(faction)}</small>` : ''}</td>
         <td>${territoryOf(s, p.index)}</td>
         <td>${p.banners}</td>
         <td>${p.hand.length}</td>
@@ -211,16 +212,20 @@ function renderStandings(s: ObservableState, human: number): string {
     </table>`;
 }
 
-/** The human's Court (archetypes + where they sit) and any captives they hold (§2). */
+/** The human's Court — names first (§2: names are state), archetype + node + the identity line. */
 function renderCourt(s: ObservableState, human: number): string {
   const me = s.players[human];
   const court = me.court
     .filter(c => c.captiveOf === null)
-    .map(c => `<li>${ARCH_SHORT[c.archetype]} <small>@ ${esc(c.node)}</small></li>`)
+    .map(c => `<li>${ARCH_SHORT[c.archetype]} <b>${esc(c.name)}</b> <small>@ ${esc(c.node)}</small>
+      <br><small class="identity"><i>${esc(c.identity)}</i></small></li>`)
+    .join('');
+  const held = me.court.filter(c => c.captiveOf !== null)
+    .map(c => `<li class="held">⛓ <b>${esc(c.name)}</b> <small>held by P${(c.captiveOf ?? 0) + 1}</small></li>`)
     .join('');
   return `<div class="info-block">
     <div class="block-title">Your Court</div>
-    <ul class="court-list">${court || '<li><i>only your Warlord</i></li>'}</ul>
+    <ul class="court-list">${(court + held) || '<li><i>only your Warlord</i></li>'}</ul>
   </div>`;
 }
 
@@ -228,10 +233,11 @@ function renderCourt(s: ObservableState, human: number): string {
 function renderHoldRail(s: ObservableState): string {
   if (s.captives.length === 0) return '';
   const items = s.captives.map(c => {
-    const arch = s.players[c.ownerSeat].court.find(x => x.id === c.pieceId)?.archetype;
-    const glyph = arch ? ARCH_SHORT[arch] : '?';
+    const piece = s.players[c.ownerSeat].court.find(x => x.id === c.pieceId);
+    const glyph = piece ? ARCH_SHORT[piece.archetype] : '?';
+    const name = piece ? `<b>${esc(piece.name)}</b> ` : '';
     const immune = c.recaptureImmuneUntil > s.round ? ' <small class="immune">(immune)</small>' : '';
-    return `<li><span class="dot" style="background:${PLAYER_COLORS[c.ownerSeat]}"></span>${glyph} of P${c.ownerSeat + 1}
+    return `<li><span class="dot" style="background:${PLAYER_COLORS[c.ownerSeat]}"></span>${name}${glyph} of P${c.ownerSeat + 1}
       <small>held by P${c.captorSeat + 1} · since R${c.capturedRound}</small>${immune}</li>`;
   }).join('');
   return `<div class="info-block hold-rail">
@@ -523,8 +529,9 @@ function renderRansom(session: GameSession, s: ObservableState, here: string): s
     const inReach = here === captorHold || adjacent(s, here, captorHold);
     if (!isOwner && !inReach) continue;
     const affordable = human.hand.length >= TUNABLES.RANSOM_COST && human.banners >= TUNABLES.RANSOM_BANNERS;
-    const arch = s.players[c.ownerSeat].court.find(x => x.id === c.pieceId)?.archetype;
-    const label = `${isOwner ? 'Ransom back' : `Ransom P${c.ownerSeat + 1}'s`} ${arch ?? 'piece'} from P${c.captorSeat + 1} (${TUNABLES.RANSOM_COST} cards, ⚑${TUNABLES.RANSOM_BANNERS})`;
+    const piece = s.players[c.ownerSeat].court.find(x => x.id === c.pieceId);
+    const who = piece ? `${piece.name} (${piece.archetype})` : 'piece';
+    const label = `${isOwner ? 'Ransom back' : `Ransom P${c.ownerSeat + 1}'s`} ${who} from P${c.captorSeat + 1} (${TUNABLES.RANSOM_COST} cards, ⚑${TUNABLES.RANSOM_BANNERS})`;
     out.push(`<button data-action="ransom:${c.pieceId}" ${affordable ? '' : 'disabled title="need cards + banners"'}>${esc(label)}</button>`);
   }
   return out;
@@ -553,8 +560,9 @@ function renderBequestPanel(session: GameSession, s: ObservableState, blocking: 
       opts.push(`<button data-action="bequest-cards:${ally}">Bequeath your cards to P${ally! + 1}</button>`);
     }
     for (const c of s.captives.filter(c => c.captorSeat === me && c.ownerSeat !== ally)) {
-      const arch = s.players[c.ownerSeat].court.find(x => x.id === c.pieceId)?.archetype ?? 'piece';
-      opts.push(`<button data-action="bequest-captive:${c.pieceId}:${ally}">Bequeath ${arch} (of P${c.ownerSeat + 1}) to P${ally! + 1}</button>`);
+      const piece = s.players[c.ownerSeat].court.find(x => x.id === c.pieceId);
+      const who = piece ? `${esc(piece.name)} the ${piece.archetype}` : 'piece';
+      opts.push(`<button data-action="bequest-captive:${c.pieceId}:${ally}">Bequeath ${who} (of P${c.ownerSeat + 1}) to P${ally! + 1}</button>`);
     }
   }
   for (const p of s.players) {

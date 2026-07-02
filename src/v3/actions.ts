@@ -682,7 +682,8 @@ export function executeRansom(
     playerIndex: actorIndex,
     action: 'RANSOM',
     details: {
-      captive: captivePieceId, owner: record.ownerSeat, captor: record.captorSeat,
+      captive: captivePieceId, name: cp?.name ?? null,
+      owner: record.ownerSeat, captor: record.captorSeat,
       cards: t.RANSOM_COST, banners: t.RANSOM_BANNERS, sink: t.RANSOM_SINK_CUT,
     },
   });
@@ -854,10 +855,14 @@ export function executeRecruit(
       nodeId: player.warlordNodeId,
     });
   }
-  // Record the Herald in the canonical court roster (§2).
+  // Record the Herald in the canonical court roster (§2). Its name is the faction's voice —
+  // a pure function of the Warlord's fixed faction name (court[0]), no stream consumed (§7 D9).
+  const heraldName = `Voice of ${player.court[0]?.name ?? `Seat ${playerIndex + 1}`}`;
   player.court.push({
     id: `herald-${playerIndex}`,
     archetype: 'herald',
+    name: heraldName,
+    identity: 'the faction\'s voice — a lone runner to the blighted front',
     node: player.warlordNodeId,
     captiveOf: null,
     routedReturnRound: null,
@@ -868,7 +873,7 @@ export function executeRecruit(
     type: 'PLAYER_ACTED',
     playerIndex,
     action: 'RECRUIT',
-    details: { stance: 'political', handLimit: player.handLimit, combatPenalty: player.combatPenalty, heraldNodeId: player.heraldNodeId },
+    details: { stance: 'political', name: heraldName, handLimit: player.handLimit, combatPenalty: player.combatPenalty, heraldNodeId: player.heraldNodeId },
   });
 
   return { state, events, actionConsumed: true };

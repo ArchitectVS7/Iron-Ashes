@@ -393,7 +393,7 @@ export function applyDeathBequest(state: GameState, dyingSeat: number): GameEven
         forgePosthumousOath(state, dyingSeat, choice.beneficiary);
         events.push({
           type: 'PLAYER_ACTED', playerIndex: dyingSeat, action: 'PASS',
-          details: { bequest: 'captive', pieceId: choice.pieceId, beneficiary: choice.beneficiary },
+          details: { bequest: 'captive', pieceId: choice.pieceId, pieceName: piece?.name ?? null, beneficiary: choice.beneficiary },
         });
       }
       break;

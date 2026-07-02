@@ -16,7 +16,7 @@ Legend: ☐ open · ◐ in progress · ☑ done · ✗ rejected/recorded-out
 
 ## TIER 1 — pre-playtest (protects the playtest's validity)
 
-### T1-1 ☐ Persist + surface retainer names (review drift D5) — **HIGHEST**
+### T1-1 ☑ Persist + surface retainer names (review drift D5) — **HIGHEST**
 - **Problem:** Discovery draws a seeded name, shows it once in the flip event, then drops it — no `name` on
   `CourtPiece`, Hold rail shows `marshal-2-1`. The playtest's attachment items (checklist #3/#5) would be
   falsified by a missing cosmetic, not a real design failure. The spec mandates names as *state* (§2).
@@ -26,7 +26,10 @@ Legend: ☐ open · ◐ in progress · ☑ done · ✗ rejected/recorded-out
 - **Integrations:** engine (`types.ts`, `court.ts`, `discovery.ts`, `events.ts`) · UI (`view.ts` court
   panel/Hold rail/scene beats) · tests (parity + a name-persistence test) · sim (names are cosmetic state —
   **summary must stay byte-identical**) · docs (none).
-- **Status:** OPEN — queued in the Tier-1 sweep (W1). Guard: names are cosmetic state; the sim summary must stay byte-identical.
+- **Status:** ☑ DONE 2026-07-01 (W1) — `name`+`identity` on `CourtPiece` (token-bound / faction-fixed /
+  faction-voice Herald; identity = pure `identityFor(name)`, no stream draw); surfaced in court panel,
+  Hold rail, standings, ransom/bequest controls, capture/ransom/recruit-flip beats; capture/rout/ransom/
+  return/free/bequest events carry the name. 597 v3 tests (11 new); sim summary verified BYTE-IDENTICAL.
 
 ### T1-2 ☐ Resolve the Rally + the Whisper last-stronghold reading (drifts D1 + D3)
 - **Problem:** (D1) ALGORITHM §13 P0-10 mandates a one-time **Rally** for a Warlord reduced below a

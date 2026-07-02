@@ -6,7 +6,7 @@
  */
 
 // ── Setup ──
-export { createGame } from './setup.js';
+export { createGame, FACTION_NAMES } from './setup.js';
 
 // ── Difficulty (Stage D1 — dark-strength tiers via the doomCost curve) ──
 export {
@@ -202,6 +202,8 @@ export {
   addCourtPiece,
   archetypePower,
   canLastStand,
+  identityFor,
+  RETAINER_NAMES,
   stewardIncome,
 } from './court.js';
 

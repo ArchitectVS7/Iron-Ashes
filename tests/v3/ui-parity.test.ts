@@ -12,6 +12,7 @@
 import { describe, expect, it } from 'vitest';
 import { GameSession } from '../../src/ui-v3/session.js';
 import { renderApp } from '../../src/ui-v3/view.js';
+import { addCourtPiece, capturePiece, identityFor, FACTION_NAMES } from '../../src/v3/index.js';
 import type { GameState } from '../../src/v3/index.js';
 
 /** Drive a fresh game to the human's live ACTION turn (where the control panel renders). */
@@ -241,5 +242,48 @@ describe('UI parity (v3) — every control routes through applyCommand', () => {
     s2.setBequest({ kind: 'death_curse', target: 1 });
     expect(s2.lastError).toBeNull();
     expect(s2.state.pendingBequests?.[0]).toEqual({ kind: 'death_curse', target: 1 });
+  });
+});
+
+describe('T1-1 — names SURFACE in the UI (§2: the court panel, the Hold Rail, standings)', () => {
+  it('the court panel shows the retainer NAME + identity line, not the piece id', () => {
+    const s = humanTurn('competitive');
+    addCourtPiece(s.state, 0, 'marshal', s.state.players[0].warlordNodeId, 'Vael the Steadfast');
+    const html = renderApp(s);
+    expect(html).toContain('Vael the Steadfast');
+    expect(html).toContain(identityFor('Vael the Steadfast'));
+  });
+
+  it('the HOLD RAIL names every hostage (§13 P0-11)', () => {
+    const s = humanTurn('competitive');
+    addCourtPiece(s.state, 1, 'steward', s.state.players[1].warlordNodeId, 'Petra Sunder');
+    const cp = s.state.players[1].court.find(c => c.archetype === 'steward')!;
+    capturePiece(s.state, 0, 1, cp.id);
+    const html = renderApp(s);
+    expect(html).toContain('Hold Rail');
+    expect(html).toContain('Petra Sunder');
+    // The RANSOM control also names the captive (the human is the captor → owner-side label).
+    expect(html).not.toContain(`>${cp.id}<`); // never the raw id as the display name
+  });
+
+  it('standings carry the fixed faction names (§3 factionName[i])', () => {
+    const s = humanTurn('competitive');
+    const html = renderApp(s);
+    for (let i = 0; i < 4; i++) expect(html).toContain(FACTION_NAMES[i]);
+  });
+
+  it('the capture beat is named: the narration carries the hostage\'s name', () => {
+    const s = humanTurn('competitive');
+    addCourtPiece(s.state, 1, 'marshal', s.state.players[0].warlordNodeId, 'Dorn Greycloak');
+    colocateRival(s.state, 0, 1);
+    s.state.players[0].hand = [9, 9, 9, 9];
+    s.state.players[1].hand = [1];
+    s.state.players[0].banners = 9;
+    s.state.act = 'MARCH'; // Whisper last-retainer protection off the table
+    s.humanAction({ type: 'PLAYER_ACTION', playerIndex: 0, action: { type: 'RAID', targetPlayerIndex: 1, raidEffect: 'CAPTURE_PIECE' } });
+    // Deterministic (seed 42): a 9-hand vs a 1-hand clears the capture margin.
+    expect(s.lastError).toBeNull();
+    expect(s.state.captives).toHaveLength(1);
+    expect(s.narration.some(n => n.text.includes('CAPTURE') && n.text.includes('Dorn Greycloak'))).toBe(true);
   });
 });

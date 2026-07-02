@@ -251,6 +251,16 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-01** — **T1-1 (Tier-1 sweep W1): RETAINER NAMES PERSIST + SURFACE (review drift D5).**
+  `CourtPiece` gains `name` + `identity` (§2 "names are state"): Discovery recruits copy the PRE-BOUND token
+  name (main + blight-seed-bonus paths, §7 D9); starting Warlords carry FIXED faction names (`FACTION_NAMES`,
+  §3 `factionName[i]`); the Herald is `Voice of <faction>`. The one-line identity is `identityFor(name)` — a
+  PURE hash of the name into a fixed pool, never a live-stream draw. Names surfaced in the court panel
+  (+identity line), Hold rail, standings, ransom/bequest controls, and the capture / ransom / recruit-flip
+  scene beats; capture/rout/ransom/rout-return/captive-freed/bequest events all carry the name. **VERIFIED:**
+  v3 597 tests green (11 new: persistence recruit→capture→ransom→return + UI parity), v2 451, tsc + eslint +
+  `vite build` clean, and `sim:v3` summary.json **BYTE-IDENTICAL** to the locked reference (names are cosmetic
+  state — guard (a) held).
 - **2026-07-01** — **DIFFICULTY-SETTING FEATURE COMPLETE + PLAYTEST CHECKLIST → v3 READY FOR PLAYTEST**
   (commits `08a5899`/`2bbab87`/`4511db2`). A `difficulty` tier (**warlord / knight / squire**) scales the dark
   via the doomCost curve, calibrated at flawless play to **21% / 17.5% / 13%** dark-win; **warlord = DEFAULT =
