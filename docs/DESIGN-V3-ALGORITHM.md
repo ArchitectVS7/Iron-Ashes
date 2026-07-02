@@ -305,6 +305,10 @@ heart assault — focus-group §3.5); the grudge array also receives the **Death
 
 Check order fixed and deterministic; **loss preempts win**; all snapshots post-escalation, seat order.
 
+> **Teaching note (T1-5):** this section is the *engine* truth — six conditions with preempt ordering.
+> Humans are NOT taught this list. The canonical 3-sentence taught version lives in
+> `docs/v3-teach-script.md` §"The end conditions" — the UI/onboarding must use that, not this.
+
 ### Wins
 - **Last Warlord standing** *(new, from elimination)* — one living Warlord remains → that player wins
   (subject to loss-preempt).
@@ -333,6 +337,15 @@ Check order fixed and deterministic; **loss preempts win**; all snapshots post-e
   targets the **most-hoarded / least-engaged seat first**, not table-wide-flat — it taxes the turtle, not
   the already-behind), the dark deposes strongholds — so the attrition win threatens the lead and the
   passive, restoring the low-player-count threat `all_broken` provided.
+  `[SHIPPED-STATE annotation, 2026-07-02, backlog T1-5]` **The shipped default is
+  `RECKONING_AUTOPRESSURE_NODES = 0` — this mechanic is currently INERT.** The Stage V3-5b tuning wave
+  (sanctioned, 2026-06-28) zeroed it to fix the doom/attrition inversion (attrition was 75.7% of dark
+  wins; disabling the executioner + `BLIGHT_TO_ASH` 3→2 restored doom as co-primary and brought dark-win
+  into the 18–22 band). The code path (`elimination.ts`) and the tunable remain, but as shipped the dark
+  never deposes via auto-pressure, and the **anti-turtle "hiding is dangerous" pressure this bullet and
+  §13 P0-5 describe does not exist in play** — sim bots don't turtle like humans, so the playtest may
+  rediscover build-quietly-and-be-second. Re-arming it in a currency that can't re-break the doom mix is
+  **backlog T2-2** (awaiting user call).
 
 ### Ordering edge-cases (RESOLVED — §12 table has the full list)
 The load-bearing ones: simultaneous/last-two deposals → attrition Shadowking win; loss-preempts extended to
@@ -466,6 +479,12 @@ tension; the accusation tools (Audit, Suspicion Log) are unchanged. Re-tune in a
   strike power from cumulative deaths (kills the chain-collapse) and makes it simulable.
 - **P0-5 — Auto-pressure retargeted.** It deposes the **most-production / least-engaged seat first**, scaled
   by standing — taxes the turtle and the lead, never the already-behind. This is the meta-centering lever.
+  `[SHIPPED-STATE annotation, 2026-07-02, backlog T1-5]` The retargeting is BUILT as specified
+  (`elimination.ts`), but the shipped default is **`RECKONING_AUTOPRESSURE_NODES = 0`** — the sanctioned
+  Stage V3-5b decision (2026-06-28, ROADMAP §8) that fixed the doom/attrition inversion. **As shipped this
+  meta-centering lever is INERT: the anti-turtle pressure does not fire.** The gap is owned, not silent —
+  re-arming it in a doom-safe currency (steer Blight spread at the least-engaged quadrant, or a Pledge
+  hoard-tax) is **backlog T2-2**, an open user call. §6 carries the matching annotation.
 - **P0-6 — Assault liveness is real.** Suppressing auto-pressure requires a heart-hit **that round** + a
   minimum commit; a stalled/token assault does not count as live.
 - **P0-7 — Raid-leader penalty in the win currency.** On the dark's death the heart's collapse **displaces

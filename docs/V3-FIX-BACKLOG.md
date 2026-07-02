@@ -90,7 +90,7 @@ Legend: ☐ open · ◐ in progress · ☑ done · ✗ rejected/recorded-out
   `sample-v3/BLOOD_PACT.summary.json` — a W2 leftover still carrying pre-Whisper-gate numbers — refreshed
   to the validated 19.4% baseline).
 
-### T1-5 ☐ Doc honesty + the teach script (learnability #2/#3, drift D2)
+### T1-5 ☑ Doc honesty + the teach script (learnability #2/#3, drift D2)
 - **Problem:** (a) ALGORITHM §6/§13 P0-5 still describe the Reckoning auto-pressure as live; it is zeroed
   (sanctioned 5b) — the spec oversells the shipped game. (b) Six end-conditions are taught where three
   sentences suffice. (c) The game's natural act-staging is not written down as the intended onboarding, so
@@ -102,7 +102,25 @@ Legend: ☐ open · ◐ in progress · ☑ done · ✗ rejected/recorded-out
   the styled-UI pass implements.
 - **Integrations:** docs only (`DESIGN-V3-ALGORITHM.md` annotations, a new `docs/v3-teach-script.md`,
   checklist cross-links) · UI (a requirement for the styled pass, not built now).
-- **Status:** OPEN — queued in the Tier-1 sweep (W4). Docs-only.
+- **Status:** ☑ DONE 2026-07-02 (W4) — (a) ALGORITHM §6 auto-pressure bullet + §13 P0-5 annotated with the
+  shipped `RECKONING_AUTOPRESSURE_NODES=0` default (sanctioned 5b): the anti-turtle pressure is currently
+  INERT, re-arm tracked as T2-2 (§13 P0-10 was already annotated by W2 — verified, not duplicated).
+  (b) `docs/v3-teach-script.md` written: the canonical progressive-disclosure onboarding — a 5–6 min
+  upfront script (4-idea spine, THREAT→PLEDGE + Crown surcharge, two currencies, march/claim/flip, the
+  "elimination from March — watch the Exposure meter" warning, the exactly-3-sentence end conditions
+  with a §6 spec pointer) + 8 in-context one-shot beats (capture election at first raid-win, ransom,
+  oaths, March exposure, heart-at-spawn + throne gate, Wraith/Bequest at elimination, the T1-4
+  human-facing Last Stand prompt, the Gambit) + Blood-Pact-never-in-game-one — framed as a REQUIREMENT
+  for the styled-UI pass (T3-10). (c) Cross-links: the playtest checklist now mandates teaching from the
+  script; Tier-1 statuses verified against the landed commits (5fb1e48 W1, 9eedd1e W2, bb286ca W3);
+  ROADMAP §8 Tier-1-sweep-complete entry added. Docs-only; full gate + byte-identical balance guard run
+  as insurance.
+
+**TIER 1 COMPLETE (2026-07-02).** All five pre-playtest items landed across W1–W4 (commits `5fb1e48`,
+`9eedd1e`, `bb286ca`, + the W4 docs commit); the one build-then-revert (the T1-2 Rally) is a dated,
+recorded decision, not a silent drop. v3 623 tests green, v2 451, both modes in band (dark 21.4%, BP
+traitor 19.4%), sim reference byte-stable. **The playtest is unblocked** — run it from
+`docs/human-playtest-checklist-v3.md` teaching from `docs/v3-teach-script.md`.
 
 ---
 

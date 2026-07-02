@@ -27,10 +27,12 @@ built a turtle meta; two new subsystems were non-deterministic). Those fixes are
 >   stage (see §7).
 
 **Immediate next action:** the **V3-6 HUMAN PLAYTEST** (`npm run dev` → `/index-v3.html`; walk
-`docs/human-playtest-checklist-v3.md`) — the ball is now in the human's court. Everything build-able is
-DONE: **v3 IS FUNCTIONALLY COMPLETE END-TO-END** (design → engine → sim → balance both modes → UI →
-difficulty selector → playtest checklist). v3 586 tests green, v2 451, tsc + `vite build` clean, default
-balance byte-identical. The playtest sets the difficulty default + drives the styled-UI pass + any felt-experience tuning.
+`docs/human-playtest-checklist-v3.md`, teaching from `docs/v3-teach-script.md`) — the ball is now in the
+human's court. Everything build-able is DONE: **v3 IS FUNCTIONALLY COMPLETE END-TO-END** (design → engine →
+sim → balance both modes → UI → difficulty selector → playtest checklist), **and the Tier-1 pre-playtest
+fix sweep is COMPLETE** (`V3-FIX-BACKLOG.md` T1-1…T1-5; §8 2026-07-02). v3 623 tests green, v2 451, tsc +
+`vite build` clean, default balance byte-identical. The playtest sets the difficulty default + drives the
+styled-UI pass + any felt-experience tuning; Tier-2 backlog items await user calls.
 
 *(Prior-status prose accumulated below is historical; the accurate running record is §8. Also note the
 "DESIGN sprint / CODE sprint NOT STARTED" header at the top of §0 is stale — the code sprint is essentially
@@ -250,6 +252,25 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 ---
 
 ## 8. Changelog / decision log (v3)
+
+- **2026-07-02** — **TIER-1 PRE-PLAYTEST SWEEP COMPLETE (W4, backlog T1-5: doc honesty + the teach
+  script) — the playtest is UNBLOCKED.** W4 (docs-only): (a) **spec honesty** — ALGORITHM §6 + §13 P0-5
+  now carry a SHIPPED-STATE annotation: the Reckoning auto-pressure ships `RECKONING_AUTOPRESSURE_NODES=0`
+  (the sanctioned 5b decision), so the anti-turtle "hiding is dangerous" lever is currently **INERT** —
+  the spec no longer oversells the shipped game; re-arm tracked as backlog T2-2 (P0-10 was already
+  annotated by W2). (b) **`docs/v3-teach-script.md`** — the canonical progressive-disclosure onboarding
+  (a 5–6 min upfront script: 4-idea spine, THREAT→PLEDGE + the Crown surcharge, cards-vs-banners,
+  march/claim/flip, "elimination from March — watch the Exposure meter", the exactly-3-sentence taught
+  end conditions; 8 in-context one-shot beats: capture election / ransom / oaths / March exposure /
+  heart-at-spawn + throne gate / Wraith+Bequest / the T1-4 Last Stand prompt / the Gambit; Blood Pact
+  NEVER in game one) — a stated REQUIREMENT for the styled-UI pass (T3-10); §6 points teaching at it.
+  (c) The playtest checklist now mandates teaching from the script; backlog Tier-1 statuses verified
+  against the landed commits and T1-5 marked done. **Tier-1 ledger:** T1-1 names (`5fb1e48`) · T1-2
+  Whisper gate BUILT + Rally built→REVERTED-recorded + T1-3 Crown callout (`9eedd1e`) · T1-4 human Last
+  Stand (`bb286ca`) · T1-5 this entry. **State:** v3 623 tests green, v2 451, both modes in band (dark
+  21.4%, BP traitor 19.4%), sim reference byte-stable (W4 guard re-verified byte-identical). **Next:**
+  the V3-6 human playtest (`human-playtest-checklist-v3.md`), teaching from the teach script; Tier-2
+  items await user calls.
 
 - **2026-07-02** — **Tier-1 W3 (backlog T1-4): HUMAN LAST STAND CONTROL — the pause-flow.** The one
   interactive heroic verb the spec grants now reaches the player: when a HUMAN defender would lose a

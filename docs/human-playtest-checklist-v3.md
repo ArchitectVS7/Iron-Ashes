@@ -7,6 +7,10 @@ v3 mechanics whose VALUE rests on a human claim the sim can't reach. Per the No-
 
 > **How to run:** `npm run dev`, open `/index-v3.html`. It's the FUNCTIONAL (unstyled) build — judge the
 > *mechanics and legibility*, not the looks (the styled pass follows this playtest).
+> **How to teach:** use `docs/v3-teach-script.md` — the canonical onboarding (a 5–6 min upfront script +
+> in-context one-shot beats; Blood Pact never in game one). Teach ONLY that way: part of what this playtest
+> validates is whether the progressive-disclosure staging works, and verdicts here feed back into the teach
+> script before the styled-UI pass implements it.
 > **How to use:** walk each item, record the verdict (kept / changed / cut) back into
 > `docs/DESIGN-V3-ALGORITHM.md` + `docs/ROADMAP-V3.md §8`. Items 1–2 are the two the stress-test flagged as
 > the biggest risks — weight them heavily.
