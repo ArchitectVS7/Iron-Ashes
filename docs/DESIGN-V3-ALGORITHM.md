@@ -354,14 +354,23 @@ Check order fixed and deterministic; **loss preempts win**; all snapshots post-e
   the already-behind), the dark deposes strongholds — so the attrition win threatens the lead and the
   passive, restoring the low-player-count threat `all_broken` provided.
   `[SHIPPED-STATE annotation, 2026-07-02, backlog T1-5]` **The shipped default is
-  `RECKONING_AUTOPRESSURE_NODES = 0` — this mechanic is currently INERT.** The Stage V3-5b tuning wave
-  (sanctioned, 2026-06-28) zeroed it to fix the doom/attrition inversion (attrition was 75.7% of dark
-  wins; disabling the executioner + `BLIGHT_TO_ASH` 3→2 restored doom as co-primary and brought dark-win
-  into the 18–22 band). The code path (`elimination.ts`) and the tunable remain, but as shipped the dark
-  never deposes via auto-pressure, and the **anti-turtle "hiding is dangerous" pressure this bullet and
-  §13 P0-5 describe does not exist in play** — sim bots don't turtle like humans, so the playtest may
-  rediscover build-quietly-and-be-second. Re-arming it in a currency that can't re-break the doom mix is
-  **backlog T2-2** (awaiting user call).
+  `RECKONING_AUTOPRESSURE_NODES = 0` — the deposal-currency executioner is INERT.** The Stage V3-5b
+  tuning wave (sanctioned, 2026-06-28) zeroed it to fix the doom/attrition inversion (attrition was
+  75.7% of dark wins; disabling the executioner + `BLIGHT_TO_ASH` 3→2 restored doom as co-primary and
+  brought dark-win into the 18–22 band). The code path (`elimination.ts`) and the tunable remain.
+  `[T2-2 RE-ARM, 2026-07-02]` **The anti-turtle pressure is LIVE again, in the BLIGHT currency**
+  (`applyReckoningBlightPressure`, `RECKONING_AUTOPRESSURE_BLIGHT = 1`): each Reckoning Dawn, if no
+  ASSAULT_HEART is live (the same P0-6 liveness), the dark advances 1 blight on the **least-engaged**
+  living seat's most-imperiled **non-Keep** stronghold. Engagement is a public cumulative tally
+  (+1 per card pledged / committed to a STRIKE / committed to the heart, +1 per PARLEY — `engagement`
+  on PlayerState). Two hard shapes keep it out of the deposal currency: **Keeps are never targeted**,
+  and the gaze **spares the broken** (only seats with 2+ productive non-Keep nodes qualify; the
+  pressure can never ash a seat's last production, so it cannot economically execute anyone). It
+  telegraphs — a pressured node sits blighted one Dawn before it ashes (`BLIGHT_TO_ASH = 2`) — and
+  engaging moves the gaze off you. Validated 2-seed (dark 19.2/19.3 pooled vs 19.4/19.5 baseline;
+  doom 17.3/17.6, attrition share 9.8/8.8, eliminations 0.36/0.36 — the mix and texture hold; the
+  passive-seat win rate drops 35.9/36.3 → 34.7/34.0 pooled, 66.1/66.6 → 61.5/59.8 at 2p where
+  hiding is most rewarded — see the sample-v3 REPORT banner).
 
 ### Ordering edge-cases (RESOLVED — §12 table has the full list)
 The load-bearing ones: simultaneous/last-two deposals → attrition Shadowking win; loss-preempts extended to
@@ -503,10 +512,18 @@ tension; the accusation tools (Audit, Suspicion Log) are unchanged. Re-tune in a
   by standing — taxes the turtle and the lead, never the already-behind. This is the meta-centering lever.
   `[SHIPPED-STATE annotation, 2026-07-02, backlog T1-5]` The retargeting is BUILT as specified
   (`elimination.ts`), but the shipped default is **`RECKONING_AUTOPRESSURE_NODES = 0`** — the sanctioned
-  Stage V3-5b decision (2026-06-28, ROADMAP §8) that fixed the doom/attrition inversion. **As shipped this
-  meta-centering lever is INERT: the anti-turtle pressure does not fire.** The gap is owned, not silent —
-  re-arming it in a doom-safe currency (steer Blight spread at the least-engaged quadrant, or a Pledge
-  hoard-tax) is **backlog T2-2**, an open user call. §6 carries the matching annotation.
+  Stage V3-5b decision (2026-06-28, ROADMAP §8) that fixed the doom/attrition inversion.
+  `[T2-2 RE-ARM, 2026-07-02]` **The meta-centering lever is LIVE again in a doom-safe currency:**
+  `applyReckoningBlightPressure` (`RECKONING_AUTOPRESSURE_BLIGHT = 1`) blights the **least-engaged**
+  seat's most-imperiled non-Keep stronghold each Reckoning Dawn (lowest `engagement` tally → most
+  production → lowest seat; same P0-6 heart-liveness suppression). The backlog's "steer Blight at the
+  least-engaged" option won the validation; the deposal-currency re-arm and two dose-gates were built
+  and REJECTED on the 2-seed sweeps (instant keep-strips re-inflated last_standing 7→21% of games and
+  broke the 3p credible band; a full-block gate and a 3+-living gate both neutered the 2p bite where
+  hiding is most rewarded — passive-seat win 66% at 2p). Final shape: Keeps never targeted + only
+  seats with 2+ productive non-Keep nodes qualify ("spare the broken") — pressure in land, never an
+  execution engine. The sim's passivity metric (`passiveSeatWinRate` — win share of the game's
+  min-engagement seat) proves the bite and guards regressions; §6 carries the matching annotation. §6 carries the matching annotation.
 - **P0-6 — Assault liveness is real.** Suppressing auto-pressure requires a heart-hit **that round** + a
   minimum commit; a stalled/token assault does not count as live.
 - **P0-7 — Raid-leader penalty in the win currency.** On the dark's death the heart's collapse **displaces

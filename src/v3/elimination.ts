@@ -27,7 +27,7 @@
 import type { GameEvent } from './events.js';
 import type { GameState } from './types.js';
 import { getTunables } from './tunables.js';
-import { ashNode } from './blight.js';
+import { advanceBlightOnNode, ashNode } from './blight.js';
 import { livingStrongholdCount, productionOf } from './combat.js';
 import { addGrudge } from './shadowking-policy.js';
 import { observableState, type ObservableState } from './observable.js';
@@ -287,6 +287,72 @@ function stripOneStronghold(state: GameState, seat: number): GameEvent[] {
       details: { deposed: true, by: 'dark', reason: 'reckoning_auto_pressure' },
     });
     events.push({ type: 'SK_VOICE_LINE', line: 'The tide has reached your gates. Kneel.', trigger: 'reckoning_auto_pressure' });
+  }
+  return events;
+}
+
+/**
+ * T2-2 RE-ARM "hiding is dangerous" (§6 / §13 P0-5): each Reckoning Dawn, the dark advances
+ * `RECKONING_AUTOPRESSURE_BLIGHT` blight on the LEAST-ENGAGED living seat's most-imperiled
+ * stronghold — pressure in LAND, not deposals (the blight telegraphs one Dawn before it ashes,
+ * unlike the disarmed instant-strip `RECKONING_AUTOPRESSURE_NODES`).
+ *
+ * Target seat: lowest `engagement` tally (pledged + STRIKE + heart-commit cards, + PARLEYs) →
+ * MOST production (the hoard tiebreak) → lowest seat, among living seats with NON-Keep land to
+ * pressure. Target node: that seat's owned non-ashed NON-Keep stronghold with the highest blight
+ * (closest to ashing), lowest id tiebreak. The Keep is NEVER targeted — this lever is pressure in
+ * LAND, not deposals (the backlog-T2-2 design line; the deposal-currency variant re-inflated the
+ * elimination texture the 5b disarm bought back: last_standing 7→21% of games, 3p dark over the
+ * 24% credible cap). Suppressed by a LIVE heart assault (P0-6) and once the dark has fallen
+ * (§5.6). Deterministic — no RNG.
+ */
+export function applyReckoningBlightPressure(state: GameState): GameEvent[] {
+  const events: GameEvent[] = [];
+  const amount = getTunables().RECKONING_AUTOPRESSURE_BLIGHT;
+  if (amount <= 0) return events;
+  if (state.act !== 'RECKONING') return events;
+  // Once the heart has fallen the apocalypse clock is gone (§5.6) — no more dark pressure.
+  if (state.shadowking.darkDefeated) return events;
+  // P0-6: a REAL heart-hit this round suppresses the pressure (a stalled/token assault does not).
+  if (state.shadowking.heartAssaultLiveThisRound) return events;
+
+  // LEAST engaged → most production (the quiet hoarder first) → lowest seat (§13 P0-5).
+  const living = [...state.players.filter(p => !p.isEliminated)].sort((a, b) => {
+    if (a.engagement !== b.engagement) return a.engagement - b.engagement;
+    const pd = productionOf(state, b.index) - productionOf(state, a.index);
+    if (pd !== 0) return pd;
+    return a.index - b.index;
+  });
+
+  const def = state.board.definition;
+  for (const target of living) {
+    // The seat's owned non-ashed NON-Keep strongholds (Keeps are never pressured here).
+    const nonKeep = Object.keys(state.board.state.nodes).filter(id => {
+      const ns = state.board.state.nodes[id];
+      const tier = def.nodes[id]?.tier;
+      return ns.owner === target.index && !ns.ashed && (tier === 'forge' || tier === 'holding');
+    }).sort();
+    // SPARE THE BROKEN (the 3p-band cooler, validated in the T2-2 sweeps): the gaze only
+    // pressures a seat that still HOLDS a hoard — 2+ productive non-Keep nodes. It can therefore
+    // never ash a seat's LAST production, so the pressure cannot economically execute anyone
+    // (pressure in LAND, never a deposal engine — un-floored it chained 3p eliminations into
+    // attrition/last_standing finishes that broke the 3p credible band).
+    if (nonKeep.length < 2) continue; // shrunken/keep-only seat — next quietest hoard
+
+    // Most-imperiled first: highest blight (closest to ashing), lowest id tiebreak. Plain
+    // code-unit `<` (never localeCompare) — §7 determinism across environments.
+    const nodeId = [...nonKeep].sort((a, b) => {
+      const bl = state.board.state.nodes[b].blightLevel - state.board.state.nodes[a].blightLevel;
+      return bl !== 0 ? bl : (a < b ? -1 : a > b ? 1 : 0);
+    })[0];
+
+    events.push(...advanceBlightOnNode(state, nodeId, amount, 'autopressure'));
+    events.push({
+      type: 'SK_VOICE_LINE',
+      line: 'The quietest banner burns first. Hide, and my ash finds you.',
+      trigger: 'reckoning_auto_pressure',
+    });
+    break; // exactly ONE pressured node per Dawn
   }
   return events;
 }

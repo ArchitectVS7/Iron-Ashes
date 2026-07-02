@@ -4,9 +4,67 @@
 player counts 2/3/4 · modes competitive ·
 35 matchups. Driven through the REAL reducer + REAL AI (deterministic).
 
-> **The body of this file is the canonical base-seed (20260622) run under the T2-1 lock.**
-> Below is the **T2-1 (backlog T2-1) "feed the court" re-lock** banner — the 2-seed validation of
-> the Tier-2 wave's first balance-touching stage; the base-seed full tables follow.
+> **The body of this file is the canonical base-seed (20260622) run under the T2-2 re-arm.**
+> Two Tier-2 banners follow — **T2-2 "hiding is dangerous" (newest)**, then the T2-1 "feed the court"
+> re-lock it builds on — and then the generated base-seed tables.
+
+## T2-2 — re-arm "hiding is dangerous" (+ the passivity metric, 2026-07-02)
+
+The anti-turtle lever (backlog T2-2, drift D2's design half) is **LIVE again, in the BLIGHT currency**:
+a public per-seat **engagement tally** (`PlayerState.engagement` — +1 per card pledged / STRIKE-committed /
+heart-committed, +1 per PARLEY) drives **`applyReckoningBlightPressure`**
+(`RECKONING_AUTOPRESSURE_BLIGHT` = 1): each Reckoning Dawn with no LIVE heart assault, the dark advances
+1 blight on the **least-engaged** living seat's most-imperiled **non-Keep** stronghold (lowest tally →
+most production → lowest seat). It telegraphs — the node sits blighted one Dawn before it ashes
+(BLIGHT_TO_ASH = 2) — and engaging moves the gaze off you. Doom/attrition-safe by two validated shapes:
+**Keeps are never targeted**, and the gaze **spares the broken** (only seats holding 2+ productive
+non-Keep nodes qualify — the pressure can never ash a seat's last production, so it cannot economically
+execute anyone). Rejected on the 2-seed sweeps: the keep-inclusive deposal-currency re-arm (best metric
+but last_standing 7→21% of games + 3p over the 24% credible cap), two dose gates (full-block / 3+-living —
+both neutered the 2p regime), the doom-cost compensator family (inverted via the patience ratchet), and a
+magnitude-2 probe (no metric gain, telegraph lost). `RECKONING_AUTOPRESSURE_NODES` stays 0.
+
+### The stage objective — the passivity metric (NEW: `passiveSeatWinRate`)
+Win share of the game's min-engagement seat (games with a player winner; the bottom-quartile-engagement
+seat at 4p). **Before (T2-1 lock): hiding was the BEST line** — the quietest seat won MORE than the
+~26.9% even share.
+
+| Passivity read | T2-1 lock (baseline) | T2-2 shipped | Movement |
+|---|---|---|---|
+| Passive-seat win — pooled | **35.9% / 36.3%** (above even share) | **34.7% / 34.0%** | down, 2-seed consistent |
+| Passive-seat win — 2p (where hiding is most rewarded) | **66.1% / 66.6%** | **61.5% / 59.8%** | the real bite: −5–7pp |
+| Passive-seat win — 3p · 4p | 26.2/26.9 · 15.0/14.7 | 27.5/27.8 · 15.3/14.5 | flat — sim bots do not turtle at 3p/4p (the backlog's own prediction); the 3p/4p bite is a HUMAN playtest item, armed + taught (teach-script beat C9) |
+| Winner vs field mean engagement | 38.1 vs 41.9 | 38.1 vs 41.7 | context row (reported per run) |
+
+### Competitive — CORE-BAND table (both seeds; the T2-1 lock was 19.4 / 19.5)
+| Band | Target | seed 20260622 | seed 20260628 | Verdict |
+|---|---|---|---|---|
+| Dark win — pooled | 18–22% | **19.2%** | **19.3%** | PASS · 2-seed STABLE |
+| Dark win — 2p | (context) | 18.6% | 18.3% | in band both |
+| Dark win — 3p | credible 16–24 | **21.9%** | **23.1%** | PASS |
+| Dark win — 4p | credible 16–24 | **17.1%** | **16.5%** | PASS |
+| Doom share of games (co-primary) | ~12–18% | **17.3%** | **17.6%** | PASS |
+| Attrition share of dark wins | <=40% cap | **9.8%** | **8.8%** | PASS |
+| Mean rounds | 10–16 | **12.16** | **12.13** | PASS |
+| Eliminations / game (texture) | (watch) | 0.363 | 0.355 | T2-1 texture holds (was 0.30; last_standing 9.3/9.3%) |
+| Free-rider guard | winners pledge their share | PASS | PASS | HOLD |
+| Termination guard | 0 step-guard hits | 0 | 0 | HOLD |
+| Captures/game · court median (T2-1 objective) | ~1 · 3–4 | 1.38 · 3 | 1.45 · 3 | T2-1 HOLDS |
+
+### Blood Pact (both seeds; the T2-1 lock was 18.1/18.9 · 56.1/53.6 · 70.6/71.2)
+| Band | Target | 20260622 | 20260628 |
+|---|---|---|---|
+| Traitor win | 12–20% | **17.8%** | **19.2%** |
+| Exposure | 40–70% | **55.6%** | **53.3%** |
+| Accusation accuracy | >=45% | **69.4%** | **70.9%** |
+
+### Carried watch items (unchanged posture)
+- Gambit fire (pooled ~35%) stays the known pre-existing FAIL judged on the deliberate split (in its
+  10–20 informal band) — unchanged from the T2-1 lock.
+- Saboteur gambler-free ~30–31% vs the 30% archetype guard line (T2-1 watch item) — unmoved by T2-2;
+  still tracked (the hoard-tax idea remains a candidate home if it confirms >30%).
+- Difficulty-tier (knight/squire) magnitudes stale (pre-T2-1) — recalibrate at the next
+  difficulty-touching stage.
 
 ## T2-1 — feed the court (supply + re-lock, 2026-07-02)
 
@@ -63,88 +121,89 @@ All new content pre-bound `f(hash(seed, key))` (§7 D1/D9), fogged, sigiled. Kno
 ## §9 targets
 | Metric | Measured | Target | Verdict |
 |---|---|---|---|
-| Shadowking win rate | 19.4% | 18.0%–22.0% | ✅ PASS |
-| Mean game length (rounds) | 12.20 | 10–16 | ✅ PASS |
-| Gambit fire rate (gambler-free, ~1-in-6-to-8) | 37.6% | 10.0%–20.0% | ❌ FAIL |
+| Shadowking win rate | 19.2% | 18.0%–22.0% | ✅ PASS |
+| Mean game length (rounds) | 12.16 | 10–16 | ✅ PASS |
+| Gambit fire rate (gambler-free, ~1-in-6-to-8) | 35.2% | 10.0%–20.0% | ❌ FAIL |
 
 ## No-dominant-strategy check
 Even per-seat win share ≈ **26.9%**. ✅ PASS — no archetype dominates.
 
 | Archetype | Seat-games | Wins | Win rate |
 |---|---|---|---|
-| aggressor | 1760 | 259 | 14.7% |
-| baseline | 3000 | 841 | 28.0% |
-| cooperator | 1560 | 469 | 30.1% |
-| gambler | 1480 | 566 | 38.2% |
-| opportunist | 1640 | 396 | 24.1% |
-| saboteur | 1440 | 435 | 30.2% |
-| turtle | 1720 | 419 | 24.4% |
+| aggressor | 1760 | 270 | 15.3% |
+| baseline | 3000 | 807 | 26.9% |
+| cooperator | 1560 | 475 | 30.4% |
+| gambler | 1480 | 560 | 37.8% |
+| opportunist | 1640 | 421 | 25.7% |
+| saboteur | 1440 | 433 | 30.1% |
+| turtle | 1720 | 427 | 24.8% |
 
 ## Free-rider verdict (§4.2 step 5)
-Winners' mean pledge **2.72** vs the field's **2.96**.
+Winners' mean pledge **2.72** vs the field's **2.97**.
 ✅ Free-riding is not rewarded (winners pledge at least their share).
 
 ## Game endings
 | Reason | Count | Share |
 |---|---|---|
-| attrition | 65 | 1.5% |
-| doom_complete | 750 | 17.9% |
-| gambit_victory | 472 | 11.2% |
-| last_standing | 302 | 7.2% |
-| territory_victory | 2611 | 62.2% |
+| attrition | 79 | 1.9% |
+| doom_complete | 728 | 17.3% |
+| gambit_victory | 470 | 11.2% |
+| last_standing | 392 | 9.3% |
+| territory_victory | 2531 | 60.3% |
 
 ## Tuning diagnostics (Stage 5)
 | Diagnostic | Value | Reading |
 |---|---|---|
-| Gambit fire rate — gambler-free subset | 37.6% | the HONEST gambit number (judge the §9 band on this) |
-| Gambit seize / win rate (all matchups) | 51.5% / 11.2% | aggregate, inflated by the gambler archetype |
-| Eliminations per game | 0.30 | elimination tempo (§6); band set from scratch in V3-5 |
-| Last-standing win rate | 7.2% | share of games decided by the last Warlord standing |
-| DK kills per game | 3.00 | combat lethality vs the dark / pushback supply |
-| Oaths sworn / broken per game | 6.64 / 3.96 | social density (sworn) + betrayal drama (67.6% of oaths broken) |
-| Forge tolls per game | 2.17 | chokepoint leverage (rival-Forge passage tax) |
-| Heralds/game · political share | 3.59 · 46.5% | build-identity uptake (§ Herald) |
-| Herald captures/game | 2.19 | §HL lone-runner interception drama (0 ⇒ the runner risk never bites) |
-| Build win rate (political / martial) | 26.9% / 26.8% | parity check — neither build should dominate |
-| Mean nodes ashed (doom progress) | 4.77 | how close the dark got |
-| Pledge full-block rate | 41.4% | high ⇒ table over-blocks ⇒ dark too weak |
-| Decisions per game · per round | 92.7 · 7.57 | session-length proxy (30–45 min scope — C2); flag if density drifts high |
-| Attrition share of SK wins | 8.0% | soft guard — dark should win by the Keystone assault, not attrition; high ⇒ investigate |
+| Gambit fire rate — gambler-free subset | 35.2% | the HONEST gambit number (judge the §9 band on this) |
+| Gambit seize / win rate (all matchups) | 49.7% / 11.2% | aggregate, inflated by the gambler archetype |
+| Eliminations per game | 0.36 | elimination tempo (§6); band set from scratch in V3-5 |
+| Last-standing win rate | 9.3% | share of games decided by the last Warlord standing |
+| DK kills per game | 2.99 | combat lethality vs the dark / pushback supply |
+| Oaths sworn / broken per game | 6.62 / 3.96 | social density (sworn) + betrayal drama (67.7% of oaths broken) |
+| Forge tolls per game | 2.10 | chokepoint leverage (rival-Forge passage tax) |
+| Heralds/game · political share | 3.57 · 46.4% | build-identity uptake (§ Herald) |
+| Herald captures/game | 2.18 | §HL lone-runner interception drama (0 ⇒ the runner risk never bites) |
+| Build win rate (political / martial) | 27.6% / 26.4% | parity check — neither build should dominate |
+| Mean nodes ashed (doom progress) | 5.50 | how close the dark got |
+| Pledge full-block rate | 41.3% | high ⇒ table over-blocks ⇒ dark too weak |
+| Decisions per game · per round | 92.6 · 7.58 | session-length proxy (30–45 min scope — C2); flag if density drifts high |
+| Attrition share of SK wins | 9.8% | soft guard — dark should win by the Keystone assault, not attrition; high ⇒ investigate |
 
 ## Per-player-count (strictness)
 | Count | Games | SK win | Rounds | Eliminations | Gambit fire |
 |---|---|---|---|---|---|
-| 2p | 1400 | 18.4% | 11.4 | 0.09 | 66.6% |
-| 3p | 1400 | 22.3% | 12.1 | 0.17 | 47.4% |
-| 4p | 1400 | 17.6% | 13.1 | 0.65 | 40.4% |
+| 2p | 1400 | 18.6% | 11.4 | 0.13 | 62.9% |
+| 3p | 1400 | 21.9% | 12.1 | 0.20 | 46.5% |
+| 4p | 1400 | 17.1% | 13.0 | 0.76 | 39.6% |
 
 ## V3-4b diagnostics — new-verb fire rates + defeat/snowball signals
 | Diagnostic | Value | Reading |
 |---|---|---|
-| Captures / Ransoms per game | 1.39 / 0.38 | capture-economy + ransom fire rates (0 ⇒ the verb never fires in sweeps) |
-| Capture→ransom-back rate | 27.4% | §13 attachment proxy (ransoms / captures) |
-| Heart assaults per game | 0.28 | ASSAULT_HEART commit fire rate (§5.6) |
-| Kill-the-Dark fire rate | 19.7% | share of games where the table broke the heart |
-| Dark win by path (doom / attrition) | 17.9% / 1.5% | the §6 dark-win split; last-standing player ending 7.2% |
-| Mean earliest elimination · dead-time proxy | 10.6 · 75.5% | spectator dead-time = earliest deposal / ROUND_CAP(14) |
+| Captures / Ransoms per game | 1.38 / 0.38 | capture-economy + ransom fire rates (0 ⇒ the verb never fires in sweeps) |
+| Capture→ransom-back rate | 27.5% | §13 attachment proxy (ransoms / captures) |
+| Heart assaults per game | 0.25 | ASSAULT_HEART commit fire rate (§5.6) |
+| Kill-the-Dark fire rate | 17.8% | share of games where the table broke the heart |
+| Dark win by path (doom / attrition) | 17.3% / 1.9% | the §6 dark-win split; last-standing player ending 9.3% |
+| Mean earliest elimination · dead-time proxy | 10.8 · 77.1% | spectator dead-time = earliest deposal / ROUND_CAP(14) |
 | Early-death flag rate (< 7 rounds) | 1.9% | games where a seat died before ROUND_CAP × 0.5 (a human there is a spectator too long) |
-| Eliminations by Act (W/M/R) | 0 / 208 / 1058 | elimination-timing distribution |
-| Mid-game leader win rate · comeback | 55.8% · 44.2% | snowball↔turtle: does the MARCH-act leader win? |
-| Discovery flips (recruit/blight/DK) | 59.3% / 24.2% / 16.4% | §5.1 flip outcome mix |
+| Eliminations by Act (W/M/R) | 0 / 208 / 1318 | elimination-timing distribution |
+| Mid-game leader win rate · comeback | 50.2% · 49.8% | snowball↔turtle: does the MARCH-act leader win? |
+| Discovery flips (recruit/blight/DK) | 59.2% / 24.3% / 16.5% | §5.1 flip outcome mix |
 | Court at March (median · mean pieces/seat) | 3 · 2.87 | T2-1 "feed the court" — the pitch's courts-of-3–4-by-March check |
-| Top archetype win rate (≤ 30.0% guard) | 38.2% | ❌ FAIL — no single strategy should dominate |
+| Passive-seat win rate (min engagement) | 34.7% | T2-2 "hiding is dangerous" — must sit BELOW the even share 26.9%; winner engagement 38.1 vs field 41.7 |
+| Top archetype win rate (≤ 30.0% guard) | 37.8% | ❌ FAIL — no single strategy should dominate |
 
 ## Gambit investigation (Stage 5f — deliberate vs incidental)
 | Diagnostic | Value | Reading |
 |---|---|---|
-| Gambler-free fire rate (DELIBERATE / INCIDENTAL) | 18.5% / 19.1% | split of the 37.6% honest fire — deliberate = a Gambit-path claim; incidental = a piece sat the Keystone for another reason |
-| Deliberate share of gambler-free fire | 49.1% | what % of the honest fire is a real Gambit claim |
-| All-matchup fire (DELIBERATE / INCIDENTAL) | 36.0% / 15.5% | context (inflated by the gambler archetype) |
+| Gambler-free fire rate (DELIBERATE / INCIDENTAL) | 17.6% / 17.6% | split of the 35.2% honest fire — deliberate = a Gambit-path claim; incidental = a piece sat the Keystone for another reason |
+| Deliberate share of gambler-free fire | 50.0% | what % of the honest fire is a real Gambit claim |
+| All-matchup fire (DELIBERATE / INCIDENTAL) | 35.3% / 14.4% | context (inflated by the gambler archetype) |
 | Gambler-free Gambit WIN / DELIBERATE-WIN rate | 3.5% / 3.1% | does it fire a lot but win rarely? |
-| Deliberate conversion (win / deliberate-fire) | 17.1% | Q3 — deliberate fire that actually converts to a Gambit win |
-| Top archetype win rate — gambler-free | 31.4% | Q2 — is the dominance FAIL gambler-driven? (vs 38.2% with gambler) |
-| 5i: baseline (default/field-filler) win rate — gambler-free | 29.9% | the gambler-free breach is the NEUTRAL DEFAULT, structurally over-weighted as the oneVsField filler — not a chosen strategy |
-| 5i: top CHOSEN strategy — gambler-free | saboteur @ 31.4% | best deliberately-picked strategy (excl. baseline+gambler); under the 30.0% guard ⇒ cooperator dominance is a pairwise artifact |
+| Deliberate conversion (win / deliberate-fire) | 17.8% | Q3 — deliberate fire that actually converts to a Gambit win |
+| Top archetype win rate — gambler-free | 31.3% | Q2 — is the dominance FAIL gambler-driven? (vs 37.8% with gambler) |
+| 5i: baseline (default/field-filler) win rate — gambler-free | 28.4% | the gambler-free breach is the NEUTRAL DEFAULT, structurally over-weighted as the oneVsField filler — not a chosen strategy |
+| 5i: top CHOSEN strategy — gambler-free | saboteur @ 31.3% | best deliberately-picked strategy (excl. baseline+gambler); under the 30.0% guard ⇒ cooperator dominance is a pairwise artifact |
 
 ## End Act
 | Act | Count | Share |

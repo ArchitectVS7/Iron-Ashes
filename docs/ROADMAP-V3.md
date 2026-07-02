@@ -30,11 +30,12 @@ built a turtle meta; two new subsystems were non-deterministic). Those fixes are
 `docs/human-playtest-checklist-v3.md`, teaching from `docs/v3-teach-script.md`) — the ball is now in the
 human's court. Everything build-able is DONE: **v3 IS FUNCTIONALLY COMPLETE END-TO-END** (design → engine →
 sim → balance both modes → UI → difficulty selector → playtest checklist), **and the Tier-1 pre-playtest
-fix sweep is COMPLETE** (`V3-FIX-BACKLOG.md` T1-1…T1-5; §8 2026-07-02). **Tier-2 has OPENED: T2-1 "feed
-the court" is LANDED** (starting Marshal + 6-token supply + full 2-seed re-lock — dark 19.4/19.5%, all
-§9 bands PASS; see §8 2026-07-02 T2-1). v3 627 tests green, v2 451, tsc clean. The playtest sets the
-difficulty default + drives the styled-UI pass + any felt-experience tuning; remaining Tier-2 items
-(T2-2/3/4) await user calls.
+fix sweep is COMPLETE** (`V3-FIX-BACKLOG.md` T1-1…T1-5; §8 2026-07-02). **Tier-2 is UNDERWAY: T2-1 "feed
+the court" is LANDED** (starting Marshal + 6-token supply + full 2-seed re-lock; see §8 2026-07-02 T2-1)
+**and T2-2 "hiding is dangerous" is RE-ARMED** (the engagement tally + the Reckoning blight pressure on
+the least-engaged seat + the sim's passivity metric — dark 19.2/19.3%, all §9 bands PASS 2-seed; see §8
+2026-07-02 T2-2). v3 646 tests green, v2 451, tsc clean. The playtest sets the difficulty default +
+drives the styled-UI pass + any felt-experience tuning; remaining Tier-2 items (T2-3/4) await user calls.
 
 *(Prior-status prose accumulated below is historical; the accurate running record is §8. Also note the
 "DESIGN sprint / CODE sprint NOT STARTED" header at the top of §0 is stale — the code sprint is essentially
@@ -254,6 +255,34 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 ---
 
 ## 8. Changelog / decision log (v3)
+
+- **2026-07-02** — **TIER-2 T2-2: RE-ARM "HIDING IS DANGEROUS" (+ the passivity metric) — the
+  anti-turtle lever is LIVE again, in the BLIGHT currency.** The wave-1/5b disarm
+  (`RECKONING_AUTOPRESSURE_NODES`=0) had left nothing punishing the least-engaged seat. Shipped:
+  (1) a public per-seat **engagement tally** (`PlayerState.engagement`: +1 per card pledged /
+  STRIKE-committed / ASSAULT_HEART-committed, +1 per PARLEY — deterministic, from public verbs);
+  (2) **`applyReckoningBlightPressure`** (new injectable `RECKONING_AUTOPRESSURE_BLIGHT`=1): each
+  Reckoning Dawn, no live heart assault (P0-6 carries over), the dark advances 1 blight on the
+  least-engaged living seat's most-imperiled **non-Keep** stronghold (lowest tally → most production →
+  lowest seat) — it telegraphs one Dawn before ashing (BLIGHT_TO_ASH=2), and engaging moves the gaze.
+  Doom/attrition-safe by TWO validated shapes: **Keeps never targeted** + **spare-the-broken** (only
+  seats with 2+ productive non-Keep nodes qualify — the pressure can never economically execute).
+  **Build-then-validate ledger (all 2-seed):** keep-inclusive deposal-currency re-arm REJECTED (best
+  metric, 25.2/24.0, but last_standing 7→21% of games + 3p 24.7% over the credible cap — the 5b
+  inversion in miniature); full-block + 3-living dose gates REJECTED (both neutered the 2p regime where
+  hiding is most rewarded); doom-cost compensators REJECTED (provably inverted — easier blocks → faster
+  patience escalation → 3p 28.9%); a magnitude-2 probe REJECTED (no metric gain, pooled sags to 18.05,
+  telegraph lost). (3) **The sim passivity metric** `passiveSeatWinRate` (+ winner/field mean
+  engagement; per-count in the banner): the min-engagement seat's win share was **35.9/36.3% pooled —
+  ABOVE the ~26.9% even share; hiding WAS the best line — and 66.1/66.6% at 2p**; shipped:
+  **34.7/34.0 pooled, 61.5/59.8 at 2p**. 3p/4p flat (~27/~15) — sim bots don't turtle there (the
+  backlog's own prediction); the 3p/4p bite is a human-playtest item, now armed and TAUGHT (teach-script
+  beat **C9**, the "quietest banner" bark). **2-seed re-validation, all §9 bands:** dark **19.2/19.3%**
+  pooled [18.6/21.9/17.1]·[18.3/23.1/16.5], doom-of-games **17.3/17.6**, attrition share **9.8/8.8**,
+  rounds 12.16/12.13, eliminations 0.36/0.36 (texture holds), free-rider/dominance/termination PASS,
+  captures 1.38/1.45 + court median 3 (T2-1 holds); **BP 17.8/19.2 · 55.6/53.3 · 69.4/70.9** (holds).
+  **VERIFIED:** v3 646 tests green (tsc + eslint clean), v2 451 untouched; `sim-results/sample-v3/`
+  refreshed (banner = this re-validation). Spec §6 + §13 P0-5 re-annotated INERT → shipped mechanism.
 
 - **2026-07-02** — **TIER-2 T2-1: FEED THE COURT (supply + re-lock) — the pitch-matching change
   (engagement review #1) LANDED.** Levers (a)+(b) of the backlog recommendation: (a) **every player

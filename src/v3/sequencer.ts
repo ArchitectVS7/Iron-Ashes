@@ -46,6 +46,7 @@ import {
 import {
   applyDeathBequest,
   applyReckoningAutoPressure,
+  applyReckoningBlightPressure,
   applyWraithCardAdds,
   applyWraithNudges,
   decayStrikePool,
@@ -188,6 +189,10 @@ export function resolvePledgePhase(state: GameState): SequencerResult {
       }
       player.hand.splice(minIdx, 1);
     }
+
+    // Engagement tally (T2-2 "hiding is dangerous"): every pledged card counts toward the
+    // seat's anti-dark engagement — the Reckoning blight auto-pressure hunts the lowest tally.
+    player.engagement += pledge.amount;
 
     // Anti-free-rider (§4.2 step 5b): a contributor earns a persistent FAVOR —
     // grudge-reduction. Free-riders (amount 0) earn nothing.
@@ -446,7 +451,14 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
   // 3d. Reckoning AUTO-PRESSURE (§6 / §13 P0-5): the dark strips strongholds from the most-
   //     production / least-engaged seat, BEFORE deposals resolve — a seat reduced to zero
   //     strongholds is eliminated this same Dawn (the all_broken executioner successor).
+  //     SHIPPED INERT (RECKONING_AUTOPRESSURE_NODES=0, the sanctioned 5b call) — still injectable.
   events.push(...applyReckoningAutoPressure(state));
+
+  // 3e. T2-2 RE-ARM "hiding is dangerous" (§6 / §13 P0-5): the LIVE anti-passivity pressure —
+  //     the dark blights the LEAST-ENGAGED seat's most-imperiled land each Reckoning Dawn
+  //     (RECKONING_AUTOPRESSURE_BLIGHT). Land pressure that telegraphs, not an instant strip;
+  //     suppressed by a live heart assault (P0-6), same slot so a Keep ashed here deposes below.
+  events.push(...applyReckoningBlightPressure(state));
 
   // 4. Resolve deposals (§6, §7 D5): zero-stronghold / flagged Warlords are eliminated
   //    HERE, at Dawn, in seat order — never mid-action.

@@ -114,6 +114,10 @@ export function executeAssaultHeart(
     if (i !== -1) player.hand.splice(i, 1);
   }
 
+  // Engagement tally (T2-2): every card committed to the heart counts — assaulting the heart
+  // is the loudest possible engagement (a live hit also suppresses the auto-pressure, P0-6).
+  player.engagement += committedCards.length;
+
   // Land the visible hit; accrue the cumulative commit; recompute the raid-leader.
   const before = heart.hp;
   heart.hp = Math.max(0, heart.hp - hit);

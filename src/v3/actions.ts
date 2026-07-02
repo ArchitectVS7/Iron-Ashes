@@ -406,6 +406,10 @@ export function executeStrike(
     handCopy.splice(idx, 1);
   }
 
+  // Engagement tally (T2-2): cards thrown at the dark count, win or lose — the Reckoning
+  // blight auto-pressure hunts the lowest tally, so fighting the dark moves it off you.
+  player.engagement += attackerCards.length;
+
   // Resolve combat
   const setup: CombatSetup = {
     combatType: 'STRIKE',
@@ -1068,6 +1072,9 @@ export function executeParley(
     throw new Error('Cannot PARLEY: no blighted front on or adjacent to the Herald');
   }
   events.push(...applyPushback(state, target, getTunables().HERALD_PUSHBACK));
+  // Engagement tally (T2-2): the card-free anti-dark verb still counts as engagement (+1),
+  // so the political build is not structurally "passive" to the Reckoning auto-pressure.
+  state.players[playerIndex].engagement += 1;
   events.push({
     type: 'PLAYER_ACTED',
     playerIndex,

@@ -350,6 +350,13 @@ export interface PlayerState {
   // ── Blood Pact (Layer B) ──
   /** Whether this player holds the Blood Pact (traitor). */
   hasBloodPact: boolean;
+
+  // ── Engagement tally (T2-2 "hiding is dangerous", §6/§13 P0-5) ──
+  /** Deterministic CUMULATIVE tally of this seat's anti-dark engagement: +1 per card pledged,
+   *  +1 per card committed to a STRIKE, +1 per card committed to ASSAULT_HEART, +1 per PARLEY.
+   *  The Reckoning blight auto-pressure targets the LOWEST tally (the quietest banner); the sim's
+   *  passivity metric ranks seats on it. Never decremented; derived from public verbs. */
+  engagement: number;
 }
 
 // ─── Shadowking ───────────────────────────────────────────────────

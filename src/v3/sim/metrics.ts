@@ -50,6 +50,9 @@ export interface GameMetrics {
   readonly territoryPerSeat: readonly number[];
   /** Mean pledged card amount per seat across the game (from pledgeHistory). */
   readonly meanPledgePerSeat: readonly number[];
+  /** Final cumulative anti-dark engagement tally per seat (T2-2 §13 P0-5: pledged + STRIKE +
+   *  heart-commit cards + PARLEYs) — feeds the passivity metric (passiveSeatWinRate). */
+  readonly engagementPerSeat: readonly number[];
 
   // ── Blood Pact (§10) — false/0 in competitive ──
   readonly isBloodPact: boolean;
@@ -241,6 +244,7 @@ export function computeMetrics(state: GameState): GameMetrics {
     eliminations,
     territoryPerSeat: state.players.map(p => territoryOf(state, p.index)),
     meanPledgePerSeat: meanPledges(state, playerCount),
+    engagementPerSeat: state.players.map(p => p.engagement),
 
     isBloodPact,
     // §12 #5: an eliminated traitor still wins on a later doom/attrition.

@@ -323,6 +323,17 @@ export const STRIKEPOOL_DECAY = 1;
  *  is NOT eliminated — it persists via real combat/strike deposals (design call A: cap, don't
  *  kill). Paired with BLIGHT_TO_ASH 3→2 + SPREAD_AMOUNT_BASE 7→3 below. See V3-5b report. [TUNABLE] */
 export const RECKONING_AUTOPRESSURE_NODES = 0;
+/** T2-2 RE-ARM "hiding is dangerous" (§6/§13 P0-5): blight levels the dark advances each Reckoning
+ *  Dawn on the LEAST-ENGAGED living seat's most-imperiled NON-Keep stronghold (lowest `engagement`
+ *  tally → most production → lowest seat; keep-only seats are skipped for the next quietest).
+ *  Keeps are NEVER targeted — pressure in LAND, not deposals (the deposal-currency variant was
+ *  built and rejected: last_standing 7→21% of games, 3p dark over the 24% credible cap). The
+ *  anti-passivity lever re-armed in the BLIGHT currency after the 5b stronghold-strip lever
+ *  (`RECKONING_AUTOPRESSURE_NODES`) proved a table-wiping executioner at any nonzero magnitude —
+ *  a blighted node telegraphs one Dawn before it ashes (BLIGHT_TO_ASH=2), and engaging (pledge /
+ *  STRIKE / ASSAULT_HEART / PARLEY) moves the target off you. Suppressed by a LIVE heart assault
+ *  (P0-6), like the old lever. [TUNABLE] */
+export const RECKONING_AUTOPRESSURE_BLIGHT = 1;
 /** Extra grudge the Death-Curse fixes on its target for the rest of the game (§5.5). The Bequest
  *  (3f) APPLIES it; 3e exposes the targeting rule (`deathCurseTarget`). */
 export const CURSE_GRUDGE = 3;
@@ -644,6 +655,7 @@ export interface Tunables {
   readonly STRIKEPOOL_CAP: number;
   readonly STRIKEPOOL_DECAY: number;
   readonly RECKONING_AUTOPRESSURE_NODES: number;
+  readonly RECKONING_AUTOPRESSURE_BLIGHT: number;
   readonly CURSE_GRUDGE: number;
   readonly WRAITH_INPUT_CAP: number;
   readonly WRAITH_GRUDGE_NUDGE: number;
@@ -708,7 +720,8 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   CAPTURE_MARGIN, CAPTURE_MARGIN_STANDING_STEP, TRAILING_DEFENSE_BONUS, RECAPTURE_IMMUNE,
   CAPTIVE_GUARD_CAP, STEWARD_DENIED_TRICKLE, STEWARD_HOME_DEFENSE_BONUS,
   RANSOM_COST, RANSOM_BANNERS, RANSOM_SINK_CUT,
-  STRIKEPOOL_CAP, STRIKEPOOL_DECAY, RECKONING_AUTOPRESSURE_NODES, CURSE_GRUDGE,
+  STRIKEPOOL_CAP, STRIKEPOOL_DECAY, RECKONING_AUTOPRESSURE_NODES, RECKONING_AUTOPRESSURE_BLIGHT,
+  CURSE_GRUDGE,
   WRAITH_INPUT_CAP, WRAITH_GRUDGE_NUDGE, WRAITH_TRAITOR_NUDGE,
   HEART_HP, HEART_ASSAULT_MIN_COMMIT, HEART_RETALIATE_GRUDGE, POST_DARK_ROUNDS,
   DISCOVERY_RECRUIT_PCT, DISCOVERY_BLIGHT_PCT, DISCOVERY_DK_PCT, DISCOVERY_BLIGHT_DELTA,
@@ -798,6 +811,7 @@ export const TUNABLES = Object.freeze({
   STRIKEPOOL_CAP,
   STRIKEPOOL_DECAY,
   RECKONING_AUTOPRESSURE_NODES,
+  RECKONING_AUTOPRESSURE_BLIGHT,
   CURSE_GRUDGE,
   WRAITH_INPUT_CAP,
   WRAITH_GRUDGE_NUDGE,

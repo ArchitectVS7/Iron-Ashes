@@ -158,7 +158,31 @@ traitor 19.4%), sim reference byte-stable. **The playtest is unblocked** — run
   passivity metric in the sim (comeback-rate doesn't measure it).
 - **Integrations:** engine (`blight.ts` steer or pledge tax) · sim (new passivity metric + re-balance) ·
   docs (§13 P0-5 re-annotation).
-- **Status:** OPEN — awaiting user call.
+- **Status:** ☑ DONE 2026-07-02 (T2 wave) — the "steer Blight at the least-engaged" option WON the
+  validation. Shipped: (1) a public per-seat **engagement tally** (`PlayerState.engagement`: +1 per card
+  pledged / STRIKE-committed / heart-committed, +1 per PARLEY — deterministic, derived from public verbs);
+  (2) **`applyReckoningBlightPressure`** (`RECKONING_AUTOPRESSURE_BLIGHT`=1, new injectable): each
+  Reckoning Dawn (no live heart assault — the P0-6 suppression carries over) the dark advances 1 blight on
+  the least-engaged living seat's most-imperiled **non-Keep** stronghold (lowest tally → most production →
+  lowest seat; telegraphs one Dawn before ashing at BLIGHT_TO_ASH=2). Two shapes keep it doom/attrition-safe,
+  both build-then-validated: **Keeps never targeted** and **spare-the-broken** (only seats holding 2+
+  productive non-Keep nodes qualify — the pressure can never ash a seat's last production). REJECTED on the
+  2-seed sweeps: the keep-inclusive deposal-currency re-arm (strongest metric, 25.2/24.0, but last_standing
+  7→21% of games + 3p 24.7% over the credible cap), a full-block dose gate and a 3+-living gate (both
+  neutered the 2p regime where hiding is most rewarded), and the doom-cost-family compensators (provably
+  inverted: lower thresholds → more full blocks → faster patience escalation → HOTTER dark, 3p 28.9%).
+  (3) **Passivity metric** `passiveSeatWinRate` (+ winner/field mean engagement) in metrics/report — the
+  min-engagement seat's win share: baseline **35.9/36.3%** pooled (ABOVE the ~26.9% even share — hiding
+  WAS the best line), **66.1/66.6% at 2p**; shipped **34.7/34.0** pooled, **61.5/59.8** at 2p. 3p/4p flat
+  (~27/~15) — sim bots don't turtle there (the backlog's own prediction); the 3p/4p bite is a HUMAN
+  playtest item, now armed + taught (teach script beat C9). **2-seed re-validation, all §9 bands:** dark
+  **19.2/19.3%** pooled [18.6/21.9/17.1]·[18.3/23.1/16.5], doom-of-games **17.3/17.6**, attrition share
+  **9.8/8.8**, rounds 12.16/12.13, eliminations 0.36/0.36, last_standing 9.3/9.3, free-rider + dominance +
+  termination PASS, captures 1.38/1.45 + court median 3 (T2-1 holds); BP **17.8/19.2 · 55.6/53.3 ·
+  69.4/70.9** (bands hold; T2-1 lock was 18.1/18.9 · 56.1/53.6 · 70.6/71.2). A magnitude-2 probe was
+  run and REJECTED (passive 34.0 — no metric gain; pooled dark sags to 18.05 and the blighted-node
+  telegraph is lost). Spec §6 + §13 P0-5 re-annotated from INERT to the shipped mechanism; teach-script
+  beat C9 added; `RECKONING_AUTOPRESSURE_NODES` stays 0 (the deposal executioner remains retired).
 
 ### T2-3 ☐ Herald default-OFF (learnability #1)
 - **Problem:** the 4th archetype imports a verb (PARLEY), 2 tunables, and a never-fights exception; it's

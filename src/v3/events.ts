@@ -134,8 +134,9 @@ export interface GameOverEvent {
 
 // ─── Stage 3b: Blight / Shadowking Events ───────────────────────
 
-/** Source that caused the Blight advance. */
-export type BlightSource = 'strike' | 'escalation' | 'dawn';
+/** Source that caused the Blight advance. `autopressure` = the T2-2 Reckoning
+ *  anti-passivity pressure (the dark scourges the least-engaged seat's land, §6/§13 P0-5). */
+export type BlightSource = 'strike' | 'escalation' | 'dawn' | 'autopressure';
 
 export interface BlightAdvancedEvent {
   readonly type: 'BLIGHT_ADVANCED';

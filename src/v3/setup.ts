@@ -101,6 +101,7 @@ function createPlayerState(
     lastStrippedNode: null,
     oathbreaker: false,
     hasBloodPact: false,
+    engagement: 0,
   };
 }
 

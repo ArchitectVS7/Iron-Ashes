@@ -27,6 +27,7 @@ function mkMetrics(p: Partial<GameMetrics> & { winner: number | null }): GameMet
     eliminations: p.eliminations ?? 0,
     territoryPerSeat: p.territoryPerSeat ?? [0, 0, 0, 0],
     meanPledgePerSeat: p.meanPledgePerSeat ?? [1, 1, 1, 1],
+    engagementPerSeat: p.engagementPerSeat ?? [10, 20, 30, 40],
     isBloodPact: false,
     traitorWin: false,
     traitorExposed: false,
@@ -159,6 +160,24 @@ describe('summarize — V3-4b diagnostics', () => {
     const d = summarize([mkRow(SEATS, mkMetrics({ winner: 0 }))]).diagnostics;
     expect(d.medianCourtAtMarch).toBe(0);
     expect(d.meanCourtAtMarch).toBe(0);
+  });
+
+  it('scores the T2-2 passivity metric: min-engagement seat wins / games with a winner', () => {
+    const rows: SweepRow[] = [
+      // Seat 3 is the quietest (engagement 1) and WINS — a passive win.
+      mkRow(SEATS, mkMetrics({ winner: 3, engagementPerSeat: [10, 20, 30, 1] })),
+      // Seat 0 is the quietest but seat 2 wins — not a passive win.
+      mkRow(SEATS, mkMetrics({ winner: 2, engagementPerSeat: [2, 20, 30, 40] })),
+      // All-tied engagement → lowest seat (0) is "passive"; seat 0 wins.
+      mkRow(SEATS, mkMetrics({ winner: 0, engagementPerSeat: [5, 5, 5, 5] })),
+      // No winner (dark win) → excluded from the denominator.
+      mkRow(SEATS, mkMetrics({ winner: null, engagementPerSeat: [1, 2, 3, 4] })),
+    ];
+    const d = summarize(rows).diagnostics;
+    expect(d.passiveSeatWinRate).toBeCloseTo(2 / 3);
+    // Winner vs field engagement context: winners 1, 30, 5; the other 9 seats are the field.
+    expect(d.winnerMeanEngagement).toBeCloseTo((1 + 30 + 5) / 3);
+    expect(d.fieldMeanEngagement).toBeCloseTo((10 + 20 + 30 + 2 + 20 + 40 + 5 + 5 + 5) / 9);
   });
 
   it('computes capture/ransom fire rates and the capture→ransom-back attachment proxy', () => {

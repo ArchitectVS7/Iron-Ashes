@@ -5,10 +5,10 @@ player counts 2/3/4. An AI seat holds the Pact (sim-only affordance).
 
 | Metric | Value |
 |---|---|
-| Traitor win rate (reaches doom unexposed) | 18.1% |
-| Traitor exposure rate (correctly accused) | 56.1% |
-| Accusations resolved per game | 0.79 |
-| Accusation accuracy (correct / resolved) | 70.6% |
+| Traitor win rate (reaches doom unexposed) | 17.8% |
+| Traitor exposure rate (correctly accused) | 55.6% |
+| Accusations resolved per game | 0.80 |
+| Accusation accuracy (correct / resolved) | 69.4% |
 
 > Balance reading: the traitor should win sometimes but not freely, and accusations should
 > catch them more often than random — both are Stage-5 tuning targets, not yet tuned.

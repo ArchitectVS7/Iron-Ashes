@@ -173,6 +173,15 @@ export interface SweepDiagnostics {
   readonly medianCourtAtMarch: number;
   /** T2-1: mean of the same per-seat first-MARCH court sizes (context beside the median). */
   readonly meanCourtAtMarch: number;
+  // ── T2-2 passivity metric ("hiding is dangerous", §13 P0-5) ──
+  /** Win rate of the game's LEAST-ENGAGED seat (the min of the final engagement tallies; lowest
+   *  seat on ties) over games with a player winner — the bottom-quartile-engagement seat at 4p.
+   *  The anti-passivity lever must push this BELOW the even per-seat share: hiding must not be
+   *  the best line. (comebackRate can't see this — it ranks territory, not engagement.) */
+  readonly passiveSeatWinRate: number;
+  /** The winner's mean final engagement tally vs the losing field's (context for the above). */
+  readonly winnerMeanEngagement: number;
+  readonly fieldMeanEngagement: number;
   /** The single highest per-seat archetype win rate among archetypes with enough appearances. */
   readonly topArchetypeWinRate: number;
   /** Whether NO archetype exceeds the ARCHETYPE_WINRATE_GUARD (~30%) — the no-dominant-strategy guard. */
@@ -329,6 +338,26 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
   const courtSizesAtMarch: number[] = [];
   for (const r of rows) if (r.courtAtMarch) courtSizesAtMarch.push(...r.courtAtMarch);
 
+  // T2-2 passivity metric: the LEAST-ENGAGED seat's win rate over games with a player winner
+  // (min final engagement tally, lowest seat on ties), + winner/field engagement context.
+  let passiveGames = 0, passiveWins = 0;
+  const winnerEngagement: number[] = [];
+  const fieldEngagement: number[] = [];
+  for (const r of rows) {
+    const w = r.metrics.winner;
+    if (w === null) continue;
+    const eng = r.metrics.engagementPerSeat;
+    if (!eng || eng.length === 0) continue;
+    let passiveSeat = 0;
+    for (let seat = 1; seat < eng.length; seat++) {
+      if (eng[seat] < eng[passiveSeat]) passiveSeat = seat;
+    }
+    passiveGames++;
+    if (w === passiveSeat) passiveWins++;
+    eng.forEach((e, seat) => (seat === w ? winnerEngagement : fieldEngagement).push(e));
+  }
+  const passiveSeatWinRate = passiveGames ? passiveWins / passiveGames : 0;
+
   // Snowball signal: did the mid-game (MARCH) territory leader go on to win?
   const snowballRows = rows.filter(r => r.metrics.winner !== null && r.midGameLeader !== null);
   const midGameLeaderWinRate = snowballRows.length
@@ -441,6 +470,9 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
     discoveryFlipMix,
     medianCourtAtMarch: median(courtSizesAtMarch),
     meanCourtAtMarch: mean(courtSizesAtMarch),
+    passiveSeatWinRate,
+    winnerMeanEngagement: mean(winnerEngagement),
+    fieldMeanEngagement: mean(fieldEngagement),
     topArchetypeWinRate,
     archetypeWinRateGuardPass: topArchetypeWinRate <= ARCHETYPE_WINRATE_GUARD,
   };
@@ -635,6 +667,7 @@ ${countRows}
 | Mid-game leader win rate · comeback | ${pct(d.midGameLeaderWinRate)} · ${pct(d.comebackRate)} | snowball↔turtle: does the MARCH-act leader win? |
 | Discovery flips (recruit/blight/DK) | ${pct(d.discoveryFlipMix.recruit)} / ${pct(d.discoveryFlipMix.blight_seed)} / ${pct(d.discoveryFlipMix.death_knight)} | §5.1 flip outcome mix |
 | Court at March (median · mean pieces/seat) | ${d.medianCourtAtMarch} · ${d.meanCourtAtMarch.toFixed(2)} | T2-1 "feed the court" — the pitch's courts-of-3–4-by-March check |
+| Passive-seat win rate (min engagement) | ${pct(d.passiveSeatWinRate)} | T2-2 "hiding is dangerous" — must sit BELOW the even share ${pct(summary.evenShare)}; winner engagement ${d.winnerMeanEngagement.toFixed(1)} vs field ${d.fieldMeanEngagement.toFixed(1)} |
 | Top archetype win rate (≤ ${pct(ARCHETYPE_WINRATE_GUARD)} guard) | ${pct(d.topArchetypeWinRate)} | ${verdict(d.archetypeWinRateGuardPass)} — no single strategy should dominate |
 
 ## Gambit investigation (Stage 5f — deliberate vs incidental)

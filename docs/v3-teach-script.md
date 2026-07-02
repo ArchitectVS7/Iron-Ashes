@@ -89,6 +89,7 @@ acknowledge (or a bark plus a persistent control). Triggers are per-game, once.
 | C6 | …a player is **eliminated** (the human, or the first at the table) | **The Death Bequest** (the exit beat: bequeath your captives/cards to a living player, or Death-Curse your killer) and **the Wraith**: the dead join the dark and get one bounded input per round — steer its wrath or feed its strike. Dead ≠ done; you are now someone the living must court. |
 | C7 | …a rival is about to take the human's stronghold | **The Last Stand prompt** (human-facing since T1-4): the game STOPS and hands you the decision — commit how many cards? Projected totals are shown (ties go to the defender), with the warning that **committed cards are next round's Pledge cards**. Yielding on purpose is a legal, sometimes correct choice. |
 | C8 | …the **Crown's Gambit** first becomes declarable by the human | **The Gambit:** a rare, telegraphed throne-grab — name the round, hold the Keystone, survive the table's response. (Blocked while the heart is exposed — C5.) |
+| C9 | …the **dark's gaze** first pressures someone (the T2-2 Reckoning blight on the quietest seat — the SK bark "The quietest banner burns first" fires) | **Hiding is dangerous:** from Reckoning on, each Dawn the dark blights land of whoever has **engaged the dark least** (pledged/struck/assaulted least — Keeps are safe, and it never takes your last productive node). The blighted node ashes NEXT Dawn unless pushed back. Pledge, STRIKE, PARLEY, or hit the heart and the gaze moves to someone quieter; a live heart assault stops it for everyone. |
 
 ### Blood Pact — never in game one
 
@@ -105,12 +106,13 @@ when the mode is selected.
 - **Replaces:** any upfront rules dump. The functional UI's full verb menu stays available, but no
   onboarding copy may front-load Part-2 material.
 - **The styled-UI pass MUST ship:** (a) the Part-1 script as its onboarding flow (≤6 min read-aloud);
-  (b) all eight C-beats wired to their triggers, one-shot, dismissible; (c) the 3-sentence end conditions
+  (b) all nine C-beats wired to their triggers, one-shot, dismissible; (c) the 3-sentence end conditions
   (1.6) as the only end-condition text a player sees pre-game; (d) Blood Pact gated out of first-game
   presentation; (e) the Exposure meter + tide beat (§13 P0-11) exactly as specced — it is the load-bearing
   half of 1.5.
-- **Honesty note:** the "hiding is dangerous" auto-pressure is currently inert
-  (`RECKONING_AUTOPRESSURE_NODES = 0`, see `ALGORITHM §13 P0-5` annotation / backlog T2-2) — do not teach
-  it. If T2-2 re-arms it, add its beat here first.
+- **Honesty note (updated by T2-2, 2026-07-02):** the "hiding is dangerous" pressure is LIVE again —
+  re-armed in the blight currency (`RECKONING_AUTOPRESSURE_BLIGHT = 1`, `ALGORITHM §13 P0-5`/§6
+  annotations). Its beat is **C9** above (the old deposal-currency lever
+  `RECKONING_AUTOPRESSURE_NODES` stays 0 and is still not taught).
 - **Playtest hook:** `docs/human-playtest-checklist-v3.md` validates whether these beats land; verdicts
   feed back into this script before the styled pass builds it.
