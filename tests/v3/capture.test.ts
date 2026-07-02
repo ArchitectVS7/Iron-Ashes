@@ -18,6 +18,7 @@ import {
   executeRansom,
 } from '../../src/v3/actions.js';
 import {
+  canTakeLand,
   capturePiece,
   enforceGuardCap,
   effectiveCaptureMargin,
@@ -290,6 +291,60 @@ describe('Stage 3d — captive on captor / owner death (§12 #6/#22)', () => {
     expect(s.captives).toHaveLength(0);
     // The captive piece is gone from the game (no return for a dead owner).
     expect(s.players[1].court.some(c => c.id === 'marshal-1-0')).toBe(false);
+  });
+});
+
+describe('W2/T1-2 — Whisper protects the last stronghold from TAKE_LAND (§5.2/§12 #13, §13 P0-10)', () => {
+  /** Make NODE the defender's LAST living stronghold (strip their pre-claimed Keep). */
+  function lastStrongholdArena(act: Act = 'WHISPER'): GameState {
+    const s = arena(act);
+    s.board.state.nodes[s.board.definition.keepIds[1]].owner = null;
+    return s;
+  }
+
+  it('canTakeLand is FALSE for a last stronghold in Whisper, TRUE past Whisper / for a non-last one', () => {
+    const s = lastStrongholdArena('WHISPER');
+    expect(canTakeLand(s, 1, NODE)).toBe(false);
+    s.act = 'MARCH';
+    expect(canTakeLand(s, 1, NODE)).toBe(true);
+    // Give the keep back → NODE is no longer the last stronghold.
+    s.act = 'WHISPER';
+    s.board.state.nodes[s.board.definition.keepIds[1]].owner = 1;
+    expect(canTakeLand(s, 1, NODE)).toBe(true);
+  });
+
+  it('a TAKE_LAND raid on a LAST living stronghold in Whisper is rejected BEFORE cards are spent', () => {
+    const s = lastStrongholdArena('WHISPER');
+    s.players[0].hand = [4, 4, 4];
+    expect(() => executeRaid(s, 0, 1, [4, 4, 4], [])).toThrow(/last stronghold cannot be taken in Whisper/);
+    expect(s.board.state.nodes[NODE].owner).toBe(1);   // node NOT transferred
+    expect(s.players[0].hand).toEqual([4, 4, 4]);      // fail-fast: no cards spent
+    expect(s.players[1].deposed).toBe(false);
+  });
+
+  it('the SAME node in MARCH is takeable — and taking a last stronghold flags the deposal', () => {
+    const s = lastStrongholdArena('MARCH');
+    s.players[0].hand = [4, 4, 4];
+    executeRaid(s, 0, 1, [4, 4, 4], []);
+    expect(s.board.state.nodes[NODE].owner).toBe(0);
+    expect(s.players[1].deposed).toBe(true);
+  });
+
+  it('a NON-last stronghold in Whisper is still takeable (only the LAST is protected)', () => {
+    const s = arena('WHISPER'); // defender still holds their Keep → NODE is not the last
+    s.players[0].hand = [4, 4, 4];
+    executeRaid(s, 0, 1, [4, 4, 4], []);
+    expect(s.board.state.nodes[NODE].owner).toBe(0);
+    expect(s.players[1].deposed).toBe(false);
+  });
+
+  it('a ROUT elect at the protected node stays legal in Whisper (only TAKE_LAND is gated)', () => {
+    const s = lastStrongholdArena('WHISPER');
+    addCourtPiece(s, 1, 'marshal', NODE);
+    s.players[0].hand = [4, 4, 4];
+    executeRaid(s, 0, 1, [4, 4, 4], [], { effect: 'ROUT_PIECE', targetPieceId: 'marshal-1-0' });
+    expect(s.board.state.nodes[NODE].owner).toBe(1);   // land untouched
+    expect(s.players[1].court.find(c => c.id === 'marshal-1-0')!.routedReturnRound).toBe(s.round);
   });
 });
 

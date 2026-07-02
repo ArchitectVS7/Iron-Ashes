@@ -470,6 +470,21 @@ tension; the accusation tools (Audit, Suspicion Log) are unchanged. Re-tune in a
 - **P0-10 — Whisper protects against hopelessness.** A player's **last retainer cannot be captured in
   Whisper**, and a Warlord reduced below a threshold gets a one-time mid-game **Rally** (recover a piece /
   card swing).
+  `[2026-07-01, backlog T1-2 — half BUILT, half REVERTED-and-RECORDED]` **(a) The land half is now
+  ENFORCED** (was drift D3): a RAID cannot elect TAKE_LAND against a defender's **last living stronghold in
+  Whisper** (`canTakeLand`, capture.ts — the land mirror of the last-retainer capture gate; validates
+  BEFORE combat, so no cards are spent). This makes the §5.2 severity-ramp sentence ("cannot take a last
+  stronghold") and §12 #13 literally true in the engine; ROUT/CAPTURE elects at the node stay legal.
+  Validated 2-seed both modes (ROADMAP §8). **(b) The Rally clause is DROPPED — dated decision, not a
+  silent omission:** the minimal Rally (a stronghold-less Warlord at a pre-March Dawn auto-reclaims the
+  nearest unowned living Holding + draws RALLY_CARDS, once per game, deterministic, RALLIED beat) was
+  BUILT and swept; it broke the locked dark-win band (rallied seats extend games → the doom clock lands
+  more: seed 20260628 dark 20.7→**22.0%**, over the 18–22 ceiling; the gate alone: 20.9% — HOLDS), and no
+  small local tunable shortens that mechanism, so it was reverted per the build-then-validate plan (code
+  retrievable from git history of the T1-2 commit). **Residual, owned gap:** a Warlord zeroed *by Blight
+  ash* in Whisper (no raid involved) still falls at the first March Dawn with no recourse — revisit only
+  with a re-balance wave (candidates: T2-1 feed-the-court, or a dark-side compensation paired with the
+  Rally).
 - **P0-11 — Exposure is legible.** A persistent per-player **Exposure meter** (SAFE / can-lose-land /
   can-be-DEPOSED) updates the instant the Act gate moves, with a "the tide has reached you" beat one Dawn
   before depose unlocks; **projected combat margin is shown pre-commit** so the capture option is never a

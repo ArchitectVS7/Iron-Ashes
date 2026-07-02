@@ -31,7 +31,7 @@ import {
   effectiveCaptureMargin, trailingDefenseBonus, stewardHomeDefenseBonus,
 } from './combat.js';
 import { hasSKForcesAtNode, hasRivalAtNode, findOath, areSworn, parleyTarget } from './actions.js';
-import { legalRaidTargets, canCapture, capturableRetainerOwnersAt } from './capture.js';
+import { legalRaidTargets, canCapture, canTakeLand, capturableRetainerOwnersAt } from './capture.js';
 import {
   ASHED_TRAVERSE_EXTRA_COST, COMBAT_COMMIT_MAX, FORGE_WEIGHT, getTunables,
 } from './tunables.js';
@@ -418,16 +418,23 @@ function predictRaidMargin(
  *     standing-scaled `effectiveCaptureMargin` (so the reducer's margin gate can never reject it).
  *   • ROUT    — when we predict a win (margin > 0) but cannot or will not capture; no margin gate.
  *   • TAKE_LAND (default) — otherwise, the unchanged pre-4b shape `{ type, targetPlayerIndex }`
- *     (NO raidEffect/pieceId fields), so an empty-roster RAID stays byte-identical.
+ *     (NO raidEffect/pieceId fields), so an empty-roster RAID stays byte-identical — UNLESS the
+ *     Whisper last-stronghold gate forbids TAKE_LAND here (`canTakeLand`, §13 P0-10): then the
+ *     fallback is a ROUT (if a target stands), else `null` (no legal raid intent — caller skips).
  * Pure `f(state, seed)` via the supplied decision RNG.
  */
 function raidWithElect(
   state: GameState, attacker: number, defender: number, node: string,
   captureBias: number, rng: SeededRandom,
-): PlayerAction {
-  const plain: PlayerAction = { type: 'RAID', targetPlayerIndex: defender };
+): PlayerAction | null {
   const targets = legalRaidTargets(state, defender, node);
-  if (targets.length === 0 || captureBias <= 0 || rng.float() >= captureBias) return plain;
+  // The default intent: TAKE_LAND when legal (§13 P0-10 Whisper gate), else a rout, else nothing.
+  const fallback: PlayerAction | null = canTakeLand(state, defender, node)
+    ? { type: 'RAID', targetPlayerIndex: defender }
+    : targets.length > 0
+      ? { type: 'RAID', targetPlayerIndex: defender, raidEffect: 'ROUT_PIECE', pieceId: targets[0] }
+      : null;
+  if (targets.length === 0 || captureBias <= 0 || rng.float() >= captureBias) return fallback;
 
   const capTarget = targets.find(id => canCapture(state, defender, node, id));
   // Capture uses the INTENT-sized margin (the reducer up-sizes a capture commit); ROUT/land
@@ -441,7 +448,7 @@ function raidWithElect(
     const effect: RaidEffect = 'ROUT_PIECE';
     return { type: 'RAID', targetPlayerIndex: defender, raidEffect: effect, pieceId: targets[0] };
   }
-  return plain;
+  return fallback;
 }
 
 /**
@@ -666,7 +673,9 @@ function usesBaselineBrain(policy: AIPolicy): boolean {
  * (Stage 5k). Every entry mirrors the reducer's own legality checks (the same patterns the normal
  * choosers use to propose accepted commands), so a uniformly-random pick can NEVER be rejected:
  *   - STRIKE  — a co-located Shadowking force (the reducer sizes the commit; cards optional).
- *   - RAID    — a co-located UNSWORN rival force (plain TAKE_LAND; losing raids are legal & worse).
+ *   - RAID    — a co-located UNSWORN rival force (plain TAKE_LAND; losing raids are legal & worse;
+ *               when the Whisper last-stronghold gate blocks TAKE_LAND (§13 P0-10), a ROUT elect
+ *               replaces it if a retainer stands, else the raid is omitted).
  *   - CLAIM   — an unclaimed, living, non-DK-blocked Holding/Forge under us, banner affordable.
  *   - MARCH   — each adjacent node passing Zone-of-Control + banner/toll affordability.
  *   - SWEAR_OATH — an oath-free living rival (free action).
@@ -683,7 +692,16 @@ function legalActions(state: GameState, playerIndex: number): PlayerAction[] {
 
   const rival = hasRivalAtNode(state, playerIndex, here);
   if (rival !== null && !areSworn(state, playerIndex, rival)) {
-    out.push({ type: 'RAID', targetPlayerIndex: rival });
+    if (canTakeLand(state, rival, here)) {
+      out.push({ type: 'RAID', targetPlayerIndex: rival });
+    } else {
+      // Whisper last-stronghold gate (§13 P0-10): a plain TAKE_LAND raid would be rejected —
+      // offer the guaranteed-legal ROUT elect instead (if a retainer stands here).
+      const targets = legalRaidTargets(state, rival, here);
+      if (targets.length > 0) {
+        out.push({ type: 'RAID', targetPlayerIndex: rival, raidEffect: 'ROUT_PIECE', pieceId: targets[0] });
+      }
+    }
   }
 
   if (player.banners >= 1 && claimValue(state, here) > 0) out.push({ type: 'CLAIM' });
@@ -1055,7 +1073,12 @@ function archetypeAction(
     const theirs = getPlayerPowerAtNode(state, rival, here);
     if (mine >= theirs) {
       const eff = Math.min(1, aggression + (isLeader(state, rival) ? raidLeaderBias : 0));
-      if (rng.float() < eff) return raidWithElect(state, playerIndex, rival, here, captureBias, rng);
+      if (rng.float() < eff) {
+        // null ⇒ no legal raid intent here (Whisper last-stronghold gate with no retainer to
+        // rout, §13 P0-10) — fall through to the later steps.
+        const raid = raidWithElect(state, playerIndex, rival, here, captureBias, rng);
+        if (raid !== null) return raid;
+      }
     }
   }
 

@@ -31,7 +31,7 @@ Legend: ☐ open · ◐ in progress · ☑ done · ✗ rejected/recorded-out
   Hold rail, standings, ransom/bequest controls, capture/ransom/recruit-flip beats; capture/rout/ransom/
   return/free/bequest events carry the name. 597 v3 tests (11 new); sim summary verified BYTE-IDENTICAL.
 
-### T1-2 ☐ Resolve the Rally + the Whisper last-stronghold reading (drifts D1 + D3)
+### T1-2 ☑ Resolve the Rally + the Whisper last-stronghold reading (drifts D1 + D3)
 - **Problem:** (D1) ALGORITHM §13 P0-10 mandates a one-time **Rally** for a Warlord reduced below a
   threshold; it was silently dropped — the project's first *unrecorded* dropped mandate (violates
   resolve-or-record). (D3) Whisper blocks the *deposal* but not *taking the last stronghold*, so a player
@@ -45,9 +45,16 @@ Legend: ☐ open · ◐ in progress · ☑ done · ✗ rejected/recorded-out
 - **Integrations:** engine (`sequencer.ts` Dawn, `actions.ts` raid gate, a `RALLIED` event, 1–2 tunables) ·
   sim (a full re-sweep — this is balance-touching) · tests (Rally fires once; Whisper gate) · UI (a Rally
   beat line) · docs (ALGORITHM §13 P0-10 annotation + ROADMAP §8 entry REQUIRED whichever way it lands).
-- **Status:** OPEN — queued in the Tier-1 sweep (W2). Build-then-validate; fall back to record-only if the locked bands break.
+- **Status:** ☑ DONE 2026-07-01 (W2) — **split verdict, both halves resolved-or-recorded.** (D3) Whisper
+  last-stronghold gate BUILT + VALIDATED: `canTakeLand` blocks a TAKE_LAND elect vs a last living
+  stronghold pre-March (fail-fast, AI throw-safe, UI election gated + hint); 2-seed both modes in band
+  (dark 21.4/20.9, BP unchanged). (D1) The Rally was BUILT (auto reclaim + RALLY_CARDS at a
+  stronghold-less Whisper Dawn) and REVERTED on the sweep: it pushed seed 20260628 dark to 22.0% (over
+  the 18–22 ceiling; mechanism: revived seats extend games → more doom wins) with no local tunable fix —
+  removal recorded as the dated decision in ROADMAP §8 + the §13 P0-10 annotation (residual blight-ash
+  hopelessness gap recorded there too). References refreshed.
 
-### T1-3 ☐ Round-1 Crown landmine (learnability #4)
+### T1-3 ☑ Round-1 Crown landmine (learnability #4)
 - **Problem:** `setup()` names the tie-broken seat-0 player Crown at game start — a first-time human is
   surcharged + hunted before understanding any of the three concepts involved. Worst first impression in
   the game.
@@ -55,7 +62,9 @@ Legend: ☐ open · ◐ in progress · ☑ done · ✗ rejected/recorded-out
   human is Crown at round 1, a one-line beat ("You hold the most land — the dark hunts YOU, and your
   pledged cards count for less"). The engine-side grace-round alternative is Tier-3 (balance-touching).
 - **Integrations:** UI only (`view.ts`/`session.ts` beat) · tests (a jsdom assertion) · engine NONE.
-- **Status:** OPEN — queued in the Tier-1 sweep (W2). UI-only; zero engine change.
+- **Status:** ☑ DONE 2026-07-01 (W2) — UI-only one-shot beat at session start (`crownCalloutText`, a pure
+  helper: round 1 + human crowned → "the dark hunts YOU... cards count for less"); zero engine change.
+  jsdom-tested both polarities (crowned → renders; not-crowned / round>1 → absent).
 
 ### T1-4 ☐ Human Last Stand control (the auto-play stub)
 - **Problem:** `handleLastStandCommit` is cosmetic; a human defender's Last Stand is silently auto-played

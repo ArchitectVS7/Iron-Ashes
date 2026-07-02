@@ -159,6 +159,7 @@ export {
   legalRaidTargets,
   freeRetainerCount,
   canCapture,
+  canTakeLand,
   returnRoutedPieces,
   enforceGuardCap,
   guardCapacity,

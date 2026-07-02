@@ -42,6 +42,7 @@ import {
   chooseCombatCommit,
   legalRaidTargets,
   canCapture,
+  canTakeLand,
   type Command,
   type GameEvent,
   type GameMode,
@@ -69,12 +70,16 @@ export interface RaidProjection {
   readonly margin: number;
   /** The standing-scaled margin a capture needs (§5.2). */
   readonly captureMargin: number;
-  /** Whether TAKE_LAND is projected to succeed. */
+  /** Whether TAKE_LAND is projected to succeed AND is legal (see `landGated`). */
   readonly takeLand: boolean;
   /** Whether a legal ROUT target is present (and the raid is projected to win). */
   readonly rout: boolean;
   /** Whether CAPTURE is projected legal (margin cleared + a legal, non-immune target). */
   readonly capture: boolean;
+  /** TRUE when the Whisper last-stronghold gate forbids TAKE_LAND here (§13 P0-10). */
+  readonly landGated: boolean;
+  /** Whether ANY legal rout target stands here (margin-independent — a losing rout is legal). */
+  readonly routLegal: boolean;
 }
 
 export class GameSession {
@@ -111,6 +116,11 @@ export class GameSession {
     // Seat 0 is the lone human; the rest are AI. The tier's doomCost curve is scoped around setup
     // (harmless — setup never reads doomCost) and every subsequent engine step below.
     this.state = withDifficulty(difficulty, () => createGame(playerCount, mode, seed, 1, difficulty));
+    // One-shot round-1 Crown callout (backlog T1-3): setup() tie-breaks seat 0 into the Crown,
+    // so a first-time human starts surcharged + hunted — say so before the first pledge.
+    // UI-only; zero engine change (the locked balance is untouched).
+    const callout = crownCalloutText(this.state, this.humanIndex);
+    if (callout !== null) this.narration.unshift({ text: callout, kind: 'system' });
     this.pump();
   }
 
@@ -494,15 +504,19 @@ export class GameSession {
     const targets = legalRaidTargets(this.state, defenderIndex, node);
     const routTarget = targets.length > 0;
     const captureLegal = targets.some(id => canCapture(this.state, defenderIndex, node, id));
+    // Whisper last-stronghold gate (§13 P0-10): TAKE_LAND is illegal pre-March vs a last stronghold.
+    const landGated = !canTakeLand(this.state, defenderIndex, node);
 
     return {
       atkPower: landPower,
       defPower,
       margin: landMargin,
       captureMargin,
-      takeLand: landMargin > 0,
+      takeLand: landMargin > 0 && !landGated,
       rout: landMargin > 0 && routTarget,
       capture: capMarginVal > 0 && capMarginVal >= captureMargin && captureLegal,
+      landGated,
+      routLegal: routTarget,
     };
   }
 
@@ -552,4 +566,16 @@ export class GameSession {
 /** Sum a list of card powers. */
 function sum(xs: readonly number[]): number {
   return xs.reduce((a, b) => a + b, 0);
+}
+
+/**
+ * The round-1 Crown landmine callout (backlog T1-3, learnability #4) — pure, testable in both
+ * polarities. Non-null ONLY when the game is at round 1 and the human seat holds the Crown:
+ * the one-line beat that explains the surcharge + the hunt before the first pledge.
+ */
+export function crownCalloutText(state: GameState, humanIndex: number): string | null {
+  if (state.round !== 1) return null;
+  if (!state.players[humanIndex]?.crownHeld) return null;
+  return '♛ You start with the Crown — you hold the most land, so the dark hunts YOU, ' +
+    'and your pledged cards count for less. The Crown moves when the land does.';
 }

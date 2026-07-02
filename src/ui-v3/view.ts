@@ -509,11 +509,21 @@ function renderRaidElection(session: GameSession, s: ObservableState, here: stri
     else elects.push(`<button disabled title="win by ≥ ${pr.captureMargin} to capture">⛓ capture (need margin ${pr.captureMargin})</button>`);
     if (!pr.takeLand && !pr.rout) {
       // Still let the human commit a (likely losing) raid — the engine resolves it honestly.
-      elects.push(`<button data-action="raid:TAKE_LAND:${rival}">→ raid anyway</button>`);
+      // Under the Whisper last-stronghold gate (§13 P0-10) TAKE_LAND is ILLEGAL, so the
+      // fallback elect is a ROUT (when a retainer stands); with neither, no raid is possible.
+      if (!pr.landGated) {
+        elects.push(`<button data-action="raid:TAKE_LAND:${rival}">→ raid anyway</button>`);
+      } else if (pr.routLegal) {
+        elects.push(`<button data-action="raid:ROUT_PIECE:${rival}">→ raid anyway (rout)</button>`);
+      }
     }
+    const gateNote = pr.landGated
+      ? `<div class="hint">Whisper protects P${rival + 1}'s LAST stronghold — their land cannot be taken before March.</div>`
+      : '';
     out.push(`<div class="raid-block">
       <div class="raid-head">Raid <b>P${rival + 1}</b> — you ${pr.atkPower} vs ${pr.defPower} (${verdict})</div>
       <div class="raid-elects">${elects.join('')}</div>
+      ${gateNote}
     </div>`);
   }
   return out;

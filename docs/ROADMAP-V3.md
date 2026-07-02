@@ -251,6 +251,20 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-02** — **Tier-1 W2 (backlog T1-2 + T1-3) — split verdict, both halves resolved-or-recorded.**
+  (T1-2a, drift D3) **Whisper last-stronghold gate BUILT + VALIDATED:** `canTakeLand` (capture.ts) blocks a
+  TAKE_LAND elect against a defender's last living stronghold pre-March (fail-fast before cards are spent;
+  AI throw-safe; UI election gated + hinted) — §5.2/§12 #13 now literally true in the engine. 2-seed both
+  modes in band (dark 21.4/20.9; BP traitor 19.4/exposure 57.2/accuracy 70.5 — all in band); the sample-v3
+  reference refreshed. (T1-2b, drift D1) **The Rally was BUILT, swept, and REVERTED — a dated decision, not
+  a silent omission:** it pushed seed-20260628 dark-win to **22.0%** (over the ceiling; revived seats extend
+  games → the doom clock lands more) with no local tunable fix; removal recorded in ALGORITHM §13 P0-10.
+  **Residual owned gap:** a Warlord zeroed *by Blight ash* in Whisper still falls at the first March Dawn —
+  revisit with T2-1 (feed-the-court) or a compensated Rally. (T1-3) **Round-1 Crown callout** built (UI-only,
+  one-shot, jsdom-tested both polarities; zero engine change). *(Stage executed by the W2 sub-agent, which
+  hit a session limit before committing; work verified independently — full gate + byte-reproduction + BP
+  bands — and committed by the orchestrator.)*
+
 - **2026-07-01** — **T1-1 (Tier-1 sweep W1): RETAINER NAMES PERSIST + SURFACE (review drift D5).**
   `CourtPiece` gains `name` + `identity` (§2 "names are state"): Discovery recruits copy the PRE-BOUND token
   name (main + blight-seed-bonus paths, §7 D9); starting Warlords carry FIXED faction names (`FACTION_NAMES`,

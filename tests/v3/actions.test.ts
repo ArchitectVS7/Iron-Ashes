@@ -195,10 +195,12 @@ describe('Actions System', () => {
       expect(result.actionConsumed).toBe(true);
     });
 
-    it('does NOT flag deposed in Whisper (opening protection, §12 #13)', () => {
+    it('cannot even TAKE a last stronghold in Whisper — the raid is rejected outright (§12 #13, §13 P0-10 / T1-2)', () => {
       expect(state.act).toBe('WHISPER');
-      siege(state);
-      executeRaid(state, 0, 1, [4, 4], []);
+      const keepId = siege(state);
+      expect(() => executeRaid(state, 0, 1, [4, 4], []))
+        .toThrow(/last stronghold cannot be taken in Whisper/);
+      expect(state.board.state.nodes[keepId].owner).toBe(1); // land NOT transferred
       expect(state.players[1].deposed).toBe(false);
     });
   });

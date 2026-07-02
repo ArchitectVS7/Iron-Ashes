@@ -127,6 +127,23 @@ export function freeRetainerCount(state: GameState, defenderSeat: number): numbe
 }
 
 /**
+ * Whether a winning RAID at `nodeId` may elect TAKE_LAND against `defenderSeat` (§5.2 severity
+ * ramp, §12 #13, §13 P0-10 — backlog T1-2): in WHISPER a RAID cannot TAKE a defender's LAST
+ * living stronghold (the land-side mirror of the last-retainer capture rule below). True
+ * whenever the Act is past Whisper, the node is not a living stronghold of the defender, or
+ * the defender holds another one. ROUT/CAPTURE elects are unaffected. Pure.
+ */
+export function canTakeLand(state: GameState, defenderSeat: number, nodeId: string): boolean {
+  if (state.act !== 'WHISPER') return true;
+  const ns = state.board.state.nodes[nodeId];
+  const tier = state.board.definition.nodes[nodeId]?.tier;
+  const isDefenderStronghold = !!ns && ns.owner === defenderSeat && !ns.ashed &&
+    (tier === 'keep' || tier === 'forge' || tier === 'holding');
+  if (!isDefenderStronghold) return true;
+  return livingStrongholdCount(state, defenderSeat) > 1;
+}
+
+/**
  * Whether `pieceId` can be CAPTURED right now (§5.2 + §13 P0-10): it must be a legal target,
  * and in WHISPER it must NOT be the defender's LAST retainer (opening hopelessness protection).
  * ROUT carries no such cap (it is only a tempo loss). Pure.

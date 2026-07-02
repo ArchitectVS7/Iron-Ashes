@@ -37,6 +37,7 @@ import {
 } from './combat.js';
 import {
   canCapture,
+  canTakeLand,
   capturePiece,
   legalRaidTargets,
   nearestStronghold,
@@ -445,8 +446,9 @@ export interface RaidElect {
  * ONE of {TAKE_LAND, ROUT_PIECE, CAPTURE_PIECE} (`elect`; default TAKE_LAND): node-loss and
  * capture are NEVER combined (one-effect-per-combat). CAPTURE_PIECE requires the final combat
  * margin ≥ `effectiveCaptureMargin` (rises with the attacker's standing — §13 P0-2) and is
- * blocked against a defender's LAST retainer in Whisper (§13 P0-10). ROUT is a tempo loss, not
- * removal (§13 P0-1). The catch-up + Steward-home defense grades are folded into the combat
+ * blocked against a defender's LAST retainer in Whisper (§13 P0-10); TAKE_LAND is likewise
+ * blocked against a defender's LAST living stronghold in Whisper (`canTakeLand`, §12 #13).
+ * ROUT is a tempo loss, not removal (§13 P0-1). The catch-up + Steward-home defense grades are folded into the combat
  * (§13 P0-2/P0-3) via `defenseBonus`.
  */
 export function executeRaid(
@@ -477,6 +479,16 @@ export function executeRaid(
   if (areSworn(state, playerIndex, defenderIndex)) {
     throw new Error(
       `Cannot RAID Player ${defenderIndex + 1}: you are sworn by an Oath. Break it first.`,
+    );
+  }
+
+  // Whisper severity ramp (§5.2/§12 #13, §13 P0-10 — backlog T1-2): electing TAKE_LAND against
+  // a defender's LAST living stronghold is illegal pre-March (the land-side mirror of the
+  // last-retainer capture rule). Validated BEFORE combat so no cards are spent on an illegal
+  // intent; ROUT/CAPTURE elects at the same node stay legal.
+  if (elect.effect === 'TAKE_LAND' && !canTakeLand(state, defenderIndex, nodeId)) {
+    throw new Error(
+      'Cannot RAID for land: a last stronghold cannot be taken in Whisper (§13 P0-10)',
     );
   }
 
@@ -587,7 +599,8 @@ export function executeRaid(
         // Depose pressure (§5.5/§6): taking a rival's LAST living stronghold flags them
         // `deposed`. The flag is set here in ACTION; the elimination RESOLVES AT DAWN in
         // seat order (resolveDeposals). Whisper protects against hopelessness (§12 #13,
-        // §13 P0-10) — a last stronghold cannot be lost pre-March.
+        // §13 P0-10): the `canTakeLand` gate above already forbids taking a last stronghold
+        // pre-March, so the act guard here is defensive belt-and-braces.
         if (state.act !== 'WHISPER' && livingStrongholdCount(state, defenderIndex) === 0) {
           state.players[defenderIndex].deposed = true;
           events.push({

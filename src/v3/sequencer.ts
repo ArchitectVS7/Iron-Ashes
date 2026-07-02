@@ -377,6 +377,14 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
   state = dawnBlightResult.state;
   events.push(...dawnBlightResult.events);
 
+  // NOTE (§13 P0-10, backlog T1-2, 2026-07-01): the one-time Whisper RALLY was BUILT here
+  // (reclaim nearest unowned Holding + RALLY_CARDS at a stronghold-less pre-March Dawn) and
+  // REVERTED after the 2-seed validation broke the locked dark-win band (rallied seats extend
+  // games → the doom clock lands more; seed 20260628 dark 20.7→22.02%, over the 18–22 ceiling;
+  // gate-only 20.95% holds). The RAID-side protection lives on as `canTakeLand` (capture.ts).
+  // See ROADMAP-V3 §8 (dated decision) + ALGORITHM §13 P0-10 annotation; code: this commit's
+  // parent diff in git history.
+
   // Patience-triggered + threshold-based Act escalation (§5.5, §7.11)
   // At most ONE Act advance per Dawn — coalesce if both fire.
   let patienceForced = false;
