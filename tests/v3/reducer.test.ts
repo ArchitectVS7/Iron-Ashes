@@ -72,19 +72,17 @@ describe('applyCommand()', () => {
       ).toThrow(InvalidCommandError);
     });
 
-    it('LAST_STAND_COMMIT rejects over-committing more cards than in hand', () => {
-      // NOTE: the LIVE Last Stand mechanic is resolved inside combat
-      // (see tests/v2/mechanics-3f.test.ts — "a defender reverses a losing RAID").
-      // This command is the future interactive sealed-commit entry point; here we
-      // assert only its input validation, NOT that it performs a Last Stand.
+    it('LAST_STAND_COMMIT is rejected when no combat is paused on a Last Stand', () => {
+      // The AI/sim Last Stand is resolved inline during combat; this command resumes a
+      // HALTED human-defender combat (§5.3, T1-4) and is illegal without one pending.
       const state = createGame(4, 'competitive', 42);
       expect(() =>
         applyCommand(state, {
           type: 'LAST_STAND_COMMIT',
           playerIndex: 0,
-          cardCount: 999,
+          cardIds: [],
         }),
-      ).toThrow(InvalidCommandError);
+      ).toThrow(/No Last Stand is pending/);
     });
 
     it('rejects invalid player index for pledge', () => {

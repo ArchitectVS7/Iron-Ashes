@@ -224,6 +224,15 @@ attacker picks one            // never TAKE_LAND + CAPTURE together — one effe
   reachable → depose. Gate on Blight level so the tide lowers protection table-wide together.
 - **Last Stand** (Marshal/Warlord, as v2 §5.3): defender pours in extra cards; **on loss, node-only** (no
   added capture — one-effect-per-combat).
+  **T1-4 annotation (2026-07-02): a HUMAN defender chooses the commit.** When the losing defender seat is
+  human, the engine HALTS the RAID into `state.pendingLastStand` (all other commands are rejected until it
+  resolves) and the `LAST_STAND_COMMIT` command (0..hand additional card values) resumes the resolution
+  exactly as the auto path would with that commit. AI/sim defenders keep the deterministic all-or-nothing
+  auto chooser (`chooseLastStandCards`) — all-AI games are byte-identical (§7). One human-only edge the
+  auto path can never reach: a PARTIAL stand that undercuts the attacker's CAPTURE margin *without*
+  reversing the winner makes the capture **FIZZLE** (the attacker wins the exchange, the abduction is
+  denied — never a throw mid-resume). RAID is the only Last-Stand combat: the dark's RAID_DK strike (§5.6)
+  is Blight-only, never a card combat.
 
 ### 5.3 Ransom (replaces Rescue)
 ```

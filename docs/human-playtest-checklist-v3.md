@@ -127,3 +127,16 @@ v3 mechanics whose VALUE rests on a human claim the sim can't reach. Per the No-
   tier feel too punishing for a first casual game (→ ship an easier default), or is "the dark is brutal if
   you're sloppy" the intended flavor (→ keep it)? Play the same table on two tiers and compare the felt
   threat. Record which tier should be the shipped default.
+
+## 12. The Last Stand prompt — the heroic verb under pressure (T1-4)
+
+- **The claim:** when a rival is taking your stronghold, the game STOPS and hands YOU the decision — how
+  many cards to pour into the stand, seeing the projected totals and knowing those cards are next round's
+  Pledge ammunition. The mechanics (pause/resume, totals, ties-to-defender) are jsdom-tested; the *feel* is
+  not.
+- **What only a human can confirm:** that the interruption lands as a dramatic beat, not a modal chore;
+  that the "these are next round's Pledge cards" warning makes the trade-off legible in the moment (hold
+  MY keep vs. hold the TABLE's line); and that yielding on purpose reads as a valid choice rather than a
+  loss screen. Watch: does anyone over-commit their whole hand the first time and feel robbed at the next
+  Pledge?
+- **If it falls flat:** the prompt copy/projection is UI-only (freely tunable); the engine pause seam stays.

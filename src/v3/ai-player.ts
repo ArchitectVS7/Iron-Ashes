@@ -1207,9 +1207,13 @@ export function runAITurn(
   // its actions, `advanceActivePlayer` leaves `activePlayerIndex` pointing at it
   // (the pointer only moves while positions remain) — so the index alone would
   // loop us back into a player with 0 actions left.
+  // Also stop on a HALTED combat (§5.3, T1-4): an AI RAID on a HUMAN defender's stronghold
+  // pauses for the human's Last Stand — every further command is blocked until it answers.
+  // Inert in all-AI/sim games (AI defenders never pause), so headless runs are byte-identical.
   while (
     current.gameEndReason === null &&
     current.phase === 'ACTION' &&
+    current.pendingLastStand === undefined &&
     current.activePlayerIndex === playerIndex &&
     current.players[playerIndex].actionsRemaining > 0 &&
     guard < MAX_AI_ACTIONS_PER_TURN

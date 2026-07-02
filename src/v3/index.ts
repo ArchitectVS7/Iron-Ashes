@@ -61,6 +61,7 @@ export type {
   TokenKind,
   BequestChoiceInput,
   WraithInputKind,
+  PendingLastStand,
 } from './types.js';
 
 // ── Commands ──
@@ -141,6 +142,7 @@ export {
   executeRaid,
   executeRansom,
   executeRecruit,
+  resumeLastStand,
   areAdjacent,
   isPlayerAtNode,
   hasRivalAtNode,

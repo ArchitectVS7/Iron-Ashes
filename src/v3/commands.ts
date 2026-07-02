@@ -86,12 +86,19 @@ export interface PlayerActionCommand {
   readonly action: PlayerAction;
 }
 
-/** Commit additional cards for a Last Stand during combat resolution. */
+/**
+ * Resolve a HALTED combat's Last Stand (§5.3, backlog T1-4): the human defender named in
+ * `state.pendingLastStand` commits 0..hand additional cards and the paused RAID resolution
+ * resumes/finishes exactly as the auto path would with that commit. Interactive-only — AI
+ * defenders auto-resolve inline and never pause, so the sim never dispatches this (§7).
+ */
 export interface LastStandCommitCommand {
   readonly type: 'LAST_STAND_COMMIT';
+  /** Must be the pending defender's seat. */
   readonly playerIndex: number;
-  /** Number of additional cards to commit. */
-  readonly cardCount: number;
+  /** The chosen card VALUES to commit (v3 cards are value-only; duplicates allowed if held).
+   *  Must all be in hand beyond the cards already committed to the first exchange. Empty ⇒ yield. */
+  readonly cardIds: readonly number[];
 }
 
 /** Open an accusation against a suspected Blood Pact holder (§10, Blood Pact only). */

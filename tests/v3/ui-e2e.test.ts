@@ -53,7 +53,12 @@ function playThroughDom(mode: 'competitive' | 'blood_pact', seed: number): GameS
       all.find(el => (el.getAttribute('data-action') ?? '').startsWith(a));
 
     let pick: HTMLElement | undefined;
-    if (byAction('advance-threat')) {
+    if (session.pendingLastStand && byAction('laststand-commit')) {
+      // A BLOCKING Last Stand (§5.3, T1-4): a rival is taking the human's stronghold. Toggle one
+      // card in on even steps, then commit — exercising both controls without soft-locking.
+      const toggle = byAction('laststand-toggle');
+      pick = (steps % 2 === 0 && toggle) ? toggle : byAction('laststand-commit');
+    } else if (byAction('advance-threat')) {
       pick = byAction('advance-threat');
     } else if (byAction('pledge:')) {
       pick = all.find(el => el.classList.contains('suggested')) ?? byAction('pledge:');

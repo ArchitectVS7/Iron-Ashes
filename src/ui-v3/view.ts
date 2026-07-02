@@ -110,6 +110,8 @@ export function mountView(root: HTMLElement, session: GameSession): void {
       case 'bequest-cards': session.setBequest({ kind: 'bequeath_cards', beneficiary: Number(args[0]) }); break;
       case 'bequest-captive': session.setBequest({ kind: 'bequeath_captive', pieceId: args[0], beneficiary: Number(args[1]) }); break;
       case 'bequest-curse': session.setBequest({ kind: 'death_curse', target: args[0] === 'none' ? null : Number(args[0]) }); break;
+      case 'laststand-toggle': session.toggleLastStandCard(Number(args[0])); break;
+      case 'laststand-commit': session.commitLastStand(); break;
       case 'new-game': location.reload(); break;
     }
   });
@@ -310,6 +312,11 @@ function renderNarration(session: GameSession): string {
 
 function renderPanel(session: GameSession, s: ObservableState): string {
   if (s.gameEndReason !== null) return renderGameOver(session);
+  // A HALTED combat pre-empts everything (§5.3, T1-4): the human's stronghold is falling and the
+  // engine is paused on its Last Stand — a BLOCKING prompt (every other command is rejected).
+  if (s.pendingLastStand !== undefined && s.pendingLastStand.defenderIndex === session.humanIndex) {
+    return renderLastStandPanel(session, s);
+  }
   // A pending Death Bequest pre-empts everything: the human must name its exit beat first.
   if (session.awaitingBequest) return renderBequestPanel(session, s, true);
   switch (s.phase) {
@@ -554,6 +561,41 @@ function parleyReachable(s: ObservableState, heraldNode: string): boolean {
     const ns = s.board.state.nodes[id];
     return ns && !ns.ashed && ns.blightLevel > 0;
   });
+}
+
+/**
+ * The BLOCKING Last Stand prompt (§5.3, backlog T1-4): the human's stronghold is falling — pick
+ * 0..hand extra cards to pour in, see the projected totals live, and commit. Committed cards are
+ * destroyed: they are next round's Pledge cards. Ties go to the defender (§5.3).
+ */
+function renderLastStandPanel(session: GameSession, s: ObservableState): string {
+  const p = s.pendingLastStand!;
+  const remaining = session.lastStandRemainingHand();
+  const chosen = session.lastStandSelectedValues();
+  const committed = chosen.reduce((a, b) => a + b, 0);
+  const projected = p.defensePower + committed;
+  const holds = projected >= p.attackPower; // ties go to the defender in a Last Stand
+
+  const cards = remaining.map((v, i) => {
+    const sel = session.lastStandSelection.includes(i) ? ' selected' : '';
+    return `<button class="card-btn${sel}" data-action="laststand-toggle:${i}">${v}</button>`;
+  }).join('');
+
+  const verdict = holds
+    ? `<b class="hold">you HOLD ${esc(p.nodeId)}</b> (${projected} vs ${p.attackPower} — ties go to the defender)`
+    : `<b class="fall">the stronghold FALLS</b> (${projected} vs ${p.attackPower})`;
+  const commitLabel = chosen.length === 0
+    ? 'Yield — commit nothing'
+    : `Commit ${chosen.length} card${chosen.length === 1 ? '' : 's'} (+${committed})`;
+
+  return `<div class="panel laststand blocking">
+    <div class="panel-title">🛡 LAST STAND — Player ${p.attackerIndex + 1} is taking ${esc(p.nodeId)}</div>
+    <div class="raid-head">Their ${p.attackPower} vs your ${p.defensePower} — pour in extra cards to reverse it.</div>
+    <div class="ls-cards">${cards.length > 0 ? cards : '<i>no cards left</i>'}</div>
+    <div class="ls-projection">Projected: ${verdict}</div>
+    <div class="hint warning">⚠ Committed cards are DESTROYED — these are next round's Pledge cards. Spend them here and the dark's strike gets harder to hold.</div>
+    <button class="primary" data-action="laststand-commit">${commitLabel}</button>
+  </div>`;
 }
 
 /** The DEATH BEQUEST panel (§5.5, §13 P0-11): bequeath to a standing ally, or lay a death-curse. */

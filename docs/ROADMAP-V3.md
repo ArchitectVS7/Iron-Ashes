@@ -251,6 +251,25 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-02** — **Tier-1 W3 (backlog T1-4): HUMAN LAST STAND CONTROL — the pause-flow.** The one
+  interactive heroic verb the spec grants now reaches the player: when a HUMAN defender would lose a
+  stronghold in a RAID, the engine HALTS resolution into `state.pendingLastStand` (a BLOCKING state — the
+  reducer rejects every other command; `runAITurn` + the session pump stop) instead of auto-playing
+  `chooseLastStandCards`. `LAST_STAND_COMMIT` (now carrying the chosen card VALUES, `cardIds`) resumes via
+  `resumeLastStand` → `finishRaidResolution`, the tail shared VERBATIM with the AI auto path (UNTOUCHED).
+  RAID is the only Last-Stand call site (the dark's RAID_DK is Blight-only — verified). **One recorded
+  human-only rule:** a partial stand that undercuts the attacker's CAPTURE margin without reversing the
+  winner ⇒ the capture **FIZZLES** (never a throw mid-resume); illegal elects still fail atomically AT the
+  pause, mirroring the auto path (ALGORITHM §5.2 annotated). UI: a blocking prompt — per-card toggles,
+  live projected totals (ties-to-defender surfaced), the "committed cards are next round's Pledge cards"
+  warning. **VERIFIED:** v3 623 tests green (17 new: pause fires human-only / resume 0-partial-full-fizzle
+  / commands blocked while paused / determinism with scripted commits / jsdom E2E clicking the real
+  prompt), v2 451, tsc + eslint + `vite build` clean. **BALANCE GUARD:** competitive `sim:v3` summary.json
+  **BYTE-IDENTICAL** to sample-v3; blood-pact sweep **BYTE-IDENTICAL** to the 9eedd1e baseline
+  (stash-verified both ways). Found + fixed a W2 leftover: `sample-v3/BLOOD_PACT.summary.json` still
+  carried the pre-Whisper-gate numbers (traitor 18.6%) — refreshed to the validated current baseline
+  (19.4%, the number the W2 entry below records); `BLOOD_PACT.md` kept as the 5n validation narrative.
+
 - **2026-07-02** — **Tier-1 W2 (backlog T1-2 + T1-3) — split verdict, both halves resolved-or-recorded.**
   (T1-2a, drift D3) **Whisper last-stronghold gate BUILT + VALIDATED:** `canTakeLand` (capture.ts) blocks a
   TAKE_LAND elect against a defender's last living stronghold pre-March (fail-fast before cards are spent;

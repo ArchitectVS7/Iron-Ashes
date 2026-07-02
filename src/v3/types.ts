@@ -637,6 +637,46 @@ export interface GameState {
    * Set ONLY by the SET_WRAITH_INPUT command; the sim/AI never set it ⇒ byte-identical replay (§7).
    */
   wraithInputs?: Record<number, WraithInputKind>;
+
+  /**
+   * A HALTED RAID awaiting a HUMAN defender's Last Stand commit (§5.3, backlog T1-4). Set ONLY when
+   * the losing defender seat is human (`player.type === 'human'`): instead of auto-playing
+   * `chooseLastStandCards`, the engine pauses combat resolution here and the LAST_STAND_COMMIT
+   * command resumes/finishes it exactly as the auto path would with that commit. While set, every
+   * other command is rejected (the prompt is blocking). AI defenders NEVER pause (the auto path is
+   * untouched), so all-AI/sim games never carry this field ⇒ byte-identical replay (§7). Optional +
+   * JSON-serializable; absent by default.
+   */
+  pendingLastStand?: PendingLastStand;
+}
+
+/**
+ * The frozen mid-resolution RAID a human defender must answer (§5.3, backlog T1-4) — everything
+ * needed to resume `executeRaid`'s tail deterministically. All commands except LAST_STAND_COMMIT
+ * are blocked while this is set, so nothing here can go stale between pause and resume.
+ */
+export interface PendingLastStand {
+  /** The only combat that reaches a defender's Last Stand today (RAID_DK is blight-only, §5.6). */
+  readonly combatType: 'RAID';
+  readonly attackerIndex: number;
+  /** The HUMAN defender who must answer (0..hand extra cards). */
+  readonly defenderIndex: number;
+  /** The contested stronghold. */
+  readonly nodeId: string;
+  /** Cards already committed to the first exchange (discarded when resolution finishes). */
+  readonly attackerCards: readonly number[];
+  readonly defenderCards: readonly number[];
+  /** The catch-up + Steward home defense grade already folded into `defensePower` (§13 P0-2/P0-3). */
+  readonly defenseBonus: number;
+  /** First-exchange totals — the attacker won (`attackPower > defensePower`). */
+  readonly attackPower: number;
+  readonly defensePower: number;
+  /** The attacker's elected on-win outcome (§5.2), deferred until the stand resolves.
+   *  Structural mirror of commands.ts's RaidEffect (no value-import cycle). */
+  readonly elect: {
+    readonly effect: 'TAKE_LAND' | 'ROUT_PIECE' | 'CAPTURE_PIECE';
+    readonly targetPieceId?: string;
+  };
 }
 
 /** The ONE bounded input a Wraith may pick (§5.5) — used by the human-override seam. */

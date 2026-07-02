@@ -66,7 +66,7 @@ Legend: ☐ open · ◐ in progress · ☑ done · ✗ rejected/recorded-out
   helper: round 1 + human crowned → "the dark hunts YOU... cards count for less"); zero engine change.
   jsdom-tested both polarities (crowned → renders; not-crowned / round>1 → absent).
 
-### T1-4 ☐ Human Last Stand control (the auto-play stub)
+### T1-4 ☑ Human Last Stand control (the auto-play stub)
 - **Problem:** `handleLastStandCommit` is cosmetic; a human defender's Last Stand is silently auto-played
   by the engine (`chooseLastStandCards`) — the one interactive heroic verb the spec grants never reaches
   the player ("the engine held my Keep for me"). Known 6a-class gap, now player-facing.
@@ -77,7 +77,18 @@ Legend: ☐ open · ◐ in progress · ☑ done · ✗ rejected/recorded-out
 - **Integrations:** engine (`combat.ts`/`actions.ts`/`reducer.ts` pending-state + resume) · UI (the commit
   prompt with the "these are next round's Pledge cards" warning) · sim (byte-identical — verify summary) ·
   tests (pause fires for human seat, auto for AI; jsdom commit flow; determinism with scripted commits).
-- **Status:** OPEN — queued in the Tier-1 sweep (W3). Hard guard: all-AI sim byte-identical (the pause only fires for human seats).
+- **Status:** ☑ DONE 2026-07-02 (W3) — engine pause-flow BUILT: a losing HUMAN defender halts the RAID into
+  `state.pendingLastStand` (a blocking state — the reducer rejects every other command until resolved);
+  `LAST_STAND_COMMIT` carries the chosen card values and `resumeLastStand` finishes the resolution through
+  the same shared tail (`finishRaidResolution`) as the AI auto path (UNTOUCHED). One recorded human-only
+  edge: a partial stand that undercuts the CAPTURE margin without reversing ⇒ the capture FIZZLES (spec
+  §5.2 annotated). UI: blocking prompt (card toggles, live projected totals with the ties-to-defender rule,
+  the "these are next round's Pledge cards" warning); the session pump stops at the pause. 17 new tests
+  (pause/resume 0-partial-full-fizzle, AI-never-pauses, command blocking, determinism with scripted
+  commits, jsdom E2E through the real prompt) → v3 623 green. BALANCE GUARD: competitive summary.json
+  BYTE-IDENTICAL to sample-v3; blood-pact byte-identical to the 9eedd1e baseline (and the STALE
+  `sample-v3/BLOOD_PACT.summary.json` — a W2 leftover still carrying pre-Whisper-gate numbers — refreshed
+  to the validated 19.4% baseline).
 
 ### T1-5 ☐ Doc honesty + the teach script (learnability #2/#3, drift D2)
 - **Problem:** (a) ALGORITHM §6/§13 P0-5 still describe the Reckoning auto-pressure as live; it is zeroed

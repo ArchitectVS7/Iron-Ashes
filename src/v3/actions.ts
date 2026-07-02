@@ -527,26 +527,109 @@ export function executeRaid(
   events.push(...combatResult.events);
 
   // ── Last Stand (§5.3) — one-sided, final defender reversal ──
-  let winner = combatResult.winner;
-  let finalMargin = combatResult.margin;
   let lastStandCards: number[] = [];
   // Only "the muscle" (a Warlord or Marshal — §2) may stand. In a legal RAID the
   // defender's Warlord is co-located, so this never narrows existing combat.
   if (combatResult.lastStandAvailable && canLastStand(state, defenderIndex, nodeId)) {
-    lastStandCards = chooseLastStandCards(
-      state, defenderIndex, combatResult.attackPower, combatResult.defensePower, defenderCards,
-    );
-    if (lastStandCards.length > 0) {
-      const stand = resolveLastStand(combatResult, lastStandCards);
-      winner = stand.winner;
-      finalMargin = stand.margin;
+    if (state.players[defenderIndex].type === 'human') {
+      // HUMAN defender (backlog T1-4): HALT resolution instead of auto-playing the stand — the
+      // one interactive heroic verb the spec grants must reach the player. Pre-validate the
+      // attacker's elect against the PRE-STAND result exactly as the no-stand auto path would,
+      // so an illegal RAID still fails atomically HERE (never mid-resume):
+      if (elect.effect === 'CAPTURE_PIECE') {
+        const need = effectiveCaptureMargin(state, playerIndex);
+        if (combatResult.margin < need) {
+          throw new Error(`Cannot CAPTURE: margin ${combatResult.margin} < required ${need} (standing-scaled)`);
+        }
+        const target = elect.targetPieceId ?? legalRaidTargets(state, defenderIndex, nodeId)[0];
+        if (target === undefined || !canCapture(state, defenderIndex, nodeId, target)) {
+          throw new Error(
+            'Cannot CAPTURE: no legal target (none present, immune, or Whisper last-retainer protection §13 P0-10)',
+          );
+        }
+      } else if (elect.effect === 'ROUT_PIECE') {
+        const target = elect.targetPieceId ?? legalRaidTargets(state, defenderIndex, nodeId)[0];
+        if (target === undefined) throw new Error('Cannot ROUT: no legal target retainer present');
+      }
+      state.pendingLastStand = {
+        combatType: 'RAID',
+        attackerIndex: playerIndex,
+        defenderIndex,
+        nodeId,
+        attackerCards: [...attackerCards],
+        defenderCards: [...defenderCards],
+        defenseBonus,
+        attackPower: combatResult.attackPower,
+        defensePower: combatResult.defensePower,
+        elect: { effect: elect.effect, ...(elect.targetPieceId !== undefined ? { targetPieceId: elect.targetPieceId } : {}) },
+      };
       events.push({
         type: 'PLAYER_ACTED',
         playerIndex: defenderIndex,
         action: 'PASS',
-        details: { lastStand: true, cards: lastStandCards.length, held: winner === 'defender' },
+        details: {
+          lastStandPending: true,
+          attacker: playerIndex,
+          nodeId,
+          attackPower: combatResult.attackPower,
+          defensePower: combatResult.defensePower,
+        },
       });
+      // The attacker's action IS spent (the combat happened); the outcome + elect resolve when
+      // the defender answers via LAST_STAND_COMMIT (`resumeLastStand`). All other commands are
+      // blocked by the reducer until then, so nothing here can go stale.
+      return { state, events, actionConsumed: true };
     }
+    // AI defender — the auto path, UNTOUCHED (§7: the sim never pauses).
+    lastStandCards = chooseLastStandCards(
+      state, defenderIndex, combatResult.attackPower, combatResult.defensePower, defenderCards,
+    );
+  }
+
+  events.push(...finishRaidResolution(state, setup, combatResult, lastStandCards, elect, false));
+
+  return { state, events, actionConsumed: true };
+}
+
+/**
+ * The tail of a RAID's resolution, shared VERBATIM by the auto path (`executeRaid`, AI defender)
+ * and the human resume path (`resumeLastStand`): apply the stand, the outcome, the Last-Stand
+ * discard + pushback, then the attacker's elected effect (§5.2/§5.3).
+ *
+ * `humanResume` gates ONE divergence: a human's PARTIAL stand can shrink the final margin below
+ * the capture gate without reversing the winner (the deterministic AI chooser is all-or-nothing,
+ * so the auto path can never reach that). Throwing mid-resume would strand the paused combat, so
+ * on the resume path the CAPTURE simply FIZZLES (the attacker still wins the exchange; the
+ * desperate stand denies the abduction) — recorded in §5.3 and evented for the UI.
+ */
+function finishRaidResolution(
+  state: GameState,
+  setup: CombatSetup,
+  combat: { winner: 'attacker' | 'defender' | 'no_result'; attackPower: number; defensePower: number; margin: number },
+  lastStandCards: number[],
+  elect: RaidElect,
+  humanResume: boolean,
+): GameEvent[] {
+  const events: GameEvent[] = [];
+  const playerIndex = setup.attackerIndex;
+  const defenderIndex = setup.defenderIndex as number;
+  const nodeId = setup.nodeId;
+
+  let winner = combat.winner;
+  let finalMargin = combat.margin;
+  if (lastStandCards.length > 0) {
+    const stand = resolveLastStand(
+      { winner: combat.winner, attackPower: combat.attackPower, defensePower: combat.defensePower, margin: combat.margin, lastStandAvailable: true, events: [] },
+      lastStandCards,
+    );
+    winner = stand.winner;
+    finalMargin = stand.margin;
+    events.push({
+      type: 'PLAYER_ACTED',
+      playerIndex: defenderIndex,
+      action: 'PASS',
+      details: { lastStand: true, cards: lastStandCards.length, held: winner === 'defender' },
+    });
   }
 
   // Apply outcome with the FINAL winner (discards the originally-committed cards).
@@ -573,6 +656,17 @@ export function executeRaid(
       // Margin-gated (§5.2) by the standing-scaled threshold (§13 P0-2).
       const need = effectiveCaptureMargin(state, playerIndex);
       if (finalMargin < need) {
+        if (humanResume) {
+          // The human's partial stand dropped the margin below the gate without reversing the
+          // winner: the CAPTURE fizzles (§5.3, T1-4) — never a throw mid-resume.
+          events.push({
+            type: 'PLAYER_ACTED',
+            playerIndex,
+            action: 'PASS',
+            details: { captureFizzled: true, margin: finalMargin, needed: need },
+          });
+          return events;
+        }
         throw new Error(`Cannot CAPTURE: margin ${finalMargin} < required ${need} (standing-scaled)`);
       }
       const target = elect.targetPieceId ?? legalRaidTargets(state, defenderIndex, nodeId)[0];
@@ -614,7 +708,54 @@ export function executeRaid(
     }
   }
 
-  return { state, events, actionConsumed: true };
+  return events;
+}
+
+/**
+ * Resume a HALTED RAID (§5.3, backlog T1-4): the human defender named in `state.pendingLastStand`
+ * commits `cards` (0..hand additional card VALUES, beyond the first-exchange commit) and the
+ * paused resolution finishes exactly as the auto path would with that commit — the stand, the
+ * outcome, the discard + pushback, the attacker's elect. Clears `pendingLastStand`. Dispatched
+ * ONLY via the LAST_STAND_COMMIT command (interactive path); the sim/AI never pause (§7).
+ */
+export function resumeLastStand(state: GameState, cards: readonly number[]): ActionResult {
+  const pending = state.pendingLastStand;
+  if (!pending) throw new Error('Cannot resume Last Stand: none is pending');
+  const defender = state.players[pending.defenderIndex];
+
+  // Validate the commit against the cards still in hand BEYOND the first-exchange commit
+  // (the committed `defenderCards` are still physically in hand until applyCombatOutcome).
+  const remaining = [...defender.hand];
+  for (const c of pending.defenderCards) {
+    const i = remaining.indexOf(c);
+    if (i !== -1) remaining.splice(i, 1);
+  }
+  for (const c of cards) {
+    const i = remaining.indexOf(c);
+    if (i === -1) {
+      throw new Error(`Cannot commit card ${c} to the Last Stand: not in hand beyond the cards already in this combat`);
+    }
+    remaining.splice(i, 1);
+  }
+
+  const setup: CombatSetup = {
+    combatType: 'RAID',
+    attackerIndex: pending.attackerIndex,
+    nodeId: pending.nodeId,
+    attackerCards: [...pending.attackerCards],
+    defenderCards: [...pending.defenderCards],
+    defenderIndex: pending.defenderIndex,
+    defenseBonus: pending.defenseBonus,
+  };
+  const combat = {
+    winner: 'attacker' as const, // the pause only ever fires when the attacker won the exchange
+    attackPower: pending.attackPower,
+    defensePower: pending.defensePower,
+    margin: pending.attackPower - pending.defensePower,
+  };
+  const events = finishRaidResolution(state, setup, combat, [...cards], pending.elect, true);
+  delete state.pendingLastStand;
+  return { state, events, actionConsumed: false };
 }
 
 /**

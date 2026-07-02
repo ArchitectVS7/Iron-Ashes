@@ -65,6 +65,17 @@ export function applyCommand(state: GameState, command: Command): CommandResult 
     throw new InvalidCommandError(command, 'Game is already over');
   }
 
+  // A HALTED combat (§5.3, backlog T1-4) BLOCKS the flow: while a human defender's Last Stand is
+  // pending, the ONLY legal command is LAST_STAND_COMMIT (the prompt is blocking, so nothing in
+  // the frozen setup can go stale). AI/sim games never set `pendingLastStand`, so this guard is
+  // inert in every headless run (§7 — byte-identical).
+  if (state.pendingLastStand !== undefined && command.type !== 'LAST_STAND_COMMIT') {
+    throw new InvalidCommandError(
+      command,
+      `A Last Stand is pending: Player ${state.pendingLastStand.defenderIndex + 1} must resolve LAST_STAND_COMMIT first`,
+    );
+  }
+
   // Clone to ensure immutability of the input
   const newState = cloneState(state);
 
@@ -85,7 +96,7 @@ export function applyCommand(state: GameState, command: Command): CommandResult 
       return handlePlayerAction(newState, command.playerIndex, command.action);
 
     case 'LAST_STAND_COMMIT':
-      return handleLastStandCommit(newState, command.playerIndex, command.cardCount);
+      return handleLastStandCommit(newState, command.playerIndex, command.cardIds);
 
     case 'INITIATE_ACCUSATION':
       return handleInitiateAccusation(newState, command.accuserIndex, command.accusedIndex);
@@ -224,6 +235,7 @@ import {
   executeParley,
   executeSwearOath,
   executeBreakOath,
+  resumeLastStand,
 } from './actions.js';
 import {
   executeAudit,
@@ -600,36 +612,39 @@ function handleSetWraithInput(
   return { state, events: [] };
 }
 
+/**
+ * Resolve a HALTED combat's Last Stand (§5.3, backlog T1-4). Validates the commit belongs to the
+ * pending HUMAN defender, then resumes/finishes the paused RAID resolution via `resumeLastStand`
+ * exactly as the auto path would with that commit. In the headless sim the Last Stand is still
+ * resolved inline during combat (AI defenders never pause), so this handler is interactive-only.
+ */
 function handleLastStandCommit(
   state: GameState,
   playerIndex: number,
-  cardCount: number,
+  cardIds: readonly number[],
 ): CommandResult {
-  // Last Stand: defender commits additional cards (one-sided, final)
-  // In the headless sim, Last Stand is resolved inline during combat.
-  // This command is for the interactive UI path — currently a placeholder
-  // that will be wired in when the UI layer adds the sealed-commit flow.
-  const events: GameEvent[] = [];
-
-  const player = state.players[playerIndex];
-  if (cardCount > player.hand.length) {
+  const cmd: Command = { type: 'LAST_STAND_COMMIT', playerIndex, cardIds };
+  const pending = state.pendingLastStand;
+  if (pending === undefined) {
+    throw new InvalidCommandError(cmd, 'No Last Stand is pending');
+  }
+  if (playerIndex !== pending.defenderIndex) {
     throw new InvalidCommandError(
-      { type: 'LAST_STAND_COMMIT', playerIndex, cardCount },
-      `Cannot commit ${cardCount} cards: only ${player.hand.length} in hand`,
+      cmd,
+      `Only the pending defender (Player ${pending.defenderIndex + 1}) may commit this Last Stand`,
     );
   }
 
-  // For now, the Last Stand is resolved within the combat flow.
-  // This handler is wired for future interactive use.
-  events.push({
-    type: 'PLAYER_ACTED',
-    playerIndex,
-    action: 'PASS',
-    details: { lastStand: true, cardCount },
-  });
+  let result;
+  try {
+    result = resumeLastStand(state, cardIds);
+  } catch (e: unknown) {
+    // Invalid cards etc. — the clone is discarded, the pause stays set, the human retries.
+    throw new InvalidCommandError(cmd, (e as Error).message);
+  }
 
-  state.actionLog.push(...events);
-  return { state, events };
+  result.state.actionLog.push(...result.events);
+  return { state: result.state, events: result.events };
 }
 
 // ─── Blood Pact command handlers (§10) ───────────────────────────

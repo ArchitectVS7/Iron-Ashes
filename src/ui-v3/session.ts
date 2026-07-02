@@ -51,6 +51,7 @@ import {
   type BequestChoiceInput,
   type WraithInputKind,
   type Difficulty,
+  type PendingLastStand,
 } from '../v3/index.js';
 
 /** A short on-screen narration line (villain voice, beats, results). */
@@ -102,6 +103,9 @@ export class GameSession {
 
   /** True when the flow has paused for the human to name its Death Bequest (§5.5) before falling. */
   awaitingBequest = false;
+  /** The human's in-progress Last Stand card selection (indices into `lastStandRemainingHand()`),
+   *  held UI-side so the blocking prompt survives re-renders; cleared on commit (§5.3, T1-4). */
+  lastStandSelection: number[] = [];
   /** The human's last-seen exposure — drives the one-shot "the tide has reached you" beat (P0-11). */
   private prevHumanExposure: Exposure | null = null;
 
@@ -222,6 +226,23 @@ export class GameSession {
           : `⚔ Player ${e.playerIndex + 1} strikes the dark's heart (${hit} damage · ♥${hp} left).`,
         kind: 'beat',
       });
+    } else if (e.action === 'PASS' && d.lastStandPending !== undefined) {
+      this.narration.unshift({
+        text: `⚔ Player ${Number(d.attacker) + 1} is taking ${String(d.nodeId)} (${Number(d.attackPower)} vs ${Number(d.defensePower)}) — LAST STAND?`,
+        kind: 'beat',
+      });
+    } else if (e.action === 'PASS' && d.lastStand !== undefined && d.cards !== undefined) {
+      this.narration.unshift({
+        text: d.held === true
+          ? `🛡 LAST STAND — Player ${e.playerIndex + 1} pours ${Number(d.cards)} card${Number(d.cards) === 1 ? '' : 's'} in and HOLDS.`
+          : `🛡 Last Stand — Player ${e.playerIndex + 1} commits ${Number(d.cards)} card${Number(d.cards) === 1 ? '' : 's'}, but the stronghold falls.`,
+        kind: 'beat',
+      });
+    } else if (e.action === 'PASS' && d.captureFizzled !== undefined) {
+      this.narration.unshift({
+        text: `⛓ The capture slips — the stand cut the margin to ${Number(d.margin)} (needed ${Number(d.needed)}).`,
+        kind: 'beat',
+      });
     } else if (e.action === 'PASS' && d.bequest !== undefined) {
       const gift = d.bequest === 'captive'
         ? (typeof d.pieceName === 'string' ? `the captive ${d.pieceName}` : 'a captive')
@@ -267,6 +288,12 @@ export class GameSession {
     let guard = 0;
     while (!this.isOver && guard < 512) {
       guard++;
+      // A HALTED combat (§5.3, T1-4): a rival's winning RAID on the human's stronghold has paused
+      // for the human's Last Stand — a BLOCKING decision point (every other command is rejected).
+      if (this.state.pendingLastStand !== undefined) {
+        this.updateExposureBeat();
+        return;
+      }
       switch (this.state.phase) {
         case 'THREAT':
           // Always human-gated: the human clicks to face the dark (its Wraith input, if any, is set
@@ -376,6 +403,58 @@ export class GameSession {
       this.onChange();
       return;
     }
+    this.pump();
+    this.onChange();
+  }
+
+  // ─── Last Stand (§5.3, backlog T1-4) ─────────────────────────────
+
+  /** The HALTED combat awaiting the human's Last Stand, or null. */
+  get pendingLastStand(): PendingLastStand | null {
+    return this.state.pendingLastStand ?? null;
+  }
+
+  /** The cards the human may still commit: hand MINUS the first-exchange commit. */
+  lastStandRemainingHand(): number[] {
+    const pending = this.state.pendingLastStand;
+    if (!pending) return [];
+    const remaining = [...this.state.players[pending.defenderIndex].hand];
+    for (const c of pending.defenderCards) {
+      const i = remaining.indexOf(c);
+      if (i !== -1) remaining.splice(i, 1);
+    }
+    return remaining;
+  }
+
+  /** The card VALUES currently selected for the stand (mapped from the selection indices). */
+  lastStandSelectedValues(): number[] {
+    const remaining = this.lastStandRemainingHand();
+    return this.lastStandSelection.filter(i => i >= 0 && i < remaining.length).map(i => remaining[i]);
+  }
+
+  /** Toggle one card (by its index in `lastStandRemainingHand()`) in/out of the stand. */
+  toggleLastStandCard(index: number): void {
+    if (this.state.pendingLastStand === undefined) return;
+    const at = this.lastStandSelection.indexOf(index);
+    if (at === -1) this.lastStandSelection.push(index);
+    else this.lastStandSelection.splice(at, 1);
+    this.onChange();
+  }
+
+  /** Commit the selected cards (empty selection ⇒ yield the stronghold) and resume the flow. */
+  commitLastStand(): void {
+    const pending = this.state.pendingLastStand;
+    if (pending === undefined || this.isOver) return;
+    this.lastError = null;
+    const cardIds = this.lastStandSelectedValues();
+    try {
+      this.dispatch({ type: 'LAST_STAND_COMMIT', playerIndex: pending.defenderIndex, cardIds });
+    } catch (e: unknown) {
+      this.lastError = (e as Error).message;
+      this.onChange();
+      return;
+    }
+    this.lastStandSelection = [];
     this.pump();
     this.onChange();
   }

@@ -183,6 +183,16 @@ button.primary { background: var(--accent); color: #1a1206; border: none; font-w
 .wraith-btn, .bequest .action-btns button { display: block; width: 100%; text-align: left; margin: 3px 0; }
 .wraith-btn.selected { border-color: var(--accent); color: var(--accent); }
 
+/* ── Last Stand blocking prompt (§5.3, T1-4) ── */
+.panel.laststand.blocking { border: 1px solid var(--danger); border-radius: 8px; padding: 10px; background: rgba(239,68,68,0.08); }
+.ls-cards { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
+.card-btn { min-width: 26px; text-align: center; background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; padding: 3px 6px; color: var(--ink); font-weight: 600; cursor: pointer; }
+.card-btn.selected { border-color: var(--accent); color: var(--accent); background: rgba(96,165,250,0.12); }
+.ls-projection { font-size: 13px; margin: 4px 0; }
+.ls-projection .hold { color: var(--accent); }
+.ls-projection .fall { color: var(--danger); }
+.hint.warning { color: var(--danger); }
+
 /* ── Narration kinds ── */
 .narration { list-style: none; padding-left: 0; font-size: 13px; display: flex; flex-direction: column; gap: 3px; }
 .narr.villain { color: var(--danger); font-style: italic; }
