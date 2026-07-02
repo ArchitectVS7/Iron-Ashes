@@ -180,8 +180,14 @@ export const DAWN_BLIGHT_ADVANCE = TUNABLES_DATA.DAWN_BLIGHT_ADVANCE;
  * remaining attrition pump (un-averted strikes ash player nodes → eliminations). Dropping it to
  * 3 is the lever that CAPS attrition (share of dark wins 75.7% → ~27%) while the BLIGHT_TO_ASH=2
  * Dawn march carries the doom path. It also flattens per-count (a hot spread over-killed at 4p):
- * pooled SK lands ~21% with 2p/3p/4p all inside 16–24. See V3-5b report. [TUNABLE] */
-export const SPREAD_AMOUNT_BASE = 3;
+ * pooled SK lands ~21% with 2p/3p/4p all inside 16–24. See V3-5b report. [TUNABLE]
+ * T2-1 LOCKED 3 → 1 (paired with DOOM_COST_MARCH 9 → 11 + DOOM_COST_RECKONING 12 → 14): the fed
+ * court (starting Marshal + 6-token supply) added flip volume that pushed pooled dark to 26.5%,
+ * concentrated at 3p (33.9%). Cutting the landed-strike spread to 1 is the primary cooler (the
+ * doom clock stays on the BLIGHT_TO_ASH=2 Dawn march); the raised March/Reckoning thresholds
+ * re-heat 3p/4p into band — 40-seed cells [2p 18.4 / 3p 22.3 / 4p 17.6]. See the T2-1 re-lock
+ * report. */
+export const SPREAD_AMOUNT_BASE = 1;
 
 /** Extra banner cost to march through an ashed node (P0-3: traversable, not impassable). */
 export const ASHED_TRAVERSE_EXTRA_COST = TUNABLES_DATA.ASHED_TRAVERSE_EXTRA_COST;
@@ -356,8 +362,17 @@ export const DISCOVERY_RECRUIT_PCT = 0.6;
 export const DISCOVERY_BLIGHT_PCT = 0.25;
 /** P(flip spawns a Death-Knight) — the harsh tail (§5.1, ≈15%). DERIVED: 1 − the other two. */
 export const DISCOVERY_DK_PCT = 0.15;
-/** Front-delta a Blight-seed inflicts on the CLAIMED node (§5.1, §12 #19) — you own blighted land. */
-export const DISCOVERY_BLIGHT_DELTA = 1;
+/** Front-delta a Blight-seed inflicts on the CLAIMED node (§5.1, §12 #19) — you own blighted land.
+ *  T2-1 LOCKED 1 → 0: with Forges joining the token supply the on-claim front-delta compounded the
+ *  extra flip volume into a 3p doom spike (dark 33.9% at 3p); the fightable threat force (the
+ *  agency half of the seed) is UNCHANGED — a seed still spawns the STRIKE-able force whose clear
+ *  redeems the bonus recruit. See the T2-1 re-lock report. [TUNABLE] */
+export const DISCOVERY_BLIGHT_DELTA = 0;
+/** How many Forges carry a pre-bound Discovery token (T2-1 "feed the court"): a seed-picked
+ *  subset (`tokenBearingForges`, §7 D9) of the four Forges joins the four Holdings in the token
+ *  supply. 2 ⇒ 6 tokens/game — the retainer-supply lever that lifts the median court to the
+ *  pitch's 3–4 by March (4 forges = 8 tokens over-heated the dark at 3p). [TUNABLE] */
+export const FORGE_TOKEN_COUNT = 2;
 
 /** Max cards the engine auto-commits to a single combat (value-aware, §5.3). */
 export const COMBAT_COMMIT_MAX = TUNABLES_DATA.COMBAT_COMMIT_MAX;
@@ -489,8 +504,19 @@ export const ACCUSATION_PUSHBACK = TUNABLES_DATA.ACCUSATION_PUSHBACK;
 // lifts pooled SK-win 14%→~20% and 4p 1.9%→~8%. Evidence + the structural 4p
 // caveat are in docs/handoff/stage5-tuning-log.md.
 export const DOOM_COST_WHISPER = TUNABLES_DATA.DOOM_COST_WHISPER;
-export const DOOM_COST_MARCH = TUNABLES_DATA.DOOM_COST_MARCH;
-export const DOOM_COST_RECKONING = TUNABLES_DATA.DOOM_COST_RECKONING;
+/** T2-1 LOCKED 9 → 11 (a v3-native literal, NOT the v2 JSON value — same recorded debt as
+ *  BLIGHT_TO_ASH/SPREAD). Raising the March threshold makes March full-blocks RARER (3p: 7 → 9,
+ *  4p: 15 → 17 with the +6 pivot-3 tilt) — and under SPREAD_AMOUNT_BASE=1 a landed strike bites
+ *  only 1 Blight, while every full block still feeds the dark PATIENCE (the act-escalation
+ *  ratchet). Net: fewer blocks ⇒ slower patience-forced escalation ⇒ later Reckoning — 3p cooled
+ *  23.4 → 22.3 while 4p HEATED 15.1 → 17.6 (40-seed cells). See the T2-1 re-lock report. [TUNABLE] */
+export const DOOM_COST_MARCH = 11;
+/** T2-1 LOCKED 12 → 14 (a v3-native literal, NOT the v2 JSON value — same recorded debt as
+ *  BLIGHT_TO_ASH/SPREAD above). Paired with SPREAD_AMOUNT_BASE 3 → 1: the spread cut cooled 4p
+ *  below band; a higher Reckoning threshold (4p: 18 → 20 with the +6 pivot-3 tilt) makes late
+ *  full-blocks rarer where the linear pc/4 term is full — re-heating 4p into band while the 2p
+ *  floor keeps it inert there. See the T2-1 re-lock report. [TUNABLE] */
+export const DOOM_COST_RECKONING = 14;
 /** doomCost scales as base * playerCount / this divisor (4 = baseline 4p). */
 export const DOOM_COST_PLAYER_DIVISOR = TUNABLES_DATA.DOOM_COST_PLAYER_DIVISOR;
 /**
@@ -627,11 +653,12 @@ export interface Tunables {
   readonly HEART_ASSAULT_MIN_COMMIT: number;
   readonly HEART_RETALIATE_GRUDGE: number;
   readonly POST_DARK_ROUNDS: number;
-  // ── Discovery (Stage 3c) ──
+  // ── Discovery (Stage 3c; FORGE_TOKEN_COUNT is the T2-1 supply lever) ──
   readonly DISCOVERY_RECRUIT_PCT: number;
   readonly DISCOVERY_BLIGHT_PCT: number;
   readonly DISCOVERY_DK_PCT: number;
   readonly DISCOVERY_BLIGHT_DELTA: number;
+  readonly FORGE_TOKEN_COUNT: number;
   // ── Anti-free-rider + dark-effect magnitudes (made injectable in C2 — see
   //    stage5-tuning-log §C2; defaults are byte-identical, the consumers just now
   //    read getTunables().X instead of the frozen module const, so a sweep can reach them) ──
@@ -685,6 +712,7 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   WRAITH_INPUT_CAP, WRAITH_GRUDGE_NUDGE, WRAITH_TRAITOR_NUDGE,
   HEART_HP, HEART_ASSAULT_MIN_COMMIT, HEART_RETALIATE_GRUDGE, POST_DARK_ROUNDS,
   DISCOVERY_RECRUIT_PCT, DISCOVERY_BLIGHT_PCT, DISCOVERY_DK_PCT, DISCOVERY_BLIGHT_DELTA,
+  FORGE_TOKEN_COUNT,
   PLEDGE_SHIELD_AMOUNT, PLEDGE_FAVOR_GRUDGE_REDUCTION,
   DK_MARCH_DISTANCE, SURGE_SPREAD_MULT, GAMBIT_ADJACENT_STRIKE_MULT,
   CARD_VALUE_MIN, CARD_VALUE_MAX, BASE_BANNER_INCOME,
@@ -782,6 +810,7 @@ export const TUNABLES = Object.freeze({
   DISCOVERY_BLIGHT_PCT,
   DISCOVERY_DK_PCT,
   DISCOVERY_BLIGHT_DELTA,
+  FORGE_TOKEN_COUNT,
   COMBAT_COMMIT_MAX,
   RAID_DEFENSE_MARGIN,
   CARD_VALUE_MIN,

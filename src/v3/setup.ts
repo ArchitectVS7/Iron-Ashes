@@ -4,7 +4,7 @@
  * function setup(playerCount, mode, seed):
  *   rng = SeededRandom(seed)
  *   board = buildFixedMap()
- *   players assigned to keeps, starting hands drawn
+ *   players assigned to keeps, starting hands drawn, one named starting retainer each (T2-1)
  *   Shadowking forces placed
  *   Crown computed, turn order shuffled
  *   Blood Pact assigned last (if mode === blood_pact)
@@ -17,7 +17,8 @@
 
 import { SeededRandom } from '../utils/seeded-random.js';
 import { buildClosingRing, createInitialBoardState } from './board.js';
-import { bindHiddenTokens } from './discovery.js';
+import { bindHiddenTokens, deriveStartingRetainer } from './discovery.js';
+import { archetypePower, identityFor } from './court.js';
 import { computeCrownHolder, generateBannersForPlayer } from './sequencer.js';
 import {
   STARTING_HAND,
@@ -182,6 +183,26 @@ export function createGame(
       type: 'warlord',
       owner: i,
       power: WARLORD_POWER,
+      nodeId: keepId,
+    });
+
+    // T2-1 "feed the court": every player STARTS with one named retainer at their Keep
+    // (§2/§3). Content is pre-bound on a namespaced sub-stream f(hash(seed, seat)) — §7 D9,
+    // the same contract as a Discovery token — so it never perturbs the main setup RNG.
+    // Id ordinal 0: a later Discovery recruit of the same archetype gets ordinal 1 (court.ts).
+    const ret = deriveStartingRetainer(seed, i);
+    const retId = `${ret.archetype}-${i}-0`;
+    player.court.push({
+      id: retId, archetype: ret.archetype,
+      name: ret.name, identity: identityFor(ret.name),
+      node: keepId,
+      captiveOf: null, routedReturnRound: null, recaptureImmuneUntil: 0,
+    });
+    boardState.nodes[keepId].pieces.push({
+      id: retId,
+      type: ret.archetype,
+      owner: i,
+      power: archetypePower(ret.archetype),
       nodeId: keepId,
     });
   }

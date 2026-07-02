@@ -126,7 +126,7 @@ traitor 19.4%), sim reference byte-stable. **The playtest is unblocked** — run
 
 ## TIER 2 — design calls (reopen balance; USER decision, then one re-balance wave each)
 
-### T2-1 ☐ Feed the court (engagement #1 — the pitch-matching change)
+### T2-1 ☑ Feed the court (engagement #1 — the pitch-matching change)
 - **Problem:** ~4 discovery tokens hard-cap retainer supply at ~1.5/game; the median court is Warlord + ONE
   retainer; captures touch a player ~once per 6 games. "Build a court" — the reason v3 exists — is the
   least-delivered clause of the pitch. (The 42% ransom-back rate proves attachment works when it fires.)
@@ -136,7 +136,18 @@ traitor 19.4%), sim reference byte-stable. **The playtest is unblocked** — run
 - **Integrations:** engine (board/§5.1 token density, setup) · sim (full 2-seed re-balance; watch captures,
   eliminations, dark-win, dead-time) · UI (court panel scales) · tests (supply + balance-band updates) ·
   docs (ALGORITHM §2/§5.1 + ROADMAP §8).
-- **Status:** OPEN — awaiting user call (do before or after the first playtest?).
+- **Status:** ☑ DONE 2026-07-02 (T2 wave) — levers (a)+(b): every player STARTS with one named MARSHAL
+  (fixed archetype — the A/B refuted a seeded Marshal/Steward split: a starting Steward's economy heats 3p
+  +8pp; name pre-bound `f(hash(seed,'start-retainer-<seat>'))` §7 D9) + a seed-picked PAIR of Forges
+  carries a pre-bound token (`FORGE_TOKEN_COUNT`=2 ⇒ 6 tokens/game; all 8 over-heated 3p to 33.9%).
+  Objective: court-at-March median 2 → **3** (new sim metric), captures 0.35 → **1.39/1.46**/game (brakes
+  untouched). Knock-on re-lock (v3 literals): `DISCOVERY_BLIGHT_DELTA` 1→0, `SPREAD_AMOUNT_BASE` 3→1,
+  `DOOM_COST_MARCH` 9→11, `DOOM_COST_RECKONING` 12→14. 2-seed both modes: dark 19.4/19.5 pooled,
+  [18.4/22.3/17.6]·[17.6/23.2/17.6] per-count, doom 17.9/17.8, attrition share 8.0/8.8, rounds 12.2;
+  BP 18.1/18.9 · 56.1/53.6 · 70.6/71.2. 627 v3 tests. WATCH items recorded in the sample-v3 REPORT
+  banner: eliminations 0.52→0.30/game (attrition endings ~1.5% — a feel change for the playtest),
+  saboteur gambler-free 31.4/32.7% vs the 30% archetype guard line (T2-2's natural home), difficulty-tier
+  magnitudes stale (recalibrate at the next difficulty-touching stage).
 
 ### T2-2 ☐ Re-arm "hiding is dangerous" (engagement #2, drift D2's design half)
 - **Problem:** the wave-1 fix zeroed `RECKONING_AUTOPRESSURE_NODES`, disarming the stress-test's

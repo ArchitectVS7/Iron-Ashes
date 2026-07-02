@@ -59,7 +59,8 @@ describe('T1-1 — names are state (§2)', () => {
     s.board.state.nodes[nodeId].owner = 0;
     const events = flipDiscoveryToken(s, 0, nodeId);
 
-    const cp = s.players[0].court.find(c => c.archetype !== 'warlord');
+    // Find the FLIPPED recruit (at the claimed node) — not the T2-1 starting retainer.
+    const cp = s.players[0].court.find(c => c.archetype !== 'warlord' && c.node === nodeId);
     expect(cp).toBeDefined();
     expect(cp!.name).toBe(boundName);                    // the flip-once name now PERSISTS
     expect(cp!.identity).toBe(identityFor(boundName));   // identity = pure f(name), no draw
@@ -112,7 +113,8 @@ describe('T1-1 — names are state (§2)', () => {
       flipDiscoveryToken(s, 0, nodeId);
       ns.shadowkingForces = [];       // the fightable threat is cleared
       redeemBlightSeed(s, 0, nodeId);
-      const cp = s.players[0].court.find(c => c.archetype !== 'warlord')!;
+      // The bonus recruit joins at the seed node — not the T2-1 starting retainer at the Keep.
+      const cp = s.players[0].court.find(c => c.archetype !== 'warlord' && c.node === nodeId)!;
       expect(cp.name).toBe(bonusName);
       expect(cp.identity).toBe(identityFor(bonusName));
       return;

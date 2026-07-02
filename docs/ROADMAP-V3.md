@@ -30,9 +30,11 @@ built a turtle meta; two new subsystems were non-deterministic). Those fixes are
 `docs/human-playtest-checklist-v3.md`, teaching from `docs/v3-teach-script.md`) — the ball is now in the
 human's court. Everything build-able is DONE: **v3 IS FUNCTIONALLY COMPLETE END-TO-END** (design → engine →
 sim → balance both modes → UI → difficulty selector → playtest checklist), **and the Tier-1 pre-playtest
-fix sweep is COMPLETE** (`V3-FIX-BACKLOG.md` T1-1…T1-5; §8 2026-07-02). v3 623 tests green, v2 451, tsc +
-`vite build` clean, default balance byte-identical. The playtest sets the difficulty default + drives the
-styled-UI pass + any felt-experience tuning; Tier-2 backlog items await user calls.
+fix sweep is COMPLETE** (`V3-FIX-BACKLOG.md` T1-1…T1-5; §8 2026-07-02). **Tier-2 has OPENED: T2-1 "feed
+the court" is LANDED** (starting Marshal + 6-token supply + full 2-seed re-lock — dark 19.4/19.5%, all
+§9 bands PASS; see §8 2026-07-02 T2-1). v3 627 tests green, v2 451, tsc clean. The playtest sets the
+difficulty default + drives the styled-UI pass + any felt-experience tuning; remaining Tier-2 items
+(T2-2/3/4) await user calls.
 
 *(Prior-status prose accumulated below is historical; the accurate running record is §8. Also note the
 "DESIGN sprint / CODE sprint NOT STARTED" header at the top of §0 is stale — the code sprint is essentially
@@ -252,6 +254,34 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 ---
 
 ## 8. Changelog / decision log (v3)
+
+- **2026-07-02** — **TIER-2 T2-1: FEED THE COURT (supply + re-lock) — the pitch-matching change
+  (engagement review #1) LANDED.** Levers (a)+(b) of the backlog recommendation: (a) **every player
+  STARTS with one named MARSHAL** at their Keep — archetype FIXED (the sanctioned A/B refuted a seeded
+  Marshal/Steward split: a starting Steward's +2/Dawn economy inflates early claims→flips→front heat, 3p
+  dark 32.9% vs 24.8% all-Marshal, and deals unequal round-1 economies); the NAME is pre-bound on its own
+  namespaced sub-stream `f(hash(seed,'start-retainer-<seat>'))` (§7 D9 — main setup RNG unperturbed).
+  (b) **a seed-picked PAIR of Forges carries a pre-bound Discovery token** (`FORGE_TOKEN_COUNT`=2, new
+  injectable lever; pair = sub-stream shuffle `f(hash(seed,'forge-token-wave'))`; presence+sigil public,
+  content fogged) ⇒ **6 tokens/game** — ALL 8 was built first and REFUTED (3p dark 33.9%, no tunable fix
+  in reach: doom tilt provably inert at 3p (pivot-3), SURGE/PUSHBACK/heart/strikepool all <1pp).
+  **Objective delivered:** court-at-March median 2 → **3** (new driver-snapshot metric
+  `medianCourtAtMarch`), captures 0.35 → **1.39/1.46**/game (capture brakes untouched), retainer supply
+  ~1.5 → ~3+/game. **Knock-on re-lock (v3-native literals, the standing v2-JSON recorded debt):**
+  `DISCOVERY_BLIGHT_DELTA` 1→0 (the on-claim front-delta compounded flip volume; the fightable-threat
+  agency half unchanged — §5.1 annotated), `SPREAD_AMOUNT_BASE` 3→1 (primary cooler; the doom clock rides
+  the BLIGHT_TO_ASH=2 Dawn march), `DOOM_COST_MARCH` 9→11 + `DOOM_COST_RECKONING` 12→14 (fewer full
+  blocks ⇒ slower patience-forced act escalation at 3p; re-heats 4p via the pivot-3 +6 tilt). **2-seed
+  40-seed re-lock, both modes:** dark **19.4/19.5%** pooled, per-count **[18.4/22.3/17.6]** /
+  **[17.6/23.2/17.6]** (3p BETTER than the old lock's 24.9/24.1), doom-of-games **17.9/17.8%**, attrition
+  share **8.0/8.8%**, rounds **12.20/12.19**, free-rider + termination PASS both; BP **18.1/18.9 ·
+  56.1/53.6 · 70.6/71.2**. `sim-results/sample-v3/` refreshed (REPORT banner = the re-lock record).
+  **VERIFIED:** v3 **627** tests green (tsc + eslint clean); spec §2/§3/§5.1/§9 updated. **Recorded
+  watch items (dated, in the REPORT banner):** eliminations 0.52→0.30/game + attrition endings ~1.5% of
+  games (the dark now wins almost purely by doom — a playtest feel item); saboteur gambler-free win
+  31.4/32.7% vs the 30% archetype guard line (pooled dominance + free-rider PASS; T2-2's hoard-tax is
+  the natural fix home); difficulty-tier (knight/squire) MAGNITUDES stale post-T2-1 (monotonicity
+  test-verified; recalibrate at the next difficulty-touching stage).
 
 - **2026-07-02** — **TIER-1 PRE-PLAYTEST SWEEP COMPLETE (W4, backlog T1-5: doc honesty + the teach
   script) — the playtest is UNBLOCKED.** W4 (docs-only): (a) **spec honesty** — ALGORITHM §6 + §13 P0-5

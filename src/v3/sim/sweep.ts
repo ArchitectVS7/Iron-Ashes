@@ -45,6 +45,9 @@ export interface SweepRow {
   /** Mid-game (first-MARCH) territory leader — the snowball↔turtle signal (driver-captured;
    *  not derivable from the final state alone). null if the game ended before MARCH. */
   readonly midGameLeader: number | null;
+  /** Per-living-seat FREE court size at first MARCH (T2-1 "feed the court"; driver-captured).
+   *  null if the game ended before MARCH. */
+  readonly courtAtMarch: readonly number[] | null;
 }
 
 /** Run the full cross-product (seeds × playerCounts × modes × matchups). */
@@ -72,6 +75,7 @@ export function runSweep(cfg: SweepConfig): SweepRow[] {
             hitGuard: run.hitGuard,
             metrics: computeMetrics(run.finalState),
             midGameLeader: run.midGameLeader,
+            courtAtMarch: run.courtAtMarch,
           });
         }
       }

@@ -31,6 +31,7 @@ import {
 } from '../../src/v3/tunables.js';
 import type { Command } from '../../src/v3/commands.js';
 import type { GameState, ShadowkingTelegraph } from '../../src/v3/types.js';
+import { stripStartingRetainers } from './fixtures.js';
 
 function apply(state: GameState, cmd: Command): GameState {
   return applyCommand(state, cmd).state;
@@ -55,7 +56,7 @@ function totalBlight(state: GameState): number {
 
 describe('warlord power consistency (bug fix)', () => {
   it('a Warlord has the same power before and after marching', () => {
-    let state = createGame(4, 'competitive', 42);
+    let state = stripStartingRetainers(createGame(4, 'competitive', 42)); // bare Warlord (T2-1)
     state = apply(state, { type: 'ADVANCE_PHASE' });
     for (const p of state.players) state = apply(state, { type: 'SUBMIT_PLEDGE', playerIndex: p.index, amount: 0 });
     state = apply(state, { type: 'ADVANCE_PHASE' }); // → ACTION

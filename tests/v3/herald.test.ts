@@ -12,11 +12,12 @@ import { getPlayerPowerAtNode } from '../../src/v3/combat.js';
 import { runDawnPhase } from '../../src/v3/sequencer.js';
 import { SeededRandom } from '../../src/utils/seeded-random.js';
 import { withTunables, HAND_LIMIT, WARLORD_POWER } from '../../src/v3/tunables.js';
+import { stripStartingRetainers } from './fixtures.js';
 
 describe('Herald + stance (Stage H)', () => {
   describe('RECRUIT → the political build', () => {
     it('commits the stance: +hand cap, −combat power, spends banners', () => {
-      const s = createGame(2, 'competitive', 7);
+      const s = stripStartingRetainers(createGame(2, 'competitive', 7)); // bare Warlord (T2-1)
       const here = s.players[0].warlordNodeId;
       const before = getPlayerPowerAtNode(s, 0, here); // warlord alone = WARLORD_POWER
       expect(before).toBe(WARLORD_POWER);

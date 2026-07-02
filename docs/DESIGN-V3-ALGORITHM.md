@@ -74,6 +74,12 @@ Each player commands a small court. **Start minimal: 4 archetypes max** (the v2 
 - Retainers are recruited via **Discovery** (§5.1) and carry a **seeded name + one-line identity** (drawn
   `f(seed, tokenId)`); the Warlord has a fixed faction name. Names are state; they drive attachment and the
   UI "Hold" rail, not mechanics.
+- **`[T2-1 2026-07-02]` The starting court is Warlord + one named MARSHAL** ("feed the court", backlog
+  T2-1): every player begins with a starting retainer at their Keep — archetype FIXED (Marshal, the sworn
+  shield), name seeded on its own namespaced sub-stream `f(hash(seed, 'start-retainer-<seat>'))` (§7 D9,
+  never the main stream). The T2-1 A/B refuted a seeded Marshal/Steward split: a starting Steward's
+  +2/Dawn economy inflates early claims → flips → front heat (3p dark-win 32.9% vs 24.8% all-Marshal) and
+  deals unequal round-1 economies. Court supply then grows via Discovery's 6-token layout (§5.1).
 - A captured retainer is held by the captor: **produces nothing**, cannot act, is not gained by the captor
   (a Steward in a cell funds no one). It is a tradeable/ransomable asset (§5.3).
 - **Herald is flagged advanced**: if the sim's session-length band can't absorb 4 types, Herald drops to a
@@ -124,10 +130,12 @@ function setup(playerCount, mode, seed):
   rng = SeededRandom(seed)
   board = buildFixedMap()
   for i in 0..playerCount-1:
-     players[i] = newWarlord(i, board.keeps[i], factionName[i])   // Warlord only; court grows by Discovery
+     players[i] = newWarlord(i, board.keeps[i], factionName[i])   // court grows by Discovery…
+     players[i].court += startingMarshal(i, f(hash(seed,'start-retainer-'+i)))  // …from Warlord + 1 (T2-1)
      players[i].hand = draw(STARTING_HAND)
-  bindHiddenTokens(board, seed)          // NEW: every neutral Holding's token content = f(seed, nodeId),
-                                          //      frozen now — a reveal later, never a lazy draw (§7)
+  bindHiddenTokens(board, seed)          // every neutral Holding's + the seed-picked FORGE_TOKEN_COUNT
+                                          //   Forges' token content = f(seed, nodeId) (T2-1),
+                                          //   frozen now — a reveal later, never a lazy draw (§7)
   placeShadowkingForces(board, DK_START_COUNT)
   shadowking.heart = undefined           // spawns at the Reckoning crossing (§5.6)
   crownHolder = leader(players); turnOrder = rng.shuffle(seats)
@@ -183,14 +191,22 @@ function dawnPhase(state):
 ## 5. Core mechanics
 
 ### 5.1 Discovery (grow the court by exploring)
-Neutral Holdings carry a **face-down token**, content pre-bound at setup as `f(seed, nodeId)`. CLAIM flips
-it (the claimer can't act further that turn — cf. v2 Diplomat search):
+Neutral Holdings — **and, `[T2-1 2026-07-02]`, a seed-picked pair of Forges** (`FORGE_TOKEN_COUNT` = 2,
+chosen `f(hash(seed, 'forge-token-wave'))` §7 D9; which Forges bear tokens is PUBLIC, only content is
+fogged) — carry a **face-down token**, content pre-bound at setup as `f(seed, nodeId)`. Six tokens/game
+(was four): the T2-1 retainer-supply lever that delivers the pitch's courts-of-3–4-by-March (all EIGHT
+over-heated the dark at 3p — see the T2-1 re-lock report). CLAIM flips it (the claimer can't act further
+that turn — cf. v2 Diplomat search):
 - **Recruit (~`DISCOVERY_RECRUIT_PCT`, ≈60%):** reveal a named retainer (archetype by seeded roll); it
   joins your court at the node with no Banners until you provide them.
 - **Blight-seed (~25%):** the front quickens in this quadrant — a fixed front-delta inserted at a defined
   slot in the §5.1-v2 net-front ordered sum. **Agency, not pure loss:** the seed manifests as a fightable
   threat that, if cleared (STRIKE) this/next turn, yields a **bonus recruit** — a bad flip becomes a
   decision, not a dice-loss.
+  **`[T2-1]` The front-delta ships 0** (`DISCOVERY_BLIGHT_DELTA` 1 → 0): with the 6-token supply the
+  on-claim delta compounded flip volume into a 3p doom spike (+2.5pp at 3p alone). The fightable threat +
+  bonus-recruit agency half is UNCHANGED — the "front quickens" clause is currently carried by the threat
+  force squatting the node, not a blight tick.
 - **Death-Knight (~15%):** a DK spawns on the node (blocks CLAIM until killed; killing it claims the node +
   pushes the front, as v2). The flip-spawned DK acts only **next** THREAT (never retroactively).
 - **Partial telegraph:** a token shows a back-sigil hinting risk-vs-reward, so CLAIM is press-your-luck, not
@@ -399,6 +415,12 @@ The court/capture/discovery/heart systems are **new build** on the reused substr
 `RANSOM_COST`, `RANSOM_BANNERS`, `RANSOM_SINK_CUT`, `STEWARD_INCOME`, `DISCOVERY_RECRUIT_PCT` (+ seed/DK
 split), `HEART_HP`, `POST_DARK_ROUNDS`, `WRAITH_INPUT_CAP`, `CURSE_GRUDGE`, plus Blight-thresholds for the
 capture **severity ramp** and the **Reckoning auto-pressure**.
+**`[T2-1 2026-07-02]` added `FORGE_TOKEN_COUNT`** (how many seed-picked Forges carry a Discovery token;
+locked 2) and re-locked the supply wave: `DISCOVERY_BLIGHT_DELTA` 1 → 0, `SPREAD_AMOUNT_BASE` 3 → 1,
+`DOOM_COST_MARCH` 9 → 11, `DOOM_COST_RECKONING` 12 → 14 (v3-native literals — the standing v2-JSON
+recorded debt). 2-seed re-lock: dark 19.4/19.5% pooled, per-count [18.4/22.3/17.6] & [17.6/23.2/17.6],
+doom-of-games 17.9/17.8%, attrition share 8.0/8.8%, captures 1.39/1.46/game, court-at-March median 3;
+BP 18.1/18.9 · 56.1/53.6 · 70.6/71.2. See `sim-results/sample-v3/REPORT.md`.
 **Kept from v2:** `STARTING_HAND, HAND_LIMIT, ACTIONS_NORMAL, DK_*, BLIGHT_*, PUSHBACK, doomCost C, CROWN_*,
 FULL_BLOCK_THRESHOLD, PATIENCE_*, FORGE_*, ROUND_CAP, GAMBIT_*, OATH_*, HERALD_*, SEALED_CORE_PLEDGE`.
 **Removed:** the 7 Broken/Rescue tunables (§8).

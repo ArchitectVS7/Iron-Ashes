@@ -68,6 +68,12 @@ export interface GameRunResult {
    * driver because it needs a live mid-game snapshot, not the final state.
    */
   readonly midGameLeader: number | null;
+  /**
+   * Per-living-seat FREE court size (uncaptured pieces incl. the Warlord) snapshotted the same
+   * first-MARCH moment (T2-1 "feed the court" — the pitch's "courts of 3–4 by The March" is
+   * judged on this). null if the game ended before MARCH.
+   */
+  readonly courtAtMarch: readonly number[] | null;
 }
 
 const DEFAULT_MAX_STEPS = 5000;
@@ -115,14 +121,19 @@ function runHeadlessGame(cfg: GameRunConfig): GameRunResult {
   let steps = 0;
   let accusedThroughRound = 0;
   let midGameLeader: number | null = null;
+  let courtAtMarch: readonly number[] | null = null;
 
   while (state.gameEndReason === null && steps < maxSteps) {
     steps++;
     // Snapshot the mid-game territory leader the first time the game reaches MARCH (the snowball
     // signal denominator). WHISPER=early, MARCH=mid, RECKONING=late — so the MARCH leader is the
     // honest "who was ahead at mid-game" the report compares against the eventual winner.
+    // Same moment: snapshot each living seat's FREE court size (T2-1 — "courts by The March").
     if (midGameLeader === null && state.act === 'MARCH') {
       midGameLeader = territoryLeader(state);
+      courtAtMarch = state.players
+        .filter(p => !p.isEliminated)
+        .map(p => p.court.filter(c => c.captiveOf === null).length);
     }
     switch (state.phase) {
       case 'THREAT':
@@ -175,7 +186,7 @@ function runHeadlessGame(cfg: GameRunConfig): GameRunResult {
     }
   }
 
-  return { finalState: state, steps, hitGuard: state.gameEndReason === null, midGameLeader };
+  return { finalState: state, steps, hitGuard: state.gameEndReason === null, midGameLeader, courtAtMarch };
 }
 
 /** The living seat with the most forge-weighted production (lowest-seat tiebreak), or null if none

@@ -18,11 +18,13 @@ import {
 import {
   backSigil,
   bindHiddenTokens,
+  deriveStartingRetainer,
   deriveToken,
   hashSeedNode,
+  tokenBearingForges,
 } from '../../src/v3/discovery.js';
 import { buildClosingRing, createInitialBoardState } from '../../src/v3/board.js';
-import { ACTION_BASE_COST } from '../../src/v3/tunables.js';
+import { ACTION_BASE_COST, DISCOVERY_BLIGHT_DELTA, FORGE_TOKEN_COUNT } from '../../src/v3/tunables.js';
 import type { GameState } from '../../src/v3/types.js';
 
 /** Force player `p`'s Warlord onto `nodeId` with banners to spend, so executeClaim can flip. */
@@ -44,18 +46,30 @@ describe('Discovery + Determinism (§5.1, §7 D1/D2/D9, §12 #19)', () => {
       }
     });
 
-    it('every neutral Holding carries a token; non-Holdings carry none', () => {
+    it('every neutral Holding AND the seed-picked Forge pair carries a token (T2-1); others none', () => {
       const g = createGame(4, 'competitive', 7);
-      const holdings = new Set(g.board.definition.holdingIds);
+      const forgeBearers = tokenBearingForges(7, g.board.definition);
+      expect(forgeBearers).toHaveLength(FORGE_TOKEN_COUNT); // the T2-1 supply lever (2)
+      const bearers = new Set([...g.board.definition.holdingIds, ...forgeBearers]);
+      expect(bearers.size).toBe(4 + FORGE_TOKEN_COUNT); // 6 tokens/game
       for (const id of Object.keys(g.board.state.nodes)) {
         const tok = g.board.state.nodes[id].hiddenToken;
-        if (holdings.has(id)) {
+        if (bearers.has(id)) {
           expect(tok).not.toBeNull();
           expect(tok!.flipped).toBe(false);
         } else {
           expect(tok).toBeNull();
         }
       }
+    });
+
+    it('the token-bearing Forge pair is pure f(seed) — reproducible, seed-varied (§7 D9)', () => {
+      const def = buildClosingRing();
+      expect(tokenBearingForges(7, def)).toEqual(tokenBearingForges(7, def));
+      // Some pair of seeds picks different pairs (spot-check a small range).
+      const picks = new Set<string>();
+      for (let seed = 1; seed < 12; seed++) picks.add(tokenBearingForges(seed, def).join(','));
+      expect(picks.size).toBeGreaterThan(1);
     });
 
     it('deriveToken is a pure function of (seed, nodeId) — no live-stream draw (D1)', () => {
@@ -220,8 +234,10 @@ describe('Discovery + Determinism (§5.1, §7 D1/D2/D9, §12 #19)', () => {
       stageClaim(g, 0, 'holding-sw');
       executeClaim(g, 0);
 
-      expect(node.owner).toBe(0);                          // you own blighted land
-      expect(node.blightLevel).toBeGreaterThan(blightBefore);
+      expect(node.owner).toBe(0);                          // you own the seeded land
+      // The front-delta tracks the tunable (T2-1 locked it to 0 — the fightable-threat
+      // agency half below is UNCHANGED and is what the flip is about).
+      expect(node.blightLevel).toBe(blightBefore + DISCOVERY_BLIGHT_DELTA);
       expect(node.shadowkingForces.some(f => f.type === 'blight')).toBe(true);
       expect(node.hiddenToken!.bonusClaimed).toBe(false);
 
@@ -255,14 +271,62 @@ describe('Discovery + Determinism (§5.1, §7 D1/D2/D9, §12 #19)', () => {
       }
     });
 
-    it('claiming a Forge flips no token (Forges carry none)', () => {
-      const g = createGame(2, 'competitive', 42);
-      // Find an unclaimed forge.
-      const forgeId = g.board.definition.forgeIds[0];
-      stageClaim(g, 0, forgeId);
-      const { events } = executeClaim(g, 0);
-      expect(g.board.state.nodes[forgeId].hiddenToken).toBeNull();
-      expect(events.some(e => e.type === 'DISCOVERY_FLIPPED')).toBe(false);
+    it('claiming a Forge FLIPS its pre-bound token (T2-1 — Forges joined the token supply)', () => {
+      // Find a seed whose forge-nw token is DK-free content, so executeClaim isn't blocked
+      // by a setup DK on the seam. deriveToken is pure, so this scan is deterministic.
+      for (let seed = 1; seed < 60; seed++) {
+        const g = createGame(2, 'competitive', seed);
+        const forgeId = g.board.definition.forgeIds
+          .find(id => g.board.state.nodes[id].shadowkingForces.length === 0
+            && g.board.state.nodes[id].hiddenToken!.kind === 'recruit');
+        if (!forgeId) continue;
+        stageClaim(g, 0, forgeId);
+        const courtBefore = g.players[0].court.length;
+        const { events } = executeClaim(g, 0);
+        expect(g.board.state.nodes[forgeId].owner).toBe(0);
+        expect(g.board.state.nodes[forgeId].hiddenToken!.flipped).toBe(true);
+        expect(events.some(e => e.type === 'DISCOVERY_FLIPPED')).toBe(true);
+        expect(g.players[0].court.length).toBe(courtBefore + 1); // the recruit joined
+        return;
+      }
+      throw new Error('no DK-free recruit-token Forge in seeds 1..59 — weights changed?');
+    });
+  });
+
+  // ── T2-1 — the starting retainer (feed the court) ──
+  describe('T2-1 — the starting retainer is pre-bound on its own sub-stream (§7 D9)', () => {
+    it('every player starts with one named retainer whose content = deriveStartingRetainer(seed, seat)', () => {
+      const g = createGame(4, 'competitive', 4242);
+      for (const p of g.players) {
+        const expected = deriveStartingRetainer(4242, p.index);
+        const ret = p.court.find(c => c.archetype !== 'warlord')!;
+        expect(ret.archetype).toBe(expected.archetype);
+        expect(ret.name).toBe(expected.name);
+        expect(ret.node).toBe(p.warlordNodeId); // starts at the Keep
+        // The on-board mirror exists at the Keep.
+        expect(g.board.state.nodes[p.warlordNodeId].pieces.some(pc => pc.id === ret.id)).toBe(true);
+      }
+    });
+
+    it('same seed ⇒ identical starting retainers; the draw is seat-namespaced (D9)', () => {
+      expect(deriveStartingRetainer(7, 0)).toEqual(deriveStartingRetainer(7, 0));
+      // Different seat or seed ⇒ an independent sub-stream (not necessarily different content,
+      // but the STREAMS are disjoint — spot-check the sub-seeds differ).
+      expect(hashSeedNode(7, 'start-retainer-0')).not.toBe(hashSeedNode(7, 'start-retainer-1'));
+      expect(hashSeedNode(7, 'start-retainer-0')).not.toBe(hashSeedNode(8, 'start-retainer-0'));
+    });
+
+    it('the starting retainer never perturbs the main setup stream (hands/turn order stable across counts)', () => {
+      // The sub-stream contract: seat i's hand + the turn order depend only on the main RNG.
+      // Regression guard — two games at the same seed agree byte-for-byte (D1), and the
+      // starting retainer id uses ordinal 0 so a later same-archetype recruit gets ordinal 1.
+      const a = createGame(3, 'competitive', 555);
+      const b = createGame(3, 'competitive', 555);
+      expect(JSON.stringify(a)).toBe(JSON.stringify(b));
+      for (const p of a.players) {
+        const ret = p.court.find(c => c.archetype !== 'warlord')!;
+        expect(ret.id).toBe(`${ret.archetype}-${p.index}-0`);
+      }
     });
   });
 
@@ -270,7 +334,7 @@ describe('Discovery + Determinism (§5.1, §7 D1/D2/D9, §12 #19)', () => {
   describe('back-sigil g(content) — exhaustively specified codomain', () => {
     it('every bound token sigil is in {bright, dark} and matches g(kind)', () => {
       const g = createGame(4, 'competitive', 999);
-      for (const id of g.board.definition.holdingIds) {
+      for (const id of [...g.board.definition.holdingIds, ...tokenBearingForges(999, g.board.definition)]) {
         const tok = g.board.state.nodes[id].hiddenToken!;
         expect(['bright', 'dark']).toContain(tok.sigil);
         expect(tok.sigil).toBe(backSigil(tok.kind));

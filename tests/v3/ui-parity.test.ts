@@ -257,7 +257,7 @@ describe('T1-1 — names SURFACE in the UI (§2: the court panel, the Hold Rail,
   it('the HOLD RAIL names every hostage (§13 P0-11)', () => {
     const s = humanTurn('competitive');
     addCourtPiece(s.state, 1, 'steward', s.state.players[1].warlordNodeId, 'Petra Sunder');
-    const cp = s.state.players[1].court.find(c => c.archetype === 'steward')!;
+    const cp = s.state.players[1].court.find(c => c.name === 'Petra Sunder')!; // not the T2-1 starter
     capturePiece(s.state, 0, 1, cp.id);
     const html = renderApp(s);
     expect(html).toContain('Hold Rail');

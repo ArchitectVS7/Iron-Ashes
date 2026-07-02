@@ -24,6 +24,7 @@ import { WARLORD_POWER } from '../../src/v3/tunables.js';
 import type { GameState } from '../../src/v3/types.js';
 import { mountView } from '../../src/ui-v3/view.js';
 import { GameSession } from '../../src/ui-v3/session.js';
+import { stripStartingRetainers } from './fixtures.js';
 
 const NODE = 'holding-ne';
 
@@ -34,7 +35,7 @@ const NODE = 'holding-ne';
  * Whisper last-stronghold gate). Defender hand [5, 4, 1] can fully reverse an 8-margin loss.
  */
 function arena(humanCount: 0 | 1 = 1): GameState {
-  const s = createGame(3, 'competitive', 7, humanCount);
+  const s = stripStartingRetainers(createGame(3, 'competitive', 7, humanCount)); // bare-Warlord arena (T2-1)
   s.act = 'MARCH';
   const ns = s.board.state.nodes[NODE];
   ns.pieces = [];

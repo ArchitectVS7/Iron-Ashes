@@ -50,8 +50,8 @@ function mkMetrics(p: Partial<GameMetrics> & { winner: number | null }): GameMet
   } as GameMetrics;
 }
 
-function mkRow(seats: ArchetypeId[], m: GameMetrics, midGameLeader: number | null = null): SweepRow {
-  return { seed: 0, playerCount: seats.length, mode: 'competitive', matchupId: 'test', seatArchetypes: seats, steps: 10, hitGuard: false, metrics: m, midGameLeader };
+function mkRow(seats: ArchetypeId[], m: GameMetrics, midGameLeader: number | null = null, courtAtMarch: readonly number[] | null = null): SweepRow {
+  return { seed: 0, playerCount: seats.length, mode: 'competitive', matchupId: 'test', seatArchetypes: seats, steps: 10, hitGuard: false, metrics: m, midGameLeader, courtAtMarch };
 }
 
 const SEATS: ArchetypeId[] = ['aggressor', 'turtle', 'opportunist', 'cooperator'];
@@ -144,6 +144,23 @@ describe('summarize', () => {
 });
 
 describe('summarize — V3-4b diagnostics', () => {
+  it('pools per-seat first-MARCH court sizes into median + mean (T2-1 feed-the-court)', () => {
+    const rows: SweepRow[] = [
+      mkRow(SEATS, mkMetrics({ winner: 0 }), 0, [2, 3, 4]),
+      mkRow(SEATS, mkMetrics({ winner: 1 }), 1, [3, 3]),
+      mkRow(SEATS, mkMetrics({ winner: null }), null, null), // ended before MARCH — excluded
+    ];
+    const d = summarize(rows).diagnostics;
+    expect(d.medianCourtAtMarch).toBe(3);                 // [2,3,3,3,4] → 3
+    expect(d.meanCourtAtMarch).toBeCloseTo(15 / 5);
+  });
+
+  it('court-at-March is empty-safe (no game reached MARCH ⇒ 0/0, no NaN)', () => {
+    const d = summarize([mkRow(SEATS, mkMetrics({ winner: 0 }))]).diagnostics;
+    expect(d.medianCourtAtMarch).toBe(0);
+    expect(d.meanCourtAtMarch).toBe(0);
+  });
+
   it('computes capture/ransom fire rates and the capture→ransom-back attachment proxy', () => {
     const rows: SweepRow[] = [
       ...Array.from({ length: 4 }, () => mkRow(SEATS, mkMetrics({ winner: 0, captures: 2, ransoms: 1 }))),

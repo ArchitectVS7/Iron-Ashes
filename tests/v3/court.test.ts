@@ -37,13 +37,21 @@ function game(): GameState {
 }
 
 describe('Stage 3b — the court structure (§2)', () => {
-  it('every player starts with exactly one Warlord in their court, at their keep', () => {
+  it('every player starts with one Warlord + one named starting retainer, at their keep (T2-1)', () => {
     const s = game();
     for (const p of s.players) {
-      expect(p.court).toHaveLength(1);
-      expect(p.court[0].archetype).toBe('warlord');
+      expect(p.court).toHaveLength(2);
+      expect(p.court[0].archetype).toBe('warlord'); // court[0] stays the Warlord (Herald naming relies on it)
       expect(p.court[0].node).toBe(p.warlordNodeId);
       expect(p.court[0].captiveOf).toBeNull();
+      // The T2-1 starting retainer: a named Marshal/Steward at the Keep, mirrored on the board.
+      const ret = p.court[1];
+      expect(['marshal', 'steward']).toContain(ret.archetype);
+      expect(ret.node).toBe(p.warlordNodeId);
+      expect(ret.captiveOf).toBeNull();
+      expect(ret.name.length).toBeGreaterThan(0);
+      expect(ret.identity.length).toBeGreaterThan(0);
+      expect(s.board.state.nodes[p.warlordNodeId].pieces.some(pc => pc.id === ret.id)).toBe(true);
     }
   });
 

@@ -45,12 +45,15 @@ describe('tunable seam', () => {
     expect(withTunables(tilted, () => doomCost('WHISPER', 4))).toBe(4); // ceil(3 + 1*(4-3)) = 4
   });
 
-  it('ships the locked doom curve (DOOM_COST_PER_PLAYER 6→5 Stage S, 5→6 Stage A) + spread', () => {
+  it('ships the locked doom curve (…Stage A 6; T2-1 DCM 9→11 + DCR 12→14) + spread', () => {
     expect(doomCost('WHISPER', 2)).toBe(1);    // 2p floors: ceil(6*2/4 + 6*(2-3)) = max(1, -3)
     expect(doomCost('WHISPER', 3)).toBe(5);    // pivot: ceil(6*3/4 + 0)
     expect(doomCost('WHISPER', 4)).toBe(12);   // ceil(6*4/4 + 6*1) = 6 + 6
-    expect(doomCost('RECKONING', 4)).toBe(18); // ceil(12*4/4 + 6*1) = 12 + 6
-    expect(getTunables().SPREAD_AMOUNT_BASE).toBe(3); // …→ HL 7 → V3-5b 3 (hybrid doom/attrition: low strike-spread cuts attrition)
+    expect(doomCost('MARCH', 3)).toBe(9);      // T2-1: ceil(11*3/4 + 0) — the March re-heat lever
+    expect(doomCost('RECKONING', 4)).toBe(20); // T2-1: ceil(14*4/4 + 6*1) = 14 + 6
+    // …→ HL 7 → V3-5b 3 → T2-1 1 (the fed-court re-lock: landed strikes bite 1; the doom
+    // clock rides the BLIGHT_TO_ASH=2 Dawn march — see the T2-1 report).
+    expect(getTunables().SPREAD_AMOUNT_BASE).toBe(1);
   });
 
   it('deathKnightCount scales the dark army with player count when DK_PER_PLAYER>0', () => {

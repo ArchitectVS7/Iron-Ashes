@@ -168,6 +168,11 @@ export interface SweepDiagnostics {
   readonly comebackRate: number;
   /** Discovery-flip outcome mix as shares of all flips (§5.1). */
   readonly discoveryFlipMix: Readonly<Record<string, number>>;
+  /** T2-1 "feed the court": MEDIAN per-seat free court size (incl. Warlord) at first MARCH,
+   *  pooled over every living seat of every game that reached MARCH. The pitch target is 3–4. */
+  readonly medianCourtAtMarch: number;
+  /** T2-1: mean of the same per-seat first-MARCH court sizes (context beside the median). */
+  readonly meanCourtAtMarch: number;
   /** The single highest per-seat archetype win rate among archetypes with enough appearances. */
   readonly topArchetypeWinRate: number;
   /** Whether NO archetype exceeds the ARCHETYPE_WINRATE_GUARD (~30%) — the no-dominant-strategy guard. */
@@ -183,6 +188,12 @@ export interface PerCountStats {
 }
 
 const mean = (xs: number[]): number => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
+/** Median (lower-middle for even length — a court size is an integer; empty ⇒ 0). */
+const median = (xs: number[]): number => {
+  if (!xs.length) return 0;
+  const s = [...xs].sort((a, b) => a - b);
+  return s[Math.floor((s.length - 1) / 2)];
+};
 
 /** Political/martial build split + per-build win rates (§ Herald build-parity check). */
 function stanceStats(rows: readonly SweepRow[]): { politicalSeatShare: number; politicalWinRate: number; martialWinRate: number } {
@@ -314,6 +325,10 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
     death_knight: flipSum ? flipTotals.death_knight / flipSum : 0,
   };
 
+  // T2-1: pool every living seat's first-MARCH free court size across games that reached MARCH.
+  const courtSizesAtMarch: number[] = [];
+  for (const r of rows) if (r.courtAtMarch) courtSizesAtMarch.push(...r.courtAtMarch);
+
   // Snowball signal: did the mid-game (MARCH) territory leader go on to win?
   const snowballRows = rows.filter(r => r.metrics.winner !== null && r.midGameLeader !== null);
   const midGameLeaderWinRate = snowballRows.length
@@ -424,6 +439,8 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
     midGameLeaderWinRate,
     comebackRate: snowballRows.length ? 1 - midGameLeaderWinRate : 0,
     discoveryFlipMix,
+    medianCourtAtMarch: median(courtSizesAtMarch),
+    meanCourtAtMarch: mean(courtSizesAtMarch),
     topArchetypeWinRate,
     archetypeWinRateGuardPass: topArchetypeWinRate <= ARCHETYPE_WINRATE_GUARD,
   };
@@ -617,6 +634,7 @@ ${countRows}
 | Eliminations by Act (W/M/R) | ${d.eliminationActMix.WHISPER} / ${d.eliminationActMix.MARCH} / ${d.eliminationActMix.RECKONING} | elimination-timing distribution |
 | Mid-game leader win rate · comeback | ${pct(d.midGameLeaderWinRate)} · ${pct(d.comebackRate)} | snowball↔turtle: does the MARCH-act leader win? |
 | Discovery flips (recruit/blight/DK) | ${pct(d.discoveryFlipMix.recruit)} / ${pct(d.discoveryFlipMix.blight_seed)} / ${pct(d.discoveryFlipMix.death_knight)} | §5.1 flip outcome mix |
+| Court at March (median · mean pieces/seat) | ${d.medianCourtAtMarch} · ${d.meanCourtAtMarch.toFixed(2)} | T2-1 "feed the court" — the pitch's courts-of-3–4-by-March check |
 | Top archetype win rate (≤ ${pct(ARCHETYPE_WINRATE_GUARD)} guard) | ${pct(d.topArchetypeWinRate)} | ${verdict(d.archetypeWinRateGuardPass)} — no single strategy should dominate |
 
 ## Gambit investigation (Stage 5f — deliberate vs incidental)

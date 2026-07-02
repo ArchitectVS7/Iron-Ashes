@@ -367,8 +367,8 @@ export function executeClaim(
     details: { nodeId, tier: nodeDef.tier },
   });
 
-  // Discovery (§5.1, §12 #19): a Holding's face-down token FLIPS first — reveal of frozen,
-  // pre-bound state (§7 D1), never a live draw. Forges carry no token (hiddenToken === null).
+  // Discovery (§5.1, §12 #19): the node's face-down token FLIPS first — reveal of frozen,
+  // pre-bound state (§7 D1), never a live draw. Holdings AND Forges carry tokens (T2-1).
   events.push(...flipDiscoveryToken(state, playerIndex, nodeId));
 
   return { state, events, actionConsumed: true };

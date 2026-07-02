@@ -19,6 +19,7 @@ import { addCourtPiece } from '../../src/v3/court.js';
 import type { GameState, HeartState } from '../../src/v3/types.js';
 import type { Command } from '../../src/v3/commands.js';
 import type { AIPolicy as Policy } from '../../src/v3/ai-player.js';
+import { stripStartingRetainers } from './fixtures.js';
 
 function apply(state: GameState, cmd: Command): GameState {
   return applyCommand(state, cmd).state;
@@ -95,7 +96,7 @@ describe('archetype decision branches', () => {
   });
 
   it('a capture-biased raider ELECTS CAPTURE when it stands on a winnable rival retainer (V3-4b)', () => {
-    const state = createGame(2, 'competitive', 42);
+    const state = stripStartingRetainers(createGame(2, 'competitive', 42)); // bare-Warlord fixture (T2-1)
     state.act = 'MARCH'; // past WHISPER → no last-retainer protection
     const node = state.board.definition.holdingIds[0];
     placeWarlord(state, 0, node);

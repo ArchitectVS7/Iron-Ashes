@@ -129,7 +129,9 @@ describe('Difficulty tiers (§D1)', () => {
       expect(sawStrictDrop).toBe(true);
     });
 
-    it('flawless-play dark-win separates the endpoints: warlord strictly > squire on the 3p/4p cells', () => {
+    // 120 full games — T2-1's bigger courts made each game a touch heavier, so give the cell
+    // sweep real headroom over the 5s default (it is deterministic, just not instant).
+    it('flawless-play dark-win separates the endpoints: warlord strictly > squire on the 3p/4p cells', { timeout: 30000 }, () => {
       // FULL monotonicity is proven deterministically by the threshold test above; here we confirm
       // the lever moves the ACTUAL outcome. Restricted to the 3p/4p cells (2p floors at threshold 1,
       // so it can't weaken and only adds noise) over a solid sample so the endpoint gap is robust.

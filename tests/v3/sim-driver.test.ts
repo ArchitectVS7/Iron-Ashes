@@ -19,6 +19,18 @@ describe('playHeadlessGame', () => {
     expect(r.steps).toBeGreaterThan(0);
   });
 
+  it('snapshots per-seat FREE court sizes at first MARCH (T2-1 feed-the-court metric)', () => {
+    const r = playHeadlessGame({ seed: 7, playerCount: 4, mode: 'competitive' });
+    if (r.midGameLeader === null) {
+      expect(r.courtAtMarch).toBeNull(); // ended before MARCH — both snapshots absent together
+    } else {
+      expect(r.courtAtMarch).not.toBeNull();
+      expect(r.courtAtMarch!.length).toBeGreaterThan(0);
+      // Every living seat has at least its Warlord free; T2-1 starts add a Marshal.
+      for (const size of r.courtAtMarch!) expect(size).toBeGreaterThanOrEqual(1);
+    }
+  });
+
   it('is deterministic — same config ⇒ byte-identical final state (§7.12)', () => {
     const a = playHeadlessGame({ seed: 7, playerCount: 4, mode: 'competitive' });
     const b = playHeadlessGame({ seed: 7, playerCount: 4, mode: 'competitive' });

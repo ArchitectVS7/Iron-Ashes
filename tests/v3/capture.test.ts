@@ -32,6 +32,7 @@ import { addCourtPiece } from '../../src/v3/court.js';
 import { resolveDeposals } from '../../src/v3/sequencer.js';
 import { WARLORD_POWER, RANSOM_BANNERS, RANSOM_SINK_CUT, RECAPTURE_IMMUNE } from '../../src/v3/tunables.js';
 import type { Act, GameState } from '../../src/v3/types.js';
+import { stripStartingRetainers } from './fixtures.js';
 
 const NODE = 'holding-ne';
 
@@ -40,7 +41,7 @@ const NODE = 'holding-ne';
  * defender hand emptied (no Last Stand noise). Returns the state. `act` defaults to MARCH.
  */
 function arena(act: Act = 'MARCH'): GameState {
-  const s = createGame(3, 'competitive', 7);
+  const s = stripStartingRetainers(createGame(3, 'competitive', 7)); // bare-Warlord arena (T2-1)
   s.act = act;
   const ns = s.board.state.nodes[NODE];
   ns.pieces = [];

@@ -1,9 +1,11 @@
 /**
  * Discovery (§5.1) — grow the court by exploring, DETERMINISM-FIRST (§7 D1/D2/D9).
  *
- * Neutral Holdings carry a face-down token. This module implements the determinism
- * contract that makes a flip a *reveal of pre-existing hidden state* rather than a live
- * draw:
+ * Neutral Holdings AND a seed-picked pair of Forges carry a face-down token (T2-1 "feed
+ * the court": the token supply grew 4 → 4+FORGE_TOKEN_COUNT so the median court reaches
+ * the pitch's 3–4 pieces by The March; ALL four forges bearing tokens over-heated the dark
+ * at 3p — see the T2-1 report). This module implements the determinism contract that makes
+ * a flip a *reveal of pre-existing hidden state* rather than a live draw:
  *
  *   - D9: every token's content is derived from a NAMESPACED sub-stream
  *     `SeededRandom(hash(seed, nodeId))`, independent of the main RNG and of every other
@@ -135,21 +137,63 @@ export function deriveToken(seed: number, nodeId: string): HiddenToken {
 // ─── bindHiddenTokens — freeze the layout at setup (§3, §7 D1) ────
 
 /**
- * Bind every neutral Holding's hidden token at setup (§3) — frozen now, revealed later
- * (§7 D1). Operates on the board state in place; uses ONLY the namespaced sub-streams, so
- * it never perturbs the main setup RNG (position-independent). A "neutral Holding" = a node
- * of tier 'holding' with no owner; at setup all four Holdings qualify.
+ * The seed-picked Forges that carry a Discovery token this game (T2-1): a namespaced
+ * sub-stream shuffle of the forge ids, first `FORGE_TOKEN_COUNT` taken (§7 D9 — pure
+ * `f(seed)`, disjoint key, never the main stream). Seed-random so no SEAT is structurally
+ * favored (a fixed pair would gift the same two quadrants every game); which Forges bear
+ * tokens is PUBLIC (token presence + sigil are observable — only content is fogged).
+ */
+export function tokenBearingForges(seed: number, boardDef: V2BoardDef): readonly string[] {
+  const count = Math.max(0, Math.min(getTunables().FORGE_TOKEN_COUNT, boardDef.forgeIds.length));
+  const sub = new SeededRandom(hashSeedNode(seed, 'forge-token-wave'));
+  return sub.shuffle([...boardDef.forgeIds]).slice(0, count);
+}
+
+/**
+ * Bind every neutral Holding's AND token-bearing Forge's hidden token at setup (§3) —
+ * frozen now, revealed later (§7 D1). Operates on the board state in place; uses ONLY the
+ * namespaced sub-streams, so it never perturbs the main setup RNG (position-independent).
+ * A "neutral" node = an unowned Holding, or one of the `FORGE_TOKEN_COUNT` seed-picked
+ * Forges (T2-1: the token supply grew 4 → 6 — the retainer-supply lever; all 8 over-heated
+ * the dark at 3p).
  */
 export function bindHiddenTokens(
   boardState: V2BoardState,
   boardDef: V2BoardDef,
   seed: number,
 ): void {
-  for (const nodeId of boardDef.holdingIds) {
+  for (const nodeId of [...boardDef.holdingIds, ...tokenBearingForges(seed, boardDef)]) {
     const ns = boardState.nodes[nodeId];
-    if (!ns || ns.owner !== null) continue; // only neutral Holdings carry tokens
+    if (!ns || ns.owner !== null) continue; // only neutral nodes carry tokens
     ns.hiddenToken = deriveToken(seed, nodeId);
   }
+}
+
+// ─── T2-1 — the starting retainer (§2/§3 "feed the court") ────────
+
+/** The pre-bound content of a seat's STARTING retainer (T2-1). */
+export interface StartingRetainer {
+  readonly archetype: Exclude<Archetype, 'warlord' | 'herald'>;
+  readonly name: string;
+}
+
+/**
+ * Derive seat `seat`'s starting retainer from its own namespaced sub-stream (§7 D9) —
+ * `SeededRandom(hash(seed, 'start-retainer-<seat>'))`, the same contract as a Discovery
+ * token. Pure `f(seed, seat)`: it never touches the main setup RNG, so hands / turn order /
+ * Blood Pact are unperturbed. The key namespace (`start-retainer-*`) is disjoint from every
+ * nodeId, so it collides with no token stream.
+ *
+ * The archetype is FIXED: every Warlord starts with a MARSHAL — the sworn shield (the
+ * backlog's "archetype fixed — deterministic" option). The T2-1 re-balance A/B showed a
+ * seeded Marshal/Steward split over-heats the dark at 3p (a starting Steward's +2/Dawn
+ * economy inflates early claims → flips → front heat: 3p 32.9% vs 24.8% all-Marshal) AND
+ * hands unequal round-1 economies to different seats. Only the NAME is seeded.
+ */
+export function deriveStartingRetainer(seed: number, seat: number): StartingRetainer {
+  const sub = new SeededRandom(hashSeedNode(seed, `start-retainer-${seat}`));
+  const name = sub.pick(RETAINER_NAMES);
+  return { archetype: 'marshal', name };
 }
 
 // ─── Flip-spawned forces (§5.1, §12 #19) ──────────────────────────
@@ -175,9 +219,9 @@ export function makeBlightSeedForce(nodeId: string): ShadowkingForce {
 /**
  * Reveal a node's face-down Discovery token and apply its effect (§5.1, §12 #19). Shared by
  * BOTH acquisition paths — CLAIM (executeClaim) and the DK-kill spoils-claim (combat.ts) — so
- * an owned Holding never lingers with an unflipped token. The caller MUST have already set
- * `node.owner = playerIndex` (you OWN the claimed node, §12 #19). No-ops on a Forge (no token)
- * or an already-flipped token. A pure REVEAL of frozen state (§7 D1) — no main-stream RNG.
+ * an owned Holding/Forge never lingers with an unflipped token. The caller MUST have already
+ * set `node.owner = playerIndex` (you OWN the claimed node, §12 #19). No-ops on a token-less
+ * node or an already-flipped token. A pure REVEAL of frozen state (§7 D1) — no main-stream RNG.
  *   recruit     — a seeded-named retainer joins the court at the node.
  *   blight_seed — a front-delta hits the node + a fightable threat force spawns (cleared via
  *                 STRIKE to redeem the pre-bound bonus recruit, §7 D9).
