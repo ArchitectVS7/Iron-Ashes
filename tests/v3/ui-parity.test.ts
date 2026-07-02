@@ -15,9 +15,10 @@ import { renderApp } from '../../src/ui-v3/view.js';
 import { addCourtPiece, capturePiece, identityFor, FACTION_NAMES } from '../../src/v3/index.js';
 import type { GameState } from '../../src/v3/index.js';
 
-/** Drive a fresh game to the human's live ACTION turn (where the control panel renders). */
-function humanTurn(mode: 'competitive' | 'blood_pact', seed = 42): GameSession {
-  const s = new GameSession(4, mode, seed);
+/** Drive a fresh game to the human's live ACTION turn (where the control panel renders).
+ *  `heraldEnabled` opts into the ADVANCED Herald variant (T2-3 — default OFF, like the game). */
+function humanTurn(mode: 'competitive' | 'blood_pact', seed = 42, heraldEnabled = false): GameSession {
+  const s = new GameSession(4, mode, seed, 'warlord', heraldEnabled);
   let guard = 0;
   while (!s.isOver && !s.isHumanTurn && guard < 60) {
     guard++;
@@ -63,15 +64,15 @@ describe('UI parity (v3) — control surface for every action', () => {
     expect(html.includes('data-action="raid:CAPTURE_PIECE:1"') || html.includes('need margin')).toBe(true);
   });
 
-  it('RECRUIT a Herald: shown when martial + affordable', () => {
-    const s = humanTurn('competitive');
+  it('RECRUIT a Herald: shown when martial + affordable (advanced toggle ON)', () => {
+    const s = humanTurn('competitive', 42, true);
     s.state.players[0].stance = 'martial';
     s.state.players[0].banners = 9;
     expect(renderApp(s)).toContain('data-action="recruit"');
   });
 
   it('March Herald + Parley: shown when the human holds a Herald at a blighted front', () => {
-    const s = humanTurn('competitive');
+    const s = humanTurn('competitive', 42, true);
     const h = s.state.players[0];
     const here = h.warlordNodeId;
     h.stance = 'political';
@@ -191,7 +192,7 @@ describe('UI parity (v3) — P0-11 legibility + full state display', () => {
 
 describe('UI parity (v3) — every control routes through applyCommand', () => {
   it('RECRUIT commits the political stance + spawns the Herald', () => {
-    const s = humanTurn('competitive');
+    const s = humanTurn('competitive', 42, true);
     s.state.players[0].stance = 'martial';
     s.state.players[0].banners = 9;
     s.humanAction({ type: 'PLAYER_ACTION', playerIndex: 0, action: { type: 'RECRUIT' } });
@@ -219,7 +220,7 @@ describe('UI parity (v3) — every control routes through applyCommand', () => {
   });
 
   it('an illegal action surfaces an error instead of mutating (no silent break)', () => {
-    const s = humanTurn('competitive');
+    const s = humanTurn('competitive', 42, true); // herald ON so the failure IS the banner check
     s.state.players[0].stance = 'martial';
     s.state.players[0].banners = 0;
     s.humanAction({ type: 'PLAYER_ACTION', playerIndex: 0, action: { type: 'RECRUIT' } });

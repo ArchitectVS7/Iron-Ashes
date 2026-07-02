@@ -14,6 +14,8 @@ export {
   DIFFICULTY_TUNABLES,
   difficultyTunables,
   withDifficulty,
+  sessionTunables,
+  withSessionTunables,
 } from './difficulty.js';
 
 // ── Reducer ──

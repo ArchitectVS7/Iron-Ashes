@@ -629,6 +629,18 @@ export interface GameState {
   readonly difficulty: Difficulty;
 
   /**
+   * Whether the Herald archetype (+ its verbs RECRUIT/PARLEY/Herald-MARCH) is available this
+   * session (backlog T2-3 — learnability #1). DEFAULT **false**: the default game is the
+   * 3-archetype court (Warlord / Marshal / Steward — protect/fight/earn); the Herald is an
+   * ADVANCED setup toggle. When false the reducer rejects RECRUIT and PARLEY and the AI never
+   * proposes a herald verb (no RNG draw is made for the skipped branches). Part of the
+   * determinism key: same `(playerCount, mode, seed, difficulty, heraldEnabled)` ⇒ an identical
+   * game. Setup itself is herald-independent (no Herald exists at setup, no stream is drawn),
+   * so the flag only diverges games at play time.
+   */
+  readonly heraldEnabled: boolean;
+
+  /**
    * Human-only Death Bequest overrides (§13 P0-11 UI), keyed by the dying seat. When present and
    * still LEGAL for a seat, `decideBequest` returns it instead of the scripted policy — so an
    * eliminated human chooses its own exit beat. Set ONLY by the SET_BEQUEST command (interactive

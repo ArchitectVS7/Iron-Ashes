@@ -145,6 +145,9 @@ function createInitialForces(
  *   reference — so a default game is byte-identical to the current competitive build. The tier is
  *   applied at play time through the getTunables/withTunables seam (setup itself never reads
  *   doomCost, so the initial state is difficulty-independent apart from this stored field).
+ * @param heraldEnabled — the ADVANCED Herald toggle (T2-3). Defaults to `false`: the default game
+ *   is the 3-archetype court and RECRUIT/PARLEY are unavailable. Part of the determinism key;
+ *   setup draws no herald stream either way, so the flag only diverges games at play time.
  */
 export function createGame(
   playerCount: number,
@@ -152,6 +155,7 @@ export function createGame(
   seed: number,
   humanCount: number = 1,
   difficulty: Difficulty = DEFAULT_DIFFICULTY,
+  heraldEnabled: boolean = false,
 ): GameState {
   if (playerCount < 2 || playerCount > 4) {
     throw new Error(`playerCount must be 2-4, got ${playerCount}`);
@@ -294,6 +298,7 @@ export function createGame(
     actionLog: [],
     mode,
     difficulty,
+    heraldEnabled,
   };
 
   // 7. Compute initial Crown holder (§5.2)

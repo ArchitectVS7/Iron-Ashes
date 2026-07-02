@@ -19,6 +19,7 @@ import { capturePiece, routPiece, returnRoutedPieces } from '../../src/v3/captur
 import { executeRansom, executeRecruit } from '../../src/v3/actions.js';
 import type { GameEvent } from '../../src/v3/events.js';
 import type { GameState } from '../../src/v3/types.js';
+import { withHeraldEnabled } from './fixtures.js';
 
 /** Find a seed whose bound layout has a RECRUIT token on some holding (deterministic scan). */
 function gameWithRecruitToken(): { s: GameState; nodeId: string } {
@@ -123,7 +124,7 @@ describe('T1-1 — names are state (§2)', () => {
   });
 
   it('the Herald is the faction\'s voice', () => {
-    const s = createGame(2, 'competitive', 42);
+    const s = withHeraldEnabled(createGame(2, 'competitive', 42)); // advanced toggle (T2-3)
     s.players[0].banners = 9;
     executeRecruit(s, 0);
     const herald = s.players[0].court.find(c => c.archetype === 'herald')!;

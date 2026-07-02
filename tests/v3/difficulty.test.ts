@@ -62,13 +62,15 @@ describe('Difficulty tiers (§D1)', () => {
   });
 
   describe('DEFAULT parity — warlord is byte-identical to the locked build', () => {
-    it("warlord's doomCost curve == the locked module constants", () => {
-      expect(difficultyTunables('warlord')).toEqual({
-        DOOM_COST_WHISPER,
-        DOOM_COST_MARCH,
-        DOOM_COST_RECKONING,
-        DOOM_COST_PER_PLAYER,
-      });
+    it("warlord is an EMPTY override (T2-3) — no pin, so the herald-off overlay can layer under it", () => {
+      // Pre-T2-3 warlord pinned the four locked doomCost constants VERBATIM (semantically the
+      // same as no override). T2-3 made it empty so the HERALD_OFF_REBALANCE doomCost shape
+      // reaches the default tier (see difficulty.ts sessionTunables). The locked constants are
+      // still the live defaults — asserted right below via withDifficulty(warlord).
+      expect(difficultyTunables('warlord')).toEqual({});
+      expect(withDifficulty('warlord', () => doomCost('MARCH', 3)))
+        .toBe(withTunables({ DOOM_COST_WHISPER, DOOM_COST_MARCH, DOOM_COST_RECKONING, DOOM_COST_PER_PLAYER },
+          () => doomCost('MARCH', 3)));
     });
 
     it('withDifficulty(warlord) leaves every doomCost threshold at the reference value', () => {
@@ -135,13 +137,20 @@ describe('Difficulty tiers (§D1)', () => {
       // FULL monotonicity is proven deterministically by the threshold test above; here we confirm
       // the lever moves the ACTUAL outcome. Restricted to the 3p/4p cells (2p floors at threshold 1,
       // so it can't weaken and only adds noise) over a solid sample so the endpoint gap is robust.
+      // T2-3 NOTE: the tiers were CALIBRATED against the herald-ON reference; under the new
+      // herald-OFF default (the T2-3 re-lock regime) the doomCost-only lever does not separate
+      // flawless-play endpoints on these cells — the OFF recalibration is the recorded WATCH
+      // item (recalibrate at the next difficulty-touching stage, ROADMAP §8). So this outcome
+      // test runs the calibration reference: heraldEnabled true.
       const seeds = Array.from({ length: 30 }, (_, i) => 1000 + i * 37);
       const darkWin = (d: Difficulty): number => {
         let games = 0;
         let wins = 0;
         for (const seed of seeds) {
           for (const pc of [3, 4]) {
-            const s = play(seed, pc, d);
+            const s = playHeadlessGame({
+              seed, playerCount: pc, mode: 'competitive', difficulty: d, heraldEnabled: true,
+            }).finalState;
             games++;
             if (s.gameEndReason === 'doom_complete' || s.gameEndReason === 'attrition') wins++;
           }

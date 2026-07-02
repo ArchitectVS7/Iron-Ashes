@@ -15,9 +15,6 @@ import {
   ACTIONS_NORMAL,
   CROWN_PLEDGE_DISCOUNT,
   FORGE_WEIGHT,
-  PATIENCE_CAP,
-  PATIENCE_ON_BLOCK,
-  ROUND_CAP,
   getTunables,
 } from './tunables.js';
 import { livingStrongholdCount } from './combat.js';
@@ -247,8 +244,8 @@ export function resolvePledgePhase(state: GameState): SequencerResult {
   // Patience ratchet (§4.2 step 6)
   if (averted) {
     state.shadowking.patience = Math.min(
-      state.shadowking.patience + PATIENCE_ON_BLOCK,
-      PATIENCE_CAP,
+      state.shadowking.patience + getTunables().PATIENCE_ON_BLOCK,
+      getTunables().PATIENCE_CAP,
     );
   }
 
@@ -393,7 +390,7 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
   // Patience-triggered + threshold-based Act escalation (§5.5, §7.11)
   // At most ONE Act advance per Dawn — coalesce if both fire.
   let patienceForced = false;
-  if (state.shadowking.patience >= PATIENCE_CAP) {
+  if (state.shadowking.patience >= getTunables().PATIENCE_CAP) {
     state.shadowking.patience = 0; // Reset patience after triggered escalation
     patienceForced = true;
   }
@@ -520,7 +517,7 @@ export function runDawnPhase(state: GameState, rng: SeededRandom): SequencerResu
 
   // Territory victory at round cap (§6) — full tiebreakers. Suppressed once the heart has fallen:
   // the post-dark named Dawn (§12 #18) is then the ONLY ROUND_CAP-overriding ender.
-  if (!state.shadowking.darkDefeated && state.round >= ROUND_CAP) {
+  if (!state.shadowking.darkDefeated && state.round >= getTunables().ROUND_CAP) {
     state.gameEndReason = 'territory_victory';
     state.winner = computeTerritoryWinner(state);
     events.push({

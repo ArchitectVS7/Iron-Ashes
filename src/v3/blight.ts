@@ -19,7 +19,6 @@
 import type { GameEvent, BlightSource } from './events.js';
 import type { Act, GameState, V2BoardDef } from './types.js';
 import {
-  ACT_THRESHOLDS,
   getTunables,
 } from './tunables.js';
 import { isKeystoneGarrisoned } from './gambit.js';
@@ -281,10 +280,10 @@ export function checkActAdvance(state: GameState): Act | null {
   const ashed = countAshedNodes(state);
   const current = state.act;
 
-  if (current === 'WHISPER' && ashed >= ACT_THRESHOLDS.MARCH) {
+  if (current === 'WHISPER' && ashed >= getTunables().ACT_THRESHOLDS.MARCH) {
     return 'MARCH';
   }
-  if (current === 'MARCH' && ashed >= ACT_THRESHOLDS.RECKONING) {
+  if (current === 'MARCH' && ashed >= getTunables().ACT_THRESHOLDS.RECKONING) {
     return 'RECKONING';
   }
 

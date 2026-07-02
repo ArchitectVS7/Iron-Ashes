@@ -8,6 +8,15 @@
 
 import type { GameState } from '../../src/v3/types.js';
 
+/** Flip a created game to the ADVANCED Herald-enabled variant (T2-3 — `createGame`'s
+ *  `heraldEnabled` defaults to false). Herald/PARLEY suites wrap their `createGame` in this
+ *  instead of spelling the full 6-arg signature. Returns the same state for chaining. Test-only
+ *  (real sessions choose the flag at setup; it never changes mid-game). */
+export function withHeraldEnabled(s: GameState): GameState {
+  (s as { heraldEnabled: boolean }).heraldEnabled = true;
+  return s;
+}
+
 /** Remove every seat's starting retainer (all non-Warlord court entries at setup) plus its
  *  on-board mirror. Returns the same state for chaining. Test-only. */
 export function stripStartingRetainers(s: GameState): GameState {

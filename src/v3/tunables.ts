@@ -604,6 +604,13 @@ export interface Tunables {
   readonly DAWN_BLIGHT_ADVANCE: number;
   readonly BLIGHT_TO_ASH: number;
   readonly PUSHBACK: number;
+  // ── Escalation pacing (wired in T2-3 — the herald-off re-lock needed these; the
+  //    C2 pattern: they were declared tunable but their call sites read the frozen
+  //    module consts, so an override was a silent no-op. Defaults byte-identical.) ──
+  readonly PATIENCE_ON_BLOCK: number;
+  readonly PATIENCE_CAP: number;
+  readonly ACT_THRESHOLDS: { readonly MARCH: number; readonly RECKONING: number };
+  readonly ROUND_CAP: number;
   // ── Dark engagement (5-dark cluster) ──
   readonly DK_BLOCKS_CLAIM: boolean;
   readonly DK_KILL_CLAIMS_NODE: boolean;
@@ -711,6 +718,7 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   DOOM_COST_PER_PLAYER, DOOM_COST_PIVOT,
   DK_START_COUNT, DK_PER_PLAYER, DK_POWER,
   SPREAD_AMOUNT_BASE, DAWN_BLIGHT_ADVANCE, BLIGHT_TO_ASH, PUSHBACK,
+  PATIENCE_ON_BLOCK, PATIENCE_CAP, ACT_THRESHOLDS, ROUND_CAP,
   DK_BLOCKS_CLAIM, DK_KILL_CLAIMS_NODE, GRUDGE_MARK_TOP_N,
   OATH_DIVIDEND, OATH_DURATION, OATH_LOYALTY_BONUS, OATH_BREAK_BANNERS, GRUDGE_OATHBREAK,
   FORGE_TOLL_COST, SEALED_CORE_PLEDGE, GAMBIT_SELF_COVER_CARDS, BAILOUT_BASE_PCT,
@@ -734,6 +742,48 @@ export const DEFAULT_TUNABLES: Tunables = Object.freeze({
   ACCUSATION_WRONG_PENALTY, ACCUSATION_VINDICATION_BONUS,
   ACTION_BASE_COST, SUSPICION_NONE_SCORE, PLEDGE_TIER_HIGH_RATIO, PLEDGE_TIER_MEDIUM_RATIO,
   GAMBIT_COVER_FRACTION, SABOTEUR_COVER_PLEDGE_FRACTION,
+});
+
+/**
+ * The herald-OFF re-lock (backlog T2-3, 2026-07-02) — the DEFAULT game's balance overlay.
+ *
+ * Turning the Herald off (the new default) removed the players' only non-card anti-blight verb:
+ * the locked herald-ON game carried ~3.6 recruited Heralds + ~5.2 PARLEY pushbacks per game, and
+ * without them the dark ran to 32.3/34.6% pooled (doom_complete 17%→29% of games). This overlay
+ * re-locks the 3-archetype default; the herald-ON variant gets NO overlay and stays byte-identical
+ * to the pre-flag locked reference.
+ *
+ * The shape (2-seed validated, 40 seeds × [2,3,4]p × 35 matchups per seed):
+ *  - BLIGHT_TO_ASH 2→3 + SPREAD_AMOUNT_BASE 1→2.6 — the core swap: a slower ash clock (nodes
+ *    telegraph two Dawns) against a meatier landed strike. ASH3 alone crashed the dark to ~10%;
+ *    SPREAD is the continuous re-heat dial (2.5→3.5 spans ~18→22% pooled).
+ *  - DOOM_COST_MARCH 11→14, RECKONING 14→17.5, PER_PLAYER 6→6.6, PLAYER_DIVISOR 4→4.5 — the
+ *    per-count shape. The .5/.6 fractions are deliberate ceil-quantization picks: 17.5+6.6 raises
+ *    ONLY the 4p March (19→20) and Reckoning (22→23) cells (a pure 4p heat, ~+0.7pp) while
+ *    keeping 2p Reckoning at 2 and every 3p cell untouched (3p sat at the 24% credible cap).
+ *  - DK_PER_PLAYER 0→0.5 — a third Death Knight ONLY at 4p (round(2.5)=3; 2p/3p stay 2), ~+1pp
+ *    at 4p where the dark is time-capped (75% of 4p games end by territory at the round cap).
+ *  - SURGE_SPREAD_MULT 2→1.5 — shaves the Reckoning surge; the doom share cools 18.6→17.8 and
+ *    3p gains margin (24.0→23.3) at ~-0.9pp pooled.
+ *  - BLOOD_PACT_SPREAD_BONUS 1→1.2 + SABOTEUR_COVER 0.745→0.735 — the BP re-pair: under ASH3
+ *    the traitor's Dawn march stalled (traitor win 19%→8.1%). The BONUS response is a STEP
+ *    function (1.0→8.1%, any 1.05..1.5→~25%, 2→43%), so the 12–20 window is unreachable on that
+ *    axis alone; the cover dial does the fine work (0.72→15.3/70.6 exposure, 0.735→15.8/69.4).
+ *
+ * Applied UNDER the difficulty tier and any explicit search override (see
+ * difficulty.sessionTunables + sim driver): tier doomCost curves and sweep candidates still win.
+ */
+export const HERALD_OFF_REBALANCE: Partial<Tunables> = Object.freeze({
+  BLIGHT_TO_ASH: 3,
+  SPREAD_AMOUNT_BASE: 2.6,
+  DOOM_COST_MARCH: 14,
+  DOOM_COST_RECKONING: 17.5,
+  DOOM_COST_PLAYER_DIVISOR: 4.5,
+  DOOM_COST_PER_PLAYER: 6.6,
+  DK_PER_PLAYER: 0.5,
+  SURGE_SPREAD_MULT: 1.5,
+  BLOOD_PACT_SPREAD_BONUS: 1.2,
+  SABOTEUR_COVER: 0.735,
 });
 
 let activeTunables: Tunables = DEFAULT_TUNABLES;

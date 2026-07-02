@@ -34,10 +34,7 @@
 
 import {
   withTunables,
-  DOOM_COST_WHISPER,
-  DOOM_COST_MARCH,
-  DOOM_COST_RECKONING,
-  DOOM_COST_PER_PLAYER,
+  HERALD_OFF_REBALANCE,
   type Tunables,
 } from './tunables.js';
 import type { Difficulty } from './types.js';
@@ -49,18 +46,18 @@ export const DEFAULT_DIFFICULTY: Difficulty = 'warlord';
  * Each tier's DOOM_COST-curve override (the dark's pledge threshold). Only the four calibrated
  * doomCost levers are touched — every other tunable is shared, so tiers differ ONLY in dark strength.
  *
- * `warlord` pins the CURRENT locked constants verbatim (so it tracks the reference and is
- * byte-identical to the default competitive build). `knight` / `squire` are the calibrated
- * flawless-play ~17% / ~13% points.
+ * `warlord` is an EMPTY override (T2-3): it used to pin the four locked doomCost constants
+ * VERBATIM — semantically identical to no override at all, but a verbatim pin would also
+ * clobber the T2-3 herald-off re-lock's doomCost shape (HERALD_OFF_REBALANCE layers UNDER the
+ * tier — see `sessionTunables`). Empty keeps herald-ON byte-identical to the locked build AND
+ * lets the herald-off overlay reach the default tier. `knight` / `squire` are the calibrated
+ * flawless-play ~17% / ~13% points — calibrated against the HERALD-ON reference; their
+ * magnitudes under the herald-off default are a recorded WATCH item (recalibrate at the next
+ * difficulty-touching stage, per the T2-1 note).
  */
 export const DIFFICULTY_TUNABLES: Readonly<Record<Difficulty, Partial<Tunables>>> = Object.freeze({
-  // HARD (default) — the locked reference values, verbatim. Byte-identical to the current build.
-  warlord: {
-    DOOM_COST_WHISPER,
-    DOOM_COST_MARCH,
-    DOOM_COST_RECKONING,
-    DOOM_COST_PER_PLAYER,
-  },
+  // HARD (default) — the locked reference: no override (see the doc block above).
+  warlord: {},
   // NORMAL — flawless-play pooled dark-win ~17%.
   knight: {
     DOOM_COST_WHISPER: 1,
@@ -88,4 +85,30 @@ export function difficultyTunables(difficulty: Difficulty): Partial<Tunables> {
  */
 export function withDifficulty<T>(difficulty: Difficulty, fn: () => T): T {
   return withTunables(difficultyTunables(difficulty), fn);
+}
+
+/**
+ * The full session overlay (T2-3): the herald-OFF re-lock (when the advanced Herald toggle is
+ * off — the DEFAULT game) layered UNDER the difficulty tier's doomCost curve, so a tier still
+ * shifts dark strength on top of the re-locked default. Herald-ON ⇒ no overlay (the locked
+ * 4-archetype reference, byte-identical). Pure `f(difficulty, heraldEnabled)`.
+ */
+export function sessionTunables(difficulty: Difficulty, heraldEnabled: boolean): Partial<Tunables> {
+  return {
+    ...(heraldEnabled ? {} : HERALD_OFF_REBALANCE),
+    ...difficultyTunables(difficulty),
+  };
+}
+
+/**
+ * Run `fn` with the session overlay active (difficulty + the herald toggle — the two setup
+ * choices that scope tunables). Deterministic + leak-safe; the UI session wraps every engine
+ * step in this, mirroring the sim driver's merge.
+ */
+export function withSessionTunables<T>(
+  difficulty: Difficulty,
+  heraldEnabled: boolean,
+  fn: () => T,
+): T {
+  return withTunables(sessionTunables(difficulty, heraldEnabled), fn);
 }

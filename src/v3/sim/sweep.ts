@@ -31,6 +31,12 @@ export interface SweepConfig {
    * `tunables` (an explicit balance-search override still wins) — see driver.playHeadlessGame.
    */
   readonly difficulty?: Difficulty;
+  /**
+   * The ADVANCED Herald toggle (T2-3) applied to every game in the sweep. Unspecified ⇒ `false`
+   * (the createGame default: 3-archetype court — the game's DEFAULT balance). `true` runs the
+   * advanced 4-archetype variant, byte-identical to the pre-flag build.
+   */
+  readonly heraldEnabled?: boolean;
 }
 
 export interface SweepRow {
@@ -65,7 +71,7 @@ export function runSweep(cfg: SweepConfig): SweepRow[] {
           const run = playHeadlessGame({
             seed, playerCount, mode, seatPolicies, maxSteps: cfg.maxStepsPerGame,
             bloodPactSeat, tunables: cfg.tunables, errorRate: cfg.errorRate,
-            difficulty: cfg.difficulty,
+            difficulty: cfg.difficulty, heraldEnabled: cfg.heraldEnabled,
           });
           rows.push({
             seed, playerCount, mode,

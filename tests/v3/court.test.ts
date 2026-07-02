@@ -31,6 +31,7 @@ import {
   WARLORD_POWER,
 } from '../../src/v3/tunables.js';
 import type { GameState } from '../../src/v3/types.js';
+import { withHeraldEnabled } from './fixtures.js';
 
 function game(): GameState {
   return createGame(2, 'competitive', 42);
@@ -129,7 +130,7 @@ describe('Stage 3b — Marshal combat (§2)', () => {
 
 describe('Stage 3b — Herald hand / parley (§2, generalized from v2)', () => {
   it('recruiting a Herald deepens the hand and joins the court; it never fights', () => {
-    const s = game();
+    const s = withHeraldEnabled(game()); // the Herald is an advanced toggle (T2-3)
     s.players[0].banners = 5;
     const handBefore = s.players[0].handLimit;
     executeRecruit(s, 0);

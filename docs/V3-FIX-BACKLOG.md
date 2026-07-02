@@ -184,7 +184,7 @@ traitor 19.4%), sim reference byte-stable. **The playtest is unblocked** — run
   telegraph is lost). Spec §6 + §13 P0-5 re-annotated from INERT to the shipped mechanism; teach-script
   beat C9 added; `RECKONING_AUTOPRESSURE_NODES` stays 0 (the deposal executioner remains retired).
 
-### T2-3 ☐ Herald default-OFF (learnability #1)
+### T2-3 ☑ Herald default-OFF (learnability #1)
 - **Problem:** the 4th archetype imports a verb (PARLEY), 2 tunables, and a never-fights exception; it's
   the worst teach-cost item and is already flagged "advanced." A 3-archetype default (protect/fight/earn)
   is a cleaner first game.
@@ -192,7 +192,11 @@ traitor 19.4%), sim reference byte-stable. **The playtest is unblocked** — run
   sweep (locked balance includes Heralds).
 - **Integrations:** engine (setup flag) · sim (re-validation 2-seed) · UI (toggle on the start screen;
   hide PARLEY when off) · tests (both-flag coverage) · docs (§2 note).
-- **Status:** OPEN — awaiting user call (could also be decided by the playtest).
+- **Status:** ☑ DONE 2026-07-02 — `heraldEnabled` setup flag, DEFAULT OFF (3-archetype default), UI toggle,
+  sim `--herald` variant; AI/verbs routed. The OFF-default needed a real re-center (the `HERALD_OFF_REBALANCE`
+  overlay: BLIGHT_TO_ASH 2→3 + SPREAD 2.6, doomCost M14/R17.5/div4.5, SURGE 1.5, BP re-pair 1.2/0.735) —
+  validated 2-seed (dark 18.9/18.3, per-count credible, rounds 12.2, BP 15.8/69.4/78.1). ON variant 1-seed
+  sanity. Stage agent hit a session limit post-validation; orchestrator verified + committed the close-out.
 
 ### T2-4 ☐ Right-size the Wraith (engagement #4)
 - **Problem:** ~2-round median afterlife, one click/round, in a minority of games — the worst

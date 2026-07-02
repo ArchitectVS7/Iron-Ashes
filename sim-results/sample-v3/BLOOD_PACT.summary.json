@@ -1,7 +1,7 @@
 {
   "games": 360,
-  "traitorWinRate": 0.17777777777777778,
-  "traitorExposureRate": 0.5555555555555556,
-  "accusationsPerGame": 0.8,
-  "accusationAccuracy": 0.6944444444444444
+  "traitorWinRate": 0.15833333333333333,
+  "traitorExposureRate": 0.6944444444444444,
+  "accusationsPerGame": 0.8888888888888888,
+  "accusationAccuracy": 0.78125
 }

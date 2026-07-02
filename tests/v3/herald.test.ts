@@ -12,12 +12,12 @@ import { getPlayerPowerAtNode } from '../../src/v3/combat.js';
 import { runDawnPhase } from '../../src/v3/sequencer.js';
 import { SeededRandom } from '../../src/utils/seeded-random.js';
 import { withTunables, HAND_LIMIT, WARLORD_POWER } from '../../src/v3/tunables.js';
-import { stripStartingRetainers } from './fixtures.js';
+import { stripStartingRetainers, withHeraldEnabled } from './fixtures.js';
 
 describe('Herald + stance (Stage H)', () => {
   describe('RECRUIT → the political build', () => {
     it('commits the stance: +hand cap, −combat power, spends banners', () => {
-      const s = stripStartingRetainers(createGame(2, 'competitive', 7)); // bare Warlord (T2-1)
+      const s = stripStartingRetainers(withHeraldEnabled(createGame(2, 'competitive', 7))); // bare Warlord (T2-1)
       const here = s.players[0].warlordNodeId;
       const before = getPlayerPowerAtNode(s, 0, here); // warlord alone = WARLORD_POWER
       expect(before).toBe(WARLORD_POWER);
@@ -33,7 +33,7 @@ describe('Herald + stance (Stage H)', () => {
     });
 
     it('is one-time (cannot re-recruit) and needs banners', () => {
-      const s = createGame(2, 'competitive', 7);
+      const s = withHeraldEnabled(createGame(2, 'competitive', 7));
       s.players[0].banners = 5;
       executeRecruit(s, 0);
       expect(() => executeRecruit(s, 0)).toThrow('already');
@@ -42,7 +42,7 @@ describe('Herald + stance (Stage H)', () => {
     });
 
     it('raises that player\'s Dawn draw (per-player hand limit)', () => {
-      const s = createGame(2, 'competitive', 7);
+      const s = withHeraldEnabled(createGame(2, 'competitive', 7));
       s.players[0].banners = 5;
       withTunables({ HERALD_HAND_BONUS: 2 }, () => executeRecruit(s, 0));
       s.phase = 'DAWN';
@@ -54,7 +54,7 @@ describe('Herald + stance (Stage H)', () => {
 
   describe('PARLEY → non-card pushback vs the dark', () => {
     it('a political player reduces blight on a nearby front', () => {
-      const s = createGame(2, 'competitive', 7);
+      const s = withHeraldEnabled(createGame(2, 'competitive', 7));
       s.players[0].banners = 5;
       executeRecruit(s, 0);
       const here = s.players[0].warlordNodeId;
@@ -64,7 +64,7 @@ describe('Herald + stance (Stage H)', () => {
     });
 
     it('a martial player cannot PARLEY; a political one needs a front in reach', () => {
-      const s = createGame(2, 'competitive', 7);
+      const s = withHeraldEnabled(createGame(2, 'competitive', 7));
       expect(() => executeParley(s, 0)).toThrow('political'); // martial by default
       s.players[0].banners = 5;
       executeRecruit(s, 0);

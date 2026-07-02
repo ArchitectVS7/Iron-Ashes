@@ -1,7 +1,8 @@
 /**
  * Entry point for the v3 render-from-state UI (Stage 3i-a scaffold; D2 difficulty selector).
  *
- * Shows a small start screen (players / mode / seed / difficulty), then mounts a GameSession
+ * Shows a small start screen (players / mode / seed / difficulty / Herald advanced toggle),
+ * then mounts a GameSession
  * and the view. The whole game renders from the fog-applied observable projection
  * (§7 D2) and routes every input through the one v3 applyCommand reducer (§7).
  *
@@ -55,6 +56,9 @@ export function startScreen(root: HTMLElement, onStart: (session: GameSession) =
         <label>Seed
           <input id="seed" type="number" value="42" />
         </label>
+        <label class="advanced-toggle" title="Adds a 4th archetype: the Herald — a lone runner who PARLEYs the dark back without spending a card. Recommended after your first few games.">
+          <input id="herald-enabled" type="checkbox" /> Herald (advanced)
+        </label>
         <button id="start-btn" class="primary">Begin</button>
       </div>
       <p class="note" id="difficulty-hint"></p>
@@ -75,7 +79,9 @@ export function startScreen(root: HTMLElement, onStart: (session: GameSession) =
     const mode = (document.getElementById('mode') as HTMLSelectElement).value as GameMode;
     const seed = Number((document.getElementById('seed') as HTMLInputElement).value) || 42;
     const difficulty = difficultySelect.value as Difficulty;
-    const session = new GameSession(playerCount, mode, seed, difficulty);
+    // T2-3: the ADVANCED Herald toggle — unchecked (default) is the 3-archetype game.
+    const heraldEnabled = (document.getElementById('herald-enabled') as HTMLInputElement).checked;
+    const session = new GameSession(playerCount, mode, seed, difficulty, heraldEnabled);
     mountView(root, session);
     onStart(session);
   });

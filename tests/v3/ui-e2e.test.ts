@@ -115,9 +115,10 @@ describe('UI E2E (v3) — full games through real DOM clicks', () => {
 
 // ─── Targeted: each new control fires through the real DOM chain ───
 
-/** Mount + drive (via clicks) to the human's live ACTION turn, then re-render. */
-function toHumanTurnDom(mode: 'competitive' | 'blood_pact', seed = 42): GameSession {
-  const session = new GameSession(4, mode, seed);
+/** Mount + drive (via clicks) to the human's live ACTION turn, then re-render.
+ *  `heraldEnabled` opts into the ADVANCED Herald variant (T2-3 — default OFF, like the game). */
+function toHumanTurnDom(mode: 'competitive' | 'blood_pact', seed = 42, heraldEnabled = false): GameSession {
+  const session = new GameSession(4, mode, seed, 'warlord', heraldEnabled);
   mountView(root, session);
   let guard = 0;
   while (!session.isOver && !session.isHumanTurn && guard < 60) {
@@ -149,8 +150,8 @@ describe('UI E2E (v3) — each control drives the engine through the DOM', () =>
     expect(session.state.players[0].warlordNodeId).toBe(dest);
   });
 
-  it('clicking "Recruit a Herald" commits the political stance', () => {
-    const session = toHumanTurnDom('competitive');
+  it('clicking "Recruit a Herald" commits the political stance (advanced toggle ON)', () => {
+    const session = toHumanTurnDom('competitive', 42, true);
     session.state.players[0].stance = 'martial';
     session.state.players[0].banners = 9;
     rerender(session);

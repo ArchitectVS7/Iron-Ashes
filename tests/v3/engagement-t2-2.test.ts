@@ -21,6 +21,7 @@ import { resolvePledgePhase, runThreatPhase, runDawnPhase } from '../../src/v3/s
 import { WARLORD_POWER, getTunables, withTunables } from '../../src/v3/tunables.js';
 import { SeededRandom } from '../../src/utils/seeded-random.js';
 import type { GameState } from '../../src/v3/types.js';
+import { withHeraldEnabled } from './fixtures.js';
 
 /** Place a player's Warlord on a node (mirrors the on-board piece). */
 function placeWarlord(state: GameState, seat: number, nodeId: string): void {
@@ -78,7 +79,7 @@ describe('T2-2 — engagement tally (pledge / STRIKE / heart / PARLEY)', () => {
   });
 
   it('a PARLEY adds 1 (the card-free verb still counts)', () => {
-    const s = createGame(4, 'competitive', 42);
+    const s = withHeraldEnabled(createGame(4, 'competitive', 42)); // PARLEY is herald-gated (T2-3)
     s.players[0].banners = 5;
     executeRecruit(s, 0); // political stance, Herald at the Warlord's node
     const heraldNode = s.players[0].heraldNodeId!;

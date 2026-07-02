@@ -427,21 +427,25 @@ function renderActionPanel(session: GameSession, s: ObservableState): string {
   // RANSOM — any captive the human can reach (owner, or Warlord at/adjacent the captor's hold).
   btns.push(...renderRansom(session, s, here));
 
-  // RECRUIT a Herald — commit to the political build (martial → political).
-  if (human.stance !== 'political' && human.banners >= HERALD_RECRUIT_COST) {
-    btns.push(`<button data-action="recruit">Recruit a Herald (⚑${HERALD_RECRUIT_COST}) — political build</button>`);
-  }
+  // Herald verbs (T2-3): only when the ADVANCED toggle is on — the default 3-archetype game
+  // never shows RECRUIT / PARLEY / March-Herald (the whole concept stays out of the first game).
+  if (s.heraldEnabled) {
+    // RECRUIT a Herald — commit to the political build (martial → political).
+    if (human.stance !== 'political' && human.banners >= HERALD_RECRUIT_COST) {
+      btns.push(`<button data-action="recruit">Recruit a Herald (⚑${HERALD_RECRUIT_COST}) — political build</button>`);
+    }
 
-  // PARLEY — the Herald pushes back the dark, but only from a blighted front.
-  if (human.stance === 'political' && human.heraldNodeId !== null && parleyReachable(s, human.heraldNodeId)) {
-    btns.push(`<button data-action="parley">Parley — push back the dark (Herald at ${esc(human.heraldNodeId)})</button>`);
-  }
+    // PARLEY — the Herald pushes back the dark, but only from a blighted front.
+    if (human.stance === 'political' && human.heraldNodeId !== null && parleyReachable(s, human.heraldNodeId)) {
+      btns.push(`<button data-action="parley">Parley — push back the dark (Herald at ${esc(human.heraldNodeId)})</button>`);
+    }
 
-  // MARCH the Herald toward the front (independent of the Warlord).
-  if (human.heraldNodeId !== null) {
-    for (const adj of s.board.definition.nodes[human.heraldNodeId].connections) {
-      if (s.board.state.nodes[adj]?.ashed) continue;
-      btns.push(`<button data-action="herald-march:${adj}">March Herald → ${esc(adj)}</button>`);
+    // MARCH the Herald toward the front (independent of the Warlord).
+    if (human.heraldNodeId !== null) {
+      for (const adj of s.board.definition.nodes[human.heraldNodeId].connections) {
+        if (s.board.state.nodes[adj]?.ashed) continue;
+        btns.push(`<button data-action="herald-march:${adj}">March Herald → ${esc(adj)}</button>`);
+      }
     }
   }
 

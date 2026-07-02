@@ -68,8 +68,10 @@ describe('tunable seam', () => {
   });
 
   it('a DK-scaling override actually changes the initial forces', () => {
+    // The T2-3 herald-off overlay already sets DK_PER_PLAYER 0.5 (3 DKs at 4p), so the
+    // explicit override must differ from THAT baseline to prove the seam bites: 2 ⇒ 4 DKs.
     const base = playHeadlessGame({ seed: 7, playerCount: 4, mode: 'competitive' });
-    const moreDk = playHeadlessGame({ seed: 7, playerCount: 4, mode: 'competitive', tunables: { DK_PER_PLAYER: 1 } });
+    const moreDk = playHeadlessGame({ seed: 7, playerCount: 4, mode: 'competitive', tunables: { DK_PER_PLAYER: 2 } });
     expect(JSON.stringify(moreDk.finalState)).not.toBe(JSON.stringify(base.finalState));
   });
 });

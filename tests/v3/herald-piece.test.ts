@@ -16,9 +16,10 @@ import {
 } from '../../src/v3/actions.js';
 import { HERALD_HAND_BONUS } from '../../src/v3/tunables.js';
 import type { GameState } from '../../src/v3/types.js';
+import { withHeraldEnabled } from './fixtures.js';
 
 function recruited(): GameState {
-  const state = createGame(4, 'competitive', 42);
+  const state = withHeraldEnabled(createGame(4, 'competitive', 42));
   state.players[0].banners = 5;
   executeRecruit(state, 0);
   return state;

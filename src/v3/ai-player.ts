@@ -972,15 +972,17 @@ function archetypeAction(
   }
 
   // 0c. RECRUIT a Herald — commit to the political/deep-hand build (§ Herald). Sticky,
-  //     consumes an action; only once, when affordable.
-  if (heraldAffinity > 0 && player.stance !== 'political'
+  //     consumes an action; only once, when affordable. T2-3: `state.heraldEnabled` leads each
+  //     herald branch — when the advanced toggle is OFF the branch is skipped WITHOUT drawing
+  //     from `rng`, and when ON the draw order is byte-identical to the pre-flag build.
+  if (state.heraldEnabled && heraldAffinity > 0 && player.stance !== 'political'
       && player.banners >= getTunables().HERALD_RECRUIT_COST && rng.float() < heraldAffinity) {
     return { type: 'RECRUIT' };
   }
 
   // 0d. PARLEY — the political player pushes back the dark without a card (§ Herald),
   //     when the Herald (the lone runner) has reached a blighted front.
-  if (parleyBias > 0 && player.stance === 'political' && !sabotaging
+  if (state.heraldEnabled && parleyBias > 0 && player.stance === 'political' && !sabotaging
       && parleyTarget(state, playerIndex) !== null && rng.float() < parleyBias) {
     return { type: 'PARLEY' };
   }
@@ -988,7 +990,7 @@ function archetypeAction(
   // 0d.5 RUN THE HERALD (§HL): if political with a Herald in play that hasn't reached the
   //      front yet, MARCH the lone runner one step toward the nearest blight (then it can
   //      PARLEY next turn) — the escort/intercept drama. Gated on parleyBias.
-  if (parleyBias > 0 && player.stance === 'political' && !sabotaging
+  if (state.heraldEnabled && parleyBias > 0 && player.stance === 'political' && !sabotaging
       && player.heraldNodeId !== null && rng.float() < parleyBias) {
     const step = bestStepTowardFront(state, playerIndex, player.heraldNodeId);
     // Herald march pays no toll/ZoC — just 1 banner (+ashed extra). Only propose if affordable.

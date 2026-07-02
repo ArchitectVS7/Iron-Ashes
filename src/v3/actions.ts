@@ -228,6 +228,11 @@ export function executeHeraldMarch(
   targetNodeId: string,
 ): ActionResult {
   const events: GameEvent[] = [];
+  // T2-3: the Herald is an ADVANCED setup toggle, default OFF. Unreachable in practice when off
+  // (no Herald can exist without RECRUIT), but fail fast with the honest reason anyway.
+  if (!state.heraldEnabled) {
+    throw new Error('Cannot MARCH Herald: the Herald is disabled this session (advanced setup toggle)');
+  }
   const player = state.players[playerIndex];
   const from = player.heraldNodeId;
   if (from === null) {
@@ -987,6 +992,10 @@ export function executeRecruit(
   const player = state.players[playerIndex];
   const t = getTunables();
 
+  // T2-3: the Herald is an ADVANCED setup toggle, default OFF (3-archetype court).
+  if (!state.heraldEnabled) {
+    throw new Error('Cannot RECRUIT: the Herald is disabled this session (advanced setup toggle)');
+  }
   // Recruit a Herald: commit to the POLITICAL stance (§ Herald). One-time, sticky.
   if (player.stance === 'political') {
     throw new Error('Cannot RECRUIT: already committed to the political stance');
@@ -1061,6 +1070,10 @@ export function executeParley(
   playerIndex: number,
 ): ActionResult {
   const events: GameEvent[] = [];
+  // T2-3: the Herald is an ADVANCED setup toggle, default OFF (3-archetype court).
+  if (!state.heraldEnabled) {
+    throw new Error('Cannot PARLEY: the Herald is disabled this session (advanced setup toggle)');
+  }
   if (state.players[playerIndex].stance !== 'political') {
     throw new Error('Cannot PARLEY: only a political (Herald) player may parley the dark');
   }

@@ -256,6 +256,20 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-02** — **T2-3 HERALD DEFAULT-OFF COMPLETE (orchestrator-salvaged close-out).** `heraldEnabled`
+  setup flag, **DEFAULT OFF → the shipped game is 3-archetype** (Warlord/Marshal/Steward); Herald+PARLEY are an
+  advanced toggle (UI start-screen + sim `--herald`). Removing the Herald's hand-bonus/Parley genuinely reshaped
+  the default balance — ~10 tuning passes landed the **`HERALD_OFF_REBALANCE` overlay** (BLIGHT_TO_ASH 2→3 +
+  SPREAD_AMOUNT_BASE 2.6 core swap — a slower, 2-Dawn-telegraph ash clock vs a meatier strike; DOOM_COST
+  M11→14/R14→17.5/div 4→4.5; SURGE 2→1.5; BP re-pair SPREAD_BONUS 1→1.2 + SABOTEUR_COVER 0.745→0.735).
+  **Validated 2-seed at the new default:** dark **18.9/18.3%** (band), per-count 2p 17.1/16.0 · 3p 23.3/23.3 ·
+  4p 16.4/15.7 (credible), rounds 12.2, court-at-March 3, **BP 15.8/69.4/78.1** (all bands). ROUND_CAP made
+  injectable (probe; default unchanged). v3 **662 tests green**, tsc/eslint/vite clean; sample-v3 references
+  refreshed to the herald-OFF default. *(The stage agent validated the finalist but hit a session limit before
+  committing; work verified independently — full gate + 2-seed + BP — and committed by the orchestrator.)*
+  **Remaining: T2-V final lock (mostly done here: 2-seed both modes at the default) — difficulty-tier
+  re-anchoring folded into the T2-3 test updates; T2-4 Wraith stays playtest-gated.**
+
 - **2026-07-02** — **TIER-2 T2-2: RE-ARM "HIDING IS DANGEROUS" (+ the passivity metric) — the
   anti-turtle lever is LIVE again, in the BLIGHT currency.** The wave-1/5b disarm
   (`RECKONING_AUTOPRESSURE_NODES`=0) had left nothing punishing the least-engaged seat. Shipped:
