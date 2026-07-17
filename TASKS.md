@@ -35,6 +35,11 @@ Tasks that touch anything under `src/v3/` additionally run the balance byte-guar
   verified against the live repo in the same task.
 - **Pre-commit/CI checks are sacred:** never `--no-verify`; a failure found in your session is yours
   to fix; "clean to commit" = zero failing tests.
+- **Graphify hook:** a post-commit hook re-dirties `graphify-out/` (detached background rebuild)
+  after any commit touching non-graphify files. Treat `graphify-out/**` dirt as ignorable infra —
+  never sweep it into a task commit. If a step genuinely needs clean porcelain (e.g. `npm run
+  handoff:check`), first commit the artifacts alone as `chore(graphify): settle artifacts` —
+  graphify-only commits do not retrigger the hook.
 
 Statuses: `TODO` | `IN-PROGRESS` | `DONE` | `BLOCKED(reason)`
 
