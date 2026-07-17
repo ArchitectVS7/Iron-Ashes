@@ -16,7 +16,7 @@ player counts 2/3/4 · modes competitive ·
 |---|---|---|---|
 | Shadowking win rate | 18.9% | 18.0%–22.0% | ✅ PASS |
 | Mean game length (rounds) | 12.20 | 10–16 | ✅ PASS |
-| Gambit fire rate (gambler-free, ~1-in-6-to-8) | 35.7% | 10.0%–20.0% | ❌ FAIL |
+| Deliberate gambit fire (gambler-free, ~1-in-6-to-8) | 17.5% | 10.0%–20.0% | ✅ PASS |
 
 ## No-dominant-strategy check
 Even per-seat win share ≈ **27.0%**. ✅ PASS — no archetype dominates.
@@ -47,7 +47,7 @@ Winners' mean pledge **2.70** vs the field's **3.03**.
 ## Tuning diagnostics (Stage 5)
 | Diagnostic | Value | Reading |
 |---|---|---|
-| Gambit fire rate — gambler-free subset | 35.7% | the HONEST gambit number (judge the §9 band on this) |
+| Gambit fire rate — gambler-free subset | 35.7% | raw gambler-free seize rate; the §9 band now judges the DELIBERATE split (below) |
 | Gambit seize / win rate (all matchups) | 49.9% / 10.8% | aggregate, inflated by the gambler archetype |
 | Eliminations per game | 0.20 | elimination tempo (§6); band set from scratch in V3-5 |
 | Last-standing win rate | 9.8% | share of games decided by the last Warlord standing |

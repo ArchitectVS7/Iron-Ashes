@@ -17,11 +17,11 @@
       "pass": true
     },
     {
-      "name": "Gambit fire rate (gambler-free, ~1-in-6-to-8)",
-      "measured": 0.3574074074074074,
+      "name": "Deliberate gambit fire (gambler-free, ~1-in-6-to-8)",
+      "measured": 0.17469135802469135,
       "lo": 0.1,
       "hi": 0.2,
-      "pass": false
+      "pass": true
     }
   ],
   "winRateByArchetype": [

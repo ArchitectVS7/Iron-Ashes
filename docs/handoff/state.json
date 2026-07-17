@@ -11,9 +11,9 @@
     "sim-results/s20260622-n40/REPORT.md (latest LOCKED competitive: SK-win 20.0%, gambit-noG 17.0%, oaths 6.13/3.46, tolls 0.89, heralds 1.78/59% political); PRIOR docs DESIGN-V2-OATHS / RESCUE-ECONOMY / DARK-ENGAGEMENT / FOCUS-GROUP-R2/R3 / ALGORITHM §9.1"
   ],
   "lastVerified": {
-    "timestamp": "2026-06-27T00:38:09.072Z",
-    "commit": "b090dfe",
-    "sourceHash": "eb2ef3eb55a62930ec0de51f76c23ed99e1b70b0915903e037dd0a245b9f412c",
+    "timestamp": "2026-07-17T22:34:18.169Z",
+    "commit": "fab8592",
+    "sourceHash": "de8cedde3b774623e615ae572d301b5029b8e208c9287056d6448e13c50dbecd",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {

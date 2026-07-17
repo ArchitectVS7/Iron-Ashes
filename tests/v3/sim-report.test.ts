@@ -129,6 +129,23 @@ describe('summarize', () => {
     expect(d.gambitDeliberateConversionNoGambler).toBeCloseTo((1 / 8) / (2 / 8)); // deliberate win/fire
   });
 
+  it('the §9 gambit verdict row judges the gambler-free DELIBERATE fire rate (10–20% band)', () => {
+    // 10 gambler-free games: 2 deliberate seizes, 6 pure-incidental seizes, 2 no fire.
+    // Deliberate fire = 2/10 = 20% → in band; raw seize = 8/10 = 80% → would FAIL.
+    const rows: SweepRow[] = [
+      ...Array.from({ length: 2 }, () => mkRow(SEATS, mkMetrics({ winner: 0, gambitSeized: true, gambitSeizeDeliberate: true }))),
+      ...Array.from({ length: 6 }, () => mkRow(SEATS, mkMetrics({ winner: 1, gambitSeized: true, gambitSeizeIncidental: true }))),
+      ...Array.from({ length: 2 }, () => mkRow(SEATS, mkMetrics({ winner: 2 }))),
+    ];
+    const s = summarize(rows);
+    const gambit = s.checks.find(c => c.name.toLowerCase().includes('deliberate'))!;
+    expect(gambit).toBeDefined();
+    expect(gambit.measured).toBeCloseTo(0.2); // deliberate, not the 0.8 raw seize rate
+    expect(gambit.pass).toBe(true);
+    expect(gambit.lo).toBe(0.1);
+    expect(gambit.hi).toBe(0.2);
+  });
+
   it('renders markdown with the target table and verdicts', () => {
     const rows: SweepRow[] = Array.from({ length: 10 }, (_, i) => mkRow(SEATS, mkMetrics({ winner: i < 2 ? null : i % 4 })));
     const md = renderMarkdown(summarize(rows), {

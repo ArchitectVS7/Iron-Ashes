@@ -21,7 +21,7 @@ export const ARCHETYPE_WINRATE_GUARD = 0.30;
 export const TARGETS = {
   shadowkingWinRate: { lo: 0.18, hi: 0.22, label: 'Shadowking win rate' },
   meanRounds: { lo: 10, hi: 16, label: 'Mean game length (rounds)' },
-  gambitFireRate: { lo: 0.10, hi: 0.20, label: 'Gambit fire rate (gambler-free, ~1-in-6-to-8)' },
+  gambitFireDeliberate: { lo: 0.10, hi: 0.20, label: 'Deliberate gambit fire (gambler-free, ~1-in-6-to-8)' },
   // The rescue band is retired with the Broken Court (§8). An elimination-tempo band is set
   // from scratch in Stage V3-5 (ALGORITHM §9 re-balance note) — left out of the hard checks
   // for 3a; eliminationsPerGame is reported as a pure diagnostic until then.
@@ -229,17 +229,19 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
 
   const shadowkingWinRate = total ? rows.filter(r => r.metrics.shadowkingWin).length / total : 0;
   const meanRounds = mean(rows.map(r => r.metrics.rounds));
-  // The §9 gambit check judges the HONEST gambler-free fire rate (excluding matchups
-  // with a dedicated gambler archetype, which gambles by identity and inflates the
-  // pooled number into a permanent FAIL). The pooled seize rate stays a diagnostic.
+  // The §9 gambit check judges the gambler-free DELIBERATE fire rate — the 5f
+  // deliberate/incidental split + the 5h win-gate (ROADMAP-V3 §8, 2026-06-29) decided that
+  // "went for the throne via the Gambit path" is the balance target, not the raw seize rate
+  // (inflated by incidental Keystone occupation and the gambler archetype into a permanent FAIL).
+  // The raw gambler-free seize rate stays a Stage-5f diagnostic below.
   const noGamblerRows = rows.filter(r => !r.seatArchetypes.includes('gambler'));
-  const gambitFireRate = noGamblerRows.length
-    ? noGamblerRows.filter(r => r.metrics.gambitSeized).length / noGamblerRows.length : 0;
+  const gambitFireDeliberate = noGamblerRows.length
+    ? noGamblerRows.filter(r => r.metrics.gambitSeizeDeliberate).length / noGamblerRows.length : 0;
 
   const checks: TargetCheck[] = [
     mkCheck(TARGETS.shadowkingWinRate.label, shadowkingWinRate, TARGETS.shadowkingWinRate),
     mkCheck(TARGETS.meanRounds.label, meanRounds, TARGETS.meanRounds),
-    mkCheck(TARGETS.gambitFireRate.label, gambitFireRate, TARGETS.gambitFireRate),
+    mkCheck(TARGETS.gambitFireDeliberate.label, gambitFireDeliberate, TARGETS.gambitFireDeliberate),
   ];
 
   // ── Win-rate by archetype (per-seat granularity, so homogeneous tables don't lie) ──
@@ -371,7 +373,8 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
   // ── Stage 5f: deliberate-vs-incidental gambit-fire split (investigation, no fix) ──
   const rate = (subset: readonly SweepRow[], pred: (r: SweepRow) => boolean): number =>
     subset.length ? subset.filter(pred).length / subset.length : 0;
-  const gambitFireDeliberateNoGambler = rate(noGambler, r => r.metrics.gambitSeizeDeliberate);
+  // Identical to the §9 check's gambitFireDeliberate (noGambler === noGamblerRows) — reuse it.
+  const gambitFireDeliberateNoGambler = gambitFireDeliberate;
   // INCIDENTAL fire rate counts games where a seize fired but NO deliberate seize did (pure incidental).
   const gambitFireIncidentalNoGambler = rate(noGambler,
     r => r.metrics.gambitSeized && !r.metrics.gambitSeizeDeliberate);
@@ -633,7 +636,7 @@ ${endRows}
 ## Tuning diagnostics (Stage 5)
 | Diagnostic | Value | Reading |
 |---|---|---|
-| Gambit fire rate — gambler-free subset | ${pct(d.gambitFireRateNoGambler)} | the HONEST gambit number (judge the §9 band on this) |
+| Gambit fire rate — gambler-free subset | ${pct(d.gambitFireRateNoGambler)} | raw gambler-free seize rate; the §9 band now judges the DELIBERATE split (below) |
 | Gambit seize / win rate (all matchups) | ${pct(d.gambitSeizeRate)} / ${pct(d.gambitWinRate)} | aggregate, inflated by the gambler archetype |
 | Eliminations per game | ${d.eliminationsPerGame.toFixed(2)} | elimination tempo (§6); band set from scratch in V3-5 |
 | Last-standing win rate | ${pct(d.lastStandingWinRate)} | share of games decided by the last Warlord standing |

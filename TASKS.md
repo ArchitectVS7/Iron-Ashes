@@ -92,7 +92,7 @@ gate. README's Tests paragraph updated to describe the explicit timeouts rather 
 
 ## M1 — 40-seed balance re-validation (the T2-V final lock)
 
-### T-003 · Re-point the §9 gambit verdict row at the decided metric — `status: TODO` · `coder: opus` · `after: T-002`
+### T-003 · Re-point the §9 gambit verdict row at the decided metric — `status: DONE` · `coder: opus` · `after: T-002`
 `sim-results/sample-v3/REPORT.md` §9 table currently prints "Gambit fire rate (gambler-free) 35.7%
 ❌ FAIL" while the locked wave-3 decisions (ROADMAP-V3 §8, 2026-06-29: the 5f deliberate/incidental
 split + the 5h win-gate) judge **deliberate** gambit fire — `gambitFireDeliberateNoGambler`, 17.5%,
@@ -110,6 +110,19 @@ section; `tests/v3/sim-report.test.ts` green; **byte-guard** — the regenerated
 `sim-results/sample-v3/summary.json` game-level fields are identical to the prior reference except
 any renamed/added verdict metadata (diff shown in review); no file under `src/v3/` outside
 `src/v3/sim/report.ts` changed.
+**Delivered (2026-07-17):** `src/v3/sim/report.ts`'s §9 `TARGETS`/`checks` entry renamed
+`gambitFireRate` → `gambitFireDeliberate` and re-pointed at `gambitSeizeDeliberate` (the 5f
+deliberate/incidental split), so the verdict row now judges "went for the throne via the Gambit
+path" instead of the raw gambler-free seize rate; the Stage-5f diagnostic
+`gambitFireDeliberateNoGambler` computation was collapsed into a reuse of the same value
+(`noGambler === noGamblerRows`) rather than recomputed, and the raw honest seize rate stays printed
+in the Stage-5 diagnostics table with an updated reading string pointing at the new verdict row.
+`tests/v3/sim-report.test.ts` gained a dedicated test pinning the 10–20% band to the deliberate
+number. Regenerated `sim-results/sample-v3/` via `npm run sim:v3`: the §9 row flips
+35.7% ❌ FAIL → 17.5% ✅ PASS with the raw 35.7% figure retained as a diagnostic; game-level
+`summary.json` fields are unchanged, only the renamed/added verdict metadata differs, confirming
+this was a report-layer-only change. Scope boundary: no tunable, engine, or sim-metric-collection
+file changed — this task only re-pointed which already-collected metric the verdict table reads.
 
 ### T-004 · 40-seed pressure sweep of the Herald-OFF default (both modes, canonical + fresh seeds) — `status: TODO` · `coder: opus` · `after: T-003`
 The survey flags the final T2-3 Herald-OFF rebalance as under-validated relative to the project's
