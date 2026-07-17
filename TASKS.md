@@ -62,7 +62,7 @@ nowhere in `src/v2`/`src/v3`) were replaced with the real balance-data story; te
 (1,129 across 85 files) reproduced live. Executed inline by the orchestrating session — the
 workflow runner's clean-tree precondition can't start on the dirty tree this task exists to clean.
 
-### T-002 · Fix the two flaky sim-test timeouts — `status: TODO` · `coder: sonnet` · `after: —`
+### T-002 · Fix the two flaky sim-test timeouts — `status: DONE` · `coder: sonnet` · `after: —`
 `tests/v2/sim-archetypes.test.ts` and `tests/v3/sim-archetypes.test.ts` contain Monte-Carlo
 terminal-state tests that sit at vitest's 5s default timeout and flake under CPU contention —
 reproduced live: `tests/v2/sim-archetypes.test.ts` "every homogeneous archetype table drives to a
@@ -77,6 +77,11 @@ tests exist to measure.
 loop was shrunk (diff shows only timeout annotations in test files); `npx vitest run
 tests/v2/sim-archetypes.test.ts tests/v3/sim-archetypes.test.ts` passes 3 consecutive runs; full
 `npm test` green.
+**Delivered (2026-07-17):** `{ timeout: 30000 }` added to all six named tests (diff is annotations
+only — no seed/count/coverage change); the flake reproduced live pre-fix (both files' 4p×10-seed
+terminal-state tests timed out at 5s under full-suite load); post-fix the full 1,129-test suite
+passed 3 consecutive runs. Executed inline alongside T-001 — the flake was blocking T-001's commit
+gate. README's Tests paragraph updated to describe the explicit timeouts rather than the flake.
 
 ---
 

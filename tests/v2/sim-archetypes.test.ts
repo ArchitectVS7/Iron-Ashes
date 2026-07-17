@@ -110,7 +110,7 @@ describe('archetype games never crash the reducer', () => {
     return Array.from({ length: count }, (_, s) => policyOf(ids[s % ids.length] as never));
   }
 
-  it('every homogeneous archetype table drives to a terminal state (4p, 10 seeds)', () => {
+  it('every homogeneous archetype table drives to a terminal state (4p, 10 seeds)', { timeout: 30000 }, () => {
     for (const id of ARCHETYPE_IDS) {
       for (let seed = 0; seed < 10; seed++) {
         const r = playHeadlessGame({ seed, playerCount: 4, mode: 'competitive', seatPolicies: seatsFor([id], 4) });
@@ -120,7 +120,7 @@ describe('archetype games never crash the reducer', () => {
     }
   });
 
-  it('a mixed table terminates across counts and modes', () => {
+  it('a mixed table terminates across counts and modes', { timeout: 30000 }, () => {
     const mix = ['aggressor', 'turtle', 'opportunist', 'cooperator'];
     for (const mode of ['competitive', 'blood_pact'] as const) {
       for (const count of [2, 3, 4] as const) {
@@ -133,7 +133,7 @@ describe('archetype games never crash the reducer', () => {
     }
   });
 
-  it('a gambler-heavy table still terminates (Gambit pursuit is legal)', () => {
+  it('a gambler-heavy table still terminates (Gambit pursuit is legal)', { timeout: 30000 }, () => {
     for (let seed = 0; seed < 10; seed++) {
       const r = playHeadlessGame({ seed, playerCount: 4, mode: 'competitive', seatPolicies: seatsFor(['gambler'], 4) });
       expect(r.hitGuard).toBe(false);
