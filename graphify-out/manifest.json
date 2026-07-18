@@ -15,8 +15,8 @@
     "semantic_hash": "d5761a1390c7de9de43a266f26e41793"
   },
   "docs/handoff/state.json": {
-    "mtime": 1784338482.5037618,
-    "ast_hash": "516e12c4e9e93297eb80df2ef98d162d",
+    "mtime": 1784403246.3754928,
+    "ast_hash": "a7af4fda315be80eed536dce630d3717",
     "semantic_hash": ""
   },
   "docs/handoff/state.schema.json": {
@@ -30,13 +30,13 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1784335125.003513,
-    "ast_hash": "aa1c17dcb9a1597aacf1e8576f7e2f38",
+    "mtime": 1784400957.0441375,
+    "ast_hash": "8a6ba68107bde0d09f5e7cb6e54ee2ca",
     "semantic_hash": ""
   },
   "scripts/handoff-check.mjs": {
-    "mtime": 1784336664.4392517,
-    "ast_hash": "e5cd4f74acd736940e202dca0c3a7b7a",
+    "mtime": 1784397984.2512915,
+    "ast_hash": "3420a38ad4c28747d10ba2cf4f591a71",
     "semantic_hash": ""
   },
   "scripts/sim.mjs": {
@@ -620,8 +620,8 @@
     "semantic_hash": ""
   },
   "docs/ROADMAP-V3.md": {
-    "mtime": 1784393440.2791944,
-    "ast_hash": "759b77f4d7c3a2a49ef9903dfbc9a3c3",
+    "mtime": 1784398008.749984,
+    "ast_hash": "1402790d4b62f461dff8231a1cd60819",
     "semantic_hash": ""
   },
   "docs/Shadowlord.md": {
@@ -1115,8 +1115,8 @@
     "semantic_hash": ""
   },
   "TASKS.md": {
-    "mtime": 1784397526.817585,
-    "ast_hash": "d4c9caa238fe18f25dab51ba4d100ea2",
+    "mtime": 1784403350.8989553,
+    "ast_hash": "bd5b8cba9196e1169df17d470718baaa",
     "semantic_hash": ""
   },
   "src/v3/harness/harness-core.ts": {
@@ -1150,8 +1150,8 @@
     "semantic_hash": ""
   },
   "docs/ROADMAP-V3.1-UI.md": {
-    "mtime": 1784397522.093959,
-    "ast_hash": "a556d68cf88c134f15dec4a8bdf980d7",
+    "mtime": 1784401376.8134131,
+    "ast_hash": "069cedf1f49fe6ba9dcd3dc98d25f9e6",
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/Design Advice (Fable).md": {
@@ -1207,6 +1207,71 @@
   "docs/archive-V2/stage5-tuning-log.md": {
     "mtime": 1782356803.2928646,
     "ast_hash": "498086e401370ee3c8b2ee1dc19f6c86",
+    "semantic_hash": ""
+  },
+  "tests/v3/deps-smoke.test.ts": {
+    "mtime": 1784398939.1041207,
+    "ast_hash": "62b29cf1d08b218d51e34fb2cee8277a",
+    "semantic_hash": ""
+  },
+  "scripts/shots-v3.mjs": {
+    "mtime": 1784402279.1418822,
+    "ast_hash": "e1966838990d1a321542213dafa9a7cf",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/Gates.md": {
+    "mtime": 1784400827.895458,
+    "ast_hash": "6bf5e06e3c4aa176d7c839fb1a4ef2d0",
+    "semantic_hash": ""
+  },
+  "tests/v3/baseline-gallery.test.ts": {
+    "mtime": 1784403119.0577793,
+    "ast_hash": "1c40ad56d57ee6c187ceece9e30d433e",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/RUBRIC.md": {
+    "mtime": 1784403106.3069215,
+    "ast_hash": "e42cb2a5f3ea0744672ee51d655a9da2",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/baseline/README.md": {
+    "mtime": 1784403097.4736533,
+    "ast_hash": "5bfb695722d630bfa285b582dc4b4a21",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/baseline/01-start-select.png": {
+    "mtime": 1784403047.6717372,
+    "ast_hash": "e6f3e63b5dd07d8f4958188d835bd031",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/baseline/02-board-midgame.png": {
+    "mtime": 1784403047.8239074,
+    "ast_hash": "3f1680de2e6c6c5fb3187716be356b31",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/baseline/03-capture-election.png": {
+    "mtime": 1784403047.8668373,
+    "ast_hash": "74bc3303a4333eb3fb6d284101bf641e",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/baseline/04-ransom.png": {
+    "mtime": 1784403047.9657369,
+    "ast_hash": "63bc53b88302336f388c738c46670568",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/baseline/05-wraith.png": {
+    "mtime": 1784403048.698833,
+    "ast_hash": "e587cdad68a74d5dc8ad45e5d802eddf",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/baseline/06-bequest.png": {
+    "mtime": 1784403048.0168872,
+    "ast_hash": "973cc0c96e435c49f5e7dcc6062c2747",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/baseline/07-endgame.png": {
+    "mtime": 1784403048.2246068,
+    "ast_hash": "5a54dcc08e052daabdbe512685106e13",
     "semantic_hash": ""
   }
 }

@@ -1,16 +1,16 @@
 # Graph Report - Iron-Ashes  (2026-07-18)
 
 ## Corpus Check
-- 238 files · ~308,809 words
+- 244 files · ~353,225 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2140 nodes · 5306 edges · 125 communities (120 shown, 5 thin omitted)
+- 2164 nodes · 5326 edges · 127 communities (121 shown, 6 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 9 edges (avg confidence: 0.83)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d71f682b`
+- Built from commit: `ac42522a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -123,14 +123,14 @@
 - [[_COMMUNITY_Community 112|Community 112]]
 - [[_COMMUNITY_Community 113|Community 113]]
 - [[_COMMUNITY_Community 114|Community 114]]
-- [[_COMMUNITY_Community 115|Community 115]]
 - [[_COMMUNITY_Community 116|Community 116]]
 - [[_COMMUNITY_Community 117|Community 117]]
 - [[_COMMUNITY_Community 118|Community 118]]
 - [[_COMMUNITY_Community 119|Community 119]]
 - [[_COMMUNITY_Community 120|Community 120]]
 - [[_COMMUNITY_Community 121|Community 121]]
-- [[_COMMUNITY_Community 122|Community 122]]
+- [[_COMMUNITY_Community 125|Community 125]]
+- [[_COMMUNITY_Community 126|Community 126]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `getTunables()` - 87 edges
@@ -145,33 +145,33 @@
 10. `applyCommand()` - 41 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `game()` --calls--> `createGame()`  [EXTRACTED]
-  tests/v3/court.test.ts → src/v3/setup.ts
-- `reckoningCleanDawn()` --calls--> `createGame()`  [EXTRACTED]
-  tests/v3/kill-the-dark-3g.test.ts → src/v3/setup.ts
-- `gameWithRecruitToken()` --calls--> `createGame()`  [EXTRACTED]
-  tests/v3/retainer-names.test.ts → src/v3/setup.ts
-- `playFullGame()` --calls--> `playHeadlessGame()`  [EXTRACTED]
-  tests/v2/ai-player.test.ts → src/v3/sim/driver.ts
+- `apply()` --calls--> `applyCommand()`  [EXTRACTED]
+  tests/v2/sim-archetypes.test.ts → src/v2/reducer.ts
 - `playFullGame()` --calls--> `playHeadlessGame()`  [EXTRACTED]
   tests/v3/ai-player.test.ts → src/v3/sim/driver.ts
+- `play()` --calls--> `playHeadlessGame()`  [EXTRACTED]
+  tests/v3/difficulty.test.ts → src/v3/sim/driver.ts
+- `apply()` --calls--> `applyCommand()`  [EXTRACTED]
+  tests/v3/mechanics-3f.test.ts → src/v3/reducer.ts
+- `apply()` --calls--> `applyCommand()`  [EXTRACTED]
+  tests/v3/sim-bloodpact.test.ts → src/v3/reducer.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (125 total, 5 thin omitted)
+## Communities (127 total, 6 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.06
-Nodes (64): isPlayerAtNode(), RaidElect, bfsDistance(), BoardValidationResult, buildClosingRing(), BOARD_DATA, NODE_IDS, nodeDef() (+56 more)
+Cohesion: 0.08
+Nodes (51): bfsDistance(), BoardValidationResult, buildClosingRing(), createInitialBoardState(), BOARD_DATA, NODE_IDS, nodeDef(), validateClosingRing() (+43 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.11
-Nodes (38): Exposure, adjacent(), ARCH_SHORT, describeBequest(), esc(), EXPOSURE_LABEL, findOath(), oathPartner() (+30 more)
+Cohesion: 0.13
+Nodes (34): adjacent(), ARCH_SHORT, describeBequest(), esc(), EXPOSURE_LABEL, findOath(), oathPartner(), parleyReachable() (+26 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.33
-Nodes (6): crownCalloutText(), mountView(), click(), controls(), playThroughDom(), toHumanTurnDom()
+Cohesion: 0.12
+Nodes (35): checkBrokenRecovery(), executeParley(), executeRecruit(), resolveHeraldCaptures(), runOathUpkeep(), recordSuspicionLog(), checkGambitSeize(), computeTerritoryWinner() (+27 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.11
@@ -182,20 +182,20 @@ Cohesion: 0.30
 Nodes (11): Death Knight Engagement (hunt verb + win-currency kill), Herald Political Build (Stage H), Oaths + the Ledger (passion spine), Rescue/Break Economy (win-currency rescue), Design v2 Dark Engagement Patch, Design v2 Focus Group Round 1, Design v2 Focus Group Round 2, Design v2 Focus Group Round 3 (+3 more)
 
 ### Community 5 - "Community 5"
-Cohesion: 0.18
-Nodes (13): executeRecruit(), traitorAtPledge(), recruited(), setup(), inPledge(), pledgeEventType(), createGame(), createInitialForces() (+5 more)
+Cohesion: 0.12
+Nodes (17): traitorAtPledge(), Command, applySequence(), apply(), apply(), applyCommand(), cloneState(), handleAccusationVote() (+9 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.05
-Nodes (38): author, description, devDependencies, eslint, @eslint/js, jsdom, @types/node, typescript (+30 more)
+Cohesion: 0.04
+Nodes (44): author, dependencies, gsap, howler, description, devDependencies, eslint, @eslint/js (+36 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.05
-Nodes (61): bfsDistance(), BoardValidationResult, buildClosingRing(), createInitialBoardState(), NODE_IDS, nodeDef(), validateClosingRing(), AccusationVoteCommand (+53 more)
+Cohesion: 0.06
+Nodes (62): isPlayerAtNode(), bfsDistance(), BoardValidationResult, buildClosingRing(), createInitialBoardState(), NODE_IDS, nodeDef(), validateClosingRing() (+54 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.14
-Nodes (30): ActionResult, areAdjacent(), areSworn(), executeBreakOath(), executeMarch(), executeRaid(), executeRescue(), executeStrike() (+22 more)
+Cohesion: 0.17
+Nodes (27): areAdjacent(), areSworn(), executeBreakOath(), executeClaim(), executeHeraldMarch(), executeMarch(), executeRaid(), executeRescue() (+19 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.11
@@ -206,8 +206,8 @@ Cohesion: 0.11
 Nodes (18): description, type, additionalProperties, description, properties, required, type, commit (+10 more)
 
 ### Community 11 - "Community 11"
-Cohesion: 0.15
-Nodes (13): args, base, evalRun(), findings, inertLevers, LEVERS, matchups, measured() (+5 more)
+Cohesion: 0.09
+Nodes (22): args, CANDIDATES, matchups, modes, playerCounts, results, rng, seeds (+14 more)
 
 ### Community 12 - "Community 12"
 Cohesion: 0.13
@@ -262,16 +262,16 @@ Cohesion: 0.12
 Nodes (15): `command`, Common response fields, `create`, Determinism (§7), Example session, Game identity, `load`, Ops (+7 more)
 
 ### Community 26 - "Community 26"
-Cohesion: 0.14
-Nodes (13): args, bloodpact, herald, meta, outDir, positional, quick, rng (+5 more)
+Cohesion: 0.18
+Nodes (13): ArchetypeWinRate, BloodPactSummary, inBand(), mean(), median(), mkCheck(), PerCountStats, renderBloodPactMarkdown() (+5 more)
 
 ### Community 27 - "Community 27"
-Cohesion: 0.11
-Nodes (4): GameSession, withSessionTunables(), BequestChoiceInput, WraithInputKind
+Cohesion: 0.13
+Nodes (3): GameSession, Command, withSessionTunables()
 
 ### Community 28 - "Community 28"
-Cohesion: 0.07
-Nodes (73): runAIAccusations(), runHeadlessGame(), Narration, RaidProjection, areAdjacent(), areSworn(), executeBreakOath(), executeClaim() (+65 more)
+Cohesion: 0.10
+Nodes (48): areSworn(), hasRivalAtNode(), hasSKForcesAtNode(), archetypeAction(), baselineAction(), bestLooseCaptureAt(), bestStepToward(), bestStepTowardCapturableRival() (+40 more)
 
 ### Community 29 - "Community 29"
 Cohesion: 0.13
@@ -322,8 +322,8 @@ Cohesion: 0.22
 Nodes (8): Architecture, Design Commitments, Further Reading, History: v1 → v2 → v3, Iron Throne of Ashes, Quick Start, Status, Tests
 
 ### Community 45 - "Community 45"
-Cohesion: 0.21
-Nodes (20): chooseAccusation(), chooseAccusationVote(), chooseAuditTarget(), executeAudit(), isAccusationComplete(), mostSuspect(), recordSuspicionLog(), requiredVoters() (+12 more)
+Cohesion: 0.16
+Nodes (23): runAIAccusations(), runHeadlessGame(), getBlightFrontier(), AuditResult, BloodPactResult, chooseAccusation(), chooseAccusationVote(), chooseAuditTarget() (+15 more)
 
 ### Community 46 - "Community 46"
 Cohesion: 0.17
@@ -334,8 +334,8 @@ Cohesion: 0.17
 Nodes (11): 1. The problem (two coupled gates), 2.1 The dark is a break-vector — `sequencer.ts` (`LANDED_STRIKE_WOUNDS`), 2.2 Rescue pays the rescuer in win-currency — `actions.ts` (`RESCUE_TRIBUTE_BANNERS`), 2.3 The AI can REACH a broken ally — `ai-player.ts`, `archetypes.ts`, 2.4 Seam-wire the break/rescue levers — `tunables.ts`, 2.5 New/wired tunables (LOCKED values after the 5d search), 2. The fix — four coupled changes (the win-currency template + a break-vector), 3. Targets & guardrails (Stage 5d) — and the RESULT (+3 more)
 
 ### Community 48 - "Community 48"
-Cohesion: 0.13
-Nodes (19): args, bloodpact, meta, outDir, positional, quick, reportOnly, rng (+11 more)
+Cohesion: 0.07
+Nodes (25): args, bloodpact, herald, meta, outDir, positional, quick, rng (+17 more)
 
 ### Community 49 - "Community 49"
 Cohesion: 0.18
@@ -370,16 +370,16 @@ Cohesion: 0.29
 Nodes (6): Disposition recommendation, ML Training System — Claim vs. Reality Breakdown, Side-by-side: what it claims vs. what it does, TL;DR, What a sound harness looks like (when we get there), Why this matters for the redesign
 
 ### Community 57 - "Community 57"
-Cohesion: 0.18
-Nodes (21): coachTip(), esc(), oathPartner(), renderAccusePanel(), renderActionPanel(), renderApp(), renderAudits(), renderGambitBanner() (+13 more)
+Cohesion: 0.19
+Nodes (20): coachTip(), esc(), oathPartner(), renderAccusePanel(), renderActionPanel(), renderApp(), renderAudits(), renderGambitBanner() (+12 more)
 
 ### Community 58 - "Community 58"
-Cohesion: 0.12
-Nodes (26): ArchetypeId, GameRunConfig, Matchup, GameMetrics, ArchetypeWinRate, BloodPactSummary, inBand(), mkCheck() (+18 more)
+Cohesion: 0.14
+Nodes (19): ArchetypeId, GameRunConfig, Matchup, computeMetrics(), DiscoveryFlipMix, GameMetrics, meanPledges(), renderMarkdown() (+11 more)
 
 ### Community 59 - "Community 59"
-Cohesion: 0.40
-Nodes (8): chooseEffect(), chooseShadowkingIntent(), chooseTarget(), chooseTargetNode(), decayGrudge(), generateVoiceLine(), getSpokePathSimple(), ShadowkingEffect
+Cohesion: 0.10
+Nodes (34): applyDeathBequest(), applyWraithCardAdds(), applyWraithNudges(), BequestChoice, boardLeaderSeat(), cardsAccountedFor(), chooseCurseMetaTarget(), consumeStrikePower() (+26 more)
 
 ### Community 60 - "Community 60"
 Cohesion: 0.31
@@ -398,8 +398,8 @@ Cohesion: 0.12
 Nodes (17): A Warlord's first game: what to actually do, Everything you can do on your turn, First, the threat, Fourth, the dawn, How to win (and how everyone loses), Iron Throne of Ashes — Player's Manual, Knowing the dark: the Shadowking up close, Second, the pledge — the heart of it all (+9 more)
 
 ### Community 65 - "Community 65"
-Cohesion: 0.24
-Nodes (4): Forge-as-Gate Tolls (Stage T), Sealed Pledge (Stage S gambit fix), Design history — provenance, not authority, What's in here
+Cohesion: 0.16
+Nodes (9): 1. Sealed-pledge "volunteer's dilemma" (Stage S + B) — PARTIALLY validated, 2. Session length — 30–45 min target (instrumented C2, not yet felt), 3. Blood Pact — the accusation gamble + the Audit (Stage 5e) — sim-inert, human-real, 4. The literal Herald lone-runner (Stage HL) — table drama, Human-playtest checklist — assumptions the SIM can't validate, Forge-as-Gate Tolls (Stage T), Sealed Pledge (Stage S gambit fix), Design history — provenance, not authority (+1 more)
 
 ### Community 66 - "Community 66"
 Cohesion: 0.18
@@ -410,8 +410,8 @@ Cohesion: 0.20
 Nodes (9): Archetype knobs (extend `AIPolicy`, additive, neutral = today's behavior), Assumed decisions (recommended defaults; user did not select — override if wrong), Context, Files, Layout constraint, Phasing (each: verify 0 → state.json + ROADMAP §4 box + memory → commit → handoff:check), Stage 4 — Balance & Strategy Validation Harness (approved plan), Targets (ALGORITHM §9) (+1 more)
 
 ### Community 71 - "Community 71"
-Cohesion: 0.11
-Nodes (27): executeClaim(), executeHeraldMarch(), executeParley(), initiateAccusation(), chooseCombatCommit(), applySequence(), apply(), applyCommand() (+19 more)
+Cohesion: 0.13
+Nodes (7): crownCalloutText(), Exposure, Narration, RaidProjection, BequestChoiceInput, PendingLastStand, WraithInputKind
 
 ### Community 72 - "Community 72"
 Cohesion: 0.20
@@ -439,63 +439,63 @@ Nodes (16): aiPolicySchema, archetypeSchema, archetypesSchema, boardNodeSchema, 
 
 ### Community 79 - "Community 79"
 Cohesion: 0.08
-Nodes (52): ActionResult, executeParley(), executeRaid(), executeRecruit(), executeStrike(), finishRaidResolution(), resumeLastStand(), applyPushback() (+44 more)
+Nodes (59): areAdjacent(), executeBreakOath(), executeClaim(), executeHeraldMarch(), executeMarch(), executeRaid(), executeRansom(), executeStrike() (+51 more)
 
 ### Community 81 - "Community 81"
-Cohesion: 0.13
-Nodes (34): Narration, hasRivalAtNode(), hasSKForcesAtNode(), archetypeAction(), baselineAction(), bestStepToward(), bestStepTowardBrokenAlly(), bestStepTowardFront() (+26 more)
+Cohesion: 0.14
+Nodes (32): hasRivalAtNode(), hasSKForcesAtNode(), parleyTarget(), archetypeAction(), baselineAction(), bestStepToward(), bestStepTowardBrokenAlly(), bestStepTowardFront() (+24 more)
 
 ### Community 82 - "Community 82"
 Cohesion: 0.18
 Nodes (8): args, CANDIDATES, matchups, modes, playerCounts, results, rng, seeds
 
 ### Community 83 - "Community 83"
-Cohesion: 0.16
-Nodes (22): getBlightFrontier(), AuditResult, BloodPactResult, chooseAccusation(), chooseAccusationVote(), chooseAuditTarget(), initiateAccusation(), isAccusationComplete() (+14 more)
+Cohesion: 0.15
+Nodes (25): ActionResult, BlightResult, AuditResult, BloodPactResult, chooseAccusation(), chooseAccusationVote(), chooseAuditTarget(), isAccusationComplete() (+17 more)
 
 ### Community 84 - "Community 84"
 Cohesion: 0.10
 Nodes (39): CommandRequest, createRegistry(), CreateRequest, DIFFICULTIES, dispatch(), ErrorInfo, errorResponse(), GameEntry (+31 more)
 
 ### Community 85 - "Community 85"
-Cohesion: 0.18
-Nodes (21): advanceBlightOnNode(), advanceBlightOnSpoke(), ashNode(), BlightResult, countAshedNodes(), getSpokeFrontier(), getSpokePath(), resolveStrike() (+13 more)
+Cohesion: 0.16
+Nodes (25): advanceBlightOnNode(), advanceBlightOnSpoke(), applyDawnBlightAdvance(), applyPushback(), ashNode(), checkActAdvance(), countAshedNodes(), getBlightFrontier() (+17 more)
 
 ### Community 86 - "Community 86"
 Cohesion: 0.18
 Nodes (8): args, CANDIDATES, matchups, modes, playerCounts, results, rng, seeds
 
 ### Community 87 - "Community 87"
-Cohesion: 0.16
-Nodes (24): advanceBlightOnNode(), advanceBlightOnSpoke(), applyDawnBlightAdvance(), ashNode(), checkActAdvance(), countAshedNodes(), getBlightFrontier(), getSpokeFrontier() (+16 more)
+Cohesion: 0.23
+Nodes (20): advanceBlightOnNode(), advanceBlightOnSpoke(), applyDawnBlightAdvance(), ashNode(), checkActAdvance(), countAshedNodes(), getSpokeFrontier(), getSpokePath() (+12 more)
 
 ### Community 88 - "Community 88"
 Cohesion: 0.08
-Nodes (30): ActionType, AccusationOpenedEvent, AccusationResolvedEvent, AccusationVoteCastEvent, ActEscalatedEvent, ActivePlayerChangedEvent, AuditResultEvent, BlightAdvancedEvent (+22 more)
+Nodes (32): SweepDiagnostics, ActionType, AccusationOpenedEvent, AccusationResolvedEvent, AccusationVoteCastEvent, ActEscalatedEvent, ActivePlayerChangedEvent, AuditResultEvent (+24 more)
 
 ### Community 89 - "Community 89"
 Cohesion: 0.24
 Nodes (10): ARCH_GLYPH, esc(), LAYOUT, NODE_R, PLAYER_COLORS, Point, Polar, pos() (+2 more)
 
 ### Community 90 - "Community 90"
-Cohesion: 0.09
-Nodes (49): resolveHeraldCaptures(), runOathUpkeep(), applyDawnBlightAdvance(), checkActAdvance(), isKeystoneAshed(), recordSuspicionLog(), addBoardPiece(), enforceGuardCap() (+41 more)
+Cohesion: 0.11
+Nodes (34): resolveHeraldCaptures(), runOathUpkeep(), isKeystoneAshed(), recordSuspicionLog(), resolveCaptivesAfterDeposals(), stewardIncome(), applyReckoningAutoPressure(), applyReckoningBlightPressure() (+26 more)
 
 ### Community 91 - "Community 91"
-Cohesion: 0.10
-Nodes (20): policyOf(), GameRunResult, traitorAtPledge(), createInitialBoardState(), setup(), inPledge(), apply(), getToActionPhase() (+12 more)
+Cohesion: 0.07
+Nodes (43): resumeLastStand(), traitorAtPledge(), initiateAccusation(), arena(), lastStrongholdArena(), game(), applySequence(), stripStartingRetainers() (+35 more)
 
 ### Community 93 - "Community 93"
 Cohesion: 0.31
 Nodes (7): boot(), DIFFICULTY_OPTIONS, startScreen(), beginAt(), click(), beginWithHerald(), click()
 
 ### Community 94 - "Community 94"
-Cohesion: 0.17
-Nodes (9): args, CANDIDATES, HB, matchups, modes, playerCounts, results, rng (+1 more)
+Cohesion: 0.13
+Nodes (16): executeParley(), executeRecruit(), parleyTarget(), DIFFICULTY_TUNABLES, difficultyTunables(), sessionTunables(), ACTS, play() (+8 more)
 
 ### Community 95 - "Community 95"
-Cohesion: 0.13
-Nodes (26): livingStrongholdCount(), productionOf(), applyDeathBequest(), applyWraithCardAdds(), applyWraithNudges(), BequestChoice, boardLeaderSeat(), cardsAccountedFor() (+18 more)
+Cohesion: 0.15
+Nodes (12): args, bloodpact, meta, outDir, positional, quick, reportOnly, rng (+4 more)
 
 ### Community 96 - "Community 96"
 Cohesion: 0.08
@@ -514,24 +514,24 @@ Cohesion: 0.33
 Nodes (5): Does the code represent the design intention?, The consolidated fix list (ranked, costed), The five questions, The headline (all three reviewers converged), v3 Second-Pass Design Review — 2026-07-01
 
 ### Community 100 - "Community 100"
-Cohesion: 0.20
-Nodes (15): checkBrokenRecovery(), resolveHeraldCaptures(), runOathUpkeep(), checkGambitSeize(), computeTerritoryWinner(), evaluateGambitAtDawn(), getEffectivePledgeWeight(), advanceToNextPhase() (+7 more)
+Cohesion: 0.36
+Nodes (9): chooseEffect(), chooseShadowkingIntent(), chooseTarget(), chooseTargetNode(), decayGrudge(), generateVoiceLine(), getSpokePathSimple(), ShadowkingEffect (+1 more)
 
 ### Community 101 - "Community 101"
-Cohesion: 0.32
-Nodes (7): ARCHETYPES, bloodPactMatchups(), computeMetrics(), DiscoveryFlipMix, meanPledges(), summarizeBloodPact(), runSweep()
+Cohesion: 0.36
+Nodes (8): allRoundRobins(), homogeneous(), MIXED_CANONICAL, oneVsField(), roundRobin(), standardMatchups(), runTunableCandidates(), DEFAULT_TUNABLES
 
 ### Community 102 - "Community 102"
-Cohesion: 0.18
-Nodes (7): Archetype, ARCHETYPE_IDS, VERB_KNOBS, VerbKnobs, SeatPolicies, AIPolicy, AIPolicy
+Cohesion: 0.22
+Nodes (10): Narration, ActionResult, BlightResult, CombatResult, LastStandResult, GameEvent, CommandResult, SequencerResult (+2 more)
 
 ### Community 103 - "Community 103"
 Cohesion: 0.15
 Nodes (10): args, ARMS, matchups, modes, open, playerCounts, rng, rows (+2 more)
 
 ### Community 104 - "Community 104"
-Cohesion: 0.31
-Nodes (11): runThreatPhase(), addGrudge(), chooseEffect(), chooseShadowkingIntent(), chooseTarget(), chooseTargetNode(), decayGrudge(), generateVoiceLine() (+3 more)
+Cohesion: 0.29
+Nodes (5): Baseline "before" gallery (M1), Screens, Checklist (score /10), How to use it, M2 Visual Rubric — the board-game-read checklist
 
 ### Community 105 - "Community 105"
 Cohesion: 0.13
@@ -546,16 +546,16 @@ Cohesion: 0.31
 Nodes (7): root, startScreen(), mountView(), click(), controls(), playThroughDom(), toHumanTurnDom()
 
 ### Community 108 - "Community 108"
-Cohesion: 0.18
-Nodes (17): playHeadlessGame(), territoryLeader(), territoryOf(), DEFAULT_AI_POLICY, DEFAULT_AI_POLICY, ARCHETYPE_SEATS, finalOf(), difficultyTunables() (+9 more)
+Cohesion: 0.09
+Nodes (24): Archetype, ARCHETYPE_IDS, ARCHETYPES, policyOf(), VERB_KNOBS, VerbKnobs, GameRunResult, playHeadlessGame() (+16 more)
 
 ### Community 109 - "Community 109"
-Cohesion: 0.50
-Nodes (5): Monte Carlo Balance Sim (v2 harness), PPO RL Agent (v1 scrapped), v1 Engine Drift (implementation vs spec), ML System Analysis (v1 scrapped), Redesign Analysis (v1 root-cause)
+Cohesion: 0.17
+Nodes (9): args, CANDIDATES, HB, matchups, modes, playerCounts, results, rng (+1 more)
 
 ### Community 110 - "Community 110"
-Cohesion: 0.18
-Nodes (8): args, CANDIDATES, matchups, modes, playerCounts, results, rng, seeds
+Cohesion: 0.40
+Nodes (5): main(), parseArgs(), SCREENS, SEED_LIST, VIEWPORT
 
 ### Community 111 - "Community 111"
 Cohesion: 0.33
@@ -572,10 +572,6 @@ Nodes (13): §1 — Start & shell (do once), §2 — The core loop (Run A, every
 ### Community 114 - "Community 114"
 Cohesion: 0.17
 Nodes (11): 0. Where we are right now, 1. The game in one paragraph (orient a cold session), 2. Locked decisions (the spine — do not relitigate without explicit sign-off), 3. Document map (read order), 4. The plan (stages → concrete steps → status), 5. Reuse vs. rebuild (rule: reuse only when refactor ≤ writing fresh), 6. Known risks / parked questions, 7. How to resume (fresh session checklist) (+3 more)
-
-### Community 115 - "Community 115"
-Cohesion: 0.17
-Nodes (10): args, BARS, BONUSES, COVERS, matchups, modes, passes, playerCounts (+2 more)
 
 ### Community 116 - "Community 116"
 Cohesion: 0.18
@@ -594,36 +590,36 @@ Cohesion: 0.33
 Nodes (5): Does the code represent the design intention?, The consolidated fix list (ranked, costed), The five questions, The headline (all three reviewers converged), v3 Second-Pass Design Review — 2026-07-01
 
 ### Community 120 - "Community 120"
-Cohesion: 0.40
-Nodes (5): 1. Sealed-pledge "volunteer's dilemma" (Stage S + B) — PARTIALLY validated, 2. Session length — 30–45 min target (instrumented C2, not yet felt), 3. Blood Pact — the accusation gamble + the Audit (Stage 5e) — sim-inert, human-real, 4. The literal Herald lone-runner (Stage HL) — table drama, Human-playtest checklist — assumptions the SIM can't validate
+Cohesion: 0.48
+Nodes (5): mountView(), click(), controls(), playThroughDom(), toHumanTurnDom()
 
 ### Community 121 - "Community 121"
 Cohesion: 0.40
 Nodes (5): 1. Sealed-pledge "volunteer's dilemma" (Stage S + B) — PARTIALLY validated, 2. Session length — 30–45 min target (instrumented C2, not yet felt), 3. Blood Pact — the accusation gamble + the Audit (Stage 5e) — sim-inert, human-real, 4. The literal Herald lone-runner (Stage HL) — table drama, Human-playtest checklist — assumptions the SIM can't validate
 
-### Community 122 - "Community 122"
+### Community 125 - "Community 125"
 Cohesion: 0.50
-Nodes (4): mean(), median(), stanceStats(), summarize()
+Nodes (5): Monte Carlo Balance Sim (v2 harness), PPO RL Agent (v1 scrapped), v1 Engine Drift (implementation vs spec), ML System Analysis (v1 scrapped), Redesign Analysis (v1 root-cause)
 
 ## Knowledge Gaps
-- **857 isolated node(s):** `Orchestrator protocol`, `T-001 · Wire V3.1 into the handoff machinery — `status: IN-PROGRESS` · `coder: sonnet` · `after: —``, `T-002 · Add gsap + howler (pinned) — `status: TODO` · `coder: sonnet` · `after: T-001``, `T-003 · Headless screenshot script (`npm run shots:v3`) — `status: TODO` · `coder: opus` · `after: T-002``, `T-004 · Baseline "before" gallery + the M2 visual rubric — `status: TODO` · `coder: sonnet` · `after: T-003`` (+852 more)
+- **870 isolated node(s):** `Orchestrator protocol`, `T-001 · Wire V3.1 into the handoff machinery — `status: DONE` · `coder: sonnet` · `after: —``, `T-002 · Add gsap + howler (pinned) — `status: DONE` · `coder: sonnet` · `after: T-001``, `T-003 · Headless screenshot script (`npm run shots:v3`) — `status: DONE` · `coder: opus` · `after: T-002``, `T-004 · Baseline "before" gallery + the M2 visual rubric — `status: DONE` · `coder: sonnet` · `after: T-003`` (+865 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `SeededRandom` connect `Community 20` to `Community 0`, `Community 5`, `Community 11`, `Community 22`, `Community 23`, `Community 24`, `Community 26`, `Community 28`, `Community 45`, `Community 48`, `Community 49`, `Community 71`, `Community 79`, `Community 81`, `Community 82`, `Community 83`, `Community 86`, `Community 90`, `Community 91`, `Community 94`, `Community 95`, `Community 100`, `Community 103`, `Community 110`, `Community 112`, `Community 115`?**
-  _High betweenness centrality (0.095) - this node is a cross-community bridge._
-- **Why does `GameState` connect `Community 91` to `Community 0`, `Community 101`, `Community 102`, `Community 59`, `Community 108`, `Community 79`, `Community 83`, `Community 84`, `Community 85`, `Community 90`, `Community 27`, `Community 28`, `Community 95`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
-- **Why does `createGame()` connect `Community 91` to `Community 0`, `Community 2`, `Community 101`, `Community 102`, `Community 108`, `Community 79`, `Community 83`, `Community 84`, `Community 85`, `Community 90`, `Community 59`, `Community 28`, `Community 95`?**
+- **Why does `SeededRandom` connect `Community 20` to `Community 0`, `Community 2`, `Community 11`, `Community 22`, `Community 23`, `Community 24`, `Community 26`, `Community 28`, `Community 45`, `Community 48`, `Community 49`, `Community 59`, `Community 81`, `Community 82`, `Community 83`, `Community 86`, `Community 90`, `Community 91`, `Community 94`, `Community 95`, `Community 103`, `Community 109`, `Community 112`?**
+  _High betweenness centrality (0.093) - this node is a cross-community bridge._
+- **Why does `GameState` connect `Community 83` to `Community 0`, `Community 90`, `Community 71`, `Community 59`, `Community 91`, `Community 108`, `Community 79`, `Community 48`, `Community 84`, `Community 85`, `Community 58`, `Community 27`, `Community 28`, `Community 94`?**
   _High betweenness centrality (0.022) - this node is a cross-community bridge._
-- **What connects `Orchestrator protocol`, `T-001 · Wire V3.1 into the handoff machinery — `status: IN-PROGRESS` · `coder: sonnet` · `after: —``, `T-002 · Add gsap + howler (pinned) — `status: TODO` · `coder: sonnet` · `after: T-001`` to the rest of the system?**
-  _857 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `GameState` connect `Community 102` to `Community 2`, `Community 100`, `Community 5`, `Community 7`, `Community 8`, `Community 106`, `Community 108`, `Community 45`, `Community 81`, `Community 87`, `Community 57`, `Community 58`, `Community 92`?**
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+- **What connects `Orchestrator protocol`, `T-001 · Wire V3.1 into the handoff machinery — `status: DONE` · `coder: sonnet` · `after: —``, `T-002 · Add gsap + howler (pinned) — `status: DONE` · `coder: sonnet` · `after: T-001`` to the rest of the system?**
+  _870 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.05727605727605728 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07834101382488479 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.10796221322537113 - nodes in this community are weakly interconnected._
-- **Should `Community 3` be split into smaller, more focused modules?**
-  _Cohesion score 0.1111111111111111 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.12773109243697478 - nodes in this community are weakly interconnected._
+- **Should `Community 2` be split into smaller, more focused modules?**
+  _Cohesion score 0.11649659863945579 - nodes in this community are weakly interconnected._
