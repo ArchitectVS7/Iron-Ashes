@@ -255,8 +255,8 @@
     "semantic_hash": "949baaaafb00420ad15a64d069407084"
   },
   "src/v2/tunables.ts": {
-    "mtime": 1782517228.9985788,
-    "ast_hash": "5719bd45758180ac2377dde920faf23c",
+    "mtime": 1784393581.7824101,
+    "ast_hash": "35a4198f6e3c270268bf363c9690aad2",
     "semantic_hash": ""
   },
   "src/v2/types.ts": {
@@ -460,8 +460,8 @@
     "semantic_hash": "5dd62b2940fc92cc9de942cf39da52f4"
   },
   "CLAUDE.md": {
-    "mtime": 1784337713.3583515,
-    "ast_hash": "ced14cbeee1264fbcb5a5742c28b1418",
+    "mtime": 1784393297.3009753,
+    "ast_hash": "f1562b826327dea1646ac83a1b2477b8",
     "semantic_hash": ""
   },
   "README.md": {
@@ -470,18 +470,8 @@
     "semantic_hash": ""
   },
   "docs/AGENT-PROTOCOL.md": {
-    "mtime": 1784336823.9416747,
-    "ast_hash": "d9f90e7924a96bb83b73e88876d83762",
-    "semantic_hash": ""
-  },
-  "docs/DESIGN-V2-ALGORITHM.md": {
-    "mtime": 1782356841.6878335,
-    "ast_hash": "30143945f5e08a5f1b39048ea0a4dca4",
-    "semantic_hash": ""
-  },
-  "docs/ROADMAP.md": {
-    "mtime": 1782517935.2116244,
-    "ast_hash": "4b7eee25df9794cf8282c173e5e65106",
+    "mtime": 1784393337.7275362,
+    "ast_hash": "d346d52431175062aa7c984a271f7d45",
     "semantic_hash": ""
   },
   "docs/USER-MANUAL.md": {
@@ -490,34 +480,9 @@
     "semantic_hash": ""
   },
   "docs/architecture.md": {
-    "mtime": 1784335926.7534041,
-    "ast_hash": "18e7c434524ce88c9cc8f7d2988dd12a",
+    "mtime": 1784393367.6703236,
+    "ast_hash": "a271f38fdb1c061dc644f05314783d47",
     "semantic_hash": ""
-  },
-  "docs/balance-report.md": {
-    "mtime": 1773093455.1044106,
-    "ast_hash": "cbdc97401522405ebaeab8db6ca10c1d",
-    "semantic_hash": "cbdc97401522405ebaeab8db6ca10c1d"
-  },
-  "docs/handoff/plan-stage4.md": {
-    "mtime": 1782356803.3024602,
-    "ast_hash": "69153edf1e4c81a494b25d6ec83960cc",
-    "semantic_hash": ""
-  },
-  "docs/handoff/qa-pre-playtest-review.md": {
-    "mtime": 1782356803.2976637,
-    "ast_hash": "1fa33aa751b5737755ebcd293ee0eda7",
-    "semantic_hash": ""
-  },
-  "docs/handoff/stage5-tuning-log.md": {
-    "mtime": 1782356803.2928646,
-    "ast_hash": "498086e401370ee3c8b2ee1dc19f6c86",
-    "semantic_hash": ""
-  },
-  "docs/human-playtest-checklist.md": {
-    "mtime": 1782299864.4584873,
-    "ast_hash": "82916208802e1504908d404c5580efd1",
-    "semantic_hash": "82916208802e1504908d404c5580efd1"
   },
   "index.html": {
     "mtime": 1782150325.857529,
@@ -549,19 +514,14 @@
     "ast_hash": "56fb41483eeebb546846ed67eb7fae71",
     "semantic_hash": "56fb41483eeebb546846ed67eb7fae71"
   },
-  "docs/Assessment-June-25.md": {
-    "mtime": 1784324541.9996145,
-    "ast_hash": "8badb4a33c5543ba264f75b25d550ffa",
-    "semantic_hash": ""
-  },
   "docs/GAME-DESIGN.md": {
-    "mtime": 1782356438.8089843,
-    "ast_hash": "a9147ca1aeda012a4f0a150949a8104c",
+    "mtime": 1784393436.3991654,
+    "ast_hash": "abdd99f44bbfc46f9cb268efcf82cdf0",
     "semantic_hash": ""
   },
   "docs/design-history/DESIGN-V2-DARK-ENGAGEMENT.md": {
-    "mtime": 1782176885.4064453,
-    "ast_hash": "1f1a5c5fbf1b77ab55c3d71544179852",
+    "mtime": 1784393384.8696377,
+    "ast_hash": "aced683874788ac245d5eb026587dc10",
     "semantic_hash": ""
   },
   "docs/design-history/DESIGN-V2-FOCUS-GROUP-R2.md": {
@@ -580,13 +540,13 @@
     "semantic_hash": ""
   },
   "docs/design-history/DESIGN-V2-OATHS.md": {
-    "mtime": 1782186535.9119897,
-    "ast_hash": "571d6d75752c09c6df5904f432f8aaa6",
+    "mtime": 1784393388.511185,
+    "ast_hash": "00c5d02522d650d6c78ce5d4d60e0ab1",
     "semantic_hash": ""
   },
   "docs/design-history/DESIGN-V2-RESCUE-ECONOMY.md": {
-    "mtime": 1782181584.364544,
-    "ast_hash": "44cb262337c872aa404a483856af554b",
+    "mtime": 1784393397.475782,
+    "ast_hash": "a027d9c67cfd84c2d1a21c3bfd91db25",
     "semantic_hash": ""
   },
   "docs/design-history/DESIGN-V2-STRESS-TEST.md": {
@@ -600,8 +560,8 @@
     "semantic_hash": ""
   },
   "docs/design-history/README.md": {
-    "mtime": 1782356830.6825259,
-    "ast_hash": "4887226620433b274666d3cacc9ba555",
+    "mtime": 1784393380.9941645,
+    "ast_hash": "ef097e0f27af7dad5cfcebc21ffb6f05",
     "semantic_hash": ""
   },
   "docs/design-history/REDESIGN-ANALYSIS.md": {
@@ -610,8 +570,8 @@
     "semantic_hash": ""
   },
   "tests/v2/balance-lock.test.ts": {
-    "mtime": 1782439975.539636,
-    "ast_hash": "9939d397fa0c687b75fcf6d09ce82725",
+    "mtime": 1784394385.2494545,
+    "ast_hash": "9c3bc8a804c6169ba150db0c6361153a",
     "semantic_hash": ""
   },
   "data/archetypes.json": {
@@ -654,19 +614,14 @@
     "ast_hash": "4fe7d3060fc31236fa868002fc64ebf5",
     "semantic_hash": ""
   },
-  "docs/UAT-6b.md": {
-    "mtime": 1782520842.6727848,
-    "ast_hash": "960b0f4f58d517f49fc640564f17a514",
-    "semantic_hash": ""
-  },
   "docs/DESIGN-V3-ALGORITHM.md": {
     "mtime": 1782994005.4374259,
     "ast_hash": "6a39680800728f8c0930824bc8cce32b",
     "semantic_hash": ""
   },
   "docs/ROADMAP-V3.md": {
-    "mtime": 1784336676.2440128,
-    "ast_hash": "22b1be45bf12d52fe2800f5b52c775b5",
+    "mtime": 1784393440.2791944,
+    "ast_hash": "759b77f4d7c3a2a49ef9903dfbc9a3c3",
     "semantic_hash": ""
   },
   "docs/Shadowlord.md": {
@@ -815,8 +770,8 @@
     "semantic_hash": ""
   },
   "src/v3/tunables.ts": {
-    "mtime": 1783002202.146376,
-    "ast_hash": "341e4b941d1ee7b7e1997205d311e2e1",
+    "mtime": 1784394364.544507,
+    "ast_hash": "9fe02d173b203f4bacf7845e731c9e57",
     "semantic_hash": ""
   },
   "src/v3/types.ts": {
@@ -1114,14 +1069,9 @@
     "ast_hash": "25debb74818a403cfd9a3abb8b478898",
     "semantic_hash": ""
   },
-  "docs/DESIGN-REVIEW-V3-SECOND-PASS.md": {
-    "mtime": 1782961500.6735735,
-    "ast_hash": "1c321f960345acc2b5e9222247fb6476",
-    "semantic_hash": ""
-  },
   "docs/V3-FIX-BACKLOG.md": {
-    "mtime": 1783029970.1354694,
-    "ast_hash": "7bd6fb2644bb97a648c09befdf4812cf",
+    "mtime": 1784394400.7486844,
+    "ast_hash": "210174f754803caf3d50f8f392fcf3cd",
     "semantic_hash": ""
   },
   "tests/v3/retainer-names.test.ts": {
@@ -1165,8 +1115,8 @@
     "semantic_hash": ""
   },
   "TASKS.md": {
-    "mtime": 1784339120.866198,
-    "ast_hash": "c5e4cc357e5d05ba8e845d9a34ae6b9d",
+    "mtime": 1784397526.817585,
+    "ast_hash": "d4c9caa238fe18f25dab51ba4d100ea2",
     "semantic_hash": ""
   },
   "src/v3/harness/harness-core.ts": {
@@ -1197,6 +1147,66 @@
   "harness/README.md": {
     "mtime": 1784335156.9576125,
     "ast_hash": "053de52d473c92ebaec846bd79a62b88",
+    "semantic_hash": ""
+  },
+  "docs/ROADMAP-V3.1-UI.md": {
+    "mtime": 1784397522.093959,
+    "ast_hash": "a556d68cf88c134f15dec4a8bdf980d7",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/Design Advice (Fable).md": {
+    "mtime": 1784393490.5013106,
+    "ast_hash": "5518a5db7b910c129a96a7453323d4a6",
+    "semantic_hash": ""
+  },
+  "docs/archive-V2/Assessment-June-25.md": {
+    "mtime": 1784324541.9996145,
+    "ast_hash": "8badb4a33c5543ba264f75b25d550ffa",
+    "semantic_hash": ""
+  },
+  "docs/archive-V2/DESIGN-REVIEW-V3-SECOND-PASS.md": {
+    "mtime": 1782961500.6735735,
+    "ast_hash": "1c321f960345acc2b5e9222247fb6476",
+    "semantic_hash": ""
+  },
+  "docs/archive-V2/DESIGN-V2-ALGORITHM.md": {
+    "mtime": 1784393456.181451,
+    "ast_hash": "496b4c62d6e13340b96c4350405e2efc",
+    "semantic_hash": ""
+  },
+  "docs/archive-V2/ROADMAP.md": {
+    "mtime": 1782517935.2116244,
+    "ast_hash": "4b7eee25df9794cf8282c173e5e65106",
+    "semantic_hash": ""
+  },
+  "docs/archive-V2/UAT-6b.md": {
+    "mtime": 1784394433.4613922,
+    "ast_hash": "cabdd376396135f4468070241335f0d7",
+    "semantic_hash": ""
+  },
+  "docs/archive-V2/balance-report.md": {
+    "mtime": 1773093455.1044106,
+    "ast_hash": "cbdc97401522405ebaeab8db6ca10c1d",
+    "semantic_hash": ""
+  },
+  "docs/archive-V2/human-playtest-checklist.md": {
+    "mtime": 1782299864.4584873,
+    "ast_hash": "82916208802e1504908d404c5580efd1",
+    "semantic_hash": ""
+  },
+  "docs/archive-V2/plan-stage4.md": {
+    "mtime": 1782356803.3024602,
+    "ast_hash": "69153edf1e4c81a494b25d6ec83960cc",
+    "semantic_hash": ""
+  },
+  "docs/archive-V2/qa-pre-playtest-review.md": {
+    "mtime": 1782356803.2976637,
+    "ast_hash": "1fa33aa751b5737755ebcd293ee0eda7",
+    "semantic_hash": ""
+  },
+  "docs/archive-V2/stage5-tuning-log.md": {
+    "mtime": 1782356803.2928646,
+    "ast_hash": "498086e401370ee3c8b2ee1dc19f6c86",
     "semantic_hash": ""
   }
 }
