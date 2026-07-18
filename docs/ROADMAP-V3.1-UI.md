@@ -150,7 +150,10 @@ command; baseline gallery in-repo.
 - [ ] Polish pass driven by screenshot review; align UI affordances with `docs/v3-teach-script.md`
       (the UI should surface what the teach script must otherwise explain).
 - [ ] Accessibility: reduced motion (done), colorblind-safe token palette (shape+icon, never
-      color-only), minimum text sizes; settings panel (sound, animation speed, herald toggle).
+      color-only), minimum text sizes; settings panel (sound, **animation intensity: Cinematic
+      (default) / Snappy / Instant** — a user decision (2026-07-18, from MTG-Arena experience: repeat
+      players turn animations off in favor of gameplay); the tiers ride the M1 instant-mode rail as
+      one global speed knob, not three implementations; herald toggle).
 - [ ] **Scripted full-UI playtest** (per the global rule: through the UI, no API shortcuts) as the
       pre-human smoke run.
 - [ ] **The human playtest**: walk `human-playtest-checklist-v3.md`; set the shipped difficulty default
