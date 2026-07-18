@@ -195,7 +195,7 @@ JSON / unknown op / unknown game id / illegal command each return a structured e
 `npm run sim:v3` (20260622, 40) `summary.json` byte-identical to `sim-results/sample-v3/summary.json`
 (the harness must not perturb the engine).
 
-### T-006 · Stdio shell + npm script + smoke test — `status: TODO` · `coder: sonnet` · `after: T-005`
+### T-006 · Stdio shell + npm script + smoke test — `status: DONE` · `coder: sonnet` · `after: T-005`
 Wrap the T-005 core in the thin Node stdio shell, following
 `~/Dev/Games/nexus-dominion/harness/ugt-harness.mjs`: one JSON request per stdin line → one JSON
 response per stdout line, strictly in order; blank lines skipped; exit 0 on stdin close. Unlike
@@ -211,6 +211,18 @@ one example session) so the UGT-side ladder author needs nothing else from this 
 **Accept:** `printf '<create-line>\n<state-line>\n' | npm run harness --silent` produces two
 valid JSON responses with `stateHash`; the smoke test is green in `npm test`; `harness/README.md`
 documents every op with a real example; no engine files changed.
+**Delivered (2026-07-17):** `harness/ugt-harness.mjs` added — a thin Node `readline`-over-stdio
+shell (parse → dispatch → write, no game logic) that imports the compiled T-005 core from
+`dist/v3/harness/harness-core.js`, matching this repo's `scripts/sim-v3.mjs` compiled-import
+convention rather than nexus-dominion's TS resolve hook; `package.json` gained `"harness": "tsc &&
+node harness/ugt-harness.mjs"`. `tests/v3/harness-stdio.test.ts` spawns the shell as a real child
+process and drives create → state → run_ai → save → load over actual stdio, asserting stateHash
+round-trip equality, that blank lines produce no response, and that a malformed line yields a
+structured `BAD_REQUEST` rather than a crash. `harness/README.md` documents the protocol (one
+request per line, ordered responses, exit 0 on stdin close) and every op with a worked example.
+Scope boundary: no engine files under `src/v2/` or `src/v3/` (outside the already-DONE T-005 core)
+were touched — this task is transport-only, all rules enforcement stays in the engine seam the
+UI already uses.
 
 ---
 
