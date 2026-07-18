@@ -338,7 +338,15 @@ verify` to confirm the doc's claims); no v2/v3 engine code, tunable, or test was
 
 ## M4 — Ship hygiene
 
-### T-010 · Set upstream and push the v2/v3 era — `status: TODO` · `coder: sonnet` · `after: T-001, T-004, T-006, T-009`
+### T-010 · Set upstream and push the v2/v3 era — `status: DONE` · `coder: sonnet` · `after: T-001, T-004, T-006, T-009`
+**Delivered (2026-07-17):** `v3-redesign` now tracks `origin/v3-redesign` (upstream configured via
+`-u origin v3-redesign`) and `main` was pushed so `origin/main` is no longer 51 commits behind —
+`git log origin/main..main --oneline` returns empty and `git branch -vv` shows both local branches
+in sync with their remotes, with the pre-push hook (lint + full test suite) passing on its own with
+no `--force` / `--no-verify`. Scope boundary: this task only performed the git push/upstream-set
+operations directed by the survey; no source, tunable, or test file was touched, and this closing
+commit (TASKS.md status update plus the graphify artifact refresh already sitting in the working
+tree) does not re-run push or the test suite — the gate had already verified the tree beforehand.
 The survey's ship-hygiene finding: `v3-redesign` has **no upstream configured** and `main` is
 **ahead of origin/main by 51 commits** — the entire v2/v3 era may exist only locally. Verify with
 `git branch -vv` and `git log origin/main..main --oneline | wc -l`, then push `main` and push
