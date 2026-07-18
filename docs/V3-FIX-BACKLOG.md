@@ -1,7 +1,7 @@
 # v3 Fix Backlog — running to-do (the cross-session reference)
 
 > **Purpose:** the durable, referenceable to-do list from the 2026-07-01 second-pass design review
-> (`DESIGN-REVIEW-V3-SECOND-PASS.md`). Each item: the gap, the problem statement, the recommended fix, and
+> (`archive-V2/DESIGN-REVIEW-V3-SECOND-PASS.md`). Each item: the gap, the problem statement, the recommended fix, and
 > the **integrations** it touches (engine / UI / sim / tests / docs). **Update the Status column as items
 > land; log completions in `ROADMAP-V3.md §8`.** If context is cleared, resume from this file + ROADMAP §8.
 >

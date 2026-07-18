@@ -217,9 +217,8 @@ Agent handovers are machine-checked, not narrative. The Definition of Done is in
   validates [`docs/handoff/state.json`](./handoff/state.json) against
   [`docs/handoff/state.schema.json`](./handoff/state.schema.json).
 
-**Known state** (ROADMAP-V3 §0): `state.json` / `handoff:check` still track the **v2** status
-(wired to `docs/ROADMAP.md`); they will be repointed to v3 when the v3 code sprint promotes.
-This is a recorded state, not a bug.
+**Known state** (ROADMAP-V3 §0): `state.json` / `handoff:check` were repointed to v3 in T-008
+(wired to `docs/ROADMAP-V3.md`); the v2-era roadmap now lives at `docs/archive-V2/ROADMAP.md`.
 
 ---
 

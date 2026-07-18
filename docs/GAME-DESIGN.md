@@ -14,7 +14,7 @@
 >
 > Status: balance is **locked and validated** (Phase 5 complete — Shadowking win ~20%, all bands pass,
 > 2-seed stable). Mechanics that only a human table can judge are labelled UNTESTED here and tracked in
-> [`human-playtest-checklist.md`](human-playtest-checklist.md).
+> [`archive-V2/human-playtest-checklist.md`](archive-V2/human-playtest-checklist.md).
 
 ---
 
@@ -437,7 +437,7 @@ These are commitments, not preferences. Changing one is a redesign, not a tweak.
 **The numbers.** Every balance value is in [`src/v2/tunables.ts`](../src/v2/tunables.ts) (`DEFAULT_TUNABLES`),
 the single source of truth, validated over the real engine and real AI by the deterministic balance sim
 (`npm run sim`). The per-stage evidence trail is in
-[`handoff/stage5-tuning-log.md`](handoff/stage5-tuning-log.md). This document quotes those values for
+[`archive-V2/stage5-tuning-log.md`](archive-V2/stage5-tuning-log.md). This document quotes those values for
 readability; the code is authoritative.
 
 **What the sim proved:** the macro balance (dark win ~20% pooled and credible at every count, ~12-round
@@ -445,7 +445,7 @@ sessions, no dominant strategy, free-riding unrewarded) and that every mechanic 
 tolls, DK-hunting, Heralds, rescue-oaths all occur at intended rates).
 
 **What only a human table can prove** (tracked in
-[`human-playtest-checklist.md`](human-playtest-checklist.md)): that the sealed Gambit pledge *feels* like a
+[`archive-V2/human-playtest-checklist.md`](archive-V2/human-playtest-checklist.md)): that the sealed Gambit pledge *feels* like a
 dilemma; that a 2–4p game actually finishes in 30–45 minutes after the verb count grew; that the Blood Pact
 accusation gamble and Audit create real table tension; and that the Herald's lone run reads as a scene. The
 sim can measure incentives; it cannot measure fun. These ship **labelled**, not silently assumed.

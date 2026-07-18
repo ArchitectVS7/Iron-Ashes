@@ -174,7 +174,7 @@ export const DAWN_BLIGHT_ADVANCE = TUNABLES_DATA.DAWN_BLIGHT_ADVANCE;
  * doom-win lever. Each social/positional layer (Oaths' fealty banners, then the Herald's
  * Parley pushback + deep-hand political pledging) weakened the dark, so SPREAD was raised
  * to compensate — Stage H needed 7 to recover SK-win to ~20% with Heralds active (2-seed
- * stable). See stage5-tuning-log.md §oaths/§herald.
+ * stable). See docs/archive-V2/stage5-tuning-log.md §oaths/§herald.
  * Stage V3-5b LOCKED 7 → 3 (v3-native literal, NOT the v2 JSON value — recorded debt, as
  * BLIGHT_TO_ASH above). With the Reckoning executioner OFF, a high strike-spread was the
  * remaining attrition pump (un-averted strikes ash player nodes → eliminations). Dropping it to
@@ -198,7 +198,7 @@ export const ASHED_TRAVERSE_EXTRA_COST = TUNABLES_DATA.ASHED_TRAVERSE_EXTRA_COST
  * path crosses exactly one), so this makes holding a Forge real leverage and taxes the
  * front-runner heading for the center. Sworn allies pass free. Stage-T locked 0 → 1
  * (2-seed stable: SK-win 18.6/19.4%, tolls ~0.74/game, monotonic per-count ladder
- * preserved, guards PASS). See stage5-tuning-log.md §tolls. [TUNABLE]
+ * preserved, guards PASS). See docs/archive-V2/stage5-tuning-log.md §tolls. [TUNABLE]
  */
 export const FORGE_TOLL_COST = TUNABLES_DATA.FORGE_TOLL_COST;
 
@@ -492,7 +492,7 @@ export const ACCUSATION_COOLDOWN_ROUNDS = TUNABLES_DATA.ACCUSATION_COOLDOWN_ROUN
 
 /** Cards each agreeing accuser discards when the accusation is wrong. Stage-5e raised 1→2 to
  *  make a bad call a real GAMBLE for the human accuser (the sim AI doesn't weigh it when deciding
- *  to accuse — a human-facing risk; see docs/human-playtest-checklist.md). */
+ *  to accuse — a human-facing risk; see docs/human-playtest-checklist-v3.md). */
 export const ACCUSATION_WRONG_PENALTY = TUNABLES_DATA.ACCUSATION_WRONG_PENALTY;
 
 /** Banners the vindicated (wrongly-accused) player gains. */
@@ -513,7 +513,7 @@ export const ACCUSATION_PUSHBACK = TUNABLES_DATA.ACCUSATION_PUSHBACK;
 // to make strikes occasionally LAND at high player counts (where 3-4 hands of
 // pledge otherwise block everything). Combined with SPREAD_AMOUNT_BASE=5 this
 // lifts pooled SK-win 14%→~20% and 4p 1.9%→~8%. Evidence + the structural 4p
-// caveat are in docs/handoff/stage5-tuning-log.md.
+// caveat are in docs/archive-V2/stage5-tuning-log.md.
 export const DOOM_COST_WHISPER = TUNABLES_DATA.DOOM_COST_WHISPER;
 /** T2-1 LOCKED 9 → 11 (a v3-native literal, NOT the v2 JSON value — same recorded debt as
  *  BLIGHT_TO_ASH/SPREAD). Raising the March threshold makes March full-blocks RARER (3p: 7 → 9,
@@ -679,7 +679,7 @@ export interface Tunables {
   readonly DISCOVERY_BLIGHT_DELTA: number;
   readonly FORGE_TOKEN_COUNT: number;
   // ── Anti-free-rider + dark-effect magnitudes (made injectable in C2 — see
-  //    stage5-tuning-log §C2; defaults are byte-identical, the consumers just now
+  //    docs/archive-V2/stage5-tuning-log.md §C2; defaults are byte-identical, the consumers just now
   //    read getTunables().X instead of the frozen module const, so a sweep can reach them) ──
   readonly PLEDGE_SHIELD_AMOUNT: number;
   readonly PLEDGE_FAVOR_GRUDGE_REDUCTION: number;

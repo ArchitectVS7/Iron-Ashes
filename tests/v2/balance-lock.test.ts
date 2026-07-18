@@ -11,7 +11,7 @@
  * reducer — so this config reproduces the SAME pooled rate on every run; it is a
  * regression lock, not a flaky sample. This 5-seed × standard-matchup × [2,3,4]
  * proxy reads 20.2% today, identical to the canonical 40-seed lock
- * (docs/handoff/stage5-tuning-log.md §5f). The full sweep stays in `npm run sim`.
+ * (docs/archive-V2/stage5-tuning-log.md §5f). The full sweep stays in `npm run sim`.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -20,7 +20,7 @@ import { runSweep } from '../../src/v2/sim/sweep.js';
 import { standardMatchups } from '../../src/v2/sim/matchups.js';
 import { summarize, TARGETS } from '../../src/v2/sim/report.js';
 
-/** Canonical lock base seed (docs/handoff/stage5-tuning-log.md §5f). */
+/** Canonical lock base seed (docs/archive-V2/stage5-tuning-log.md §5f). */
 const LOCK_BASE_SEED = 20260622;
 /** 5 seeds × 3 counts × standardMatchups() = 525 games (~8s); reads 20.2%. */
 const LOCK_SEED_COUNT = 5;

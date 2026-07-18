@@ -2,7 +2,7 @@
 
 > Status: Stage-5d mechanic + tuning patch. Authority for mechanics: `DESIGN-V2-ALGORITHM.md`
 > §5.4 (Broken-with-teeth) + §4.2. Companion: `DESIGN-V2-FOCUS-GROUP-R2.md` §4 (the panel's
-> "same win-currency template" prescription). Evidence: `docs/handoff/stage5-tuning-log.md`.
+> "same win-currency template" prescription). Evidence: `docs/archive-V2/stage5-tuning-log.md`.
 > Date: 2026-06-22
 
 ---
@@ -69,7 +69,7 @@ steered front* (more breaks ⇒ WEAKER dark, below the 18% floor), and frequent 
 draws faster than rescues can offset (baseline seats never rescue). The safe frontier is rescues ~1.0 at
 all_broken ~3%; pushing to ~1.5 breaks all_broken (~8%) and SK-win (<18). The economy is nonetheless
 **alive where it makes sense** (3–4p); 2p is naturally low (rescuing your sole rival is rare). Closing to
-2–4 needs the §5 design change — escalated to the user. Evidence: `stage5-tuning-log.md` §5d.
+2–4 needs the §5 design change — escalated to the user. Evidence: `../archive-V2/stage5-tuning-log.md` §5d.
 
 ## 4. Determinism & invariants (unchanged)
 All new logic pure `f(state, seed)`: `bestStepTowardBrokenAlly` BFS in fixed order; the tribute and

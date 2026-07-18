@@ -190,7 +190,7 @@ export const DAWN_BLIGHT_ADVANCE = TUNABLES_DATA.DAWN_BLIGHT_ADVANCE;
  * doom-win lever. Each social/positional layer (Oaths' fealty banners, then the Herald's
  * Parley pushback + deep-hand political pledging) weakened the dark, so SPREAD was raised
  * to compensate — Stage H needed 7 to recover SK-win to ~20% with Heralds active (2-seed
- * stable). See stage5-tuning-log.md §oaths/§herald.
+ * stable). See docs/archive-V2/stage5-tuning-log.md §oaths/§herald.
  */
 export const SPREAD_AMOUNT_BASE = TUNABLES_DATA.SPREAD_AMOUNT_BASE;
 
@@ -203,7 +203,7 @@ export const ASHED_TRAVERSE_EXTRA_COST = TUNABLES_DATA.ASHED_TRAVERSE_EXTRA_COST
  * path crosses exactly one), so this makes holding a Forge real leverage and taxes the
  * front-runner heading for the center. Sworn allies pass free. Stage-T locked 0 → 1
  * (2-seed stable: SK-win 18.6/19.4%, tolls ~0.74/game, monotonic per-count ladder
- * preserved, guards PASS). See stage5-tuning-log.md §tolls. [TUNABLE]
+ * preserved, guards PASS). See docs/archive-V2/stage5-tuning-log.md §tolls. [TUNABLE]
  */
 export const FORGE_TOLL_COST = TUNABLES_DATA.FORGE_TOLL_COST;
 
@@ -370,7 +370,7 @@ export const ACCUSATION_COOLDOWN_ROUNDS = TUNABLES_DATA.ACCUSATION_COOLDOWN_ROUN
 
 /** Cards each agreeing accuser discards when the accusation is wrong. Stage-5e raised 1→2 to
  *  make a bad call a real GAMBLE for the human accuser (the sim AI doesn't weigh it when deciding
- *  to accuse — a human-facing risk; see docs/human-playtest-checklist.md). */
+ *  to accuse — a human-facing risk; see docs/archive-V2/human-playtest-checklist.md). */
 export const ACCUSATION_WRONG_PENALTY = TUNABLES_DATA.ACCUSATION_WRONG_PENALTY;
 
 /** Banners the vindicated (wrongly-accused) player gains. */
@@ -390,7 +390,7 @@ export const TRAITOR_EXPOSED_WOUNDS = TUNABLES_DATA.TRAITOR_EXPOSED_WOUNDS;
 // to make strikes occasionally LAND at high player counts (where 3-4 hands of
 // pledge otherwise block everything). Combined with SPREAD_AMOUNT_BASE=5 this
 // lifts pooled SK-win 14%→~20% and 4p 1.9%→~8%. Evidence + the structural 4p
-// caveat are in docs/handoff/stage5-tuning-log.md.
+// caveat are in docs/archive-V2/stage5-tuning-log.md.
 export const DOOM_COST_WHISPER = TUNABLES_DATA.DOOM_COST_WHISPER;
 export const DOOM_COST_MARCH = TUNABLES_DATA.DOOM_COST_MARCH;
 export const DOOM_COST_RECKONING = TUNABLES_DATA.DOOM_COST_RECKONING;
@@ -506,7 +506,7 @@ export interface Tunables {
   readonly HERALD_COMBAT_PENALTY: number;
   readonly HERALD_PUSHBACK: number;
   // ── Anti-free-rider + dark-effect magnitudes (made injectable in C2 — see
-  //    stage5-tuning-log §C2; defaults are byte-identical, the consumers just now
+  //    docs/archive-V2/stage5-tuning-log.md §C2; defaults are byte-identical, the consumers just now
   //    read getTunables().X instead of the frozen module const, so a sweep can reach them) ──
   readonly PLEDGE_SHIELD_AMOUNT: number;
   readonly PLEDGE_FAVOR_GRUDGE_REDUCTION: number;

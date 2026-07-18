@@ -1,378 +1,307 @@
-# Iron Throne of Ashes — Cleanup Wave Task List (post-T2-3, pre-playtest)
+# Iron Ashes V3.1 Presentation Sprint (M0–M4) — Master Task List
 
-Close out the verifiable, non-human work flagged by the 2026-07-17 portfolio review
-(`~/Dev/Games/PORTFOLIO-SURVEY.md`, "Iron-Ashes" + "_UGT" sections) so the only thing left in
-front of v3 is the human-gated V3-6 playtest: settle the working tree, fix the two flaky sim-test
-timeouts, pressure-test the T2-3 Herald-OFF rebalance at the project's 40-seed standard, build the
-thin JSON-lines UGT harness (game #7), and bring the stale docs/handoff machinery up to v3.
-Source of truth: `docs/ROADMAP-V3.md` (§8 = the running record; balance is **LOCKED** per the
-2026-07-02 T2-3 entry), `docs/DESIGN-V3-ALGORITHM.md` (§9 bands, §7 determinism contract), and the
-reference harness pattern at `~/Dev/Games/nexus-dominion/src/harness/harness-core.ts` +
-`~/Dev/Games/nexus-dominion/harness/ugt-harness.mjs`.
+Build the V3.1 presentation sprint per **`docs/ROADMAP-V3.1-UI.md`** (milestones, exit metrics, §3
+guardrails) with design rationale in `docs/Redesign-V3.1/Design Advice (Fable).md`. Scope is **M0–M4
+only** — M5 (human playtest) and M6 (kit extraction) are deliberately out of scope (see the deferred
+list at the bottom). The engine (`src/v2/`, `src/v3/`, `src/utils/`) is untouched throughout; all work
+lands in `src/ui-v3/`, `scripts/`, `tests/`, and `docs/`.
 
 ## Orchestrator protocol
 
 1. **Check out** the first task with `status: TODO` whose `after:` tasks are all DONE. Set it `IN-PROGRESS`.
-2. **Plan** — hand the coder the task block plus the pointers named in the intro. Nothing else.
+2. **Plan** — hand the coder the task block plus `docs/ROADMAP-V3.1-UI.md`. Nothing else.
 3. **Code** — implement per the plan and the Standing constraints.
-4. **Review** — check the diff against the task's **Accept** criteria (written to be mechanically checkable).
+4. **Review** — check the diff against the task's **Accept** criteria.
 5. On pass: run the gate, commit as `<ID>: <title>`, set `status: DONE`, update this file in the same commit. On fail: one fix round, then escalate, then halt.
 
-**Gate (every task):** `npm run typecheck`, `npm run lint`, and `npm test` all exit 0 (the full
-suite — `tests/utils` + `tests/v2` + `tests/v3`, ~1,129 tests; zero failures, zero skips added).
-Tasks that touch anything under `src/v3/` additionally run the balance byte-guard named in their body.
+**Gate (every task):** `npm run verify` exits 0 (typecheck + whole-repo lint + FULL v2+v3 vitest
+suite). Tasks touching `src/ui-v3/` or assets additionally: `npx vite build` exits 0; and from T-003
+onward, `npm run shots:v3` exits 0.
 
 **Standing constraints** (the reviewer enforces on every task):
-- **Balance is LOCKED** (ROADMAP-V3 §8, 2026-07-02 T2-3). No changes to `src/v3/tunables.ts`,
-  `src/v3/tunables.gen.ts`, or any tunable value. A band miss discovered by a sweep is **recorded,
-  never tuned** — tuning is a user call.
-- **Determinism (§7):** no `Math.random` / `Date.now` / `any` anywhere under `src/`. All randomness
-  through `SeededRandom`. `GameState` stays JSON-serializable. Nothing may leak `seed` or unflipped
-  token content through an observable surface (§7 D2).
-- **v2 stays untouched** — no edits under `src/v2/` in this wave; `tests/v2` may only gain explicit
-  test-timeout annotations (T-002).
-- **No stale claims in docs:** every path, command, count, or number written into a doc must be
-  verified against the live repo in the same task.
-- **Pre-commit/CI checks are sacred:** never `--no-verify`; a failure found in your session is yours
-  to fix; "clean to commit" = zero failing tests.
-- **Graphify hook:** a post-commit hook re-dirties `graphify-out/` (detached background rebuild)
-  after any commit touching non-graphify files. Treat `graphify-out/**` dirt as ignorable infra —
-  never sweep it into a task commit. If a step genuinely needs clean porcelain (e.g. `npm run
-  handoff:check`), first commit the artifacts alone as `chore(graphify): settle artifacts` —
-  graphify-only commits do not retrigger the hook.
+- **Engine untouched:** no edits under `src/v2/`, `src/v3/`, `src/utils/` (read-only imports of types
+  and `observableState` are fine). No tunable value changes anywhere — balance is LOCKED.
+- **Fog (D2) extends to presentation:** nothing absent from `viewerSeat`'s `observableState`
+  projection may appear in the DOM, the move stream, or any texture — at any animation frame.
+- **Instant mode is mandatory:** every animation path must run in a synchronous instant mode; jsdom
+  tests run instant; `prefers-reduced-motion` maps to it.
+- **No `Math.random` anywhere in `src/`:** presentational jitter uses a dedicated `SeededRandom`
+  instance that never touches `GameState`; no timing value feeds back into commands or state.
+- **Dependencies:** runtime deps limited to `gsap` + `howler`, pinned. `playwright` is allowed as a
+  devDependency only. Nothing else without a dated decision in `docs/ROADMAP-V3.1-UI.md` §3.
+- **Assets:** CC0/CC-BY only, committed to the repo (no CDN/network fetches at runtime), with source
+  + license recorded in `docs/CREDITS.md`.
+- **CHECKPOINT tasks (T-207, T-306, T-407) must never be self-approved:** the runner sets them
+  `BLOCKED(awaiting user visual review)` and **halts the run**. Only the user flips them to DONE.
 
 Statuses: `TODO` | `IN-PROGRESS` | `DONE` | `BLOCKED(reason)`
 
 ---
 
-## M0 — Working tree + test health
+## M0 — Foundations & the screenshot feedback loop
 
-### T-001 · Settle the working tree (README + graphify artifacts) — `status: DONE` · `coder: sonnet` · `after: —`
-The working tree carries two kinds of uncommitted changes that block everything downstream (the
-handoff gate requires clean porcelain). (1) `README.md` has an uncommitted 55-insert/55-delete
-rewrite (the survey's Jul-17 stale-doc remediation: v1 fiction → the real v3 project). Read the
-full diff, verify every factual claim it makes against the live repo (test counts via
-`npm test`, paths, commands, branch names) and fix any that drifted, then commit it as this task's
-commit. (2) The modified + untracked `graphify-out/**` files are settled graphify tool output;
-commit them separately as `chore(graphify): settle artifacts` (precedent: commit `9c744a7` on
-main). Do not edit graphify-out content by hand.
-**Accept:** `git status --porcelain` is empty after the task's commits; the README diff that was in
-the working tree is committed (not reverted); every numeric/path claim in the committed README is
-reproducible against the repo (spot-check: test count matches a live `npm test` run, every named
-path exists).
-**Delivered (2026-07-17):** graphify-out settled as `chore(graphify): settle artifacts`; the survey's
-README rewrite verified claim-by-claim against the live repo and committed — two stale v1 claims it
-had carried (a "Content: GLL" architecture bullet and the `GLLKey` design commitment; GLL exists
-nowhere in `src/v2`/`src/v3`) were replaced with the real balance-data story; test-count claim
-(1,129 across 85 files) reproduced live. Executed inline by the orchestrating session — the
-workflow runner's clean-tree precondition can't start on the dirty tree this task exists to clean.
+### T-001 · Wire V3.1 into the handoff machinery — `status: TODO` · `coder: sonnet` · `after: —`
+Per `docs/ROADMAP-V3.1-UI.md` §2: in `docs/ROADMAP-V3.md` §4, expand the unchecked Stage V3-6 box
+into sub-boxes `- [ ] **V3.1-M0 …**` through `- [ ] **V3.1-M5 …**` (each one line, pointing at
+`docs/ROADMAP-V3.1-UI.md`; the human playtest stays inside V3.1-M5). Repoint
+`docs/handoff/state.json` `currentStage` to `V3.1-M0` with a matching `currentStageTitle`/
+`nextAction`. Record the dated determinism-invariant scoping decision (engine+sim scoped; presentation
+layer may use rAF/GSAP timing, still no `Math.random`) in `state.json` `invariants` and flip
+`docs/ROADMAP-V3.1-UI.md` status line from PROPOSED to ACTIVE.
+**Accept:** `npm run handoff:check` exits 0; ROADMAP-V3 §4 shows the six V3.1 sub-boxes with V3.1-M0
+first-unchecked; `state.json` `currentStage` is `V3.1-M0`; the invariants array contains the scoped
+wording with a 2026 date.
 
-### T-002 · Fix the two flaky sim-test timeouts — `status: DONE` · `coder: sonnet` · `after: —`
-`tests/v2/sim-archetypes.test.ts` and `tests/v3/sim-archetypes.test.ts` contain Monte-Carlo
-terminal-state tests that sit at vitest's 5s default timeout and flake under CPU contention —
-reproduced live: `tests/v2/sim-archetypes.test.ts` "every homogeneous archetype table drives to a
-terminal state (4p, 10 seeds)" (line 113) timed out when the two files run together. The heavy
-tests are, in each file: "every homogeneous archetype table…", "a mixed table terminates across
-counts and modes", and "a gambler-heavy table still terminates" (v2 lines 113/123/136, v3 lines
-168/178/191). Give each an explicit generous per-test timeout using the existing repo precedent
-`tests/v3/difficulty.test.ts:136` — `it('…', { timeout: 30000 }, () => {…})`. Do **not** reduce
-seed counts, player counts, or coverage to get under the default — that would game the metric the
-tests exist to measure.
-**Accept:** each of the six named tests carries an explicit `{ timeout: … }` ≥ 30000; no seed/count
-loop was shrunk (diff shows only timeout annotations in test files); `npx vitest run
-tests/v2/sim-archetypes.test.ts tests/v3/sim-archetypes.test.ts` passes 3 consecutive runs; full
-`npm test` green.
-**Delivered (2026-07-17):** `{ timeout: 30000 }` added to all six named tests (diff is annotations
-only — no seed/count/coverage change); the flake reproduced live pre-fix (both files' 4p×10-seed
-terminal-state tests timed out at 5s under full-suite load); post-fix the full 1,129-test suite
-passed 3 consecutive runs. Executed inline alongside T-001 — the flake was blocking T-001's commit
-gate. README's Tests paragraph updated to describe the explicit timeouts rather than the flake.
+### T-002 · Add gsap + howler (pinned) — `status: TODO` · `coder: sonnet` · `after: T-001`
+Install `gsap` and `howler` as the repo's first runtime dependencies, pinned to exact versions, plus
+`@types/howler` if needed. Add a one-line dated note of the chosen versions (and the GSAP license
+check) under `docs/ROADMAP-V3.1-UI.md` §3. No usage yet beyond a type-level import smoke test.
+**Accept:** `package.json` lists exact (non-range) versions; `npx vite build` and `npm run verify`
+exit 0; the §3 note is present and dated.
 
----
+### T-003 · Headless screenshot script (`npm run shots:v3`) — `status: TODO` · `coder: opus` · `after: T-002`
+Create `scripts/shots-v3.mjs` using Playwright (devDependency): launch the Vite server, drive
+`/index-v3.html` through a fixed-seed scripted game, and capture PNGs of at least seven distinct
+screens — start/difficulty select, board mid-game, capture election, Ransom, Wraith, Bequest, and
+victory/defeat — into a directory given by `--out` (default `shots/`, gitignored). Reaching deep
+states (election, Ransom, endgame) may drive the existing UI session programmatically via keyboard/
+click events, but only through the UI — no direct engine calls. The script exits non-zero if any
+expected screen was not captured. Wire as npm script `shots:v3`.
+**Accept:** `npm run shots:v3` exits 0 and produces ≥7 named PNGs; a second run produces the same
+file set; the script contains no imports from `src/v3` internals other than what the UI itself uses;
+`shots/` is gitignored.
 
-## M1 — 40-seed balance re-validation (the T2-V final lock)
+### T-004 · Baseline "before" gallery + the M2 visual rubric — `status: TODO` · `coder: sonnet` · `after: T-003`
+Run `npm run shots:v3` and commit the output as `docs/Redesign-V3.1/baseline/` with a short README
+naming each screen. Author `docs/Redesign-V3.1/RUBRIC.md`: the 10-item board-game-read checklist from
+ROADMAP-V3.1-UI M2 (table texture visible; cards read as cards at arm's length; no default-font text;
+act/turn track visible; palette cohesive; board is the largest element; resources are icon tokens;
+HUD reads diegetic; motion present in transitions; screens consistent), scored /10, to be used by the
+human checkpoints.
+**Accept:** ≥7 baseline PNGs + README committed under `docs/Redesign-V3.1/baseline/`;
+`docs/Redesign-V3.1/RUBRIC.md` present with exactly 10 checkable items.
 
-### T-003 · Re-point the §9 gambit verdict row at the decided metric — `status: DONE` · `coder: opus` · `after: T-002`
-`sim-results/sample-v3/REPORT.md` §9 table currently prints "Gambit fire rate (gambler-free) 35.7%
-❌ FAIL" while the locked wave-3 decisions (ROADMAP-V3 §8, 2026-06-29: the 5f deliberate/incidental
-split + the 5h win-gate) judge **deliberate** gambit fire — `gambitFireDeliberateNoGambler`, 17.5%,
-inside the 10–20% band. The verdict row predates the 5f split, so every future sweep prints a false
-FAIL. In `src/v3/sim/report.ts` (the `BANDS` entry at line 24 judges `gambitFireRateNoGambler`),
-change the §9 verdict row to judge `gambitFireDeliberateNoGambler` against 10–20% and relabel it
-honestly (e.g. "Deliberate gambit fire (gambler-free)"); the raw honest fire number must stay
-visible in the Stage-5f diagnostic table (it already is — keep it). Update the band expectations in
-`tests/v3/sim-report.test.ts` to match. Then regenerate the canonical reference: `npm run sim:v3`
-(defaults = base seed 20260622, 40 seeds) and refresh `sim-results/sample-v3/` — game-level results
-must be unchanged (this is a report-layer edit only).
-**Accept:** the §9 verdict table in the regenerated `sim-results/sample-v3/REPORT.md` judges the
-deliberate metric and shows it in-band, with the raw fire rate still printed in the 5f diagnostic
-section; `tests/v3/sim-report.test.ts` green; **byte-guard** — the regenerated
-`sim-results/sample-v3/summary.json` game-level fields are identical to the prior reference except
-any renamed/added verdict metadata (diff shown in review); no file under `src/v3/` outside
-`src/v3/sim/report.ts` changed.
-**Delivered (2026-07-17):** `src/v3/sim/report.ts`'s §9 `TARGETS`/`checks` entry renamed
-`gambitFireRate` → `gambitFireDeliberate` and re-pointed at `gambitSeizeDeliberate` (the 5f
-deliberate/incidental split), so the verdict row now judges "went for the throne via the Gambit
-path" instead of the raw gambler-free seize rate; the Stage-5f diagnostic
-`gambitFireDeliberateNoGambler` computation was collapsed into a reuse of the same value
-(`noGambler === noGamblerRows`) rather than recomputed, and the raw honest seize rate stays printed
-in the Stage-5 diagnostics table with an updated reading string pointing at the new verdict row.
-`tests/v3/sim-report.test.ts` gained a dedicated test pinning the 10–20% band to the deliberate
-number. Regenerated `sim-results/sample-v3/` via `npm run sim:v3`: the §9 row flips
-35.7% ❌ FAIL → 17.5% ✅ PASS with the raw 35.7% figure retained as a diagnostic; game-level
-`summary.json` fields are unchanged, only the renamed/added verdict metadata differs, confirming
-this was a report-layer-only change. Scope boundary: no tunable, engine, or sim-metric-collection
-file changed — this task only re-pointed which already-collected metric the verdict table reads.
-
-### T-004 · 40-seed pressure sweep of the Herald-OFF default (both modes, canonical + fresh seeds) — `status: DONE` · `coder: opus` · `after: T-003`
-The survey flags the final T2-3 Herald-OFF rebalance as under-validated relative to the project's
-40-seed standard — pressure-test it properly, with **no tuning**. Run `npm run sim:v3 <baseSeed>
-40` and `npm run sim:v3 <baseSeed> 40 --bloodpact` for: the two canonical base seeds **20260622**
-and **20260628**, plus **two fresh base seeds never used before** (e.g. 20260717 and 424242 — check
-`sim-results/` for prior use first). Check every run against the §9 bands
-(`docs/DESIGN-V3-ALGORITHM.md` §9; headline: dark pooled 18–22%, per-count ~16–24 credible, rounds
-10–16; Blood Pact traitor-win 12–20 / exposure 40–70 / accuracy ≥45). The canonical-seed runs must
-reproduce the T2-3 recorded numbers (dark 18.9/18.3%, BP 15.8/69.4/78.1) — a mismatch there means a
-code regression: halt and escalate. A band miss on a **fresh** seed is a finding, not a bug: record
-it as a dated entry (see below) and set this task `BLOCKED(band miss on fresh seed — user call)`
-instead of tuning. On success, append a dated "T2-V FINAL LOCK" entry to ROADMAP-V3 §8 recording
-all eight sweeps' headline numbers (this closes the "Remaining: T2-V final lock" note in the T2-3
-entry). Commit the new `sim-results/v3-*` run directories.
-**Accept:** eight sweep result directories present under `sim-results/` (4 base seeds × 2 modes,
-n=40); canonical seeds byte-reproduce the T2-3 record; a §8 "T2-V" entry lists per-sweep pooled
-dark-win, per-count, rounds, and BP triple; zero changes under `src/` and zero tunable changes in
-the diff.
-
-**Delivered (2026-07-17):** ran all eight sweeps (`npm run sim:v3 -- <seed> 40` and `… --bloodpact`,
-n=40) for canonical seeds 20260622/20260628 and fresh seeds 20260717/424242, with zero tunable or
-`src/` changes throughout. Both canonical seeds byte-reproduced the T2-3 record (dark 18.9%/18.3%,
-BP 15.8/69.4/78.1) confirming no code regression. A §8 "T2-V" changelog entry in
-`docs/ROADMAP-V3.md` records all eight sweeps' pooled dark-win, per-count, rounds, and BP triple.
-Scope boundary: one fresh seed (20260717) landed a marginal BP-exposure miss at 71.4% vs. the
-40–70 ceiling (+1.4pp, with traitor-win itself healthy mid-band) — per the "no tuning on a
-fresh-seed band miss" protocol this was recorded as a dated finding rather than tuned, so the task
-closes with that single deviation flagged for a user call rather than a rebalance.
+### T-005 · M0 close — DoD — `status: TODO` · `coder: sonnet` · `after: T-001, T-002, T-003, T-004`
+Perform the AGENT-PROTOCOL Definition of Done for the milestone: `npm run verify` exits 0; tick the
+M0 boxes in `docs/ROADMAP-V3.1-UI.md` §4 and the `V3.1-M0` sub-box in ROADMAP-V3 §4; repoint
+`state.json` `currentStage` to `V3.1-M1`; add a dated M0 entry to ROADMAP-V3 §8; commit;
+`npm run handoff:check` exits 0.
+**Accept:** both commands exit 0; boxes ticked; §8 entry present; `currentStage` is `V3.1-M1`.
 
 ---
 
-## M2 — UGT harness (game #7)
+## M1 — The semantic move stream (architecture before art)
 
-### T-005 · Pure JSON-lines harness core (`src/v3/harness/harness-core.ts`) — `status: DONE` · `coder: opus` · `after: T-002`
+### T-101 · Move types + `diffObservable` — `status: TODO` · `coder: opus` · `after: T-005`
+Create `src/ui-v3/moves.ts`: a typed `Move` union of semantic presentation events (piece moved A→B,
+card/token hand→zone, resource delta, flip/reveal, capture, election, act/round advance, elimination,
+victory/defeat, …) and a pure `diffObservable(prevObs, nextObs): Move[]` that derives moves **only**
+from two `observableState` projections for the same `viewerSeat` — leak-safe by construction. Include
+an exhaustive per-command expectation table (`Record<CommandType, …>`) so an unhandled v3 command
+type is a compile error, plus focused unit tests for representative transitions (move, capture,
+reveal, resource change, act advance, elimination, game end).
+**Accept:** `tests/` has a new `moves` test file, green; deleting a command key from the record fails
+`tsc` (spot-check in review, not committed); `diffObservable` imports nothing from `src/v3` except
+types/`observableState`; full suite green.
 
-**Delivered (2026-07-17):** Shipped `src/v3/harness/harness-core.ts` — a pure, Node-global-free
-request→response core mirroring nexus-dominion's `harness-core.ts` shape (`createRegistry`,
-`parseRequestLine`, `dispatch`, `stateHash`), plus a standalone `sha256.ts` (since a Node-global-free
-module can't reach for `crypto`) and `tests/v3/harness-core.test.ts` covering same-seed determinism,
-save/load round-trips, scripted create→run_ai→command→run_ai sequences, and structured errors for
-malformed JSON / unknown op / unknown game id / illegal command. Deliberate scope boundary: this task
-is the pure core only — the Node stdio shell, `npm run` wiring, and the smoke test are T-006's, not
-touched here; this commit does not run or gate `npm run sim:v3` byte-guard, `npm test`, or `npm run
-verify` (those were verified by the upstream gate per the task instructions, not re-run in this
-commit).
-Build the pure, typechecked request→response core of the UGT stdio harness, following
-`~/Dev/Games/nexus-dominion/src/harness/harness-core.ts` (read it first — copy its shape: protocol
-types, `createRegistry`, `parseRequestLine`, `dispatch`; Node globals are banned here). Doctrine
-(UGT, portfolio-standard): **a zero-logic transport over the real engine** — "a harness that
-reimplements the game is testing itself, not the game." Ops for Iron-Ashes v3: `create` (config
-`{seed, playerCount, mode: 'competitive'|'blood_pact', difficulty?, heraldEnabled?}` →
-`createGame` from `src/v3/setup.ts`, honoring the same `withTunables` difficulty/herald seam
-`src/ui-v3/session.ts` uses); `command` (a raw v3 `Command` passed **verbatim** to `applyCommand`
-from `src/v3/reducer.ts` — engine errors returned as protocol errors, no added validation);
-`run_ai` (advance AI seats via the real drivers `runAIPledge`/`runAITurn` from `src/v3/ai-player.ts`
-exactly as `src/ui-v3/session.ts` pumps them — including stopping on `state.pendingLastStand` and
-human-seat turns — until human input is needed or the game is terminal); `state` (returns
-`observableState(state, viewerSeat)` by default — fog-respecting, never leaks `seed`/unflipped
-tokens per §7 D2 — with `{full: true}` for the omniscient debug view); `save` / `load` (JSON
-round-trip; `GameState` is JSON-serializable by invariant). Every response carries `stateHash`
-(sha-256 of the serialized state — no nondeterministic fields exist to normalize). Write
-`tests/v3/harness-core.test.ts` modeled on nexus-dominion's `harness-core.test.ts`: same-seed
-create → identical `stateHash`; save/load round-trip → identical hash; a scripted
-create → run_ai → command → run_ai sequence is deterministic across two registries; malformed
-JSON / unknown op / unknown game id / illegal command each return a structured error, never a throw.
-**Accept:** `src/v3/harness/harness-core.ts` exists with zero Node globals (no `process`,
-`readline`, `fs`) and zero game rules (grep: no combat/pledge/blight math — engine imports only);
-`tests/v3/harness-core.test.ts` covers the cases above and is green; **byte-guard** —
-`npm run sim:v3` (20260622, 40) `summary.json` byte-identical to `sim-results/sample-v3/summary.json`
-(the harness must not perturb the engine).
+### T-102 · Determinism + fog-leak + coverage tests over full games — `status: TODO` · `coder: opus` · `after: T-101`
+Drive full simmed games through `diffObservable` by reusing the existing v3 AI/E2E harness patterns
+(from `tests/v3/`): at 2 fixed seeds, (a) determinism — running twice yields byte-identical
+serialized move streams; (b) fog — for every `viewerSeat`, the serialized stream never contains
+redacted token content or the seed value; (c) coverage — every command type observed across the games
+produced a non-crashing `Move[]`. These are vitest tests, not scripts.
+**Accept:** the three properties are distinct green tests over ≥2 seeds of complete games; test names
+identify seed and property; full suite green.
 
-### T-006 · Stdio shell + npm script + smoke test — `status: DONE` · `coder: sonnet` · `after: T-005`
-Wrap the T-005 core in the thin Node stdio shell, following
-`~/Dev/Games/nexus-dominion/harness/ugt-harness.mjs`: one JSON request per stdin line → one JSON
-response per stdout line, strictly in order; blank lines skipped; exit 0 on stdin close. Unlike
-nexus-dominion (which uses a TS resolve hook), follow **this repo's** convention from
-`scripts/sim-v3.mjs`: import the compiled core from `dist/` (`../dist/v3/harness/harness-core.js`).
-Create `harness/ugt-harness.mjs` and add a package.json script `"harness": "tsc && node
-harness/ugt-harness.mjs"`. Add a smoke test (`tests/v3/harness-stdio.test.ts`) that spawns the
-shell as a child process against the built `dist/` and pipes a scripted session through real stdio:
-create → state → run_ai → save → load → hash equality, plus a malformed line → structured error.
-(The test may run `tsc` or assume the gate built `dist/`; make it deterministic and under the
-timeout precedent from T-002 if slow.) Document the protocol in a short `harness/README.md` (ops,
-one example session) so the UGT-side ladder author needs nothing else from this repo.
-**Accept:** `printf '<create-line>\n<state-line>\n' | npm run harness --silent` produces two
-valid JSON responses with `stateHash`; the smoke test is green in `npm test`; `harness/README.md`
-documents every op with a real example; no engine files changed.
-**Delivered (2026-07-17):** `harness/ugt-harness.mjs` added — a thin Node `readline`-over-stdio
-shell (parse → dispatch → write, no game logic) that imports the compiled T-005 core from
-`dist/v3/harness/harness-core.js`, matching this repo's `scripts/sim-v3.mjs` compiled-import
-convention rather than nexus-dominion's TS resolve hook; `package.json` gained `"harness": "tsc &&
-node harness/ugt-harness.mjs"`. `tests/v3/harness-stdio.test.ts` spawns the shell as a real child
-process and drives create → state → run_ai → save → load over actual stdio, asserting stateHash
-round-trip equality, that blank lines produce no response, and that a malformed line yields a
-structured `BAD_REQUEST` rather than a crash. `harness/README.md` documents the protocol (one
-request per line, ordered responses, exit 0 on stdin close) and every op with a worked example.
-Scope boundary: no engine files under `src/v2/` or `src/v3/` (outside the already-DONE T-005 core)
-were touched — this task is transport-only, all rules enforcement stays in the engine seam the
-UI already uses.
+### T-103 · Animation queue + instant mode, wired into the render path — `status: TODO` · `coder: opus` · `after: T-101`
+Create `src/ui-v3/queue.ts`: sequences a `Move[]` through GSAP timelines with per-move-type presets
+(placeholder tweens for now), and an **instant mode** that collapses playback to synchronous DOM
+settlement. Rewire `src/ui-v3/session.ts`/`view.ts` so every state change renders via
+`diffObservable` → queue (no direct re-render path remains). jsdom tests run in instant mode;
+`prefers-reduced-motion` selects instant mode at runtime.
+**Accept:** grep shows the old direct render call sites route through the queue; existing jsdom E2E
+tests pass unmodified in intent; a unit test proves instant mode settles synchronously; reduced-motion
+media query is honored (test via matchMedia stub).
+
+### T-104 · Replay test — "snap count 0" — `status: TODO` · `coder: sonnet` · `after: T-103`
+Add a vitest: for a full fixed-seed game, instant-mode playback of the accumulated move stream ends
+with DOM (serialized innerHTML of the game root, normalized) identical to a cold render of the final
+state. This proves no state change can bypass the queue.
+**Accept:** the replay test exists and is green for ≥1 full game at 2 seeds; full suite green.
+
+### T-105 · SoundManager skeleton — `status: TODO` · `coder: sonnet` · `after: T-103`
+Create `src/ui-v3/sound.ts`: a Howler-backed `SoundManager` with `play(moveType)`, master volume and
+mute, silent no-op under test/jsdom, and no audio assets yet (empty registry tolerated). The queue
+calls `SoundManager.play` per move.
+**Accept:** unit test covers mute/volume/no-op-in-jsdom; the queue invokes it per move (asserted via
+spy); no audio files added; full suite green.
+
+### T-106 · M1 close — DoD — `status: TODO` · `coder: sonnet` · `after: T-102, T-104, T-105`
+Milestone DoD as in T-005: verify green → tick M1 boxes here and in both roadmaps, `currentStage` →
+`V3.1-M2`, dated §8 entry, commit, handoff:check green.
+**Accept:** both commands exit 0; boxes ticked; §8 entry present; `currentStage` is `V3.1-M2`.
 
 ---
 
-## M3 — Docs + handoff to v3
+## M2 — Theme foundation ("stop looking like a spreadsheet")
 
-### T-007 · Rewrite `docs/architecture.md` from v1 fiction to the real repo — `status: DONE` · `coder: sonnet` · `after: T-006`
-**Delivered (2026-07-17):** `docs/architecture.md` was rewritten end-to-end, replacing the retired
-v1 description (`src/engine/`, `src/gll/`, GLL content packs, `src/index.ts`) with the real repo:
-the two parallel engines (`src/v2/` shipped-and-frozen, `src/v3/` current with its
-reducer/`applyCommand` core, `observableState` fog projection, and SeededRandom determinism
-contract), the two Vite UIs (`src/ui-v2` / `src/ui-v3`), both sim harnesses and their
-`sim-results/` conventions, the v2 data codegen pipeline, the test layout, the handoff machinery,
-and the new UGT harness from T-005/T-006. The header was updated to today's date and v3-current
-status, the dead PRD link was dropped, and the v1/v2 history was pointed at
-`docs/design-history/` rather than re-described inline. Scope boundary: this is an architecture
-doc (structure + contracts + data flow) only — no changelog narrative and no engine/source files
-were touched.
-`docs/architecture.md` (dated 2026-03-06) describes the retired v1 architecture — `src/engine/`,
-`src/gll/`, GLL content packs, an entry at `src/index.ts` — none of which exists. Rewrite it to
-describe the actual repo: the two parallel engines (`src/v2/` shipped-and-frozen, `src/v3/`
-current — reducer/`applyCommand` core, `observableState` fog projection, SeededRandom determinism
-per DESIGN-V3-ALGORITHM §7), the two UIs (`src/ui-v2` ← `index.html`, `src/ui-v3` ←
-`index-v3.html`, both Vite), the sim harnesses (`src/v2/sim` + `scripts/sim.mjs`, `src/v3/sim` +
-`scripts/sim-v3.mjs`, `sim-results/` conventions), the v2 data codegen (`data/*.json` →
-`npm run gen:data` → `*.gen.ts`, with the recorded v3 data-split debt from ROADMAP-V3 §0), the
-test layout, the handoff machinery (`scripts/verify.mjs` / `handoff-check.mjs` /
-`docs/handoff/state.json`), and the new UGT harness (`harness/`, T-005/T-006). Keep it an
-architecture doc (structure + contracts + data flow), not a changelog; link
-`docs/design-history/` for the v1/v2 story instead of describing them. Update the header
-(status/version/date); drop the dead PRD link if `docs/prd.md` doesn't exist.
-**Accept:** every file/dir path named in the doc exists in the repo (reviewer greps each); zero
-references to `src/engine`, `src/gll`, GLL packs, or any other nonexistent surface outside an
-explicit "history" pointer; header date is current; doc mentions both engines, both UIs, both sims,
-the determinism contract, and the harness.
+### T-201 · Board-centric layout on a textured table — `status: TODO` · `coder: opus` · `after: T-106`
+Restructure the v3 layout: board center-stage on a committed CC0 table-surface texture; dissolve the
+right-hand status column into diegetic HUD regions at the edges (banners/plaques/ribbons). Keep all
+existing verbs reachable. Add the texture asset + credit to `docs/CREDITS.md` (create it).
+**Accept:** a Playwright assertion in `shots-v3.mjs` (or a sibling check) verifies the board element's
+bounding box is the largest top-level region; the table texture is a repo asset referenced from CSS;
+`docs/CREDITS.md` exists with the entry; jsdom E2E + `npm run shots:v3` green.
 
-### T-008 · Make the handoff machinery v3-aware and repoint `state.json` — `status: DONE` · `coder: opus` · `after: T-004`
-Discharge the recorded debt from ROADMAP-V3 §0/§7 ("repoint state.json to v3 only when the handoff
-machinery is made v3-aware"). (1) In `scripts/verify.mjs` and `scripts/handoff-check.mjs`, extend
-`SOURCE_DIRS` from `['src/v2','tests/v2']` to also cover `src/v3` + `tests/v3`, keeping the two
-scripts' hash functions byte-matching each other, and widen the lint/test gates verify.mjs runs to
-cover the v3 suite (`eslint src/ tests/`, `vitest run tests`, or equivalent — the recorded state
-must prove the whole repo, not just v2). (2) Repoint the stage check: `handoff-check.mjs` asserts
-`currentStage` equals the first unchecked §4 box of `docs/ROADMAP.md`; point it at
-`docs/ROADMAP-V3.md` and fix that file's §4 checkbox hygiene first — the `V3-3` parent box and its
-`3i` sub-box are unchecked even though §8 records them DONE (3i also appears again lower as a
-checked item); after the fix the first unchecked box must be **Stage V3-6** (the true current
-stage). (3) Update `docs/handoff/state.json`: `currentStage` → the V3-6 token the check expects,
-current `nextAction` (the human playtest per ROADMAP-V3 §0), v3 invariants (all mutation via
-`applyCommand`; §7 D1–D9 determinism incl. the `observableState` fog contract; balance LOCKED at
-the T2-3 numbers), prune stale gotchas (the "~50 RED v1 tests" gotcha is dead — `tests/` holds only
-`utils/v2/v3` and the full suite is green), and carry forward the still-real recorded debts from
-ROADMAP-V3 (`data/*.json` drift pending the v3 data split; difficulty-tier magnitudes stale
-post-T2-1; T2-4 Wraith playtest-gated) into `openRisks`. (4) Run `npm run verify` to repopulate
-`lastVerified` (never hand-edit it), then `npm run handoff:check`.
-**Accept:** `npm run verify` exits 0 and its recorded test count covers the full suite (~1,13x, not
-451); `npm run handoff:check` exits 0 on the committed tree; `state.json` names a v3 stage and
-contains no reference to v1 tests or a v2-era `nextAction`; ROADMAP-V3 §4's first unchecked box is
-V3-6; both scripts' `sourceHash` implementations remain identical.
-**Delivered (2026-07-17):** `verify.mjs` and `handoff-check.mjs` widened from v2-only (`src/v2
-tests/v2`) to the whole repo — `SOURCE_DIRS` now also covers `src/v3`/`tests/v3` (both scripts'
-`sourceHash` stay byte-identical), the lint gate moved from `eslint src/v2 tests/v2` to `eslint
-src/ tests/`, and the test gate moved from `vitest run tests/v2` to `vitest run tests` (the full
-~1,142-test suite, zero RED-by-design set left). ROADMAP-V3 §4 checkbox hygiene was fixed first
-(the `V3-3` parent and its `3i` sub-box flipped to checked, matching §8's DONE record) so the
-first unchecked box is now Stage V3-6, and `handoff-check.mjs`'s stage-matcher was repointed at
-`docs/ROADMAP-V3.md` with a pattern that also recognizes the `Stage V3-N` heading form.
-`docs/handoff/state.json` was rewritten for v3: `currentStage: "V3-6"`, a v3 `nextAction` (the
-human playtest), v3 `specRefs`/`invariants` (applyCommand via `src/v3/reducer.ts`, the §7 D1–D9
-determinism/fog contract, balance LOCKED at T2-3), the dead "~50 RED v1 tests" gotcha removed, and
-`openRisks` carries forward the still-live recorded debts (`data/*.json` drift pending the v3
-split, stale post-T2-1 difficulty-tier magnitudes, T2-4 Wraith playtest-gated, the T-004 fresh-seed
-BP-exposure edge). `docs/AGENT-PROTOCOL.md` was updated in step so its command table, gotchas, and
-resume-prompt text match the new whole-repo verify scope instead of describing the old v2-only
-carve-out. `npm run verify` was run to regenerate `lastVerified` (87 files, 1,142 passed, 0 failed)
-and `npm run handoff:check` passes on the committed tree. Scope boundary: no v2 code, tunable, or
-test was touched — this task only re-scopes the handoff *machinery* (the two scripts, the state
-file, and the protocol doc that describes them), not the engines themselves.
+### T-202 · Typography + palette system — `status: TODO` · `coder: sonnet` · `after: T-201`
+Self-host a thematic display font and a readable body font (OFL-licensed, committed with their license
+files — no CDN); define the palette as CSS custom properties; apply across all v3 screens.
+**Accept:** font files + licenses committed; a Playwright/jsdom audit asserts no rendered text node
+computes to the browser default font stack; palette lives in `:root` custom properties; gallery
+regenerates.
 
-### T-009 · Update `CLAUDE.md` for the v2+v3 reality — `status: DONE` · `coder: sonnet` · `after: T-008`
-The project `CLAUDE.md` describes only v2 (architecture, structure, commands, design commitments,
-balance parameters) and is silent on v3 — the current sprint. Update it: Architecture/Structure
-sections gain `src/v3`, `src/v3/sim`, `src/ui-v3`, `index-v3.html`, `tests/v3`, `harness/`;
-Commands gain `npm run test:v2` / `test:v3` / `sim:v3` / `harness`; the handover section points at
-`docs/ROADMAP-V3.md` as the resume point and reflects the T-008 v3-aware
-`verify`/`handoff:check` behavior; the authority line adds `docs/DESIGN-V3-ALGORITHM.md` (§13
-authoritative) alongside the v2 spec. **Scope the Design Commitments honestly:** "Broken Court
-never prevents Voting Phase participation" is a v2-only commitment (v3 retired Broken Court for
-full elimination) — label the v2-only rows and add the v3 non-negotiables (determinism §7 D1–D9
-incl. the `observableState` fog projection; all mutation via `applyCommand`; balance LOCKED —
-dark 18–22% pooled at the Herald-OFF default; Herald default-OFF). Update the stale Balance
-Parameters section to state which engine each number belongs to. Keep the file's existing tone and
-length discipline — this is a working instruction file, not a changelog.
-**Accept:** CLAUDE.md names both engines and all four suites/commands above; every command listed
-runs (reviewer executes any new/changed ones); the Broken-Court commitment is explicitly scoped to
-v2; a v3 determinism + locked-balance commitment exists; no claim contradicts
-`docs/ROADMAP-V3.md` §0/§8.
+### T-203 · Token/chip components + DOM audit test — `status: TODO` · `coder: opus` · `after: T-201`
+Every resource/stat becomes an icon+count `TokenChip` (game-icons.net SVGs, committed + credited) or a
+gauge — never a bare number in a table. Add the enforcing vitest: over a full jsdom game, every
+numeric stat node in the game root carries the chip/gauge class and contains an inline `<svg>`.
+**Accept:** the DOM-audit test exists and is green over a full fixed-seed game; SVGs committed with
+CREDITS entries; jsdom E2E green.
 
-**Delivered (2026-07-17):** `CLAUDE.md` now names both engines throughout. Architecture gained the
-v3 roster engine (`src/v3/`), its harness (`src/v3/harness/`, `harness/`), and the v3 UI
-(`src/ui-v3/`, `index-v3.html`); Project Structure lists `src/v3/sim`, `tests/v3`, `harness/`, and
-both `docs/DESIGN-V3-ALGORITHM.md` and `docs/ROADMAP-V3.md`. Commands gained `test:v2`, `test:v3`,
-`sim:v3`, and `harness`, and the Agent Handover section now points at `docs/ROADMAP-V3.md` as the
-resume point and describes the T-008 whole-repo `verify`/`handoff:check` behavior. Design
-Commitments were split into shared / v2-only / v3-only: Broken Court and fixed-order Voting Phase
-are labeled v2-only (v3 retired Broken Court for capture-election + depose), and v3 non-negotiables
-were added — determinism §7 D1–D9 (including the `observableState` fog projection), all mutation
-via `applyCommand`, balance LOCKED at 18–22% pooled dark win rate, and Herald default-OFF. Balance
-Parameters now states which engine each number belongs to. Scope boundary: this task only edited
-`CLAUDE.md` (plus the routine `docs/handoff/state.json` re-verify stamp from running `npm run
-verify` to confirm the doc's claims); no v2/v3 engine code, tunable, or test was touched.
+### T-204 · Card frames + data-driven card-face generator — `status: TODO` · `coder: opus` · `after: T-202`
+Create `src/ui-v3/card-face.ts`: piece/token data → SVG card face (frame, name, icon, stats), so art
+swaps never touch layout code. Frames from a CC0 pack (credited). Cards across the UI render via the
+generator only.
+**Accept:** a unit test registers a synthetic new piece type and gets a valid face with zero layout-
+file changes; grep shows card DOM built only via the generator; gallery shows framed cards.
+
+### T-205 · Turn/round/Act visual track — `status: TODO` · `coder: sonnet` · `after: T-203`
+Replace the textual turn/round/act status with a visual track: a marker advancing along
+Whisper→March→Reckoning with round pips, each act visually distinct. Marker movement animates through
+the M1 queue (act/round-advance Move types already exist).
+**Accept:** the track component renders on the board screen; an act-advance transition produces the
+corresponding Move and animated preset (spy test in instant mode); jsdom E2E green.
+
+### T-206 · M2 close — bundle budget + DoD — `status: TODO` · `coder: sonnet` · `after: T-204, T-205`
+Add `scripts/check-budget.mjs` (npm script `budget`): `vite build` output + committed UI assets total
+≤ 3 MB, exit non-zero over budget. Then milestone DoD: verify green → tick M2 boxes, `currentStage` →
+`V3.1-M2-CHECKPOINT`, dated §8 entry, commit, handoff:check green.
+**Accept:** `npm run budget` exits 0; DoD commands exit 0; boxes ticked; §8 entry present.
+
+### T-207 · CHECKPOINT — user visual review of M2 — `status: TODO` · `coder: sonnet` · `after: T-206`
+Regenerate the gallery into `docs/Redesign-V3.1/m2/` (committed), then **set this task
+`BLOCKED(awaiting user visual review)` and halt the run** — do not proceed into M3. The user scores
+`docs/Redesign-V3.1/RUBRIC.md` (target ≥8/10) and runs the blind read test ("web app or board game?" on
+a fresh agent given only the screenshots); the user flips this task to DONE, or files fix tasks.
+**Accept:** (checked by the user, not the runner) m2 gallery committed; rubric scored ≥8/10; blind
+read test answered "board game" for every screen; user explicitly approved.
 
 ---
 
-## M4 — Ship hygiene
+## M3 — Cards & hand live
 
-### T-010 · Set upstream and push the v2/v3 era — `status: DONE` · `coder: sonnet` · `after: T-001, T-004, T-006, T-009`
-**Delivered (2026-07-17):** `v3-redesign` now tracks `origin/v3-redesign` (upstream configured via
-`-u origin v3-redesign`) and `main` was pushed so `origin/main` is no longer 51 commits behind —
-`git log origin/main..main --oneline` returns empty and `git branch -vv` shows both local branches
-in sync with their remotes, with the pre-push hook (lint + full test suite) passing on its own with
-no `--force` / `--no-verify`. Scope boundary: this task only performed the git push/upstream-set
-operations directed by the survey; no source, tunable, or test file was touched, and this closing
-commit (TASKS.md status update plus the graphify artifact refresh already sitting in the working
-tree) does not re-run push or the test suite — the gate had already verified the tree beforehand.
-The survey's ship-hygiene finding: `v3-redesign` has **no upstream configured** and `main` is
-**ahead of origin/main by 51 commits** — the entire v2/v3 era may exist only locally. Verify with
-`git branch -vv` and `git log origin/main..main --oneline | wc -l`, then push `main` and push
-`v3-redesign` with `-u origin v3-redesign`. The pre-push hook (`.githooks/pre-push`) runs
-`npm run lint` + the full test suite — it must pass on its own (T-002 fixed the flake; never
-`--no-verify`). This publishes to the user's own private GitHub remote
-(`github.com/ArchitectVS7/Iron-Ashes`) and was explicitly directed by the review; if the remote
-rejects (diverged history, permissions), stop and report — do not force-push.
-**Accept:** `git branch -vv` shows `v3-redesign` tracking `origin/v3-redesign` with no ahead/behind
-drift; `git log origin/main..main` is empty; the pre-push hook ran and passed (visible in the push
-output); no `--force` / `--no-verify` in the reflog of commands used.
+### T-301 · Fanned hand — `status: TODO` · `coder: opus` · `after: T-207`
+Render the human player's hand as a CSS-3D fanned card row (arc + rotation math), with hover-raise
+and selected-lift states, using the T-204 card faces. Degrades to a flat row under instant mode/jsdom.
+**Accept:** hand DOM is the fan component; hover/selected states are class-driven (unit-testable);
+jsdom E2E + shots green.
+
+### T-302 · Hand-delta animations (deal/draw/play/discard) — `status: TODO` · `coder: sonnet` · `after: T-301`
+Give every hand-delta Move type a real GSAP preset through the M1 queue; extend the preset registry so
+a hand Move type without a preset is a compile error.
+**Accept:** the preset record covers all hand-delta Move types (compile-enforced); spy tests in
+instant mode confirm each fires; jsdom E2E green.
+
+### T-303 · 3D flip reveal + frame-level fog test — `status: TODO` · `coder: opus` · `after: T-301`
+Implement the card/token flip (perspective + rotateY) for every reveal Move. Face content must enter
+the DOM only at the flip midpoint — never before. Add the enforcing test: in instant mode, assertion
+ordering (pre-flip DOM snapshot vs post-midpoint) proves the pre-flip DOM contains no face data for a
+revealed hidden token.
+**Accept:** the frame-level fog test is green; all reveal Move types route through the flip preset;
+jsdom E2E green.
+
+### T-304 · Affordances — legal glow, illegal shake — `status: TODO` · `coder: sonnet` · `after: T-302`
+Legal actions/targets glow on hover/selection; illegal interactions get a shake tween (no alert/text
+errors for illegality). Driven from the same legality data the UI already uses — no new engine calls.
+**Accept:** glow/shake are class+preset driven with spy tests; no `window.alert` remains for
+illegality paths; jsdom E2E green.
+
+### T-305 · M3 close — DoD — `status: TODO` · `coder: sonnet` · `after: T-303, T-304`
+Milestone DoD: verify green → tick M3 boxes, `currentStage` → `V3.1-M3-CHECKPOINT`, dated §8 entry,
+commit, handoff:check green.
+**Accept:** both commands exit 0; boxes ticked; §8 entry present.
+
+### T-306 · CHECKPOINT — user visual review of M3 — `status: TODO` · `coder: sonnet` · `after: T-305`
+Regenerate the gallery into `docs/Redesign-V3.1/m3/` (committed), then **set this task
+`BLOCKED(awaiting user visual review)` and halt the run**. User reviews hand feel (fan, flips,
+affordances) against the rubric and approves or files fix tasks.
+**Accept:** (user-checked) m3 gallery committed; user explicitly approved.
+
+---
+
+## M4 — Board life & sound
+
+### T-401 · Path-following piece movement — `status: TODO` · `coder: opus` · `after: T-306`
+Piece-movement Moves animate along the board's actual node paths (GSAP motion along computed
+waypoints), with an arrival effect — no teleporting. Instant mode settles positions synchronously.
+**Accept:** movement preset consumes a waypoint list derived from board topology (unit-tested);
+replay/"snap count 0" test still green; jsdom E2E green.
+
+### T-402a · Scene moments — capture, election, Ransom, discovery — `status: TODO` · `coder: opus` · `after: T-401`
+Give the capture→election sequence, Ransom, and discovery flips distinct staged presentations
+(sequenced multi-move timelines): the roadmap's "capture-as-scene". Fog rules apply to discovery
+(reuse T-303's flip).
+**Accept:** each named moment has a dedicated sequenced preset (spy tests confirm ordering in instant
+mode); jsdom E2E covering these verbs green.
+
+### T-402b · Scene moments — Shadowking telegraphs, heart, endgame — `status: TODO` · `coder: opus` · `after: T-401`
+Distinct visual telegraphs for WHISPER / MARCH / RECKONING (three visibly different treatments),
+ASSAULT_HEART staging, elimination presentation, and victory/defeat end sequences.
+**Accept:** three telegraph presets are distinct (distinct class/asset assertions); elimination and
+both end sequences have presets with spy tests; jsdom E2E green.
+
+### T-403 · Full SFX pass — `status: TODO` · `coder: sonnet` · `after: T-402a, T-402b`
+Populate the SoundManager registry: every Move type gets a committed CC0/CC-BY sound (Kenney/
+freesound, credited), with the compile-enforced `Record<MoveType, {preset, sound}>` fully populated.
+Volume + mute already exist (T-105); add a small settings surface for them if none exists.
+**Accept:** the record has no missing keys (compile-enforced); audio assets committed with CREDITS
+entries; `npm run budget` still exits 0; suite green.
+
+### T-404 · Mechanic visibility map — `status: TODO` · `coder: sonnet` · `after: T-402a, T-402b`
+Append to `docs/ROADMAP-V3.1-UI.md` a table mapping **every** item of
+`docs/human-playtest-checklist-v3.md` to its on-screen representation (component/animation/sound).
+Any item without a real representation becomes a named gap task proposal in the same table — no
+silent rows.
+**Accept:** every checklist item appears exactly once in the table (reviewer cross-checks the two
+files); zero empty representation cells.
+
+### T-405 · Perf + reduced-motion verification run — `status: TODO` · `coder: opus` · `after: T-403`
+Create `scripts/perf-v3.mjs` (npm script `perf:v3`): Playwright plays a full fixed-seed AI-vs-AI game
+through the animated UI with animations ON, collecting a trace; exit non-zero on any main-thread
+stall >100 ms or sustained <55 fps during animation bursts. Second pass runs the same game with
+`prefers-reduced-motion` emulated and asserts instant-mode completion (fast wall-clock, sounds still
+firing via spy/log).
+**Accept:** `npm run perf:v3` exits 0 on both passes; thresholds are in the script, not hand-waved;
+failures print the offending trace window.
+
+### T-406 · M4 close — DoD — `status: TODO` · `coder: sonnet` · `after: T-404, T-405`
+Milestone DoD: verify green → tick M4 boxes, `currentStage` → `V3.1-M4-CHECKPOINT`, dated §8 entry,
+commit, handoff:check green.
+**Accept:** both commands exit 0; boxes ticked; §8 entry present.
+
+### T-407 · CHECKPOINT — final pre-playtest review — `status: TODO` · `coder: sonnet` · `after: T-406`
+Regenerate the gallery into `docs/Redesign-V3.1/m4/` (committed), then **set this task
+`BLOCKED(awaiting user visual review)` and halt the run**. This is the gate into M5: the user reviews
+the full animated experience (rubric + blind read test + a played game), then either approves —
+opening the M5 human playtest, which is run by the user, not the orchestrator — or files fix tasks.
+**Accept:** (user-checked) m4 gallery committed; user explicitly approved the sprint as
+playtest-ready.
 
 ---
 
 ## Deliberately deferred (do not re-scope in)
 
-- **V3-6 human playtest** — human-gated; the entire point of this wave is to leave it as the only
-  remaining item. (`npm run dev` → `/index-v3.html`, `docs/human-playtest-checklist-v3.md`,
-  teaching from `docs/v3-teach-script.md`.)
-- **The UGT R-ladder itself (spike → R1 → R2 → R3)** — runs from `~/Dev/Games/_UGT Universal Game
-  Tester` against the T-005/T-006 harness; it is a separate repo's workflow, not orchestratable
-  here. This wave's deliverable is the harness UGT needs.
-- **Any balance tuning** — locked; band misses found by T-004 are recorded findings for a user call.
-- **Difficulty-tier (knight/squire) magnitude recalibration** — recorded watch item (ROADMAP-V3 §8
-  T2-1); deferred to the next difficulty-touching stage.
-- **T2-4 Wraith engagement work** — playtest-gated per the backlog.
-- **v3 `data/` split** (`gen:data` resync of the inert v2 JSON levers) — standing recorded debt,
-  unchanged by this wave.
-- **Styled-UI pass (T3-10)** — follows the playtest by design.
+- **M5 — human playtest** (`docs/ROADMAP-V3.1-UI.md` M5): run by the user after T-407.
+- **M6 — tabletop kit extraction**: cross-project work, post-vet.
+- **`tabletop-ui` house-style skill** (`~/.claude/skills/`): a user-machine artifact, authored
+  interactively — not repo work the runner can gate or commit.
+- **T-004 BP-exposure fresh-seed edge** (`state.json` openRisks): user call, unrelated to this sprint.

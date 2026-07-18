@@ -210,7 +210,7 @@ vector is resolved in fixed seat order against pre-reveal state.
 > coordinate one efficient coverer, while sealing forces an independent bluff → claimant Gambit-win
 > −7pp, gambit fire 26%→18% (into band), SK-win +3pp. So sealing both creates the volunteer's dilemma
 > AND reinforces the gambit-fire fix; the **risk-aware seize gate** (`GAMBIT_SELF_COVER_CARDS`) remains
-> the primary nerf. The *felt* drama is still a human-only claim — see `docs/human-playtest-checklist.md`.
+> the primary nerf. The *felt* drama is still a human-only claim — see `docs/archive-V2/human-playtest-checklist.md`.
 > FOCUS-GROUP-R3 §3, tuning-log §B.
 
 ```
@@ -591,7 +591,7 @@ than simply wait. This converts the territory race's "turtle-to-cap" line from d
 > **STATUS: Phase 5 (balance) COMPLETE & LOCKED (Stage 5f, 2026-06-24).** The values below were tuned
 > over the REAL reducer + REAL AI (deterministic Monte-Carlo, `npm run sim`) and locked 2-seed-stable
 > across 2/3/4p, both modes. `src/v2/tunables.ts` `DEFAULT_TUNABLES` is the SINGLE SOURCE OF TRUTH for
-> every lever's locked value; `docs/handoff/stage5-tuning-log.md` is the full evidence trail
+> every lever's locked value; `docs/archive-V2/stage5-tuning-log.md` is the full evidence trail
 > (§5a–§5c, §5-dark, §5d, §Oaths, §tolls/§sealed/§herald, §C2/§A/§M/§B/§HL/§R2, §5e/§5f). The lists
 > below are the design-time menu; trust tunables.ts for current values.
 
@@ -680,7 +680,7 @@ Built on top of the sealed-pledge substrate; absent unless `mode === 'blood_pact
 >   counting it pushed accusation accuracy BELOW random (innocents looked guiltier than a blending
 >   traitor). 'none'-only keeps deduction skillful (~70% accurate).
 > - The **wrong-accusation gamble** (`ACCUSATION_WRONG_PENALTY`=2) and the **Audit** are HUMAN-facing
->   (the AI weighs neither — sim-inert; see `docs/human-playtest-checklist.md` §3).
+>   (the AI weighs neither — sim-inert; see `docs/archive-V2/human-playtest-checklist.md` §3).
 > LOCKED 2-seed: traitor win 7.8%→~20%, exposure 87%→~70%, accuracy 54%→~71%, ≤1 accusation/game.
 > Residual: win + exposure are jointly tight (both hug their ceilings) — a cleaner mid-band lock needs a
 > fractional dark bonus / win-exposure decoupling (escalated to 5f).
@@ -709,7 +709,7 @@ Built on top of the sealed-pledge substrate; absent unless `mode === 'blood_pact
 > §§1–11 now incorporate the Stage-5 mechanics; this section is the change history.
 
 **Authoritative sources:** `src/v2/tunables.ts` (`DEFAULT_TUNABLES`) is the live single source of truth
-for every lever and its locked value; the named spec docs below + `docs/handoff/stage5-tuning-log.md` are
+for every lever and its locked value; the named spec docs below + `docs/archive-V2/stage5-tuning-log.md` are
 the evidence behind each.
 
 **Changelog (each mechanic, its stage tag, and its spec doc):**

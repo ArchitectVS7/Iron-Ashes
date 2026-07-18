@@ -24,7 +24,7 @@ Resume the Iron Ashes v2 engine work. Follow the handover protocol exactly:
 2. Read docs/handoff/state.json — the machine source of truth for status.
    Note currentStage, nextAction, specRefs, invariants, gotchas.
 3. Read docs/AGENT-PROTOCOL.md (the enforced Definition of Done), then
-   docs/ROADMAP.md (§2 locked decisions, §4 plan), then the specRefs
+   docs/ROADMAP-V3.md (§2 locked decisions, §4 plan), then the specRefs
    sections of docs/DESIGN-V2-ALGORITHM.md.
 4. Do the work in state.json.nextAction. All state mutation goes through
    applyCommand (src/v3/reducer.ts for v3 work); keep it deterministic (no
@@ -65,7 +65,7 @@ Write `tests/v2/*.test.ts` as you go. Keep everything deterministic (ALGORITHM �
 - [ ] 2. Edit `state.json` **narrative** fields: advance `currentStage`/`currentStageTitle`/`status`/
       `nextAction`/`specRefs`; refresh `invariants`/`gotchas`/`openRisks`. **Never hand-edit
       `lastVerified` or `dirty`** — those are script-owned.
-- [ ] 3. Update **`docs/ROADMAP.md`**: tick the §4 box; add a §8 changelog entry (template below).
+- [ ] 3. Update **`docs/ROADMAP-V3.md`**: tick the §4 box; add a §8 changelog entry (template below).
       Copy test counts from the verify output — do not guess.
 - [ ] 4. Update the **memory file** (path + schema below). Required, not optional.
 - [ ] 5. **Commit** (the work + `state.json` + ROADMAP). On the default branch, branch first.
@@ -108,7 +108,7 @@ this doc (a fresh clone works without the memory).
   ```yaml
   ---
   name: iron-ashes-v2-redesign
-  description: <one line — current status + "resume from docs/ROADMAP.md">
+  description: <one line — current status + "resume from docs/ROADMAP-V3.md">
   metadata:
     node_type: memory
     type: project

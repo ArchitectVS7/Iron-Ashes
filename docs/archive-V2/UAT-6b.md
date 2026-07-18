@@ -6,7 +6,7 @@
 > claims. This is the gate before the styled UI pass (7k) and the human-gated experience work (7f–7j).
 >
 > **Companion docs:** felt-experience claims live in [`human-playtest-checklist.md`](human-playtest-checklist.md)
-> (folded into §4 below); rules in [`USER-MANUAL.md`](USER-MANUAL.md); the why in [`GAME-DESIGN.md`](GAME-DESIGN.md).
+> (folded into §4 below); rules in [`USER-MANUAL.md`](../USER-MANUAL.md); the why in [`GAME-DESIGN.md`](../GAME-DESIGN.md).
 
 ## Ground rules for the tester (non-negotiable)
 

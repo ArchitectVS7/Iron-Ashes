@@ -4,7 +4,7 @@
 > reconvened focus group (`DESIGN-V2-FOCUS-GROUP-R2.md`) and the lead-designer call.
 > Date: 2026-06-22
 > Authority for mechanics: `DESIGN-V2-ALGORITHM.md` §5.3/§5.6/§4.3. This file specifies
-> only the delta. Companion evidence: `docs/handoff/stage5-tuning-log.md`.
+> only the delta. Companion evidence: `docs/archive-V2/stage5-tuning-log.md`.
 
 ---
 

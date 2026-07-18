@@ -11,7 +11,7 @@ They are **not** the current authority and may describe superseded proposals or 
 | How to play (player-facing rules) | [`../USER-MANUAL.md`](../USER-MANUAL.md) |
 | Implementation spec (pseudocode, determinism, state) | [`../DESIGN-V2-ALGORITHM.md`](../DESIGN-V2-ALGORITHM.md) |
 | The exact balance numbers (single source of truth) | [`../../src/v2/tunables.ts`](../../src/v2/tunables.ts) |
-| Per-stage tuning evidence | [`../handoff/stage5-tuning-log.md`](../handoff/stage5-tuning-log.md) |
+| Per-stage tuning evidence | [`../archive-V2/stage5-tuning-log.md`](../archive-V2/stage5-tuning-log.md) |
 
 ## What's in here
 

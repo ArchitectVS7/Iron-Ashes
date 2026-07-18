@@ -70,8 +70,8 @@ still list the removed Broken/Rescue levers (`rescueWillingness` etc.) — **ine
 `src/v3/tunables.gen.ts`), but a `npm run gen:data` resync is owed once v3 gets its own `data/` dir. The four
 new court tunables (`MARSHAL_POWER`/`STEWARD_POWER`/`HERALD_PIECE_POWER`/`STEWARD_INCOME`) are plain literals in
 `src/v3/tunables.ts` pending that v3 data split. Blood-Pact exposure re-tune deferred to the v3 5e-equivalent.
-`state.json` still tracks **v2** (its `handoff:check` is wired to `ROADMAP.md`); repoint it to v3 only when the
-handoff machinery is made v3-aware or v3 promotes — tracked here in §4/§8 meanwhile.
+`state.json`/`handoff:check` were repointed to v3 in T-008 (`handoff-check.mjs` now reads this file's §4);
+the v2-era roadmap this used to wire to now lives at `docs/archive-V2/ROADMAP.md`.
 
 ---
 
@@ -193,7 +193,7 @@ Workflow (same as v2): **① idea → ② textual algorithm → ③ code → ④
   Emergent property: only the HARD tier amplifies under error (→25%); knight/squire are forgiving (~flat). Known
   limit: the doomCost floors at 1 card at 2p, so tiers only bite at 3p/4p (2p ≈23% across tiers). **The playtest
   picks the shipped default** (checklist item 11).
-- [ ] **Stage V3-6 — UI polish + human playtest** — walk a v3 `human-playtest-checklist.md` (the elimination
+- [ ] **Stage V3-6 — UI polish + human playtest** — walk `human-playtest-checklist-v3.md` (the elimination
   feel, the Wraith engagement, the two-act ending, capture-as-scene, the 30–45 min length with 4 archetypes).
 
 ---

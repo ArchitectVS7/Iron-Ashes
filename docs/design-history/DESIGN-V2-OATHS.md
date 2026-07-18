@@ -86,7 +86,7 @@ and the Ledger are public (no hidden info in core). `oaths` is JSON-serializable
   seat 26.3%, free-riding not rewarded; DK-kills 2.05 — 5-dark intact).
 - The spine over-weakened the dark on first sim (15.4%); the retune (`SPREAD_AMOUNT_BASE` 4→5,
   `LANDED_STRIKE_WOUNDS` 2→3 + an archetype loyalty nudge) restored the band. Evidence:
-  `stage5-tuning-log.md §oaths`.
+  `../archive-V2/stage5-tuning-log.md §oaths`.
 
 ## 8. Deferred (not built here)
 

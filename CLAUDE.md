@@ -42,7 +42,7 @@ tests/
 harness/      # UGT harness — ugt-harness.mjs (npm run harness), README.md
 scripts/      # Balance tuning (.mjs), handoff check, verify, sim, sim-v3
 docs/         # DESIGN-V2-ALGORITHM.md (v2 spec), DESIGN-V3-ALGORITHM.md (v3 spec),
-              #   ROADMAP-V3.md (current), ROADMAP.md (v2), AGENT-PROTOCOL.md
+              #   ROADMAP-V3.md (current), AGENT-PROTOCOL.md, archive-V2/ (completed v2-era docs)
 index.html    # v2 UI entry;  index-v3.html # v3 UI entry
 ```
 
@@ -81,10 +81,10 @@ _v3 only (non-negotiable):_
 **Fix issues first; do not accumulate technical debt while building more features.**
 
 1. **Resolve or record — never carry vague deferrals.** Every open risk or known gap is either fixed
-   now or written down as a *dated, owned decision* in `docs/ROADMAP-V3.md` (or `docs/ROADMAP.md` for v2),
-   `docs/handoff/state.json` `openRisks`, or a `docs/DESIGN-V{2,3}-*.md` doc.
+   now or written down as a *dated, owned decision* in `docs/ROADMAP-V3.md` (or `docs/archive-V2/ROADMAP.md`
+   for the frozen v2 engine), `docs/handoff/state.json` `openRisks`, or a `docs/DESIGN-V{2,3}-*.md` doc.
 2. **No hidden/unvalidated mechanics.** A shipped mechanic the sim can't exercise (a "human-only"
-   feature) must be labeled UNTESTED in the spec and added to `docs/human-playtest-checklist.md`.
+   feature) must be labeled UNTESTED in the spec and added to `docs/human-playtest-checklist-v3.md`.
 3. **No stale comments.** When behavior changes, fix the comments that describe it in the same change.
 4. **Pre-commit/CI checks are sacred** (see the global rules): never `--no-verify`; a failure found
    in your session is yours to fix; "clean to commit" = zero failing tests.
