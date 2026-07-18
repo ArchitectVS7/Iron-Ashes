@@ -130,7 +130,7 @@ Workflow (same as v2): **① idea → ② textual algorithm → ③ code → ④
 - [x] **Stage V3-1 — Concept / focus group** → `design-history/DESIGN-V3-CONCEPT.md` + `…-FOCUS-GROUP.md`
 - [x] **Stage V3-2 — Textual algorithm** → `DESIGN-V3-ALGORITHM.md`
 - [x] **Stage V3-2.5 — Adversarial stress-test + 12 P0 fixes folded** → `design-history/DESIGN-V3-STRESS-TEST.md` (→ ALGORITHM §13)
-- [ ] **Stage V3-3 — Build the v3 engine (from the spec; §13 is the checklist).** Recommended order:
+- [x] **Stage V3-3 — Build the v3 engine (from the spec; §13 is the checklist).** Recommended order:
   - [x] **3a. Scaffold + retire Broken Court** — DONE (`63eadb2` Foundation faithful clone → `8d7f575` retire
     Broken). Removed all Broken/Rescue fields + `checkBrokenState`/`executeRescue`/`checkBrokenRecovery` + the
     `all_broken` checks + 7 Broken/Rescue tunables; added `isEliminated`/`deposed`, `resolveDeposals`
@@ -169,7 +169,7 @@ Workflow (same as v2): **① idea → ② textual algorithm → ③ code → ④
   - [x] **3h. Blood Pact v3 interactions** — DONE (`5709c92`). Eliminated traitor still wins on a later
     doom/attrition (win-check reads `bloodPactHolder` regardless of elimination); wraith-traitor tension within
     the cap; competitive (flag off) byte-identical. Full BP re-tune deferred to a v3 5e-equivalent.
-  - [ ] **3i. UI — render-from-state** — port `src/ui-v2`; add the new controls + the **mandated legibility**
+  - [x] **3i. UI — render-from-state** — port `src/ui-v2`; add the new controls + the **mandated legibility**
     (Exposure meter, pre-commit combat-margin, the "Hold" rail, the capture/heart scene beats — §13 P0-11).
 - [x] **Stage V3-4 — Sim harness** — DONE. `npm run sim:v3`; all v3 metrics (captures/ransoms, elimination
   timing, dead-time, kill-the-dark, snowball↔turtle, attachment proxy) + the bounded-rationality `errorRate`

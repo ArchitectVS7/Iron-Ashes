@@ -258,7 +258,7 @@ references to `src/engine`, `src/gll`, GLL packs, or any other nonexistent surfa
 explicit "history" pointer; header date is current; doc mentions both engines, both UIs, both sims,
 the determinism contract, and the harness.
 
-### T-008 · Make the handoff machinery v3-aware and repoint `state.json` — `status: TODO` · `coder: opus` · `after: T-004`
+### T-008 · Make the handoff machinery v3-aware and repoint `state.json` — `status: DONE` · `coder: opus` · `after: T-004`
 Discharge the recorded debt from ROADMAP-V3 §0/§7 ("repoint state.json to v3 only when the handoff
 machinery is made v3-aware"). (1) In `scripts/verify.mjs` and `scripts/handoff-check.mjs`, extend
 `SOURCE_DIRS` from `['src/v2','tests/v2']` to also cover `src/v3` + `tests/v3`, keeping the two
@@ -281,6 +281,25 @@ post-T2-1; T2-4 Wraith playtest-gated) into `openRisks`. (4) Run `npm run verify
 451); `npm run handoff:check` exits 0 on the committed tree; `state.json` names a v3 stage and
 contains no reference to v1 tests or a v2-era `nextAction`; ROADMAP-V3 §4's first unchecked box is
 V3-6; both scripts' `sourceHash` implementations remain identical.
+**Delivered (2026-07-17):** `verify.mjs` and `handoff-check.mjs` widened from v2-only (`src/v2
+tests/v2`) to the whole repo — `SOURCE_DIRS` now also covers `src/v3`/`tests/v3` (both scripts'
+`sourceHash` stay byte-identical), the lint gate moved from `eslint src/v2 tests/v2` to `eslint
+src/ tests/`, and the test gate moved from `vitest run tests/v2` to `vitest run tests` (the full
+~1,142-test suite, zero RED-by-design set left). ROADMAP-V3 §4 checkbox hygiene was fixed first
+(the `V3-3` parent and its `3i` sub-box flipped to checked, matching §8's DONE record) so the
+first unchecked box is now Stage V3-6, and `handoff-check.mjs`'s stage-matcher was repointed at
+`docs/ROADMAP-V3.md` with a pattern that also recognizes the `Stage V3-N` heading form.
+`docs/handoff/state.json` was rewritten for v3: `currentStage: "V3-6"`, a v3 `nextAction` (the
+human playtest), v3 `specRefs`/`invariants` (applyCommand via `src/v3/reducer.ts`, the §7 D1–D9
+determinism/fog contract, balance LOCKED at T2-3), the dead "~50 RED v1 tests" gotcha removed, and
+`openRisks` carries forward the still-live recorded debts (`data/*.json` drift pending the v3
+split, stale post-T2-1 difficulty-tier magnitudes, T2-4 Wraith playtest-gated, the T-004 fresh-seed
+BP-exposure edge). `docs/AGENT-PROTOCOL.md` was updated in step so its command table, gotchas, and
+resume-prompt text match the new whole-repo verify scope instead of describing the old v2-only
+carve-out. `npm run verify` was run to regenerate `lastVerified` (87 files, 1,142 passed, 0 failed)
+and `npm run handoff:check` passes on the committed tree. Scope boundary: no v2 code, tunable, or
+test was touched — this task only re-scopes the handoff *machinery* (the two scripts, the state
+file, and the protocol doc that describes them), not the engines themselves.
 
 ### T-009 · Update `CLAUDE.md` for the v2+v3 reality — `status: TODO` · `coder: sonnet` · `after: T-008`
 The project `CLAUDE.md` describes only v2 (architecture, structure, commands, design commitments,

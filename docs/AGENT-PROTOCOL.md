@@ -27,9 +27,9 @@ Resume the Iron Ashes v2 engine work. Follow the handover protocol exactly:
    docs/ROADMAP.md (§2 locked decisions, §4 plan), then the specRefs
    sections of docs/DESIGN-V2-ALGORITHM.md.
 4. Do the work in state.json.nextAction. All state mutation goes through
-   applyCommand (src/v2/reducer.ts); keep it deterministic (no Math.random/
-   Date.now/any; RNG via SeededRandom); write tests/v2/*.test.ts as you go.
-   Use `npm run test:v2` (the full `npm test` is red by design — v1 suite).
+   applyCommand (src/v3/reducer.ts for v3 work); keep it deterministic (no
+   Math.random/Date.now/any; RNG via SeededRandom); write tests as you go.
+   `npm test` runs the full suite (utils/v2/v3) and is entirely green.
 5. Definition of Done: `npm run verify` exits 0 → update state.json narrative
    fields + ROADMAP §4 box + §8 changelog + the memory file → commit →
    `npm run handoff:check` exits 0. Only then is the step done.
@@ -48,8 +48,9 @@ but the prompt above is deterministic regardless. The detailed step-by-step is b
    **If it fails, the *previous* handover was broken — fix that first** (re-verify, commit, reconcile)
    before doing new work. This is the safety net that catches a bad inheritance.
 2. Read **`docs/handoff/state.json`** → `currentStage`, `nextAction`, `specRefs`, `invariants`, `gotchas`.
-3. Read **`docs/ROADMAP.md`** (§2 locked decisions; §4 — the first unchecked box must equal
-   `state.currentStage`) and the **`specRefs`** sections of `docs/DESIGN-V2-ALGORITHM.md`.
+3. Read the active roadmap (**`docs/ROADMAP-V3.md`** for v3 work; §4 — the first unchecked box must
+   equal `state.currentStage`, which `handoff:check` enforces) and the **`specRefs`** sections of the
+   spec named in `state.json` (`docs/DESIGN-V3-ALGORITHM.md` for v3).
 4. Read the **memory file** (path below).
 
 ## WORK
@@ -79,19 +80,19 @@ Write `tests/v2/*.test.ts` as you go. Keep everything deterministic (ALGORITHM �
 - **Never mark a step done without `npm run verify` exiting 0.** "Looks done" is not done.
 - **Never `--no-verify`** / never bypass a hook (global rule — checks are sacred).
 - **`state.currentStage` must equal the first unchecked ROADMAP §4 box.** `handoff:check` enforces it.
-- **The v1 suite (`tests/`, non-v2) is RED by design** — it anchors v1. Use **`npm run test:v2`** for the
-  v2 suite. The full `npm test` / pre-push hook will fail on v1; that's expected.
-- **All mutation via `applyCommand`; all RNG via `SeededRandom`** (no `Math.random`/`Date.now`/`any` in `src/v2`).
+- **No v1 tests remain — `tests/` holds only `utils/`, `v2/`, `v3/` and the FULL `npm test` is green.**
+  `npm run verify` runs `vitest run tests` (the whole suite); the pre-push hook stays green on all of it.
+- **All mutation via `applyCommand`; all RNG via `SeededRandom`** (no `Math.random`/`Date.now`/`any` in `src/`).
 - **`lastVerified` and `dirty` are written only by `scripts/verify.mjs`.** Treat them as read-only.
 
 ## Commands
 
 | Command | Does |
 |---|---|
-| `npm run verify` | typecheck + v2 lint + v2 tests (120s/suite timeout) → **writes** `state.json`. The DoD gate. |
+| `npm run verify` | typecheck + whole-repo lint (`eslint src/ tests/`) + the full suite (`vitest run tests`, 120s/suite timeout) → **writes** `state.json`. The DoD gate. |
 | `npm run verify:check` | same gates, exit code only, **no write** (used by hook + CI). |
-| `npm run handoff:check` | asserts state.json is green + fresh-hash + clean-tree + matches ROADMAP §4. |
-| `npm run test:v2` | the v2 suite only. |
+| `npm run handoff:check` | asserts state.json is green + fresh-hash + clean-tree + matches ROADMAP-V3 §4. |
+| `npm test` | the full suite (utils + v2 + v3); `npm run test:v2` scopes to the v2 suite only. |
 
 ---
 
@@ -135,5 +136,7 @@ this doc (a fresh clone works without the memory).
   ROADMAP **§6** (human design risks, may be longer), and the **memory** (one-paragraph index that
   *points to* the others). When knowledge changes, update state.json + the one prose home — never keep
   three copies of the same sentence.
-- `verify.mjs` lint scope is `src/v2 tests/v2` (not the whole-repo `npm run lint`) — intentional, so the
-  in-progress redesign isn't gated on v1 lint debt. Documented in the script header; don't "fix" it.
+- `verify.mjs` lint scope is the whole repo (`eslint src/ tests/`) and its test gate is the full suite
+  (`vitest run tests`) — the recorded "green" now proves the whole tree, not just v2. Its sourceHash covers
+  `src/v2 + tests/v2 + src/v3 + tests/v3`; `handoff-check.mjs` recomputes the same hash byte-for-byte and
+  asserts `state.currentStage` equals the first unchecked box in `docs/ROADMAP-V3.md` §4.

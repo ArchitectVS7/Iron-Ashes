@@ -1,16 +1,15 @@
 #!/usr/bin/env node
 /**
- * verify.mjs — the v2 handover verify gate.
+ * verify.mjs — the handover verify gate.
  *
  * Runs the three gates and (by default) WRITES the real results into
  * docs/handoff/state.json so "green" is a machine-written fact, not an
  * agent's claim:
  *   1. tsc --noEmit                       (typecheck)
- *   2. eslint src/v2 tests/v2             (lint — scoped to the v2 redesign,
- *                                          NOT the whole repo; v1 lint debt must
- *                                          not gate the in-progress engine)
- *   3. vitest run tests/v2 (JSON report)  (the v2 suite only — the full `npm test`
- *                                          includes ~50 intentionally-RED v1 tests)
+ *   2. eslint src/ tests/                 (lint — the whole repo; no v1 code
+ *                                          remains, so the full tree must be clean)
+ *   3. vitest run tests (JSON report)     (the FULL suite — utils + v2 + v3;
+ *                                          every test is green, no RED-by-design set)
  *
  * Each gate runs under a SUITE_TIMEOUT_MS hard timeout via spawnSync, so an
  * infinite-loop/hang FAILS LOUDLY (status: "timeout") instead of being silently
@@ -32,7 +31,7 @@ import { join, resolve } from 'node:path';
 const SUITE_TIMEOUT_MS = 120_000;
 const ROOT = process.cwd();
 const STATE_PATH = resolve(ROOT, 'docs/handoff/state.json');
-const SOURCE_DIRS = ['src/v2', 'tests/v2'];
+const SOURCE_DIRS = ['src/v2', 'tests/v2', 'src/v3', 'tests/v3'];
 const CHECK_ONLY = process.argv.includes('--check');
 
 // ─── helpers ──────────────────────────────────────────────────────
@@ -49,7 +48,7 @@ function listTsFiles(dir) {
   return out;
 }
 
-/** sha256 over sorted (path-relative + content) of src/v2 + tests/v2 .ts files.
+/** sha256 over sorted (path-relative + content) of src/v2 + tests/v2 + src/v3 + tests/v3 .ts files.
  *  Content-based freshness anchor — stable across commits/amends, unlike a commit SHA. */
 function sourceHash() {
   const files = SOURCE_DIRS.flatMap(listTsFiles).sort();
@@ -88,14 +87,14 @@ function gitCommit() {
 
 // ─── run the gates ────────────────────────────────────────────────
 
-console.log(`\n=== verify (v2) ${CHECK_ONLY ? '[--check, no write]' : ''} ===`);
+console.log(`\n=== verify ${CHECK_ONLY ? '[--check, no write]' : ''} ===`);
 
 const typecheck = runGate('typecheck (tsc --noEmit)', 'npx', ['tsc', '--noEmit']);
-const lint = runGate('lint (eslint src/v2 tests/v2)', 'npx', ['eslint', 'src/v2', 'tests/v2']);
+const lint = runGate('lint (eslint src/ tests/)', 'npx', ['eslint', 'src/', 'tests/']);
 
 const tmpJson = resolve(ROOT, 'docs/handoff/.vitest-report.json');
-const testGate = runGate('tests (vitest run tests/v2)', 'npx', [
-  'vitest', 'run', 'tests/v2', '--reporter=json', `--outputFile=${tmpJson}`,
+const testGate = runGate('tests (vitest run tests)', 'npx', [
+  'vitest', 'run', 'tests', '--reporter=json', `--outputFile=${tmpJson}`,
 ]);
 
 // Parse real counts from the JSON report (authority for pass/fail is still the exit code).

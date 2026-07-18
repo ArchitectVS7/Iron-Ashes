@@ -9,7 +9,7 @@
  *        → verify.mjs actually ran on the CURRENT code (no edit-after-verify)
  *   3. `git status --porcelain` is empty
  *        → nothing uncommitted (catches the "committed nothing" failure)
- *   4. currentStage === the first unchecked box in ROADMAP §4
+ *   4. currentStage === the first unchecked box in ROADMAP-V3 §4
  *        → the machine state hasn't drifted from the human plan
  *
  * Run at START of a step (inherit a clean baseline) and at END (DoD step 6).
@@ -25,8 +25,8 @@ import { join, resolve } from 'node:path';
 
 const ROOT = process.cwd();
 const STATE_PATH = resolve(ROOT, 'docs/handoff/state.json');
-const ROADMAP_PATH = resolve(ROOT, 'docs/ROADMAP.md');
-const SOURCE_DIRS = ['src/v2', 'tests/v2'];
+const ROADMAP_PATH = resolve(ROOT, 'docs/ROADMAP-V3.md');
+const SOURCE_DIRS = ['src/v2', 'tests/v2', 'src/v3', 'tests/v3'];
 
 const failures = [];
 function assert(ok, label, remedy) {
@@ -59,13 +59,14 @@ function sourceHash() {
   return h.digest('hex');
 }
 
-/** First unchecked stage box in ROADMAP §4: lines like "  - [ ] **3c. …**". */
+/** First unchecked stage box in ROADMAP-V3 §4: lines like
+ *  "- [ ] **Stage V3-6 — …" or a "  - [ ] **3i. …" sub-box. */
 function firstUncheckedStage() {
   if (!existsSync(ROADMAP_PATH)) return null;
   const text = readFileSync(ROADMAP_PATH, 'utf8');
   for (const line of text.split('\n')) {
-    const m = line.match(/^\s*-\s*\[ \]\s*\*\*(\d+[a-z])\./);
-    if (m) return m[1]; // e.g. "3c"
+    const m = line.match(/^\s*-\s*\[ \]\s*\*\*(?:Stage\s+)?(V3-[\d.]+|\d+[a-z])/);
+    if (m) return m[1]; // e.g. "V3-6" (or a "3i" sub-box)
   }
   return null;
 }
