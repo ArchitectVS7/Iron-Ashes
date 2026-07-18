@@ -228,7 +228,18 @@ UI already uses.
 
 ## M3 — Docs + handoff to v3
 
-### T-007 · Rewrite `docs/architecture.md` from v1 fiction to the real repo — `status: TODO` · `coder: sonnet` · `after: T-006`
+### T-007 · Rewrite `docs/architecture.md` from v1 fiction to the real repo — `status: DONE` · `coder: sonnet` · `after: T-006`
+**Delivered (2026-07-17):** `docs/architecture.md` was rewritten end-to-end, replacing the retired
+v1 description (`src/engine/`, `src/gll/`, GLL content packs, `src/index.ts`) with the real repo:
+the two parallel engines (`src/v2/` shipped-and-frozen, `src/v3/` current with its
+reducer/`applyCommand` core, `observableState` fog projection, and SeededRandom determinism
+contract), the two Vite UIs (`src/ui-v2` / `src/ui-v3`), both sim harnesses and their
+`sim-results/` conventions, the v2 data codegen pipeline, the test layout, the handoff machinery,
+and the new UGT harness from T-005/T-006. The header was updated to today's date and v3-current
+status, the dead PRD link was dropped, and the v1/v2 history was pointed at
+`docs/design-history/` rather than re-described inline. Scope boundary: this is an architecture
+doc (structure + contracts + data flow) only — no changelog narrative and no engine/source files
+were touched.
 `docs/architecture.md` (dated 2026-03-06) describes the retired v1 architecture — `src/engine/`,
 `src/gll/`, GLL content packs, an entry at `src/index.ts` — none of which exists. Rewrite it to
 describe the actual repo: the two parallel engines (`src/v2/` shipped-and-frozen, `src/v3/`
