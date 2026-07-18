@@ -301,7 +301,7 @@ and `npm run handoff:check` passes on the committed tree. Scope boundary: no v2 
 test was touched — this task only re-scopes the handoff *machinery* (the two scripts, the state
 file, and the protocol doc that describes them), not the engines themselves.
 
-### T-009 · Update `CLAUDE.md` for the v2+v3 reality — `status: TODO` · `coder: sonnet` · `after: T-008`
+### T-009 · Update `CLAUDE.md` for the v2+v3 reality — `status: DONE` · `coder: sonnet` · `after: T-008`
 The project `CLAUDE.md` describes only v2 (architecture, structure, commands, design commitments,
 balance parameters) and is silent on v3 — the current sprint. Update it: Architecture/Structure
 sections gain `src/v3`, `src/v3/sim`, `src/ui-v3`, `index-v3.html`, `tests/v3`, `harness/`;
@@ -319,6 +319,20 @@ length discipline — this is a working instruction file, not a changelog.
 runs (reviewer executes any new/changed ones); the Broken-Court commitment is explicitly scoped to
 v2; a v3 determinism + locked-balance commitment exists; no claim contradicts
 `docs/ROADMAP-V3.md` §0/§8.
+
+**Delivered (2026-07-17):** `CLAUDE.md` now names both engines throughout. Architecture gained the
+v3 roster engine (`src/v3/`), its harness (`src/v3/harness/`, `harness/`), and the v3 UI
+(`src/ui-v3/`, `index-v3.html`); Project Structure lists `src/v3/sim`, `tests/v3`, `harness/`, and
+both `docs/DESIGN-V3-ALGORITHM.md` and `docs/ROADMAP-V3.md`. Commands gained `test:v2`, `test:v3`,
+`sim:v3`, and `harness`, and the Agent Handover section now points at `docs/ROADMAP-V3.md` as the
+resume point and describes the T-008 whole-repo `verify`/`handoff:check` behavior. Design
+Commitments were split into shared / v2-only / v3-only: Broken Court and fixed-order Voting Phase
+are labeled v2-only (v3 retired Broken Court for capture-election + depose), and v3 non-negotiables
+were added — determinism §7 D1–D9 (including the `observableState` fog projection), all mutation
+via `applyCommand`, balance LOCKED at 18–22% pooled dark win rate, and Herald default-OFF. Balance
+Parameters now states which engine each number belongs to. Scope boundary: this task only edited
+`CLAUDE.md` (plus the routine `docs/handoff/state.json` re-verify stamp from running `npm run
+verify` to confirm the doc's claims); no v2/v3 engine code, tunable, or test was touched.
 
 ---
 

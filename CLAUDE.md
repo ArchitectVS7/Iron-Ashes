@@ -2,52 +2,87 @@
 
 ## Agent Handover (read this first)
 
-Before doing anything:
+The current sprint is **v3** (see the resume point below). v2 is the earlier, shipped engine — kept
+untouched. Before doing anything:
 1. Run **`npm run handoff:check`** and read **`docs/handoff/state.json`** — the machine-checked source of
-   truth for status (current stage, next action, verified test state).
-2. Read **`docs/ROADMAP.md`** (resume point) and follow **`docs/AGENT-PROTOCOL.md`** — the enforced
-   Definition of Done (`npm run verify` exits 0 → update state.json + ROADMAP + memory → commit →
-   `npm run handoff:check` exits 0).
+   truth for status (current stage, next action, verified test state). `handoff:check` asserts
+   `state.currentStage` matches the first unchecked box in **`docs/ROADMAP-V3.md` §4**.
+2. Read **`docs/ROADMAP-V3.md`** (resume point — §0 where-we-are, §8 running record) and follow
+   **`docs/AGENT-PROTOCOL.md`** — the enforced Definition of Done (`npm run verify` exits 0 → update
+   state.json + ROADMAP + memory → commit → `npm run handoff:check` exits 0). `npm run verify` runs the
+   FULL v2+v3 suite (typecheck + lint over the whole repo + `vitest run tests`), each gate under a hard
+   timeout.
 
 ## Architecture
 
-- **Engine:** Alliance Engine v2, built in TypeScript (`src/v2/`)
-- **UI:** Vanilla-TS frontend in `src/ui-v2/`, served via Vite (`index.html`)
-- **Test framework:** Vitest (`tests/v2/`)
+- **Engines:** Alliance Engine v2 (`src/v2/`) and the v3 roster engine (`src/v3/` — court/capture/
+  discovery/heart on the reused v2 substrate). Both in TypeScript. **v3 is the current sprint.**
+- **UI:** Vanilla-TS frontends served via Vite — v2 in `src/ui-v2/` (`index.html`), v3 in `src/ui-v3/`
+  (`index-v3.html`). `npm run dev` serves both; open `/index-v3.html` for v3.
+- **Test framework:** Vitest (`tests/v2/`, `tests/v3/`)
 - **RNG:** `SeededRandom` in `src/utils/seeded-random.ts` — all game randomness goes through this
 
 ## Project Structure
 
 ```
 src/
-  v2/         # Game engine: reducer, combat, blight, blood-pact, sequencer, shadowking-policy,
+  v2/         # v2 engine: reducer, combat, blight, blood-pact, sequencer, shadowking-policy,
               #   ai-player, actions, tunables, setup, board, events, commands, gambit, types
-  v2/sim/     # Balance harness — deterministic Monte-Carlo over the real reducer (npm run sim)
-  ui-v2/      # Frontend: main.ts (entry), session.ts, view.ts, board-view.ts, ui-v2.css
-  utils/      # SeededRandom (shared with v2 and all scripts)
+  v2/sim/     # v2 balance harness — deterministic Monte-Carlo over the real reducer (npm run sim)
+  v3/         # v3 roster engine: reducer (applyCommand), court/capture/discovery/heart, tunables
+  v3/sim/     # v3 balance harness (npm run sim:v3)
+  v3/harness/ # v3 harness-core support for the UGT harness
+  ui-v2/      # v2 frontend: main.ts (entry), session.ts, view.ts, board-view.ts, ui-v2.css
+  ui-v3/      # v3 frontend (served at /index-v3.html)
+  utils/      # SeededRandom (shared with v2, v3, and all scripts)
 tests/
-  v2/         # All tests — mirrors src/v2/ structure (jsdom environment)
+  v2/         # v2 tests — mirrors src/v2/ (jsdom environment)
+  v3/         # v3 tests — mirrors src/v3/
   utils/      # seeded-random.test.ts
-scripts/      # Balance tuning (.mjs), handoff check, verify, sim
-docs/         # DESIGN-V2-ALGORITHM.md (authority for mechanics), ROADMAP.md, AGENT-PROTOCOL.md
+harness/      # UGT harness — ugt-harness.mjs (npm run harness), README.md
+scripts/      # Balance tuning (.mjs), handoff check, verify, sim, sim-v3
+docs/         # DESIGN-V2-ALGORITHM.md (v2 spec), DESIGN-V3-ALGORITHM.md (v3 spec),
+              #   ROADMAP-V3.md (current), ROADMAP.md (v2), AGENT-PROTOCOL.md
+index.html    # v2 UI entry;  index-v3.html # v3 UI entry
 ```
 
-**Authority:** `docs/DESIGN-V2-ALGORITHM.md` is the spec for v2 mechanics.
+**Authority:** `docs/DESIGN-V2-ALGORITHM.md` is the spec for v2 mechanics;
+`docs/DESIGN-V3-ALGORITHM.md` is the spec for v3 mechanics — its **§13 (stress-test hardening) is
+AUTHORITATIVE and overrides earlier prose**, and §12 is the edge-case table.
 
 ## Design Commitments (Non-Negotiable)
 
-1. **Broken Court never prevents Voting Phase participation.** This must have automated test coverage.
-2. **Behavior Card execution must be fully deterministic from a given seed.** Required for balance simulation.
-3. **Voting Phase resolves before any player action phase.** Not configurable.
-4. **All game randomness goes through `SeededRandom`.** Never use `Math.random()`.
+_Shared (both engines):_
+
+1. **Behavior/Card execution must be fully deterministic from a given seed.** Required for balance simulation.
+2. **All game randomness goes through `SeededRandom`.** Never use `Math.random()` / `Date.now()`.
+
+_v2 only:_
+
+3. **Broken Court never prevents Voting Phase participation.** Must have automated test coverage.
+   _(v3 retired Broken Court for full elimination — capture election + depose — so this does not apply to v3.)_
+4. **Voting Phase resolves before any player action phase.** Not configurable.
+   _(v3 equivalent: frozen-then-ordered PLEDGE resolves before ACTION — §7.)_
+
+_v3 only (non-negotiable):_
+
+5. **Determinism contract §7 D1–D9 holds.** In particular D2 — every decider (AI and human) reads the
+   `observableState(state, viewerSeat)` fog projection, which redacts unflipped-token contents, `seed`, and
+   any input sufficient to recompute hidden content; the engine resolves from full state and **the AI must
+   not see under the fog**. No seed/unflipped-token leakage; `GameState` stays JSON-serializable.
+6. **All v3 state mutation goes through `applyCommand`** (`src/v3/reducer.ts`) — no direct mutation elsewhere.
+7. **Balance is LOCKED** — dark **18–22% pooled** at the Herald default-OFF point (§9). No edits to
+   `src/v3/tunables.ts` / `tunables.gen.ts` / any tunable value; band misses are recorded, never tuned.
+8. **Herald default-OFF.** The shipped v3 game is 3-archetype (Warlord / Marshal / Steward); Herald + PARLEY
+   are an advanced toggle (UI start-screen + sim `--herald`).
 
 ## Engineering Principles — No Deferred Debt (Non-Negotiable)
 
 **Fix issues first; do not accumulate technical debt while building more features.**
 
 1. **Resolve or record — never carry vague deferrals.** Every open risk or known gap is either fixed
-   now or written down as a *dated, owned decision* in `docs/ROADMAP.md`,
-   `docs/handoff/state.json` `openRisks`, or a `docs/DESIGN-V2-*.md` doc.
+   now or written down as a *dated, owned decision* in `docs/ROADMAP-V3.md` (or `docs/ROADMAP.md` for v2),
+   `docs/handoff/state.json` `openRisks`, or a `docs/DESIGN-V{2,3}-*.md` doc.
 2. **No hidden/unvalidated mechanics.** A shipped mechanic the sim can't exercise (a "human-only"
    feature) must be labeled UNTESTED in the spec and added to `docs/human-playtest-checklist.md`.
 3. **No stale comments.** When behavior changes, fix the comments that describe it in the same change.
@@ -57,15 +92,19 @@ docs/         # DESIGN-V2-ALGORITHM.md (authority for mechanics), ROADMAP.md, AG
 
 ## Commands
 
-- `npm run dev` — Vite dev server (serves `src/ui-v2/` via `index.html`)
+- `npm run dev` — Vite dev server (serves both UIs; open `/index.html` for v2, `/index-v3.html` for v3)
 - `npm run build` — compile TypeScript (`tsc`)
 - `npm run typecheck` — type check without emitting
 - `npm run lint` — ESLint over `src/` and `tests/`
-- `npm test` — run all tests (`vitest run`)
+- `npm test` — run all tests (`vitest run` — utils + v2 + v3)
+- `npm run test:v2` — v2 tests only (`vitest run tests/v2`)
+- `npm run test:v3` — v3 tests only (`vitest run tests/v3`)
 - `npm run test:watch` — run tests in watch mode
-- `npm run sim` — run balance simulation (compiles then runs `scripts/sim.mjs`)
-- `npm run verify` — handoff verification
-- `npm run handoff:check` — machine-check `docs/handoff/state.json`
+- `npm run sim` — v2 balance simulation (compiles then runs `scripts/sim.mjs`)
+- `npm run sim:v3` — v3 balance simulation (`tsc` then `scripts/sim-v3.mjs`)
+- `npm run harness` — UGT harness (`tsc` then `harness/ugt-harness.mjs`)
+- `npm run verify` — handoff verification (FULL v2+v3 suite + lint + typecheck)
+- `npm run handoff:check` — machine-check `docs/handoff/state.json` against `docs/ROADMAP-V3.md` §4
 
 **Pre-push hook:** `core.hooksPath=.githooks`; `.githooks/pre-push` runs `npm run lint` and
 `npm run test`. A push fails if either fails — keep both green (do not bypass with `--no-verify`).
@@ -80,7 +119,10 @@ docs/         # DESIGN-V2-ALGORITHM.md (authority for mechanics), ROADMAP.md, AG
 ## Balance Parameters (from design spec)
 
 - Shadowking effects (a telegraphed CHARACTER, not a deck): WHISPER → SPREAD, MARCH → MARCH_DK,
-  RECKONING → REAP / SURGE (see `src/v2/shadowking-policy.ts`)
-- Target Shadowking (Dark Lord) win rate: 18–22% (pooled across player counts)
-- Acts: Whisper → March → Reckoning, advanced by Blight thresholds + patience cap (`PATIENCE_CAP = 3`)
-- Actions per turn: 2 normal (`ACTIONS_NORMAL`), 1 Broken (`ACTIONS_BROKEN`)
+  RECKONING → REAP / SURGE — mechanic shared v2 + v3 (v2 policy in `src/v2/shadowking-policy.ts`)
+- Target Dark (Dark Lord) win rate: **18–22% pooled** — both engines' target; **v3 is LOCKED** at this
+  band at the Herald default-OFF point (§9). See `docs/handoff/state.json` for the latest measured numbers.
+- Acts: Whisper → March → Reckoning, advanced by Blight thresholds + patience cap (`PATIENCE_CAP = 3`) —
+  shared concept (v2 + v3)
+- Actions per turn: 2 normal (`ACTIONS_NORMAL`, both engines). `ACTIONS_BROKEN` (1) is **v2 only** — v3
+  retired the Broken state for full elimination.
