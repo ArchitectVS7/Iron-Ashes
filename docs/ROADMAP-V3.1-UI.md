@@ -56,6 +56,12 @@ When this sprint opens:
 - **First runtime dependencies** (repo currently has zero): `gsap` + `howler`, pinned. Note GSAP's
   license terms for commercial games (anime.js is the MIT fallback). No other runtime deps without a
   dated decision here.
+  - **2026-07-18 (T-002)** — Pinned (exact, non-range): `gsap@3.15.0`, `howler@2.2.4` (runtime deps),
+    `@types/howler@2.2.13` (dev; gsap ships its own types, so no `@types/gsap`). GSAP 3 core (the
+    tween/timeline API this sprint uses) is distributed under GreenSock's "No Charge" standard license
+    (MIT-style for standard use); the paid Club GreenSock tier only gates special bonus plugins, none
+    of which are used here. anime.js (MIT) remains the fallback if the license posture ever changes.
+    No usage yet beyond a type-level import smoke test (`tests/v3/deps-smoke.test.ts`).
 - **Verify stays green at every milestone boundary** — the FULL v2+v3 suite, lint, typecheck.
 
 ## 4. Milestones
@@ -187,3 +193,6 @@ screenshot loop. M5's playtest is the whole point; M6 amortizes the sprint acros
   expanded into V3.1-M0…M5 in `ROADMAP-V3.md` §4, `state.json` `currentStage` → `V3.1-M0`, the dated
   determinism-invariant scoping decision recorded in `state.json` `invariants`, and `handoff-check.mjs`'s
   stage regex widened to parse the `V3.1-Mn` sub-box form. Engine/tunables untouched; balance LOCKED.
+- **2026-07-18 (T-002)** — Added the repo's first runtime dependencies, pinned exact: `gsap@3.15.0` +
+  `howler@2.2.4` (plus dev `@types/howler@2.2.13`), with the GSAP license check recorded in §3. No usage
+  yet beyond a type-level import smoke test (`tests/v3/deps-smoke.test.ts`). Engine/tunables untouched.

@@ -64,12 +64,23 @@ form so `npm run handoff:check` passes against the new nesting. Scope boundary: 
 the handoff/roadmap machinery — no engine, tunable, or UI code changed, and the screenshot loop,
 `tabletop-ui` skill, and gsap/howler dependencies are deliberately left to T-002 onward.
 
-### T-002 · Add gsap + howler (pinned) — `status: TODO` · `coder: sonnet` · `after: T-001`
+### T-002 · Add gsap + howler (pinned) — `status: DONE` · `coder: sonnet` · `after: T-001`
 Install `gsap` and `howler` as the repo's first runtime dependencies, pinned to exact versions, plus
 `@types/howler` if needed. Add a one-line dated note of the chosen versions (and the GSAP license
 check) under `docs/ROADMAP-V3.1-UI.md` §3. No usage yet beyond a type-level import smoke test.
 **Accept:** `package.json` lists exact (non-range) versions; `npx vite build` and `npm run verify`
 exit 0; the §3 note is present and dated.
+
+**Delivered (2026-07-18):** Added the repo's first two runtime dependencies, pinned to exact
+(non-range) versions — `gsap@3.15.0` and `howler@2.2.4` — plus dev-only `@types/howler@2.2.13` (gsap
+ships its own types). Recorded a dated §3 note in `docs/ROADMAP-V3.1-UI.md` with the GSAP license
+check (GSAP 3 core ships under GreenSock's "No Charge" standard license — MIT-style for this sprint's
+usage; anime.js remains the MIT fallback if that posture ever changes) and a matching §8 entry.
+Verified resolution with a new type-level import smoke test, `tests/v3/deps-smoke.test.ts`, asserting
+the `gsap`/`howler` module shapes without constructing a `Howl` (jsdom has no `AudioContext`).
+`docs/handoff/state.json` `lastVerified` was refreshed to the green re-verify run (88 files / 1144
+tests passing). Scope boundary: dependencies are pinned and smoke-tested only — no `src/ui-v3`
+integration, animation, or sound usage; that begins at T-101 onward.
 
 ### T-003 · Headless screenshot script (`npm run shots:v3`) — `status: TODO` · `coder: opus` · `after: T-002`
 Create `scripts/shots-v3.mjs` using Playwright (devDependency): launch the Vite server, drive
