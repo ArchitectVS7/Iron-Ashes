@@ -40,7 +40,7 @@ Statuses: `TODO` | `IN-PROGRESS` | `DONE` | `BLOCKED(reason)`
 
 ## M0 — Foundations & the screenshot feedback loop
 
-### T-001 · Wire V3.1 into the handoff machinery — `status: TODO` · `coder: sonnet` · `after: —`
+### T-001 · Wire V3.1 into the handoff machinery — `status: DONE` · `coder: sonnet` · `after: —`
 Per `docs/ROADMAP-V3.1-UI.md` §2: in `docs/ROADMAP-V3.md` §4, expand the unchecked Stage V3-6 box
 into sub-boxes `- [ ] **V3.1-M0 …**` through `- [ ] **V3.1-M5 …**` (each one line, pointing at
 `docs/ROADMAP-V3.1-UI.md`; the human playtest stays inside V3.1-M5). Repoint
@@ -51,6 +51,18 @@ layer may use rAF/GSAP timing, still no `Math.random`) in `state.json` `invarian
 **Accept:** `npm run handoff:check` exits 0; ROADMAP-V3 §4 shows the six V3.1 sub-boxes with V3.1-M0
 first-unchecked; `state.json` `currentStage` is `V3.1-M0`; the invariants array contains the scoped
 wording with a 2026 date.
+
+**Delivered (2026-07-18):** Stage V3-6 in `docs/ROADMAP-V3.md` §4 was expanded into the six
+`V3.1-M0`…`V3.1-M5` sub-boxes (each pointing at `docs/ROADMAP-V3.1-UI.md`, human playtest kept inside
+V3.1-M5), `docs/handoff/state.json` was repointed to `currentStage: "V3.1-M0"` with a matching
+`currentStageTitle`/`nextAction`, the 2026-07-18 dated determinism-invariant scoping decision
+(engine+sim scoped; `src/ui-v3` may use rAF/GSAP timing but still no `Math.random`, and no timing
+value may feed back into game state) was recorded in `state.json` `invariants`,
+`docs/ROADMAP-V3.1-UI.md`'s status line was flipped PROPOSED → ACTIVE, and
+`scripts/handoff-check.mjs`'s `firstUncheckedStage` regex was widened to parse the `V3.1-Mn` sub-box
+form so `npm run handoff:check` passes against the new nesting. Scope boundary: this task only wires
+the handoff/roadmap machinery — no engine, tunable, or UI code changed, and the screenshot loop,
+`tabletop-ui` skill, and gsap/howler dependencies are deliberately left to T-002 onward.
 
 ### T-002 · Add gsap + howler (pinned) — `status: TODO` · `coder: sonnet` · `after: T-001`
 Install `gsap` and `howler` as the repo's first runtime dependencies, pinned to exact versions, plus

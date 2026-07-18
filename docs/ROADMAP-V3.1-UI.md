@@ -5,9 +5,9 @@ cards that read as cards, animated moves with sound, tokens/board/turn-track as 
 **V3-6 human playtest can actually vet v3's felt experience**. Source design rationale:
 `docs/Redesign-V3.1/Design Advice (Fable).md` (the merged Fable+Sonnet advice).
 
-**Status: PROPOSED — not yet wired into the handoff machinery** (see §2). `docs/handoff/state.json`
-stays pointed at Stage V3-6 until M0 opens the sprint (the same convention the v3 era used while v2 was
-still the pointed-at stage).
+**Status: ACTIVE — wired into the handoff machinery at Stage V3.1-M0 (2026-07-18, T-001).** `docs/handoff/state.json`
+`currentStage` is `V3.1-M0`; Stage V3-6 in `ROADMAP-V3.md` §4 is expanded into the V3.1-M0…M5 sub-track
+(see §2). The sprint is open.
 
 ---
 
@@ -62,7 +62,7 @@ When this sprint opens:
 
 ### M0 — Foundations & the screenshot feedback loop
 *Nothing visual yet; make the sprint safe and the agent sighted.*
-- [ ] Wire handoff machinery per §2; record the invariant-scoping decision in `state.json`.
+- [x] Wire handoff machinery per §2; record the invariant-scoping decision in `state.json`. (2026-07-18, T-001)
 - [ ] Screenshot loop working: headless browser (Playwright MCP or a `scripts/` Playwright script) boots
       `npm run dev`, drives `/index-v3.html`, captures every screen (start/difficulty, board mid-game,
       capture election, Ransom, Wraith, Bequest, victory/defeat).
@@ -183,3 +183,7 @@ screenshot loop. M5's playtest is the whole point; M6 amortizes the sprint acros
 - **2026-07-18** — Roadmap authored (proposed). Numbering decision recommended: **V3.1** (presentation
   sprint on the locked v3 engine); V4 reserved for a post-playtest mechanics charter. Not yet wired
   into §4/state.json (M0 task).
+- **2026-07-18 (T-001)** — Status flipped PROPOSED → ACTIVE. Wired into the handoff machinery: Stage V3-6
+  expanded into V3.1-M0…M5 in `ROADMAP-V3.md` §4, `state.json` `currentStage` → `V3.1-M0`, the dated
+  determinism-invariant scoping decision recorded in `state.json` `invariants`, and `handoff-check.mjs`'s
+  stage regex widened to parse the `V3.1-Mn` sub-box form. Engine/tunables untouched; balance LOCKED.

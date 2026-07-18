@@ -193,8 +193,14 @@ Workflow (same as v2): **① idea → ② textual algorithm → ③ code → ④
   Emergent property: only the HARD tier amplifies under error (→25%); knight/squire are forgiving (~flat). Known
   limit: the doomCost floors at 1 card at 2p, so tiers only bite at 3p/4p (2p ≈23% across tiers). **The playtest
   picks the shipped default** (checklist item 11).
-- [ ] **Stage V3-6 — UI polish + human playtest** — walk `human-playtest-checklist-v3.md` (the elimination
-  feel, the Wraith engagement, the two-act ending, capture-as-scene, the 30–45 min length with 4 archetypes).
+- [x] **Stage V3-6 — UI polish + human playtest** — now run as the **V3.1 presentation sprint** (`docs/ROADMAP-V3.1-UI.md`)
+  on the LOCKED v3 engine; milestones below (tracking lives in the sub-boxes), human playtest is V3.1-M5.
+  - [ ] **V3.1-M0 — Foundations & the screenshot feedback loop** → `docs/ROADMAP-V3.1-UI.md` §M0
+  - [ ] **V3.1-M1 — The semantic move stream (transition layer)** → `docs/ROADMAP-V3.1-UI.md` §M1
+  - [ ] **V3.1-M2 — Theme foundation (stop looking like a spreadsheet)** → `docs/ROADMAP-V3.1-UI.md` §M2
+  - [ ] **V3.1-M3 — Cards & hand live** → `docs/ROADMAP-V3.1-UI.md` §M3
+  - [ ] **V3.1-M4 — Board life & sound** → `docs/ROADMAP-V3.1-UI.md` §M4
+  - [ ] **V3.1-M5 — Playtest readiness → run the V3-6 human playtest** → `docs/ROADMAP-V3.1-UI.md` §M5
 
 ---
 
@@ -256,6 +262,16 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-18** — **V3.1 PRESENTATION SPRINT WIRED (T-001).** Stage V3-6 (§4) expanded into the V3.1
+  presentation-sprint sub-track: an `[x]` umbrella + six unchecked sub-boxes **V3.1-M0…M5** (each pointing
+  at `docs/ROADMAP-V3.1-UI.md`), with the V3-6 human playtest kept inside V3.1-M5 (M6 kit-extraction stays
+  outside the §4 gate). `docs/handoff/state.json` `currentStage` repointed **V3-6 → V3.1-M0**; the dated
+  determinism-invariant SCOPING decision recorded in `state.json` `invariants` (engine+sim scoped: no
+  `Math.random`/`Date.now` under `src/v2`,`src/v3`,`src/utils`; `src/ui-v3` may use rAF/GSAP timing but
+  still no `Math.random` — presentational jitter via a dedicated `SeededRandom` that never touches
+  `GameState`, and no timing value feeds back into state/commands). `scripts/handoff-check.mjs`'s
+  `firstUncheckedStage` regex widened to parse the `V3.1-Mn` sub-box form. Engine/tunables untouched —
+  balance stays LOCKED. `docs/ROADMAP-V3.1-UI.md` flipped PROPOSED → ACTIVE.
 - **2026-07-17** — **T2-V · 40-SEED HERALD-OFF PRESSURE SWEEP (both modes, canonical + fresh) — SWEPT;
   ONE MARGINAL FRESH-SEED BP-EXPOSURE MISS FLAGGED (user call).** Pressure-tested the T2-3 Herald-OFF
   default at the project's 40-seed standard: `npm run sim:v3 -- <seed> 40` and `… --bloodpact` for the two

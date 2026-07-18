@@ -1,7 +1,7 @@
 # Graph Report - Iron-Ashes  (2026-07-18)
 
 ## Corpus Check
-- 238 files · ~308,408 words
+- 238 files · ~308,809 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d0a20159`
+- Built from commit: `d71f682b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -606,7 +606,7 @@ Cohesion: 0.50
 Nodes (4): mean(), median(), stanceStats(), summarize()
 
 ## Knowledge Gaps
-- **857 isolated node(s):** `Agent Handover (read this first)`, `Architecture`, `Project Structure`, `Design Commitments (Non-Negotiable)`, `Engineering Principles — No Deferred Debt (Non-Negotiable)` (+852 more)
+- **857 isolated node(s):** `Orchestrator protocol`, `T-001 · Wire V3.1 into the handoff machinery — `status: IN-PROGRESS` · `coder: sonnet` · `after: —``, `T-002 · Add gsap + howler (pinned) — `status: TODO` · `coder: sonnet` · `after: T-001``, `T-003 · Headless screenshot script (`npm run shots:v3`) — `status: TODO` · `coder: opus` · `after: T-002``, `T-004 · Baseline "before" gallery + the M2 visual rubric — `status: TODO` · `coder: sonnet` · `after: T-003`` (+852 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -614,12 +614,12 @@ Nodes (4): mean(), median(), stanceStats(), summarize()
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `SeededRandom` connect `Community 20` to `Community 0`, `Community 5`, `Community 11`, `Community 22`, `Community 23`, `Community 24`, `Community 26`, `Community 28`, `Community 45`, `Community 48`, `Community 49`, `Community 71`, `Community 79`, `Community 81`, `Community 82`, `Community 83`, `Community 86`, `Community 90`, `Community 91`, `Community 94`, `Community 95`, `Community 100`, `Community 103`, `Community 110`, `Community 112`, `Community 115`?**
-  _High betweenness centrality (0.092) - this node is a cross-community bridge._
+  _High betweenness centrality (0.095) - this node is a cross-community bridge._
 - **Why does `GameState` connect `Community 91` to `Community 0`, `Community 101`, `Community 102`, `Community 59`, `Community 108`, `Community 79`, `Community 83`, `Community 84`, `Community 85`, `Community 90`, `Community 27`, `Community 28`, `Community 95`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
+  _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **Why does `createGame()` connect `Community 91` to `Community 0`, `Community 2`, `Community 101`, `Community 102`, `Community 108`, `Community 79`, `Community 83`, `Community 84`, `Community 85`, `Community 90`, `Community 59`, `Community 28`, `Community 95`?**
   _High betweenness centrality (0.022) - this node is a cross-community bridge._
-- **What connects `Agent Handover (read this first)`, `Architecture`, `Project Structure` to the rest of the system?**
+- **What connects `Orchestrator protocol`, `T-001 · Wire V3.1 into the handoff machinery — `status: IN-PROGRESS` · `coder: sonnet` · `after: —``, `T-002 · Add gsap + howler (pinned) — `status: TODO` · `coder: sonnet` · `after: T-001`` to the rest of the system?**
   _857 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.05727605727605728 - nodes in this community are weakly interconnected._

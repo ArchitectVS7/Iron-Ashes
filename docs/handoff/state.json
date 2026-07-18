@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
-  "currentStage": "V3-6",
-  "currentStageTitle": "Stage V3-6 — UI polish + human playtest (v3 functionally complete end-to-end; balance LOCKED both modes)",
+  "currentStage": "V3.1-M0",
+  "currentStageTitle": "Stage V3.1-M0 — Foundations & the screenshot feedback loop (V3.1 presentation sprint on the LOCKED v3 engine; see docs/ROADMAP-V3.1-UI.md)",
   "status": "not-started",
-  "nextAction": "Stage V3-6 HUMAN PLAYTEST — `npm run dev` → open /index-v3.html; walk docs/human-playtest-checklist-v3.md, teaching from docs/v3-teach-script.md. v3 is functionally complete end-to-end (engine → sim → balance both modes → src/ui-v3 → difficulty selector). Balance is LOCKED at the T2-3 herald-OFF numbers: competitive dark 18.9/18.3% pooled (2-seed), BP 15.8/69.4/78.1 (win/exposure/accuracy). Herald default-OFF → the shipped game is 3-archetype (Warlord/Marshal/Steward); Herald+PARLEY are an advanced start-screen toggle. The playtest sets the shipped difficulty default (checklist item 11), drives the styled-UI pass, and records any felt-experience tuning. No sim tuning is pending. Note the T-004 flag: fresh seed 20260717 BP exposure read 71.4% (+1.4pp over the 40–70 ceiling), recorded-not-tuned per the fresh-seed protocol — a user call, not a blocker for the playtest.",
+  "nextAction": "Stage V3.1-M0 (per docs/ROADMAP-V3.1-UI.md §M0) — the V3.1 presentation sprint turns the placeholder src/ui-v3 into a reactive digital board game so the V3-6 human playtest (now V3.1-M5) can vet v3's felt experience; the v3 engine + balance stay untouched/LOCKED. M0 makes the sprint safe and the agent sighted: (1) wire the handoff machinery — DONE this task (Stage V3-6 expanded into V3.1-M0…M5 in ROADMAP-V3 §4, currentStage repointed, invariant-scoping decision recorded below, handoff-check regex widened for V3.1-Mn); (2) stand up the headless-Playwright screenshot loop that boots `npm run dev`, drives /index-v3.html, and captures ≥7 distinct screens (start/difficulty, board mid-game, capture election, Ransom, Wraith, Bequest, victory/defeat); (3) commit the baseline 'before' gallery under docs/Redesign-V3.1/baseline/; (4) scaffold the global `tabletop-ui` house-style skill (~/.claude/skills/tabletop-ui/SKILL.md); (5) add pinned gsap+howler and keep `vite build` + verify green. Exit metrics: `npm run verify` 0; `npm run handoff:check` 0; ≥7 distinct screens captured headlessly by one command; baseline gallery in-repo. Guardrails (ROADMAP-V3.1-UI §3): engine untouched, fog (D2) extends to presentation, every animation has a synchronous instant mode, runtime deps limited to pinned gsap+howler.",
   "specRefs": [
     "docs/DESIGN-V3-ALGORITHM.md — ⭐ §13 (authoritative build checklist + P0 fixes), §12 (edge cases), §9 (tunable registry), §7 D1–D9 (determinism contract incl. the observableState fog projection)",
-    "docs/ROADMAP-V3.md — §4 (plan/stages, first unchecked = Stage V3-6), §8 (running record: T2-1 feed-the-court, T2-2 hiding-is-dangerous, T2-3 herald default-OFF LOCK, T2-V 40-seed pressure sweep)",
+    "docs/ROADMAP-V3.md — §4 (plan/stages, first unchecked = V3.1-M0, the V3.1 presentation-sprint sub-track under Stage V3-6 → docs/ROADMAP-V3.1-UI.md), §8 (running record: T2-1 feed-the-court, T2-2 hiding-is-dangerous, T2-3 herald default-OFF LOCK, T2-V 40-seed pressure sweep)",
     "sim-results/sample-v3/REPORT.md (herald-OFF default reference); the T2-V 40-seed run dirs sim-results/v3-s20260622-n40{,-bp,-herald} + sim-results/v3-s20260717-n40{,-bp}",
     "docs/human-playtest-checklist-v3.md + docs/v3-teach-script.md (the V3-6 playtest walkthrough + teaching script); index-v3.html + src/ui-v3 (the fog-respecting render-from-state UI)"
   ],
   "lastVerified": {
-    "timestamp": "2026-07-18T01:34:42.333Z",
-    "commit": "20718ee",
-    "sourceHash": "37195d21dc2872ecee190376584bfd21c2297b9c446ca9d70f203e3c0b927c37",
+    "timestamp": "2026-07-18T18:14:53.255Z",
+    "commit": "1ac1682",
+    "sourceHash": "044f0586ab5d81bbe329e7c9cfa50e61f1fb013369dcc6f258defc848e845262",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
@@ -26,7 +26,8 @@
   "dirty": true,
   "invariants": [
     "All mutation goes through applyCommand (src/v3/reducer.ts) — no direct state mutation elsewhere",
-    "No Math.random / Date.now / any under src/ — all RNG via SeededRandom (ALGORITHM §7)",
+    "No Math.random / Date.now / any under src/ — all RNG via SeededRandom (ALGORITHM §7) (engine+sim scoped for src/ui-v3 — see the dated scoping decision below)",
+    "2026-07-18 — Determinism invariant SCOPED (V3.1 sprint; docs/ROADMAP-V3.1-UI.md §3): the 'no Math.random/Date.now under src/' rule is ENGINE+SIM scoped (src/v2, src/v3, src/utils). The presentation layer (src/ui-v3) MAY use requestAnimationFrame / GSAP internal timing, but still NO Math.random — presentational jitter uses a dedicated SeededRandom instance that never touches GameState — and no timing value ever feeds back into game state or commands.",
     "GameState is JSON-serializable (clone = JSON.parse(JSON.stringify))",
     "Determinism §7 D1–D9: tokens are pre-bound & fogged via a namespaced SeededRandom(hash(seed, nodeId)) (D1/D9); observableState(state, viewerSeat) redacts token content AND the seed (D2) — it never leaks unflipped tokens or the seed; AI/human/wraith all decide from observableState (a pure f(observableState, seed))",
     "Balance is LOCKED at the T2-3 herald-OFF numbers — no edits to src/v3/tunables.ts / tunables.gen.ts / any tunable value; band misses are recorded, never tuned",
