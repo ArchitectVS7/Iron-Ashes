@@ -82,7 +82,7 @@ the `gsap`/`howler` module shapes without constructing a `Howl` (jsdom has no `A
 tests passing). Scope boundary: dependencies are pinned and smoke-tested only — no `src/ui-v3`
 integration, animation, or sound usage; that begins at T-101 onward.
 
-### T-003 · Headless screenshot script (`npm run shots:v3`) — `status: TODO` · `coder: opus` · `after: T-002`
+### T-003 · Headless screenshot script (`npm run shots:v3`) — `status: IN-PROGRESS` · `coder: opus` · `after: T-002`
 Create `scripts/shots-v3.mjs` using Playwright (devDependency): launch the Vite server, drive
 `/index-v3.html` through a fixed-seed scripted game, and capture PNGs of at least seven distinct
 screens — start/difficulty select, board mid-game, capture election, Ransom, Wraith, Bequest, and
@@ -172,6 +172,12 @@ Milestone DoD as in T-005: verify green → tick M1 boxes here and in both roadm
 Restructure the v3 layout: board center-stage on a committed CC0 table-surface texture; dissolve the
 right-hand status column into diegetic HUD regions at the edges (banners/plaques/ribbons). Keep all
 existing verbs reachable. Add the texture asset + credit to `docs/CREDITS.md` (create it).
+**Board layout (user decision 2026-07-18): render the existing 17-node graph as an 8-ray chaos-magic
+star.** The topology already supports it — spokes run keystone→approach→forge on the DIAGONALS, then
+quarter-twist into CARDINAL keeps, holdings on the outer diagonals — so all 17 nodes sit on 8 rays.
+Node positions come from the real `connections` in `data/board.json`. The 8 full-length star rays are
+**decorative table inlay only**; the true edges (4 keystone spokes, the ring links, the forge→keep
+twist) are drawn distinctly on top — never render a playable-looking line where no edge exists.
 **Accept:** a Playwright assertion in `shots-v3.mjs` (or a sibling check) verifies the board element's
 bounding box is the largest top-level region; the table texture is a repo asset referenced from CSS;
 `docs/CREDITS.md` exists with the entry; jsdom E2E + `npm run shots:v3` green.
@@ -328,3 +334,7 @@ playtest-ready.
 - **`tabletop-ui` house-style skill** (`~/.claude/skills/`): a user-machine artifact, authored
   interactively — not repo work the runner can gate or commit.
 - **T-004 BP-exposure fresh-seed edge** (`state.json` openRisks): user call, unrelated to this sprint.
+- **Mechanical 8-spoke board (true diagonal approaches, user idea 2026-07-18): V4 candidate, NOT this
+  sprint.** New nodes/edges void the balance LOCK (18–22% band, 2-seed + 40-seed sweeps, byte-identical
+  sim baselines) and break 4-fold-symmetry types (`keepIds` 4-tuple, `Quadrant`, blight seams). Park it
+  for the post-playtest V4 charter; V3.1 ships the 8-ray *visual* on the locked 17-node topology (T-201).
