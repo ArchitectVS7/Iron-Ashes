@@ -256,6 +256,39 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-17** — **T2-V · 40-SEED HERALD-OFF PRESSURE SWEEP (both modes, canonical + fresh) — SWEPT;
+  ONE MARGINAL FRESH-SEED BP-EXPOSURE MISS FLAGGED (user call).** Pressure-tested the T2-3 Herald-OFF
+  default at the project's 40-seed standard: `npm run sim:v3 -- <seed> 40` and `… --bloodpact` for the two
+  canonical base seeds **20260622 / 20260628** and two never-before-used fresh seeds **20260717 / 424242**
+  (8 sweeps, n=40; competitive matchups=35, BP matchups=3 → 360 BP games each). Balance stayed **LOCKED —
+  zero tunable / zero `src/` changes**; a band miss on a fresh seed is recorded, never tuned.
+  **npm-flag note for future runs:** npm 11 drops a bare `--bloodpact`/`--quick` ("Unknown cli config") and
+  silently runs a *competitive* sweep — you must separate script flags with `--`, i.e.
+  `npm run sim:v3 -- <seed> 40 --bloodpact`.
+  **Canonical reproduction (regression gate) — byte-exact vs the T2-3 record:** 20260622 comp dark **18.9%**
+  (2p 17.1 / 3p 23.3 / 4p 16.4, rounds 12.2); 20260628 comp dark **18.3%** (2p 16.0 / 3p 23.3 / 4p 15.7,
+  rounds 12.2); 20260622 **BP 15.8 / 69.4 / 78.1**. All three recorded targets reproduced exactly → no code
+  regression.
+  **All eight sweeps — pooled dark · per-count 2p/3p/4p · mean rounds · BP win/exposure/accuracy:**
+  - **20260622** (canonical): dark 18.9% · 17.1/23.3/16.4 · 12.2r · BP 15.8/69.4/78.1 — all bands ✓
+  - **20260628** (canonical): dark 18.3% · 16.0/23.3/15.7 · 12.2r · BP 17.2/66.9/80.3 — all bands ✓ (the
+    fresh BP re-run lands in band; the stale on-disk Jun-28 BP file had read 21.4/53.3/71.1 and was discarded)
+  - **20260717** (fresh): dark 19.0% · 18.4/23.0/15.6 · 12.1r · BP 16.4/**71.4**/71.0 — **exposure 71.4% is
+    +1.4pp over the 40–70 ceiling → fresh-seed band miss**; dark/rounds/traitor-win/accuracy all in band
+  - **424242** (fresh): dark 19.3% · 16.8/24.6/16.5 · 12.1r · BP 15.6/67.5/75.0 — all bands ✓ (3p 24.6 sits
+    +0.6 over the ~24 credible edge, within the soft per-count tilde)
+  **Bands checked:** dark pooled 18–22 (all 4 ✓); mean rounds 10–16 (all ✓); gambit-fire 10–20% (all ✓,
+  16.7–17.9); per-count ~16–24 *credible* (soft — 20260717 4p 15.6 and 424242 3p 24.6 sit a fraction outside,
+  as the canonical record's own 628 4p 15.7 already does); BP traitor-win 12–20 (all ✓, 15.6–17.2), exposure
+  40–70 (three ✓; **20260717 71.4 over**), accuracy ≥45 (all ✓, 71.0–80.3).
+  **Finding:** the sole headline-band deviation across all 8 sweeps is 20260717's BP exposure at 71.4%
+  (+1.4pp), on a FRESH seed, with its traitor-win (16.4% — the primary balance lever) healthy mid-band: a
+  marginal sampling-edge overshoot, not a balance failure. Per the "no tuning on a fresh-seed band miss"
+  protocol it is recorded, not tuned → **T-004 set BLOCKED(band miss on fresh seed — user call)** for the
+  user to decide whether a +1.4pp fresh-seed exposure edge warrants any action. Eight
+  `sim-results/v3-s{20260622,20260628,20260717,424242}-n40{,-bp}` run dirs committed (n=40, `git add -f`
+  past `.gitignore sim-results/*`).
+
 - **2026-07-02** — **T2-3 HERALD DEFAULT-OFF COMPLETE (orchestrator-salvaged close-out).** `heraldEnabled`
   setup flag, **DEFAULT OFF → the shipped game is 3-archetype** (Warlord/Marshal/Steward); Herald+PARLEY are an
   advanced toggle (UI start-screen + sim `--herald`). Removing the Herald's hand-bonus/Parley genuinely reshaped
@@ -267,8 +300,9 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
   injectable (probe; default unchanged). v3 **662 tests green**, tsc/eslint/vite clean; sample-v3 references
   refreshed to the herald-OFF default. *(The stage agent validated the finalist but hit a session limit before
   committing; work verified independently — full gate + 2-seed + BP — and committed by the orchestrator.)*
-  **Remaining: T2-V final lock (mostly done here: 2-seed both modes at the default) — difficulty-tier
-  re-anchoring folded into the T2-3 test updates; T2-4 Wraith stays playtest-gated.**
+  **Remaining: ~~T2-V final lock~~ SWEPT 2026-07-17 (see the T2-V entry above: 8 sweeps at n=40, both
+  modes, canonical byte-reproduced; one marginal fresh-seed BP-exposure edge flagged for a user call)** —
+  difficulty-tier re-anchoring folded into the T2-3 test updates; T2-4 Wraith stays playtest-gated.
 
 - **2026-07-02** — **TIER-2 T2-2: RE-ARM "HIDING IS DANGEROUS" (+ the passivity metric) — the
   anti-turtle lever is LIVE again, in the BLIGHT currency.** The wave-1/5b disarm

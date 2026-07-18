@@ -124,7 +124,7 @@ number. Regenerated `sim-results/sample-v3/` via `npm run sim:v3`: the §9 row f
 this was a report-layer-only change. Scope boundary: no tunable, engine, or sim-metric-collection
 file changed — this task only re-pointed which already-collected metric the verdict table reads.
 
-### T-004 · 40-seed pressure sweep of the Herald-OFF default (both modes, canonical + fresh seeds) — `status: TODO` · `coder: opus` · `after: T-003`
+### T-004 · 40-seed pressure sweep of the Herald-OFF default (both modes, canonical + fresh seeds) — `status: DONE` · `coder: opus` · `after: T-003`
 The survey flags the final T2-3 Herald-OFF rebalance as under-validated relative to the project's
 40-seed standard — pressure-test it properly, with **no tuning**. Run `npm run sim:v3 <baseSeed>
 40` and `npm run sim:v3 <baseSeed> 40 --bloodpact` for: the two canonical base seeds **20260622**
@@ -142,6 +142,16 @@ entry). Commit the new `sim-results/v3-*` run directories.
 n=40); canonical seeds byte-reproduce the T2-3 record; a §8 "T2-V" entry lists per-sweep pooled
 dark-win, per-count, rounds, and BP triple; zero changes under `src/` and zero tunable changes in
 the diff.
+
+**Delivered (2026-07-17):** ran all eight sweeps (`npm run sim:v3 -- <seed> 40` and `… --bloodpact`,
+n=40) for canonical seeds 20260622/20260628 and fresh seeds 20260717/424242, with zero tunable or
+`src/` changes throughout. Both canonical seeds byte-reproduced the T2-3 record (dark 18.9%/18.3%,
+BP 15.8/69.4/78.1) confirming no code regression. A §8 "T2-V" changelog entry in
+`docs/ROADMAP-V3.md` records all eight sweeps' pooled dark-win, per-count, rounds, and BP triple.
+Scope boundary: one fresh seed (20260717) landed a marginal BP-exposure miss at 71.4% vs. the
+40–70 ceiling (+1.4pp, with traitor-win itself healthy mid-band) — per the "no tuning on a
+fresh-seed band miss" protocol this was recorded as a dated finding rather than tuned, so the task
+closes with that single deviation flagged for a user call rather than a rebalance.
 
 ---
 
