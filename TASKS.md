@@ -127,12 +127,22 @@ task captures and scores the *current* baseline only — it does not touch UI co
 the rubric's checkboxes (that's the job of the M2+ human checkpoints re-scoring against this
 baseline), and does not regenerate the gallery for milestones beyond M1.
 
-### T-005 · M0 close — DoD — `status: TODO` · `coder: sonnet` · `after: T-001, T-002, T-003, T-004`
+### T-005 · M0 close — DoD — `status: DONE` · `coder: sonnet` · `after: T-001, T-002, T-003, T-004`
 Perform the AGENT-PROTOCOL Definition of Done for the milestone: `npm run verify` exits 0; tick the
 M0 boxes in `docs/ROADMAP-V3.1-UI.md` §4 and the `V3.1-M0` sub-box in ROADMAP-V3 §4; repoint
 `state.json` `currentStage` to `V3.1-M1`; add a dated M0 entry to ROADMAP-V3 §8; commit;
 `npm run handoff:check` exits 0.
 **Accept:** both commands exit 0; boxes ticked; §8 entry present; `currentStage` is `V3.1-M1`.
+
+**Delivered (2026-07-18):** Ran the milestone Definition of Done for M0. `npm run verify` exits 0
+(89 files / 1147 passed / 0 failed; typecheck + whole-repo lint green). Ticked all four M0 boxes in
+`docs/ROADMAP-V3.1-UI.md` §4 and the `V3.1-M0` sub-box in `docs/ROADMAP-V3.md` §4; repointed
+`docs/handoff/state.json` `currentStage` from `V3.1-M0` to `V3.1-M1` (with the M1 stage title,
+`nextAction`, and status refreshed for the next stage); added the dated 2026-07-18 `V3.1-M0 CLOSED
+(T-005)` entry to ROADMAP-V3 §8. On commit, `npm run handoff:check` exits 0 (working tree clean,
+sourceHash unchanged — this DoD touched docs only, not `src/`/`tests/` — and `currentStage`
+`V3.1-M1` matches the first unchecked ROADMAP §4 box). Scope boundary: documentation/state
+bookkeeping only; no engine, UI, or test code was touched, so balance stays LOCKED.
 
 ---
 

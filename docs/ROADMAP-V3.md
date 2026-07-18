@@ -195,7 +195,7 @@ Workflow (same as v2): **① idea → ② textual algorithm → ③ code → ④
   picks the shipped default** (checklist item 11).
 - [x] **Stage V3-6 — UI polish + human playtest** — now run as the **V3.1 presentation sprint** (`docs/ROADMAP-V3.1-UI.md`)
   on the LOCKED v3 engine; milestones below (tracking lives in the sub-boxes), human playtest is V3.1-M5.
-  - [ ] **V3.1-M0 — Foundations & the screenshot feedback loop** → `docs/ROADMAP-V3.1-UI.md` §M0
+  - [x] **V3.1-M0 — Foundations & the screenshot feedback loop** → `docs/ROADMAP-V3.1-UI.md` §M0
   - [ ] **V3.1-M1 — The semantic move stream (transition layer)** → `docs/ROADMAP-V3.1-UI.md` §M1
   - [ ] **V3.1-M2 — Theme foundation (stop looking like a spreadsheet)** → `docs/ROADMAP-V3.1-UI.md` §M2
   - [ ] **V3.1-M3 — Cards & hand live** → `docs/ROADMAP-V3.1-UI.md` §M3
@@ -262,6 +262,15 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-18** — **V3.1-M0 CLOSED (T-005).** M0 (Foundations & the screenshot feedback loop) complete:
+  the headless screenshot loop `npm run shots:v3` (T-003) boots the Vite dev server in-process, drives
+  `/index-v3.html` through DOM clicks only (fog-respecting, no `src/v3` imports), and captures the 7
+  baseline screens; the "before" gallery is committed under `docs/Redesign-V3.1/baseline/` (01–07 + README,
+  T-004); `gsap@3.15.0` + `howler@2.2.4` are pinned (T-002); the global `tabletop-ui` house-style skill is
+  scaffolded at `~/.claude/skills/tabletop-ui/SKILL.md`. Engine/tunables untouched — balance stays LOCKED.
+  `npm run verify` 0 (89 files / 1147 passed / 0 failed), `npm run handoff:check` 0. `docs/handoff/state.json`
+  `currentStage` repointed **V3.1-M0 → V3.1-M1**; the four M0 boxes in `docs/ROADMAP-V3.1-UI.md` §4 and the
+  `V3.1-M0` sub-box in §4 above are ticked.
 - **2026-07-18** — **V3.1 PRESENTATION SPRINT WIRED (T-001).** Stage V3-6 (§4) expanded into the V3.1
   presentation-sprint sub-track: an `[x]` umbrella + six unchecked sub-boxes **V3.1-M0…M5** (each pointing
   at `docs/ROADMAP-V3.1-UI.md`), with the V3-6 human playtest kept inside V3.1-M5 (M6 kit-extraction stays

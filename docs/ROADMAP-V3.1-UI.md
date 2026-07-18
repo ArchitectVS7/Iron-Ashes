@@ -75,13 +75,13 @@ When this sprint opens:
 ### M0 — Foundations & the screenshot feedback loop
 *Nothing visual yet; make the sprint safe and the agent sighted.*
 - [x] Wire handoff machinery per §2; record the invariant-scoping decision in `state.json`. (2026-07-18, T-001)
-- [ ] Screenshot loop working: headless browser (Playwright MCP or a `scripts/` Playwright script) boots
+- [x] Screenshot loop working: headless browser (Playwright MCP or a `scripts/` Playwright script) boots
       `npm run dev`, drives `/index-v3.html`, captures every screen (start/difficulty, board mid-game,
-      capture election, Ransom, Wraith, Bequest, victory/defeat).
-- [ ] **Baseline "before" gallery** committed under `docs/Redesign-V3.1/baseline/`.
-- [ ] `tabletop-ui` house-style skill scaffolded (`~/.claude/skills/tabletop-ui/SKILL.md`) — global, not
-      in-repo; records the aesthetic rules + this stack so every project session inherits them.
-- [ ] Add `gsap` + `howler` (pinned); `vite build` + verify green.
+      capture election, Ransom, Wraith, Bequest, victory/defeat). (2026-07-18, T-003)
+- [x] **Baseline "before" gallery** committed under `docs/Redesign-V3.1/baseline/`. (2026-07-18, T-004)
+- [x] `tabletop-ui` house-style skill scaffolded (`~/.claude/skills/tabletop-ui/SKILL.md`) — global, not
+      in-repo; records the aesthetic rules + this stack so every project session inherits them. (2026-07-18, T-004)
+- [x] Add `gsap` + `howler` (pinned); `vite build` + verify green. (2026-07-18, T-002)
 
 **Exit metrics:** `npm run verify` 0; `handoff:check` 0; ≥7 distinct screens captured headlessly by one
 command; baseline gallery in-repo.
