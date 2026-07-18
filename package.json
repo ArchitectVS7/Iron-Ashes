@@ -21,7 +21,8 @@
     "gen:data:check": "node scripts/gen-data.mjs --check",
     "sim": "npm run gen:data:check && tsc && node scripts/sim.mjs",
     "sim:v3": "tsc && node scripts/sim-v3.mjs",
-    "harness": "tsc && node harness/ugt-harness.mjs"
+    "harness": "tsc && node harness/ugt-harness.mjs",
+    "shots:v3": "node scripts/shots-v3.mjs"
   },
   "keywords": [
     "board-game",
@@ -36,6 +37,7 @@
     "@types/node": "^24",
     "eslint": "^10.0.1",
     "jsdom": "^28.1.0",
+    "playwright": "1.61.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.56.1",
     "vite": "^7.3.1",

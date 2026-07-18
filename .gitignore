@@ -6,3 +6,4 @@ coverage/
 .env
 sim-results/*
 !sim-results/sample/
+shots/

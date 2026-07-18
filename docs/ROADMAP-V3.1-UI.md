@@ -62,6 +62,12 @@ When this sprint opens:
     (MIT-style for standard use); the paid Club GreenSock tier only gates special bonus plugins, none
     of which are used here. anime.js (MIT) remains the fallback if the license posture ever changes.
     No usage yet beyond a type-level import smoke test (`tests/v3/deps-smoke.test.ts`).
+  - **2026-07-18 (T-003)** — Added `playwright@1.61.1` (exact pin) as a **devDependency** only (the
+    §2 standing constraint pre-sanctions "playwright dev-only"); it never ships in the runtime bundle.
+    It powers `scripts/shots-v3.mjs` (`npm run shots:v3`), the headless screenshot loop that boots the
+    Vite dev server in-process and drives `/index-v3.html` purely through DOM clicks (no `src/v3`
+    imports; fog-respecting). Chromium is fetched once via `npx playwright install chromium` (dev-tool
+    binary, not a committed game asset). No other new deps.
 - **Verify stays green at every milestone boundary** — the FULL v2+v3 suite, lint, typecheck.
 
 ## 4. Milestones

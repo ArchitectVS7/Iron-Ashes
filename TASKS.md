@@ -82,7 +82,7 @@ the `gsap`/`howler` module shapes without constructing a `Howl` (jsdom has no `A
 tests passing). Scope boundary: dependencies are pinned and smoke-tested only — no `src/ui-v3`
 integration, animation, or sound usage; that begins at T-101 onward.
 
-### T-003 · Headless screenshot script (`npm run shots:v3`) — `status: IN-PROGRESS` · `coder: opus` · `after: T-002`
+### T-003 · Headless screenshot script (`npm run shots:v3`) — `status: DONE` · `coder: opus` · `after: T-002`
 Create `scripts/shots-v3.mjs` using Playwright (devDependency): launch the Vite server, drive
 `/index-v3.html` through a fixed-seed scripted game, and capture PNGs of at least seven distinct
 screens — start/difficulty select, board mid-game, capture election, Ransom, Wraith, Bequest, and
@@ -93,6 +93,15 @@ expected screen was not captured. Wire as npm script `shots:v3`.
 **Accept:** `npm run shots:v3` exits 0 and produces ≥7 named PNGs; a second run produces the same
 file set; the script contains no imports from `src/v3` internals other than what the UI itself uses;
 `shots/` is gitignored.
+
+**Delivered (2026-07-18):** Added `scripts/shots-v3.mjs`, wired as `npm run shots:v3`, and pinned
+`playwright@1.61.1` as a devDependency. The script launches the Vite dev server, drives
+`/index-v3.html` purely through UI events (keyboard/click on the rendered session — no `src/v3`
+engine imports beyond what the UI itself uses), and captures the required ≥7 named PNGs (start/
+difficulty select, mid-game board, capture election, Ransom, Wraith, Bequest, victory/defeat) into
+`--out` (default `shots/`, now gitignored via `.gitignore`). Exits non-zero if any expected screen
+isn't reached. Scope boundary: this task only produces the capture tool itself — no baseline gallery,
+rubric, or visual-quality judgment is in scope here; that is T-004's job.
 
 ### T-004 · Baseline "before" gallery + the M2 visual rubric — `status: TODO` · `coder: sonnet` · `after: T-003`
 Run `npm run shots:v3` and commit the output as `docs/Redesign-V3.1/baseline/` with a short README
