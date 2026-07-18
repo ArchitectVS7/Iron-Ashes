@@ -11,14 +11,14 @@
     "docs/human-playtest-checklist-v3.md + docs/v3-teach-script.md (the V3-6 playtest walkthrough + teaching script); index-v3.html + src/ui-v3 (the fog-respecting render-from-state UI)"
   ],
   "lastVerified": {
-    "timestamp": "2026-07-18T19:25:56.183Z",
-    "commit": "14fe8b1",
-    "sourceHash": "2fcd6aab028624faf819fffb8c2a0196124fa3804e7fc83185f26ec3174dcda0",
+    "timestamp": "2026-07-18T19:34:06.199Z",
+    "commit": "db69ebe",
+    "sourceHash": "5a3af5d4f72f7b91c40c7606213d6c3e3655574634ee7721a429d0c7f25b8f8c",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 88,
-      "passed": 1144,
+      "files": 89,
+      "passed": 1147,
       "failed": 0,
       "status": "pass"
     }

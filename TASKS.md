@@ -103,7 +103,7 @@ difficulty select, mid-game board, capture election, Ransom, Wraith, Bequest, vi
 isn't reached. Scope boundary: this task only produces the capture tool itself — no baseline gallery,
 rubric, or visual-quality judgment is in scope here; that is T-004's job.
 
-### T-004 · Baseline "before" gallery + the M2 visual rubric — `status: TODO` · `coder: sonnet` · `after: T-003`
+### T-004 · Baseline "before" gallery + the M2 visual rubric — `status: DONE` · `coder: sonnet` · `after: T-003`
 Run `npm run shots:v3` and commit the output as `docs/Redesign-V3.1/baseline/` with a short README
 naming each screen. Author `docs/Redesign-V3.1/RUBRIC.md`: the 10-item board-game-read checklist from
 ROADMAP-V3.1-UI M2 (table texture visible; cards read as cards at arm's length; no default-font text;
@@ -112,6 +112,20 @@ HUD reads diegetic; motion present in transitions; screens consistent), scored /
 human checkpoints.
 **Accept:** ≥7 baseline PNGs + README committed under `docs/Redesign-V3.1/baseline/`;
 `docs/Redesign-V3.1/RUBRIC.md` present with exactly 10 checkable items.
+
+**Delivered (2026-07-18):** Ran `npm run shots:v3` to capture the seven M1 "before" screens
+(start/select, mid-game board, capture election, ransom, wraith afterlife, death bequest, endgame)
+as self-generated, fog-safe DOM screenshots, committed under `docs/Redesign-V3.1/baseline/` with a
+README naming each PNG and the regeneration command. Authored `docs/Redesign-V3.1/RUBRIC.md` — the
+fixed 10-item board-game-read checklist (table texture, cards-as-cards, no default-font text,
+act/turn track, palette cohesion, board dominance, icon-token resources, diegetic HUD, transition
+motion, screen consistency) scored out of 10, with the M2 exit bar (≥8/10) and re-score cadence
+(T-207, T-306, T-407, M2+ gates) documented. Added `tests/v3/baseline-gallery.test.ts` as a
+machine-checked guard on both acceptance criteria (≥7 PNGs, non-empty README, exactly 10 rubric
+checkboxes) so the deliverable stays enforced by `npm test` going forward. Scope boundary: this
+task captures and scores the *current* baseline only — it does not touch UI code, does not fill in
+the rubric's checkboxes (that's the job of the M2+ human checkpoints re-scoring against this
+baseline), and does not regenerate the gallery for milestones beyond M1.
 
 ### T-005 · M0 close — DoD — `status: TODO` · `coder: sonnet` · `after: T-001, T-002, T-003, T-004`
 Perform the AGENT-PROTOCOL Definition of Done for the milestone: `npm run verify` exits 0; tick the
