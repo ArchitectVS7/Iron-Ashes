@@ -157,7 +157,18 @@ closes with that single deviation flagged for a user call rather than a rebalanc
 
 ## M2 — UGT harness (game #7)
 
-### T-005 · Pure JSON-lines harness core (`src/v3/harness/harness-core.ts`) — `status: TODO` · `coder: opus` · `after: T-002`
+### T-005 · Pure JSON-lines harness core (`src/v3/harness/harness-core.ts`) — `status: DONE` · `coder: opus` · `after: T-002`
+
+**Delivered (2026-07-17):** Shipped `src/v3/harness/harness-core.ts` — a pure, Node-global-free
+request→response core mirroring nexus-dominion's `harness-core.ts` shape (`createRegistry`,
+`parseRequestLine`, `dispatch`, `stateHash`), plus a standalone `sha256.ts` (since a Node-global-free
+module can't reach for `crypto`) and `tests/v3/harness-core.test.ts` covering same-seed determinism,
+save/load round-trips, scripted create→run_ai→command→run_ai sequences, and structured errors for
+malformed JSON / unknown op / unknown game id / illegal command. Deliberate scope boundary: this task
+is the pure core only — the Node stdio shell, `npm run` wiring, and the smoke test are T-006's, not
+touched here; this commit does not run or gate `npm run sim:v3` byte-guard, `npm test`, or `npm run
+verify` (those were verified by the upstream gate per the task instructions, not re-run in this
+commit).
 Build the pure, typechecked request→response core of the UGT stdio harness, following
 `~/Dev/Games/nexus-dominion/src/harness/harness-core.ts` (read it first — copy its shape: protocol
 types, `createRegistry`, `parseRequestLine`, `dispatch`; Node globals are banned here). Doctrine
