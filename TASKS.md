@@ -641,12 +641,24 @@ untouched), no `Math.random`, runtime deps unchanged (gsap+howler pinned, playwr
 green (1244 tests passed, typecheck + lint clean); `npx vite build` bundles the Alegreya woff2.
 Orchestration: graphify=font audit Inter Cinzel serif body text · attempts=2/4.
 
-### T-215 · Regenerate m2 gallery post-fixes — `status: TODO` · `coder: sonnet` · `after: T-208, T-209, T-210, T-211, T-212, T-213, T-214`
+### T-215 · Regenerate m2 gallery post-fixes — `status: DONE` · `coder: sonnet` · `after: T-208, T-209, T-210, T-211, T-212, T-213, T-214`
 Re-run `npm run shots:v3 -- --out docs/Redesign-V3.1/m2` after the fix round, refresh the README if
 screens changed, commit the gallery — then HALT: T-207 stays `BLOCKED(awaiting user visual review)`
 for the second Gate 1 review. Do not flip T-207 or advance into M3.
 **Accept:** fresh gallery committed; the m2-gallery guard test green; the run halts with T-207 still
 BLOCKED.
+
+**Delivered (2026-07-19):** Regenerated all 7 M2 screens into `docs/Redesign-V3.1/m2/` via
+`npm run shots:v3 -- --out docs/Redesign-V3.1/m2` (exit 0 — every machine gate passed on the post-fix
+built UI: board-dominance, font audit Cinzel/Alegreya, start-control appearance:none, star-inlay,
+6-card hand-fit, no persistent bottom bar, election unclipped). Captured through the fogged DOM under
+`prefers-reduced-motion: reduce` (instant mode), so nothing outside `observableState` leaks. Re-ran to
+confirm the same deterministic 7-file set. Screen set/order unchanged (T-208…T-214 were re-skins), so
+the README's numbered list was left as-is. Guard `tests/v3/m2-gallery.test.ts` green; `npm run verify`
+0 (1244 tests, typecheck + lint clean); `npm run handoff:check` 0. No engine/tunable edits, no
+`Math.random`, no new deps; `scripts/shots-v3.mjs` audits run unchanged. **T-207 left BLOCKED(awaiting
+user visual review) — HALT for the second Gate 1 review; M3 not started.**
+Orchestration: graphify=shots-v3 screenshot script m2 gallery guard test · attempts=1/4.
 
 ### T-207 · CHECKPOINT — user visual review of M2 — `status: BLOCKED(awaiting user visual review)` · `coder: sonnet` · `after: T-206, T-215`
 Regenerate the gallery into `docs/Redesign-V3.1/m2/` (committed), then **set this task

@@ -230,3 +230,11 @@ screenshot loop. M5's playtest is the whole point; M6 amortizes the sprint acros
 - **2026-07-18 (T-002)** — Added the repo's first runtime dependencies, pinned exact: `gsap@3.15.0` +
   `howler@2.2.4` (plus dev `@types/howler@2.2.13`), with the GSAP license check recorded in §3. No usage
   yet beyond a type-level import smoke test (`tests/v3/deps-smoke.test.ts`). Engine/tunables untouched.
+- **2026-07-19 (T-215)** — Regenerated the M2 gallery after the T-208…T-214 fix round:
+  `npm run shots:v3 -- --out docs/Redesign-V3.1/m2` rewrote all 7 screens (exit 0 — every machine gate
+  passed on the post-fix UI: board-dominance, Cinzel/Alegreya font audit, start-control appearance:none,
+  star-inlay, 6-card hand-fit, no persistent bottom bar, election unclipped), captured through the fogged
+  DOM under `prefers-reduced-motion: reduce`. Screen set/order unchanged (re-skins only), README left as-is.
+  Guard `tests/v3/m2-gallery.test.ts` green; verify 0 (1244 tests); handoff:check 0. **V3.1-M2-CHECKPOINT
+  (T-207) stays BLOCKED(awaiting user visual review)** for the second Gate 1 review — never self-approved;
+  M3 not started. Engine/tunables untouched, no `Math.random`, no new deps; shots audits unchanged.
