@@ -148,7 +148,19 @@ bookkeeping only; no engine, UI, or test code was touched, so balance stays LOCK
 
 ## M1 — The semantic move stream (architecture before art)
 
-### T-101 · Move types + `diffObservable` — `status: TODO` · `coder: opus` · `after: T-005`
+### T-101 · Move types + `diffObservable` — `status: DONE` · `coder: opus` · `after: T-005`
+
+**Delivered (2026-07-18):** Added `src/ui-v3/moves.ts` — a typed `Move` union covering piece
+moves, hand/zone transfers, resource deltas, flip/reveal, capture, election, act/round advance,
+elimination, and victory/defeat — plus a pure `diffObservable(prevObs, nextObs): Move[]` that
+derives the move stream solely from two `ObservableState` projections for the same `viewerSeat`,
+importing only types (`ObservableState`, `Command`, etc.) from `src/v3` so it is leak-safe by
+construction. An exhaustive `MOVE_EXPECTATIONS: Record<CommandType, readonly MoveType[]>` table
+makes an unhandled v3 command a compile error. `tests/v3/moves.test.ts` adds focused unit tests
+for representative transitions (move, capture, reveal, resource change, act advance, elimination,
+game end); full suite is green (90 files / 1162 tests). Scope boundary: full-game determinism/
+fog-leak/coverage sweeps over simmed games are deliberately out of scope here and deferred to
+T-102, per the task split in the roadmap.
 Create `src/ui-v3/moves.ts`: a typed `Move` union of semantic presentation events (piece moved A→B,
 card/token hand→zone, resource delta, flip/reveal, capture, election, act/round advance, elimination,
 victory/defeat, …) and a pure `diffObservable(prevObs, nextObs): Move[]` that derives moves **only**
