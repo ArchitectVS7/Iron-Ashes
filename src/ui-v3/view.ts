@@ -16,6 +16,7 @@
 import type { GameSession, Exposure } from './session.js';
 import { renderBoard, PLAYER_COLORS } from './board-view.js';
 import { AnimationQueue } from './queue.js';
+import { SoundManager } from './sound.js';
 import { diffObservable } from './moves.js';
 import {
   TUNABLES,
@@ -76,7 +77,9 @@ export function mountView(root: HTMLElement, session: GameSession): void {
   // settle; there is no direct re-render call left. Instant mode (jsdom / prefers-reduced-motion)
   // makes `enqueue` settle synchronously, preserving the E2E click-then-requery drive.
   const settle = (): void => { root.innerHTML = renderApp(session); };
-  const queue = new AnimationQueue(settle, 'auto');
+  // Silent under jsdom (no Web Audio) — the E2E / parity suites are unaffected.
+  const sound = new SoundManager();
+  const queue = new AnimationQueue(settle, 'auto', sound);
 
   let prev = session.observable();
   session.onChange = (): void => {

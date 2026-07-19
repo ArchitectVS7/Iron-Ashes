@@ -13,15 +13,17 @@
  * drive (they click a control and re-query the DOM in the same synchronous frame), and it is the
  * path taken whenever `prefers-reduced-motion: reduce` matches or `window.matchMedia` is absent.
  *
- * Determinism / guardrails: this module imports ONLY `gsap` and the `Move`/`MoveType` TYPES from
- * `moves.js`. It never imports the reducer / session / observable, never touches full state or
- * `seed`, and introduces NO randomness (no `Math.random`, no `Date.now`) — placeholder tweens use
- * fixed preset durations. The queue only ever receives a `Move[]` already derived from two fogged
- * (§7 D2) projections, and settlement re-renders from the fogged view, so it adds no leak surface.
+ * Determinism / guardrails: this module imports ONLY `gsap`, the `Move`/`MoveType` TYPES from
+ * `moves.js`, and the `SoundManager` TYPE from `sound.js` (type-only — no runtime coupling). It
+ * never imports the reducer / session / observable, never touches full state or `seed`, and
+ * introduces NO randomness (no `Math.random`, no `Date.now`) — placeholder tweens use fixed preset
+ * durations. The queue only ever receives a `Move[]` already derived from two fogged (§7 D2)
+ * projections, and settlement re-renders from the fogged view, so it adds no leak surface.
  */
 
 import { gsap } from 'gsap';
 import type { Move, MoveType } from './moves.js';
+import type { SoundManager } from './sound.js';
 
 export type QueueMode = 'instant' | 'animated';
 
@@ -92,6 +94,7 @@ interface TweenProxy {
 export class AnimationQueue {
   readonly #settle: () => void;
   readonly #requestedMode: QueueMode | 'auto';
+  readonly #sound: SoundManager | undefined;
   readonly #pending: Move[][] = [];
   #timeline: gsap.core.Timeline | null = null;
 
@@ -99,10 +102,17 @@ export class AnimationQueue {
    * @param settle       DOM-commit callback (a full re-render from the fogged view).
    * @param requestedMode `'auto'` (default) resolves per-enqueue via `resolveMode()` so a runtime
    *                      reduced-motion change is honored; `'instant'` / `'animated'` force a mode.
+   * @param sound        Optional `SoundManager`; when present, `enqueue` fires `play(move.type)`
+   *                      once per move (silent no-op under jsdom / with an empty registry).
    */
-  constructor(settle: () => void, requestedMode: QueueMode | 'auto' = 'auto') {
+  constructor(
+    settle: () => void,
+    requestedMode: QueueMode | 'auto' = 'auto',
+    sound?: SoundManager,
+  ) {
     this.#settle = settle;
     this.#requestedMode = requestedMode;
+    this.#sound = sound;
   }
 
   /** True when nothing is playing or waiting to play. */
@@ -120,6 +130,12 @@ export class AnimationQueue {
    * synchronously and immediately; animated mode plays placeholder holds first (serialized).
    */
   enqueue(moves: Move[]): void {
+    // Fire sound once per move, in BOTH modes, synchronously at enqueue time. Skeleton simplification:
+    // clips are not yet tween-synced (a later M-task) — this is a fire-and-forget cue that no-ops
+    // under jsdom and on any empty-registry lookup miss.
+    if (this.#sound !== undefined) {
+      for (const move of moves) this.#sound.play(move.type);
+    }
     if (this.#mode() === 'instant') {
       // Synchronous settlement — no timeline built, queue stays idle on return.
       this.#settle();

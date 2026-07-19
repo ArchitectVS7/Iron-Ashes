@@ -237,12 +237,25 @@ no mutation bypasses the animation queue. Scope boundary: only the `competitive`
 remains open for a future pass if desired. Full suite green (93 files / 1180 passed) per
 `docs/handoff/state.json`.
 
-### T-105 · SoundManager skeleton — `status: TODO` · `coder: sonnet` · `after: T-103`
+### T-105 · SoundManager skeleton — `status: DONE` · `coder: sonnet` · `after: T-103`
 Create `src/ui-v3/sound.ts`: a Howler-backed `SoundManager` with `play(moveType)`, master volume and
 mute, silent no-op under test/jsdom, and no audio assets yet (empty registry tolerated). The queue
 calls `SoundManager.play` per move.
 **Accept:** unit test covers mute/volume/no-op-in-jsdom; the queue invokes it per move (asserted via
 spy); no audio files added; full suite green.
+
+**Delivered (2026-07-18):** Shipped `src/ui-v3/sound.ts` — a `SoundManager` class with `play(moveType)`,
+`setVolume`/`getVolume`, `setMuted`/`isMuted`, and a Howler-backed per-`MoveType` clip registry that
+ships empty (every lookup is a tolerated no-op). Silence is auto-derived from Web Audio capability
+(`hasWebAudio()` probe: absent under jsdom, present in a real browser), with an `{ enabled }` override
+for testability. Wired into `AnimationQueue` (`src/ui-v3/queue.ts`), which now takes an optional third
+`sound` constructor param and fires `play(move.type)` once per move at enqueue time in both instant
+and animated modes; `mountView` (`src/ui-v3/view.ts`) constructs a default `SoundManager` and passes
+it through. `tests/v3/sound.test.ts` covers mute/volume/no-op-in-jsdom and the queue-invokes-it-per-move
+contract via spy. Deliberate scope boundary: no audio assets or a registry-population path shipped in
+this task — real clips and their `docs/CREDITS.md` entries are explicitly deferred to a later M-task,
+and clips are not yet tween-synced to the animation timeline (fire-and-forget cue only). Full suite
+green: 94 files / 1188 passed.
 
 ### T-106 · M1 close — DoD — `status: TODO` · `coder: sonnet` · `after: T-102, T-104, T-105`
 Milestone DoD as in T-005: verify green → tick M1 boxes here and in both roadmaps, `currentStage` →
