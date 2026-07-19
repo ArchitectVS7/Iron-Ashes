@@ -174,7 +174,7 @@ describe('T-203 token/chip DOM audit — full fixed-seed game', () => {
     // The game actually completed (a soft-lock would fail loudly rather than pass vacuously).
     expect(session.isOver).toBe(true);
     expect(session.state.gameEndReason).not.toBeNull();
-  });
+  }, 30000); // full-game DOM sim (~3s solo) blows the default 5000ms under verify-load — match the siblings below.
 
   // One full-game sim per case, each in its own `it()` so it gets its own timeout budget
   // (two back-to-back sims blew the default 5000ms under `verify`-load — see T-203 fix round 1).

@@ -47,8 +47,17 @@ decisions (see ROADMAP-V3.1-UI §4 M2 "Gate 0.5 aesthetic decisions"):
   loss also fails it).
 - **Resources are icon tokens** — icon + count chips or gauges everywhere, house sigils on ownership
   markers; a bare numeral outside a chip fails.
+- **No default-font text** *(tightened at Gate 1, 2026-07-19)* — every text node resolves to Cinzel
+  (display/headers) or the old-style serif body (Alegreya / EB Garamond). A neutral web sans (e.g.
+  Inter) now FAILS this item — user decision: full serif, no sans substitution even for dense UI.
 
 ## Score log
 
 - **2026-07-18 (Gate 0.5)** — baseline gallery: **0/10** (anchor; nearest miss "board is the largest
   element", true only on the mid-game screen). Rubric definitions calibrated with the user above.
+- **2026-07-19 (Gate 1, first review)** — m2 gallery: **5/10**. Pass: table texture, act/turn track,
+  palette cohesive, board largest, resources-as-chips. Fail: cards (blank faces + hand clipping —
+  regression), HUD-diegetic (persistent bottom rectangle + web buttons + election overlap bug),
+  screens-consistent (start screen untouched), board-vs-spec (glyph circles / no star inlay / no
+  banners), no-default-font (Inter, per the tightened serif definition). Motion not scored from
+  stills. Verdict: fix round T-208…T-215; T-207 stays BLOCKED for a second review.

@@ -120,6 +120,12 @@ command; baseline gallery in-repo.
 4. **Card faces = rich (TCG-style):** name + art area + rules text via the generator (art areas may be
    generated-ornamental until bespoke art exists). Constraint: **value + suit icon must be corner-
    indexed** and legible in the fan; full text is read via hover-raise zoom (M3).
+5. **Gate 1 additions (user, 2026-07-19):** body font is **FULL old-style serif** (Alegreya/EB
+   Garamond; no Inter/sans anywhere — the font audit enforces it); the event feed becomes a
+   **diegetic chronicle** scroll (not stacked alerts); the **bequest** is themed as a testament
+   parchment NOW, while the **endgame frame deliberately waits** for T-402b's sequences; the hostage
+   **hold-rail plaque is validated** as the capture-in-hand treatment. First review scored 5/10 →
+   fix tasks T-208…T-215; T-207 re-review pending.
 
 - [x] Board-centric layout: board center-stage on a **textured table surface**; the right-hand status
       column dissolves into diegetic HUD elements (banners, plaques, ribbons at the edges). (2026-07-19, T-201)

@@ -66,3 +66,21 @@ in ROADMAP-V3.1-UI §4 M2, echoed into TASKS.md T-201/T-204/T-301 and the tablet
    hover-raise zoom to read text.
 
 Next stop: Gate 1 (T-207) after M2 builds against these definitions.
+
+---
+
+## Gate 1 (T-207) — FIRST REVIEW 2026-07-19: 5/10, fix round filed
+
+m2 gallery reviewed screen-by-screen via Q&A. PASS: table texture, act/turn track, palette cohesive,
+board largest, resources-as-chips. FAIL: cards (uniform blank faces + 6-card clipping — a readability
+regression), HUD-diegetic (persistent bottom rectangle + web buttons; election-screen overlap bug),
+screens-consistent (start screen untouched from baseline), board-vs-spec (glyph circles instead of
+illustrated locations; no star inlay; no planted banners), no-default-font (Inter, per the serif
+definition tightened this gate). Motion unscored from stills.
+
+User decisions: board fixed to full spec · rich faces kept (not simplified) · full HUD dissolution
+held · start screen fixed this round · event feed → diegetic chronicle · bequest themed now, endgame
+frame waits for T-402b · hostage hold-rail plaque validated · body font FULL serif (Inter out).
+
+Fix tasks T-208…T-215 filed; T-207 stays BLOCKED. Second Gate 1 review follows T-215's regenerated
+gallery.

@@ -439,13 +439,105 @@ parse the optional `-CHECKPOINT` suffix so it correctly resolves to that box. `n
 existing `vite` devDep); T-207 (the user visual-review checkpoint) is a separate, still-open task — this
 task only closes the M2 build/DoD gate, not the milestone's human sign-off.
 
-### T-207 · CHECKPOINT — user visual review of M2 — `status: TODO` · `coder: sonnet` · `after: T-206`
+### T-208 · Board to spec — illustrated locations, star inlay, planted banners — `status: TODO` · `coder: opus` · `after: T-206`
+Gate 1 fix (user, 2026-07-19): the board fell short of the M2 Gate 0.5 block in three ways. (1) Nodes
+are circles-containing-glyphs — replace with true illustrated SVG map locations sitting ON the table
+(keeps as castles, forges with ember glow, holdings as hamlets, the Keystone as a dark throne;
+tier-distinct silhouettes, **no enclosing circle**). (2) The decorative 8-ray chaos-star inlay is not
+visible — carve it into the wood beneath the graph (darker/burned wood, clearly present in a
+screenshot), with the TRUE edges still drawn distinctly on top (never a playable-looking ray where no
+edge exists — the Keystone has exactly 4 edges). (3) Claims render as colored rings — replace with a
+planted house banner (heraldry color + sigil) on the node.
+**Accept:** nodes render as circle-free illustrated locations (DOM/SVG assertion); the star inlay is
+asserted present in the shots run; claimed nodes show banner elements carrying the owner's sigil
+class; jsdom E2E + `npm run shots:v3` + verify green.
+
+### T-209 · Rich card faces + hand overflow fix — `status: TODO` · `coder: opus` · `after: T-206`
+Gate 1 fix (user, 2026-07-19): hand cards render as six identical cream blanks — no corner value/suit,
+no name/art/rules — a readability REGRESSION from the baseline's bare numbers; and the 6-card hand
+clips off the panel edge. Fix the T-204 generator to emit the full rich face per Gate 0.5:
+corner-indexed value + suit icon (legible unraised), name, generated-ornamental art area, rules text —
+distinct per card datum. Fix the overflow so 6 cards always render fully (scale/overlap, no clipping).
+**Accept:** a DOM test asserts each hand card shows its distinct corner value + suit + name; a layout
+test or shots assertion proves 6 cards fit inside the hand region; regenerated shots show distinct
+faces; verify green.
+
+### T-210 · Full HUD bottom dissolution + election overlap bug — `status: TODO` · `coder: opus` · `after: T-206`
+Gate 1 fix (user, 2026-07-19): the bottom turn/action area is still a persistent full-width rectangle
+with web-style buttons — failing the full-dissolution bar — and the capture-election screen (m2/03)
+shows the turn-prompt text physically sliced by an overlapping raid block. Dissolve: the turn prompt
+becomes a plaque anchored near the board; movement options attach to the board (M1 legality data
+already drives them); oath/raid/ransom actions become themed contextual controls on the relevant
+plaques/nodes; "End turn" becomes a diegetic object (wax seal / iron stud). Zero information loss
+(hover/expand acceptable). Fix the overlap.
+**Accept:** no persistent full-width bottom panel on any shots screen (DOM assertion; a single-line
+chronicle/toast region is exempt); every previously reachable action still reachable (jsdom E2E full
+game green); the election screen renders without clipped text; verify green.
+
+### T-211 · Start screen title treatment — `status: TODO` · `coder: sonnet` · `after: T-206`
+Gate 1 fix (user, 2026-07-19): the start screen is unchanged from baseline (black void, default web
+form controls). Rebuild as a title screen ON the wood table: Cinzel title treatment with ember accent,
+setup form as a parchment plaque, all controls themed (styled selects/checkbox/button — no default UA
+widgets visible).
+**Accept:** start shot shows table texture + plaque form; the font/appearance audit extends to the
+start screen and passes with no default-styled controls; verify green.
+
+### T-212 · Event feed → diegetic chronicle — `status: TODO` · `coder: sonnet` · `after: T-206`
+Gate 1 fix (user, 2026-07-19): game events stack as web-alert bars. Restyle as a chronicle: one
+parchment/scroll ticker region (not stacked alerts), Shadowking voice-lines visually distinct (ember,
+italic), entries burn in via the M1 queue, capped height with scrollback.
+**Accept:** events render inside a single chronicle component (DOM assertion — no stacked alert divs);
+SK lines carry a distinct class; instant-mode tests green; verify green.
+
+### T-213 · Bequest as testament parchment — `status: TODO` · `coder: sonnet` · `after: T-206`
+Gate 1 fix (user, 2026-07-19): the death-will moment renders as a plain grey button list. Retheme as a
+last-testament parchment frame: parchment panel, serif heading, curse options as inked entries
+(themed buttons), somber treatment. Static frame only — M4 animates it. The ENDGAME frame is
+deliberately NOT themed this round (user decision: waits for T-402b's victory/defeat sequences).
+**Accept:** bequest options render inside the testament component with themed controls (DOM assertion
++ shots); endgame frame untouched; verify green.
+
+### T-214 · Full-serif body font — `status: TODO` · `coder: sonnet` · `after: T-206`
+Gate 1 decision (user, 2026-07-19): body text goes FULL old-style serif per the house style — replace
+Inter everywhere with Alegreya or EB Garamond (self-hosted OFL, license committed); Cinzel stays for
+headers/labels. Update the shots font audit so a neutral sans (Inter) now FAILS; RUBRIC's
+"No default-font text" definition already reflects this.
+**Accept:** serif font files + license committed; the font audit rejects Inter and passes with every
+text node resolving to Cinzel or the serif across all screens; verify green.
+
+### T-215 · Regenerate m2 gallery post-fixes — `status: TODO` · `coder: sonnet` · `after: T-208, T-209, T-210, T-211, T-212, T-213, T-214`
+Re-run `npm run shots:v3 -- --out docs/Redesign-V3.1/m2` after the fix round, refresh the README if
+screens changed, commit the gallery — then HALT: T-207 stays `BLOCKED(awaiting user visual review)`
+for the second Gate 1 review. Do not flip T-207 or advance into M3.
+**Accept:** fresh gallery committed; the m2-gallery guard test green; the run halts with T-207 still
+BLOCKED.
+
+### T-207 · CHECKPOINT — user visual review of M2 — `status: BLOCKED(awaiting user visual review)` · `coder: sonnet` · `after: T-206, T-215`
 Regenerate the gallery into `docs/Redesign-V3.1/m2/` (committed), then **set this task
 `BLOCKED(awaiting user visual review)` and halt the run** — do not proceed into M3. The user scores
 `docs/Redesign-V3.1/RUBRIC.md` (target ≥8/10) and runs the blind read test ("web app or board game?" on
 a fresh agent given only the screenshots); the user flips this task to DONE, or files fix tasks.
 **Accept:** (checked by the user, not the runner) m2 gallery committed; rubric scored ≥8/10; blind
 read test answered "board game" for every screen; user explicitly approved.
+
+**Delivered (2026-07-19):** Regenerated the 7-screen M2 gallery into `docs/Redesign-V3.1/m2/` via
+`npm run shots:v3 -- --out docs/Redesign-V3.1/m2` (board-dominance + font-audit gates both passed),
+alongside `docs/Redesign-V3.1/m2/README.md` and the `tests/v3/m2-gallery.test.ts` guard (≥7 PNGs +
+non-empty README; both guard tests pass). All of these are **staged** (`git add`) so the runner's
+T-207 commit — which per the orchestrator protocol happens only after review+gate pass, never by the
+coder — lands them; the "m2 gallery committed" acceptance item is satisfied by that commit. (Fix
+round 3 root cause: an earlier note falsely said "committed" while the files sat untracked; the note
+now states the true staged-for-runner-commit state.) No engine/tunable/asset/UI-behavior change. This
+is a CHECKPOINT: **not self-approved** — status stays `BLOCKED(awaiting user visual review)` and the
+run halts here; the rubric score (≥8/10), the blind read test, and the DONE flip are the user's
+alone and are intentionally still outstanding. Did not advance into M3 (T-301+).
+
+**Gate 1 first review (user, 2026-07-19): scored 5/10 — below the ≥8 bar; fix round filed.** Passing:
+table texture, act/turn track, palette cohesive, board largest, resources-as-chips. Failing: cards
+(blank faces + clipping regression), HUD-diegetic (bottom rectangle + web buttons + election overlap
+bug), screens-consistent (start screen untouched), board-vs-spec (glyph circles, no star inlay, no
+banners), no-default-font per the tightened serif definition (Inter). Fix tasks T-208…T-215 filed
+above; this checkpoint stays BLOCKED until the user re-scores the regenerated gallery.
 
 ---
 
