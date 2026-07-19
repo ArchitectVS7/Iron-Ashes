@@ -670,29 +670,37 @@ function renderBequestPanel(session: GameSession, s: ObservableState, blocking: 
   const opts: string[] = [];
   if (allyLiving) {
     if (s.players[me].hand.length > 0) {
-      opts.push(`<button data-action="bequest-cards:${ally}">Bequeath your cards to P${ally! + 1}</button>`);
+      opts.push(`<button class="testament-entry" data-action="bequest-cards:${ally}">Bequeath your cards to P${ally! + 1}</button>`);
     }
     for (const c of s.captives.filter(c => c.captorSeat === me && c.ownerSeat !== ally)) {
       const piece = s.players[c.ownerSeat].court.find(x => x.id === c.pieceId);
       const who = piece ? `${esc(piece.name)} the ${piece.archetype}` : 'piece';
-      opts.push(`<button data-action="bequest-captive:${c.pieceId}:${ally}">Bequeath ${who} (of P${c.ownerSeat + 1}) to P${ally! + 1}</button>`);
+      opts.push(`<button class="testament-entry" data-action="bequest-captive:${c.pieceId}:${ally}">Bequeath ${who} (of P${c.ownerSeat + 1}) to P${ally! + 1}</button>`);
     }
   }
   for (const p of s.players) {
     if (p.index === me || p.isEliminated) continue;
-    opts.push(`<button data-action="bequest-curse:${p.index}">☠ Death-curse P${p.index + 1}</button>`);
+    opts.push(`<button class="testament-entry testament-entry--curse" data-action="bequest-curse:${p.index}">☠ Death-curse P${p.index + 1}</button>`);
   }
-  opts.push(`<button data-action="bequest-curse:none">Fall silently (no curse)</button>`);
+  opts.push(`<button class="testament-entry testament-entry--muted" data-action="bequest-curse:none">Fall silently (no curse)</button>`);
 
   const chosen = current
-    ? `<div class="hint">Recorded: <b>${describeBequest(current)}</b>.</div>`
-    : `<div class="hint">${allyLiving ? 'Reward your ally, or' : 'You hold no standing ally —'} mark a rival for the dark.</div>`;
+    ? `<div class="testament-recorded">Recorded: <b>${describeBequest(current)}</b>.</div>`
+    : `<div class="testament-recorded">${allyLiving ? 'Reward your ally, or' : 'You hold no standing ally —'} mark a rival for the dark.</div>`;
 
-  return `<div class="panel bequest${blocking ? ' blocking' : ''}">
-    <div class="panel-title">${blocking ? '☠ You fall this Dawn — your final act' : 'Your will (you are in the dark\'s reach)'}</div>
-    <div class="action-btns">${opts.join('')}</div>
-    ${chosen}
-    ${blocking && current ? '<div class="hint">The flow resumes once you have chosen. Change it above if you wish.</div>' : ''}
+  const heading = blocking ? 'Last Testament' : 'Your Will';
+  const subhead = blocking
+    ? '☠ You fall this Dawn — set down your final act.'
+    : 'You are in the dark\'s reach — commit your will to parchment.';
+
+  return `<div class="panel bequest testament${blocking ? ' blocking' : ''}">
+    <div class="testament-parchment">
+      <div class="testament-heading">${heading}</div>
+      <div class="testament-subhead">${subhead}</div>
+      <div class="action-btns testament-entries">${opts.join('')}</div>
+      ${chosen}
+      ${blocking && current ? '<div class="testament-hint">The flow resumes once you have chosen. Amend it above if you wish.</div>' : ''}
+    </div>
   </div>`;
 }
 

@@ -585,13 +585,29 @@ only the event-feed region is touched — T-213 (bequest parchment) and T-214 (f
 remain separate, still-open tasks; no tunable, reducer, or balance code was touched.
 Orchestration: graphify=graphify query "how are game events rendered as alert bars in the v3 UI view" · attempts=1/4.
 
-### T-213 · Bequest as testament parchment — `status: TODO` · `coder: sonnet` · `after: T-206`
+### T-213 · Bequest as testament parchment — `status: DONE` · `coder: sonnet` · `after: T-206`
 Gate 1 fix (user, 2026-07-19): the death-will moment renders as a plain grey button list. Retheme as a
 last-testament parchment frame: parchment panel, serif heading, curse options as inked entries
 (themed buttons), somber treatment. Static frame only — M4 animates it. The ENDGAME frame is
 deliberately NOT themed this round (user decision: waits for T-402b's victory/defeat sequences).
 **Accept:** bequest options render inside the testament component with themed controls (DOM assertion
 + shots); endgame frame untouched; verify green.
+
+**Delivered (2026-07-19):** Retheme the death-bequest panel (`renderBequestPanel` in
+`src/ui-v3/view.ts`) from a plain grey `.action-btns` button list into a last-testament parchment
+frame (`src/ui-v3/ui-v3.css`) — an aged-parchment `.testament-parchment` leaf (same warm ink-stained
+material as the `.chronicle` scroll and `.start-form` plaque) with a Cinzel `.testament-heading`
+("Last Testament" / "Your Will") over a ruled hairline and italic serif subhead, and every option
+(bequeath cards/captive, death-curse, fall silently) rendered as an inked `.testament-entry` ledger
+row instead of a stock button, with the death-curse entries carrying a restrained danger-ink variant
+and "fall silently" a muted one; the blocking (you-fall-this-Dawn) state keeps its urgency via a
+danger rim on the parchment leaf itself rather than a loud red box. Scope boundary: static frame
+only, per the accept criteria — no animation (M4's job) — and the ENDGAME frame is deliberately left
+untouched this round, per the user's explicit call to defer it to T-402b's victory/defeat sequences;
+added a DOM test (`tests/v3/ui-e2e.test.ts`) asserting the themed testament markup renders and that
+clicking a themed curse entry still routes `SET_BEQUEST` through the engine; verify green (1243
+tests passed).
+Orchestration: graphify=query "bequest death testament panel rendering v3 UI view" · attempts=1/4.
 
 ### T-214 · Full-serif body font — `status: TODO` · `coder: sonnet` · `after: T-206`
 Gate 1 decision (user, 2026-07-19): body text goes FULL old-style serif per the house style — replace

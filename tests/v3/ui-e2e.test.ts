@@ -207,6 +207,24 @@ describe('UI E2E (v3) — each control drives the engine through the DOM', () =>
     expect(session.state.pendingBequests?.[0]).toBeDefined();
   });
 
+  it('renders the bequest as a themed testament parchment (T-213)', () => {
+    const session = toHumanTurnDom('competitive');
+    session.state.players[0].deposed = true;
+    rerender(session);
+    // The testament component wraps the bequest panel (keeps .panel.bequest for shots/scene match).
+    expect(root.querySelector('.panel.bequest.testament'), 'testament component should wrap the bequest').not.toBeNull();
+    // The parchment leaf + serif heading are the themed frame.
+    expect(root.querySelector('.testament-parchment'), 'parchment frame should render').not.toBeNull();
+    expect(root.querySelector('.testament-heading'), 'serif testament heading should render').not.toBeNull();
+    // Curse options render as themed inked entries, not plain grey buttons.
+    const curses = root.querySelectorAll('[data-action^="bequest-curse:"].testament-entry');
+    expect(curses.length, 'curse options should be themed testament entries').toBeGreaterThan(0);
+    // Retheme preserved the wiring: clicking a themed curse entry still routes SET_BEQUEST.
+    click(curses[0] as HTMLElement);
+    expect(session.lastError).toBeNull();
+    expect(session.state.pendingBequests?.[0]).toBeDefined();
+  });
+
   it('clicking a PLEDGE button routes SUBMIT_PLEDGE through the DOM', () => {
     const session = new GameSession(4, 'competitive', 42); // paused at THREAT
     mountView(root, session);

@@ -723,12 +723,94 @@ button.primary { background: linear-gradient(180deg, #e2b23c, #c9a227); color: #
 .raid-head { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
 .raid-elects { display: flex; flex-wrap: wrap; gap: 4px; }
 
-/* ── Wraith input + Death Bequest panels ── */
-.wraith-input, .panel.bequest { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 8px; }
-.panel.bequest.blocking { border: 1px solid var(--danger); border-radius: 8px; padding: 10px; background: rgba(239,68,68,0.08); }
+/* ── Wraith input panel ── */
+.wraith-input { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 8px; }
 .panel-subtitle { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
-.wraith-btn, .bequest .action-btns button { display: block; width: 100%; text-align: left; margin: 3px 0; }
+.wraith-btn { display: block; width: 100%; text-align: left; margin: 3px 0; }
 .wraith-btn.selected { border-color: var(--accent); color: var(--accent); }
+
+/* ── Death Bequest as a last-testament parchment (T-213) ──
+   The death-will moment is a somber ritual, not a form: an aged-parchment leaf (same warm
+   material as the .chronicle scroll and .start-form plaque), a Cinzel serif heading over a
+   ruled hairline, and the curse/bequest options as inked ledger entries rather than a grey
+   button list. Static frame only — M4 animates it. */
+.panel.bequest.testament { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 8px; }
+.panel.bequest.testament .testament-parchment {
+  border: 1px solid #3a2f26;
+  border-radius: 10px;
+  padding: 14px 16px;
+  /* Aged parchment leaf: warm ink-stained scroll over a dark base. */
+  background:
+    linear-gradient(180deg, rgba(60, 47, 33, 0.6), rgba(38, 29, 20, 0.7)),
+    linear-gradient(180deg, #2a2119, #201811);
+  box-shadow: inset 0 1px 0 rgba(232, 220, 195, 0.08), 0 6px 16px rgba(0, 0, 0, 0.55);
+}
+/* Blocking (you fall THIS Dawn) still reads as urgent — a danger rim on the leaf itself. */
+.panel.bequest.testament.blocking .testament-parchment {
+  border-color: var(--danger);
+  box-shadow: inset 0 1px 0 rgba(232, 220, 195, 0.06), 0 0 0 1px rgba(239, 68, 68, 0.25), 0 6px 16px rgba(0, 0, 0, 0.6);
+}
+.testament-heading {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 16px;
+  color: #b39c6f;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(160, 135, 79, 0.25);
+}
+.testament-subhead {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.testament-entries { display: flex; flex-direction: column; gap: 5px; }
+/* Inked ledger entries: serif label on a faint parchment rule, not the grey block list. */
+.testament-entry {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin: 0;
+  padding: 7px 10px 7px 12px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: #d8c7a6;
+  background: rgba(232, 220, 195, 0.04);
+  border: 1px solid rgba(160, 135, 79, 0.18);
+  border-left: 3px solid rgba(160, 135, 79, 0.5);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.testament-entry:hover {
+  background: rgba(232, 134, 58, 0.1);
+  border-color: var(--ember);
+  border-left-color: var(--ember);
+  color: var(--ink);
+}
+/* Death-curse: a restrained danger ink — somber, not loud. */
+.testament-entry--curse {
+  color: #d99a9a;
+  border-left-color: rgba(239, 68, 68, 0.5);
+}
+.testament-entry--curse:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--danger);
+  border-left-color: var(--danger);
+  color: #f3c9c9;
+}
+/* Fall silently: a muted, unadorned entry. */
+.testament-entry--muted {
+  color: var(--muted);
+  border-left-color: rgba(154, 146, 166, 0.35);
+}
+.testament-recorded { font-size: 12px; color: var(--muted); margin-top: 10px; }
+.testament-recorded b { color: #b39c6f; }
+.testament-hint { font-size: 11px; font-style: italic; color: var(--muted); margin-top: 6px; }
 
 /* ── Last Stand blocking prompt (§5.3, T1-4) ── */
 .panel.laststand.blocking { border: 1px solid var(--danger); border-radius: 8px; padding: 10px; background: rgba(239,68,68,0.08); }
