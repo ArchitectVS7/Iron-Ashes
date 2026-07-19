@@ -33,31 +33,38 @@ export function startScreen(root: HTMLElement, onStart: (session: GameSession) =
   ).join('');
 
   root.innerHTML = `
-    <div class="start">
-      <h1>Iron Throne of Ashes</h1>
-      <p class="tagline">Save the world — or take it. <b>v3</b></p>
+    <div class="start start-table">
+      <div class="start-title">
+        <h1>Iron Throne of Ashes</h1>
+        <p class="tagline">Save the world — or take it. <b>v3</b></p>
+      </div>
       <div class="start-form">
         <label>Players
-          <select id="player-count">
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4" selected>4</option>
-          </select>
+          <span class="select-wrap">
+            <select id="player-count">
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4" selected>4</option>
+            </select>
+          </span>
         </label>
         <label>Mode
-          <select id="mode">
-            <option value="competitive" selected>Competitive</option>
-            <option value="blood_pact">Blood Pact (traitor)</option>
-          </select>
+          <span class="select-wrap">
+            <select id="mode">
+              <option value="competitive" selected>Competitive</option>
+              <option value="blood_pact">Blood Pact (traitor)</option>
+            </select>
+          </span>
         </label>
         <label>Difficulty
-          <select id="difficulty">${options}</select>
+          <span class="select-wrap"><select id="difficulty">${options}</select></span>
         </label>
         <label>Seed
           <input id="seed" type="number" value="42" />
         </label>
         <label class="advanced-toggle" title="Adds a 4th archetype: the Herald — a lone runner who PARLEYs the dark back without spending a card. Recommended after your first few games.">
-          <input id="herald-enabled" type="checkbox" /> Herald (advanced)
+          <span class="check"><input id="herald-enabled" type="checkbox" /><span class="check-box"></span></span>
+          <span class="check-label">Herald (advanced)</span>
         </label>
         <button id="start-btn" class="primary">Begin</button>
       </div>

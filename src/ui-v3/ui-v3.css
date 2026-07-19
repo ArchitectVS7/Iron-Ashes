@@ -74,22 +74,173 @@ html, body {
 
 h1 { font-family: var(--font-display); letter-spacing: 1px; }
 
-/* ── Start screen ── */
+/* ── Start screen — a title screen ON the wood table (T-211) ── */
+/* The screen sits on the same candlelit wood surface as the board (reuses the .table-stage material,
+   the committed CC0 texture credited in docs/CREDITS.md) — never the black void. */
 .start {
   height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 18px;
   text-align: center;
+  padding: 24px;
+  background-color: #1a120c;
+  background-image:
+    radial-gradient(ellipse 60% 55% at 50% 34%, rgba(232, 134, 58, 0.16), rgba(0, 0, 0, 0) 62%),
+    radial-gradient(ellipse 120% 100% at 50% 50%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.5) 100%),
+    url('./assets/table-texture.svg');
+  background-repeat: no-repeat, no-repeat, repeat;
+  background-size: cover, cover, 256px 256px;
 }
-.start h1 { font-size: 42px; margin: 0; color: var(--accent); }
-.tagline { color: var(--muted); margin: 0 0 12px; font-style: italic; }
-.start-form { display: flex; gap: 16px; align-items: flex-end; background: var(--panel); padding: 20px 24px; border-radius: 10px; border: 1px solid var(--line); }
-.start-form label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--muted); text-align: left; }
-.start-form select, .start-form input { background: var(--panel-2); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px; font-size: 15px; }
-.note { color: var(--muted); font-size: 13px; max-width: 420px; }
+.start-title { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+/* Ember-accent Cinzel title treatment — a warm forge glow carved into the wood. */
+.start h1 {
+  font-size: 52px;
+  margin: 0;
+  color: var(--accent);
+  letter-spacing: 3px;
+  line-height: 1.05;
+  text-shadow:
+    0 1px 0 #2a1a08,
+    0 0 12px rgba(232, 134, 58, 0.45),
+    0 0 32px rgba(224, 85, 43, 0.3);
+}
+.tagline { color: #d8c7a6; margin: 0; font-style: italic; letter-spacing: 0.02em; }
+.tagline b { color: var(--accent); font-style: normal; }
+/* The setup form as a parchment plaque — the carved-wood material language of the house/command
+   plaques (dark gradient + iron border + inset highlight + drop shadow). */
+.start-form {
+  display: flex;
+  gap: 18px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 720px;
+  background: linear-gradient(180deg, rgba(43, 36, 32, 0.97), rgba(23, 20, 26, 0.97));
+  border: 1px solid #3a2f26;
+  border-radius: 12px;
+  padding: 22px 26px;
+  box-shadow:
+    inset 0 1px 0 rgba(232, 220, 195, 0.08),
+    0 10px 30px rgba(0, 0, 0, 0.6);
+}
+.start-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-family: var(--font-display);
+  color: var(--accent);
+  text-align: left;
+}
+/* Themed controls — carved-iron studs, NO default UA widget chrome anywhere. */
+.start-form select,
+.start-form input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: linear-gradient(180deg, #302821, #201a16);
+  color: #e8dcc3;
+  border: 1px solid #4a3d31;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 15px;
+  box-shadow: inset 0 1px 0 rgba(232, 220, 195, 0.06), 0 2px 4px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.start-form select:hover,
+.start-form input:hover {
+  border-color: var(--accent);
+}
+.start-form select:focus-visible,
+.start-form input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: inset 0 1px 0 rgba(232, 220, 195, 0.08), 0 0 8px rgba(201, 162, 39, 0.4);
+}
+/* Custom dropdown caret drawn in CSS (no UA menulist arrow) — the select clears room on the right. */
+.select-wrap { position: relative; display: inline-flex; }
+.select-wrap select { width: 100%; padding-right: 28px; }
+.select-wrap::after {
+  content: '▾';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent);
+  font-size: 12px;
+  pointer-events: none;
+}
+/* Kill the number-input spinners (Firefox + WebKit) — no UA textfield chrome. */
+.start-form input[type='number'] { -moz-appearance: textfield; }
+.start-form input[type='number']::-webkit-outer-spin-button,
+.start-form input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+/* The advanced-toggle row: a carved checkbox + its label, laid out horizontally. */
+.start-form label.advanced-toggle {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  text-transform: none;
+  color: #d8c7a6;
+  font-family: var(--font-body);
+  letter-spacing: 0;
+  padding-bottom: 8px;
+}
+.check { position: relative; display: inline-flex; width: 20px; height: 20px; flex: 0 0 auto; }
+/* The real checkbox stays in the DOM (tests toggle #herald-enabled), stripped of UA chrome and
+   stretched over its custom carved box so clicks + focus still land on the input. */
+.check input[type='checkbox'] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  opacity: 0;
+}
+.check-box {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 5px;
+  border: 1px solid #4a3d31;
+  background: linear-gradient(180deg, #302821, #201a16);
+  box-shadow: inset 0 1px 0 rgba(232, 220, 195, 0.06), 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+#herald-enabled:checked + .check-box {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 6px rgba(201, 162, 39, 0.35);
+}
+/* Ember tick drawn in CSS on :checked — no UA checkmark. */
+#herald-enabled:checked + .check-box::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--accent);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+#herald-enabled:focus-visible + .check-box {
+  border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(201, 162, 39, 0.5);
+}
+.note { color: #b6a888; font-size: 13px; max-width: 460px; }
+#difficulty-hint { color: var(--accent); opacity: 0.9; font-style: italic; }
 
 /* ── The table stage (board centre-stage on a textured wood surface; edges hold the HUD) ── */
 .table-stage {

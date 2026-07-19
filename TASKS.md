@@ -538,13 +538,32 @@ screen (T-211), event feed re-theme beyond the one-line chronicle move (T-212), 
 (T-213), and the full-serif body font (T-214) are separate, still-open tasks.
 Orchestration: graphify=graphify query "v3 UI bottom turn action panel HUD movement oath raid ransom end turn controls" · attempts=1/4.
 
-### T-211 · Start screen title treatment — `status: TODO` · `coder: sonnet` · `after: T-206`
+### T-211 · Start screen title treatment — `status: DONE` · `coder: sonnet` · `after: T-206`
 Gate 1 fix (user, 2026-07-19): the start screen is unchanged from baseline (black void, default web
 form controls). Rebuild as a title screen ON the wood table: Cinzel title treatment with ember accent,
 setup form as a parchment plaque, all controls themed (styled selects/checkbox/button — no default UA
 widgets visible).
 **Accept:** start shot shows table texture + plaque form; the font/appearance audit extends to the
 start screen and passes with no default-styled controls; verify green.
+
+**Delivered (2026-07-19):** rebuilt the start screen (`src/ui-v3/main.ts`, `src/ui-v3/ui-v3.css`) as a
+title screen ON the wood table instead of the black void — the `.start` container now carries the same
+`table-texture.svg` material plus an ember radial glow, an ember-accented Cinzel `<h1>` with forge-glow
+text-shadow, and the setup form re-skinned as a carved parchment/iron plaque (`.start-form`). Every
+control lost its default UA chrome: selects get `appearance: none` plus a CSS-drawn `▾` caret
+(`.select-wrap`), the number input's spinner buttons are removed, and the Herald checkbox is replaced
+visually by a CSS-drawn carved box + ember tick (`.check`/`.check-box`) while the real
+`#herald-enabled` input stays in the DOM (opacity 0, stretched over the box) so existing wiring and
+tests keep working unchanged. Added `scripts/shots-v3.mjs::auditControls`, a live-Playwright computed-
+style audit that fails the `shots:v3` run if any start-screen `select`/`input` still resolves to a
+non-`none` appearance, and `tests/v3/start-screen.test.ts` (6 jsdom tests: DOM structure + control ids
+survive, plus CSS-text guards for the wood-texture rule, the appearance-none rule, and the custom
+caret/tick affordances) so the deliverable is enforced by `npm run verify` even without the browser
+gate. 1239 tests passing (102 files, +5 net from the new suite). **Scope boundary:** only the start
+screen is touched — T-212 (event feed chronicle), T-213 (bequest parchment), and T-214 (full-serif body
+font) remain separate, still-open tasks; the primary `<button>` is intentionally exempted from the
+`appearance: none` requirement since it already reads as themed via its own gradient/border.
+Orchestration: graphify=start screen setup form difficulty select rendering in ui-v3 · attempts=1/4.
 
 ### T-212 · Event feed → diegetic chronicle — `status: TODO` · `coder: sonnet` · `after: T-206`
 Gate 1 fix (user, 2026-07-19): game events stack as web-alert bars. Restyle as a chronicle: one

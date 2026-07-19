@@ -265,6 +265,32 @@ async function auditFonts(page) {
 }
 
 /**
+ * T-211 accept criterion — the "appearance" half of the start-screen audit: no default-styled
+ * (UA-chromed) controls may be visible. Every start-screen `<select>` and `<input>` must compute
+ * `appearance: none` (its UA menulist arrow / number spinners / checkbox glyph stripped and replaced
+ * by the CSS-drawn caret/box). Scope is deliberately `select, input`: those are the widgets with
+ * visible UA chrome; the primary `<button>` reads as themed via its own gradient/border regardless of
+ * the `appearance` keyword, so it is not required to be `none`. Returns `{ bad: [...] }` listing any
+ * offender whose computed appearance is not `none`. jsdom cannot compute `appearance`, so this runs
+ * only in the real Playwright page (mirrored structurally by tests/v3/start-screen.test.ts).
+ */
+async function auditControls(page) {
+  return page.evaluate(() => {
+    const bad = [];
+    const root = document.querySelector('.start');
+    if (!root) return { bad: [{ tag: '(none)', cls: '', appearance: 'no .start found' }] };
+    for (const el of root.querySelectorAll('select, input')) {
+      const cs = getComputedStyle(el);
+      const appearance = cs.appearance || cs.webkitAppearance || 'auto';
+      if (appearance !== 'none') {
+        bad.push({ tag: el.tagName, cls: String(el.className), id: el.id, appearance });
+      }
+    }
+    return { bad };
+  });
+}
+
+/**
  * T-208 accept criterion — the carved chaos-star inlay must actually be present in the live board
  * DOM (not just faint scratches). jsdom-agnostic: runs in the real Playwright page. Returns
  * `{ present }` — the decorative `.star-inlay` rays AND the burned `.star-carve` fill both exist.
@@ -412,6 +438,8 @@ async function main() {
   // live mid-game board; both must load our faces and expose zero default-stack text nodes.
   let fontStart = null;
   let fontBoard = null;
+  // T-211: appearance audit — no default-styled (UA-chromed) controls on the start screen.
+  let controlsStart = null;
   // T-208: assert the carved chaos-star inlay is present on the live mid-game board.
   let starInlay = null;
   // T-209: track the fullest hand seen on a live mid-game board — a full 6-card hand must fit the
@@ -465,6 +493,8 @@ async function main() {
 
       // T-202: audit the start screen once (its <select>/<input> are the highest-risk default nodes).
       if (fontStart === null) fontStart = await auditFonts(page);
+      // T-211: audit the start-screen controls once — none may keep its default UA appearance.
+      if (controlsStart === null) controlsStart = await auditControls(page);
 
       // Configure the fixed-seed game and begin (competitive · 4p · warlord).
       await page.evaluate((s) => {
@@ -547,6 +577,20 @@ async function main() {
   }
   if (fontFailed) process.exit(1);
   console.log('font audit: every text node resolves to Cinzel/Inter; self-hosted faces loaded (start + board)');
+
+  // T-211 accept: the appearance audit must have run and found no default-styled control.
+  if (controlsStart === null) {
+    console.error('\nAPPEARANCE AUDIT FAILED — the start-screen control audit never ran.');
+    process.exit(1);
+  }
+  if (controlsStart.bad.length > 0) {
+    console.error(`\nAPPEARANCE AUDIT FAILED — ${controlsStart.bad.length} default-styled control(s) on the start screen:`);
+    for (const b of controlsStart.bad.slice(0, 20)) {
+      console.error(`  <${b.tag}> class="${b.cls}"${b.id ? ` id="${b.id}"` : ''} → appearance:"${b.appearance}"`);
+    }
+    process.exit(1);
+  }
+  console.log('appearance audit: every start-screen select/input computes appearance:none (no default UA widgets)');
 
   // T-208 accept: the carved chaos-star inlay must be present in the shots run.
   if (starInlay === null) {
