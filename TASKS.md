@@ -193,7 +193,7 @@ commands (`LAST_STAND_COMMIT`, `SET_BEQUEST`, `SET_WRAITH_INPUT`) are never issu
 are asserted absent rather than covered here — they remain the human-playtest checklist's
 responsibility, not this automated suite's.
 
-### T-103 · Animation queue + instant mode, wired into the render path — `status: TODO` · `coder: opus` · `after: T-101`
+### T-103 · Animation queue + instant mode, wired into the render path — `status: DONE` · `coder: opus` · `after: T-101`
 Create `src/ui-v3/queue.ts`: sequences a `Move[]` through GSAP timelines with per-move-type presets
 (placeholder tweens for now), and an **instant mode** that collapses playback to synchronous DOM
 settlement. Rewire `src/ui-v3/session.ts`/`view.ts` so every state change renders via
@@ -202,6 +202,23 @@ settlement. Rewire `src/ui-v3/session.ts`/`view.ts` so every state change render
 **Accept:** grep shows the old direct render call sites route through the queue; existing jsdom E2E
 tests pass unmodified in intent; a unit test proves instant mode settles synchronously; reduced-motion
 media query is honored (test via matchMedia stub).
+
+**Delivered (2026-07-18):** Added `src/ui-v3/queue.ts` — an `AnimationQueue` class that sequences a
+`Move[]` through GSAP timelines using a per-`MoveType` preset-duration table (a `Record<MoveType,
+number>` whose exhaustiveness is a compile-time `tsc` gate), then commits the DOM through a
+view-owned `settle` callback; instant mode (jsdom, no `window.matchMedia`, or a matching
+`prefers-reduced-motion: reduce`) settles synchronously with no timeline built, while animated mode
+serializes overlapping batches through a FIFO. `src/ui-v3/view.ts` was rewired so `mountView`'s
+`session.onChange` now diffs consecutive `observable()` snapshots via `diffObservable` and enqueues
+the result — `renderApp` is invoked only inside `settle`, called only by the queue; there is no
+direct re-render path left. `scripts/shots-v3.mjs` was updated to launch its Playwright context with
+`reducedMotion: 'reduce'` so the headless screenshot driver resolves the same instant-mode path and
+stays in lockstep with real game state. Added `tests/v3/queue.test.ts` covering synchronous instant
+settlement, reduced-motion mode selection via a `matchMedia` stub, and FIFO ordering of queued
+batches. Scope boundary: presets are placeholder fixed-duration holds on a dummy tween proxy, not
+real per-element card/piece/token animations — that work is explicitly left to later M-tasks; T-104
+(replay-test proof that no state change bypasses the queue) and T-105 (SoundManager) remain separate,
+not-yet-started follow-ons.
 
 ### T-104 · Replay test — "snap count 0" — `status: TODO` · `coder: sonnet` · `after: T-103`
 Add a vitest: for a full fixed-seed game, instant-mode playback of the accumulated move stream ends

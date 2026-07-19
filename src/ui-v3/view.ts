@@ -15,6 +15,8 @@
 
 import type { GameSession, Exposure } from './session.js';
 import { renderBoard, PLAYER_COLORS } from './board-view.js';
+import { AnimationQueue } from './queue.js';
+import { diffObservable } from './moves.js';
 import {
   TUNABLES,
   HERALD_RECRUIT_COST,
@@ -69,8 +71,19 @@ function territoryOf(s: ObservableState, idx: number): number {
 }
 
 export function mountView(root: HTMLElement, session: GameSession): void {
-  const render = (): void => { root.innerHTML = renderApp(session); };
-  session.onChange = render;
+  // The SINGLE render path: `renderApp(session)` is invoked ONLY here, inside `settle`, which is
+  // owned and called ONLY by the queue. Every state change routes `diffObservable` → queue →
+  // settle; there is no direct re-render call left. Instant mode (jsdom / prefers-reduced-motion)
+  // makes `enqueue` settle synchronously, preserving the E2E click-then-requery drive.
+  const settle = (): void => { root.innerHTML = renderApp(session); };
+  const queue = new AnimationQueue(settle, 'auto');
+
+  let prev = session.observable();
+  session.onChange = (): void => {
+    const next = session.observable();
+    queue.enqueue(diffObservable(prev, next));
+    prev = next; // advance bookkeeping synchronously at enqueue time (several onChange per action)
+  };
 
   root.addEventListener('click', (ev) => {
     const target = (ev.target as HTMLElement).closest('[data-action],[data-node]') as HTMLElement | null;
@@ -116,7 +129,8 @@ export function mountView(root: HTMLElement, session: GameSession): void {
     }
   });
 
-  render();
+  // Initial paint also routes through the queue (an empty diff → settle → first render).
+  queue.enqueue([]);
 }
 
 // ─── Top-level layout ─────────────────────────────────────────────

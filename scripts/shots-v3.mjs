@@ -210,7 +210,17 @@ async function main() {
   const pageUrl = new URL('index-v3.html', base).href;
 
   const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: 1 });
+  // Emulate `prefers-reduced-motion: reduce` so the v3 UI's AnimationQueue resolves to INSTANT mode
+  // (queue.ts `resolveMode()`): settlement is synchronous, so the deterministic click-then-requery
+  // ladder below stays in lockstep with real game state. This is the SAME accessibility path the
+  // design makes load-bearing (ROADMAP-V3.1-UI §3) — not a workaround. Without it, a real headless
+  // Chromium page reports `no-preference`, the queue plays animated holds, and `__shotsObserve()`
+  // reads mid/pre-commit DOM — the playthrough desyncs and never reaches the later screens.
+  const context = await browser.newContext({
+    viewport: VIEWPORT,
+    deviceScaleFactor: 1,
+    reducedMotion: 'reduce',
+  });
   await context.addInitScript(DRIVER_INIT);
   const page = await context.newPage();
 
