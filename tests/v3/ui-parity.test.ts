@@ -134,18 +134,23 @@ describe('UI parity (v3) — control surface for every action', () => {
 });
 
 describe('UI parity (v3) — P0-11 legibility + full state display', () => {
-  it('shows the persistent EXPOSURE meter (SAFE in Whisper)', () => {
+  // T-201 full HUD dissolution: the old standings TABLE + Exposure block were dissolved into four
+  // diegetic HOUSE PLAQUES (right rail). The information must remain — these tests verify the same
+  // data in its new home, not the old markup.
+  it('shows the persistent EXPOSURE band per house (SAFE in Whisper)', () => {
     const html = renderApp(humanTurn('competitive'));
-    expect(html).toContain('Exposure');
+    expect(html).toContain('plaque-exposure exp-safe'); // per-house exposure band
     expect(html).toContain('SAFE');
   });
 
-  it("publishes every seat's hand size + the clock + standings", () => {
+  it("publishes every seat's hand size + the clock + the four house plaques", () => {
     const html = renderApp(humanTurn('competitive'));
     expect(html).toContain('Your hand');
-    expect(html).toContain('class="standings"');
     expect(html).toMatch(/Round \d+\/\d+/);
-    expect(html).toContain('<th>Hand</th>');
+    // Four dissolved house plaques, each carrying that seat's hand-size chip (🂠 N).
+    expect((html.match(/class="house-plaque/g) ?? []).length).toBe(4);
+    expect(html).toContain('🂠'); // the hand-size chip icon
+    expect(html).toContain('Emberfall'); // house identity rendered (heraldry names)
   });
 
   it('shows the human Court panel (archetypes + seats)', () => {

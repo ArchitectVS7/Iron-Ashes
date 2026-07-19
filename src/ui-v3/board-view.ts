@@ -3,63 +3,103 @@
  * OBSERVABLE projection (§7 D2). Never reads full GameState: unflipped Discovery
  * tokens arrive already fogged (sigil only), so this layer cannot leak content.
  *
- * Concentric layout (ALGORITHM §2): Keystone at center, the 4 Approaches on an
- * inner ring (cardinals), the 4 Forges on a mid ring (diagonals), the 4 Keeps on
- * the outer cardinals, and the 4 Holdings on the outer diagonals. Each node shows
- * ownership, ash state, a per-node blightLevel pip ladder, any Court pieces /
- * Crown / dark forces present, a Discovery back-sigil while face-down, and the
- * dark's heart HP once it spawns at the Keystone. Pure: same state ⇒ same SVG.
+ * Layout (T-201): the 17 nodes are laid out as an 8-ray CHAOS-MAGIC STAR. Spokes run
+ * keystone → approach → forge on the DIAGONAL rays; the keeps sit on the CARDINAL rays
+ * (the forge → keep quarter-twist), and the holdings on the outer diagonals — so all 17
+ * nodes land on 8 rays {0,45,90,135,180,225,270,315}. The 8 full-length star rays +
+ * octagram are DECORATIVE table inlay only (`.star-inlay`, non-interactive); the true
+ * playable edges are drawn distinctly on top (`.edge`) straight from each node's real
+ * `connections`, so a decorative ray is never mistaken for an edge and no edge is omitted.
+ *
+ * Each node is an illustrated map LOCATION (dark throne / anvil-forge / castle-keep /
+ * hamlet-holding / road-approach) rather than a flat disc; an owned node shows the
+ * owner's HOUSE banner planted on it plus a heraldry-coloured ring. Ownership, ash state,
+ * a per-node blightLevel pip ladder, Court pieces / Crown / dark forces, a Discovery
+ * back-sigil while face-down, and the dark's heart HP are all preserved. Pure: same
+ * observable state ⇒ same SVG.
  */
 
 import type { ObservableState } from '../v3/index.js';
 import { BLIGHT_TO_ASH } from '../v3/tunables.js';
 
-export const PLAYER_COLORS = ['#3b82f6', '#ef4444', '#22c55e', '#eab308'];
+/**
+ * The four muted HOUSE heraldry colours (Gate 0.5, 2026-07-18) — tuned to the candlelit
+ * palette, never saturated web primaries. Seat order 0..3. Identity is shape+colour
+ * (each house also carries a sigil, below) so it survives colour-blindness.
+ *
+ * NOTE: seat 0 (Emberfall `#c15f2c`) is the human; `scripts/shots-v3.mjs` `HUMAN_COLOR`
+ * must match this exact lowercase hex — it detects rivals by comparing piece fills to it.
+ */
+export const PLAYER_COLORS = ['#c15f2c', '#8a93a3', '#2f7d5b', '#7a6aa0'];
+
+/** House identity table (name + sigil id) — parallel to PLAYER_COLORS by seat. */
+export interface House {
+  readonly name: string;
+  readonly sigil: 'flame' | 'spear' | 'raven' | 'crescent';
+}
+export const HOUSES: readonly House[] = [
+  { name: 'Emberfall', sigil: 'flame' },
+  { name: 'Greyspear', sigil: 'spear' },
+  { name: 'Ravenholt', sigil: 'raven' },
+  { name: 'Duskmere', sigil: 'crescent' },
+];
+
 const NEUTRAL = '#4b5563';
 const ASH = '#1f1014';
 
-const VIEW = 640;
+const VIEW = 720;
 const CX = VIEW / 2;
 const CY = VIEW / 2;
+const RIM = 338; // decorative star reaches to the rim, just inside the viewBox
 
 /** angle in degrees (0 = East, clockwise in screen space), radius in px. */
 interface Polar { angle: number; radius: number; }
 
-/** Fixed layout table — concentric rings keyed by the v3 node ids (§2). */
+/** The 8 ray angles carrying the chaos-magic star (N=270, E=0, S=90, W=180 + diagonals). */
+const RAY_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
+
+/**
+ * Fixed 8-ray-star layout keyed by the real v3 node ids (`data/board.json`). Diagonal rays
+ * carry approach → forge → holding; cardinal rays carry the keeps. Every id lands on a ray.
+ */
 const LAYOUT: Record<string, Polar> = {
   keystone: { angle: 0, radius: 0 },
 
-  'approach-n': { angle: 270, radius: 90 },
-  'approach-e': { angle: 0, radius: 90 },
-  'approach-s': { angle: 90, radius: 90 },
-  'approach-w': { angle: 180, radius: 90 },
+  'approach-nw': { angle: 225, radius: 95 },
+  'approach-ne': { angle: 315, radius: 95 },
+  'approach-se': { angle: 45, radius: 95 },
+  'approach-sw': { angle: 135, radius: 95 },
 
-  'forge-ne': { angle: 315, radius: 165 },
-  'forge-se': { angle: 45, radius: 165 },
-  'forge-sw': { angle: 135, radius: 165 },
-  'forge-nw': { angle: 225, radius: 165 },
+  'forge-nw': { angle: 225, radius: 190 },
+  'forge-ne': { angle: 315, radius: 190 },
+  'forge-se': { angle: 45, radius: 190 },
+  'forge-sw': { angle: 135, radius: 190 },
 
-  'keep-n': { angle: 270, radius: 265 },
-  'keep-e': { angle: 0, radius: 265 },
-  'keep-s': { angle: 90, radius: 265 },
-  'keep-w': { angle: 180, radius: 265 },
+  'holding-nw': { angle: 225, radius: 288 },
+  'holding-ne': { angle: 315, radius: 288 },
+  'holding-se': { angle: 45, radius: 288 },
+  'holding-sw': { angle: 135, radius: 288 },
 
-  'holding-ne': { angle: 315, radius: 265 },
-  'holding-se': { angle: 45, radius: 265 },
-  'holding-sw': { angle: 135, radius: 265 },
-  'holding-nw': { angle: 225, radius: 265 },
+  'keep-n': { angle: 270, radius: 268 },
+  'keep-e': { angle: 0, radius: 268 },
+  'keep-s': { angle: 90, radius: 268 },
+  'keep-w': { angle: 180, radius: 268 },
 };
 
 interface Point { x: number; y: number; }
 
+function polarPoint(angle: number, radius: number): Point {
+  const rad = (angle * Math.PI) / 180;
+  return { x: CX + radius * Math.cos(rad), y: CY + radius * Math.sin(rad) };
+}
+
 function pos(nodeId: string): Point {
   const p = LAYOUT[nodeId] ?? { angle: 0, radius: 0 };
-  const rad = (p.angle * Math.PI) / 180;
-  return { x: CX + p.radius * Math.cos(rad), y: CY + p.radius * Math.sin(rad) };
+  return polarPoint(p.angle, p.radius);
 }
 
 const NODE_R: Record<string, number> = {
-  keystone: 38, approach: 24, forge: 28, keep: 30, holding: 24,
+  keystone: 40, approach: 24, forge: 30, keep: 32, holding: 26,
 };
 
 function esc(s: string): string {
@@ -71,13 +111,96 @@ const ARCH_GLYPH: Record<string, string> = {
   warlord: '♟', marshal: '⚔', steward: '⚖', herald: '✉',
 };
 
+/**
+ * House sigil as SVG path markup drawn in a 0..24 box (recolour via CSS `currentColor`).
+ * Exported so the HUD house plaques and the on-board planted banners share one source.
+ */
+export function houseSigilPath(sigil: House['sigil']): string {
+  switch (sigil) {
+    case 'flame': // Emberfall — a teardrop flame
+      return '<path d="M12 2c3 4 5 6 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3-1-3 0-6 1-9z" />';
+    case 'spear': // Greyspear — a vertical spear
+      return '<path d="M12 2l3 5h-2v13h-2V7H9z" />';
+    case 'raven': // Ravenholt — a bird in flight (chevron wings + body)
+      return '<path d="M12 8c2-3 5-4 9-4-3 2-3 3-5 4 2 0 3 1 4 2-3 0-5 0-8 3-3-3-5-3-8-3 1-1 2-2 4-2-2-1-2-2-5-4 4 0 7 1 9 4z" />';
+    case 'crescent': // Duskmere — a crescent moon
+      return '<path d="M16 3a9 9 0 1 0 0 18 7 7 0 0 1 0-18z" />';
+  }
+}
+
+/** A full standalone sigil SVG for the HUD plaques (coloured by `color`). */
+export function houseSigilSvg(seat: number, size: number, color: string): string {
+  const house = HOUSES[seat];
+  if (!house) return '';
+  return `<svg class="sigil-svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}" aria-hidden="true">${houseSigilPath(house.sigil)}</svg>`;
+}
+
+/** Illustrated map location per tier, centred at the node origin, scaled to radius `r`. */
+function locationSvg(tier: string, r: number): string {
+  const s = r / 24; // the primitives below are authored in a ~24px box
+  const g = (inner: string): string => `<g class="loc loc-${tier}" transform="scale(${s.toFixed(3)})">${inner}</g>`;
+  switch (tier) {
+    case 'keystone': // the dark throne
+      return g(`<path class="loc-fill" d="M-14 14h28l-3-8h-4l2-16h-6l-1 6h-4l-1-6h-6l2 16h-4z" />
+        <path class="loc-line" d="M-11 14h22" />`);
+    case 'forge': // an anvil with an ember glow
+      return g(`<circle class="loc-glow" cx="0" cy="2" r="11" />
+        <path class="loc-fill" d="M-11 -3h16c0 3-2 4-4 4h-3l6 8h-8l-5-8h-2z" />
+        <rect class="loc-fill" x="-4" y="9" width="8" height="4" />`);
+    case 'keep': // a crenellated castle
+      return g(`<path class="loc-fill" d="M-13 -4h3v-4h3v4h2v-4h3v4h3v-4h3v4h3v18h-23z" />
+        <rect class="loc-line" x="-3" y="4" width="6" height="10" />`);
+    case 'holding': // a hamlet cottage
+      return g(`<path class="loc-fill" d="M0 -12l13 10h-3v12h-20v-12h-3z" />
+        <rect class="loc-line" x="-4" y="2" width="8" height="8" />`);
+    case 'approach': // a road waypoint / signpost
+      return g(`<path class="loc-line" d="M-1 -13h2v26h-2z" />
+        <path class="loc-fill" d="M1 -12h12l-3 4 3 4h-12z" />`);
+    default:
+      return '';
+  }
+}
+
+/** A planted house banner (pole + pennant + sigil) for an owned, non-ashed node. */
+function claimBanner(seat: number, r: number): string {
+  const color = PLAYER_COLORS[seat] ?? NEUTRAL;
+  // Perch the banner on the node's upper-left shoulder so it clears pieces/crown at the top.
+  return `<g class="claim-banner" transform="translate(${(-r - 2).toFixed(1)},${(-r - 6).toFixed(1)})">
+    <line class="banner-pole" x1="0" y1="4" x2="0" y2="24" />
+    <path class="banner-flag" d="M0 4h15l-4 4 4 4H0z" fill="${color}" />
+    <g transform="translate(1.5,4) scale(0.42)" fill="#1a1206">${houseSigilPath(HOUSES[seat]?.sigil ?? 'flame')}</g>
+  </g>`;
+}
+
 /** Build the full board SVG markup from the observable projection. */
 export function renderBoard(state: ObservableState): string {
   const def = state.board.definition;
   const nodes = state.board.state.nodes;
   const heart = state.shadowking.heart;
 
-  // ── Edges (dedup undirected pairs) ──
+  // ── Decorative chaos-magic star inlay (table marquetry — NOT playable edges) ──
+  const rim = RAY_ANGLES.map(a => polarPoint(a, RIM));
+  let inlay = '';
+  // 8 full-length rays from the centre to the rim.
+  for (const p of rim) {
+    inlay += `<line x1="${CX}" y1="${CY}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" class="star-inlay ray" />`;
+  }
+  // Outer octagon linking the rim points.
+  const octagon = rim.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  inlay += `<polygon points="${octagon}" class="star-inlay octagon" />`;
+  // The {8/3} interlaced octagram — the classic chaos-star silhouette: walk the 8 rim
+  // points advancing by 3 each step so the single closed path crosses itself as a star.
+  let star = '';
+  let idx = 0;
+  for (let step = 0; step < 8; step++) {
+    const p = rim[idx];
+    star += `${step === 0 ? 'M' : 'L'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+    idx = (idx + 3) % 8;
+  }
+  star += 'Z';
+  inlay += `<path d="${star}" class="star-inlay octagram" />`;
+
+  // ── Real playable edges (dedup undirected pairs), drawn distinctly ON TOP ──
   const seen = new Set<string>();
   let edges = '';
   for (const [id, ndef] of Object.entries(def.nodes)) {
@@ -98,19 +221,28 @@ export function renderBoard(state: ObservableState): string {
     const ns = nodes[id];
     const r = NODE_R[ndef.tier] ?? 24;
     const owner = ns.owner;
+    const owned = owner !== null && !ns.ashed;
     const isHeart = heart !== null && heart.nodeId === id;
-    const fill = ns.ashed ? ASH : owner === null ? NEUTRAL : PLAYER_COLORS[owner] ?? NEUTRAL;
-    const cls = `node node-${ndef.tier}${ns.ashed ? ' ashed' : ''}${isHeart ? ' heart' : ''}`;
+    const color = owner !== null ? (PLAYER_COLORS[owner] ?? NEUTRAL) : NEUTRAL;
+    const cls = `node node-${ndef.tier}${ns.ashed ? ' ashed' : ''}${isHeart ? ' heart' : ''}${owned ? ' owned' : ''}`;
 
     circles += `<g class="node-group" data-node="${id}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})">`;
-    circles += `<circle r="${r}" class="${cls}" fill="${fill}" />`;
+    circles += `<title>${esc(id)} — ${esc(ndef.tier)}${owner !== null ? ` · ${esc(HOUSES[owner]?.name ?? `P${owner + 1}`)}` : ' · unclaimed'}${ns.ashed ? ' · ASHED' : ''}</title>`;
 
-    // Tier glyph / short label
-    circles += `<text class="node-label" y="4">${esc(tierGlyph(ndef.tier))}</text>`;
+    // Base stone disc (fill via CSS; ashed/heart handled by class). Illustration sits on top.
+    circles += `<circle r="${r}" class="${cls}"${ns.ashed ? ` fill="${ASH}"` : ''} />`;
+    // Heraldry ownership tint + ring (never a flat primary-coloured disc).
+    if (owned) {
+      circles += `<circle r="${r}" class="owner-tint" fill="${color}" />`;
+      circles += `<circle r="${(r + 3).toFixed(1)}" class="owner-ring" fill="none" stroke="${color}" />`;
+    }
+
+    // Illustrated map location.
+    circles += locationSvg(ndef.tier, r * 0.82);
 
     // The dark's heart HP track (once it spawns at Reckoning).
     if (isHeart && heart) {
-      circles += `<text x="0" y="${r + 16}" class="heart-hp">♥ ${heart.hp}${heart.exposed ? '' : ' (broken)'}</text>`;
+      circles += `<text x="0" y="${r + 18}" class="heart-hp">♥ ${heart.hp}${heart.exposed ? '' : ' (broken)'}</text>`;
     }
 
     // Discovery back-sigil while face-down (fog-respecting: sigil only, §7 D2).
@@ -129,6 +261,7 @@ export function renderBoard(state: ObservableState): string {
     }
 
     // Court pieces present (warlord / marshal / steward / herald), laid in a row above.
+    // NOTE: these `circle.piece` fills are how the shots driver detects rivals — keep them.
     const pieces = ns.pieces;
     const n = pieces.length;
     pieces.forEach((pc, i) => {
@@ -140,6 +273,11 @@ export function renderBoard(state: ObservableState): string {
       if (crown) circles += `<text x="${px.toFixed(1)}" y="${-r - 17}" class="crown-glyph">♛</text>`;
     });
 
+    // Planted house banner for an owned node.
+    if (owned && owner !== null) {
+      circles += claimBanner(owner, r);
+    }
+
     // Dark forces present?
     if (ns.shadowkingForces.length > 0) {
       circles += `<text x="${r - 4}" y="${-r + 6}" class="dk-glyph">☠</text>`;
@@ -148,16 +286,5 @@ export function renderBoard(state: ObservableState): string {
     circles += `</g>`;
   }
 
-  return `<svg viewBox="0 0 ${VIEW} ${VIEW}" class="board-svg" xmlns="http://www.w3.org/2000/svg">${edges}${circles}</svg>`;
-}
-
-function tierGlyph(tier: string): string {
-  switch (tier) {
-    case 'keystone': return '◆';
-    case 'forge': return '⚒';
-    case 'keep': return '⌂';
-    case 'approach': return '⛬';
-    case 'holding': return '▢';
-    default: return '';
-  }
+  return `<svg viewBox="0 0 ${VIEW} ${VIEW}" class="board-svg" xmlns="http://www.w3.org/2000/svg">${inlay}${edges}${circles}</svg>`;
 }

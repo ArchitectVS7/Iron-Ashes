@@ -65,7 +65,7 @@ const SCREENS = [
 // scenes), while co-location surfaces the capture election and captures feed the ransom scene.
 const DRIVER_INIT = `
 (() => {
-  const HUMAN_COLOR = '#3b82f6'; // seat 0 = the human (blue) — rivals are any other piece fill
+  const HUMAN_COLOR = '#c15f2c'; // seat 0 = the human (House Emberfall ember-orange) — rivals are any other piece fill
   const st = { step: 0, lastRound: -1, nonPass: 0 };
   window.__shotsDriver = st;
 
@@ -193,6 +193,27 @@ function parseArgs(argv) {
   return { out };
 }
 
+/**
+ * T-201 accept criterion — verify the board is the LARGEST top-level region of the table stage.
+ * jsdom has no layout engine, so this must run in the real Playwright page. Returns null if the
+ * stage/board is not present yet (caller retries), else `{ ok, boardArea, others }`.
+ */
+async function measureBoardDominance(page) {
+  return page.evaluate(() => {
+    const stage = document.querySelector('.table-stage');
+    if (!stage) return null;
+    const board = stage.querySelector(':scope > .board-region');
+    if (!board) return null;
+    const area = (el) => { const r = el.getBoundingClientRect(); return r.width * r.height; };
+    const boardArea = area(board);
+    const others = Array.from(stage.children)
+      .filter((el) => el !== board)
+      .map((el) => ({ cls: el.className || el.tagName, area: Math.round(area(el)) }));
+    const ok = boardArea > 0 && others.every((o) => boardArea > o.area);
+    return { ok, boardArea: Math.round(boardArea), others };
+  });
+}
+
 async function main() {
   const { out } = parseArgs(process.argv.slice(2));
   const outDir = resolve(process.cwd(), out);
@@ -226,6 +247,7 @@ async function main() {
 
   const needed = new Set(SCREENS.map((s) => s.key));
   const captured = new Set();
+  let dominance = null; // T-201: measured once the board layout is live
 
   const captureIfNeeded = async (sigs) => {
     for (const screen of SCREENS) {
@@ -271,12 +293,16 @@ async function main() {
         document.getElementById('start-btn')
           .dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
       }, seed);
-      await page.waitForSelector('.layout', { timeout: 15000 });
+      await page.waitForSelector('.table-stage', { timeout: 15000 });
 
       // Drive the game, screenshotting each still-needed screen on first sighting.
       for (let i = 0; i < STEP_CAP && needed.size > 0; i++) {
         const obs = await page.evaluate(() => window.__shotsObserve());
         await captureIfNeeded(obs.sigs);
+        // Measure board dominance once the mid-game board layout is live (round >= 2).
+        if (dominance === null && obs.round >= 2) {
+          dominance = await measureBoardDominance(page);
+        }
         if (needed.size === 0 || obs.over) break;
         const clicked = await page.evaluate(() => window.__shotsStep());
         if (clicked === null) break; // no progress possible — move to the next seed
@@ -286,6 +312,19 @@ async function main() {
     await browser.close();
     await server.close();
   }
+
+  // T-201 accept: the board must be the largest top-level region of the table stage.
+  if (dominance === null) {
+    console.error('\nboard-dominance assertion never ran (no live board layout at round >= 2)');
+    process.exit(1);
+  }
+  if (!dominance.ok) {
+    console.error('\nBOARD-DOMINANCE FAILED — board is not the largest top-level region.');
+    console.error(`  board area: ${dominance.boardArea}px²`);
+    for (const o of dominance.others) console.error(`  ${o.cls}: ${o.area}px²`);
+    process.exit(1);
+  }
+  console.log(`board dominates: ${dominance.boardArea}px² > [${dominance.others.map((o) => o.area).join(', ')}]`);
 
   if (needed.size === 0) {
     console.log(`\ncaptured ${captured.size}/${SCREENS.length} screens → ${outDir}`);

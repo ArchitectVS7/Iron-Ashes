@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <!--
+    Seamless dark-wood table surface, self-authored for Iron Throne of Ashes (T-201).
+    License: CC0-1.0 (public domain dedication). Credited in docs/CREDITS.md.
+    Procedural: stitched feTurbulence grain over an aged-oak base, with plank seams.
+    stitchTiles="stitch" makes the noise tile seamlessly when background-repeat'd.
+  -->
+  <defs>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.010 0.16" numOctaves="5"
+                    stitchTiles="stitch" seed="17" result="n"/>
+      <feColorMatrix in="n" type="matrix"
+        values="0 0 0 0 0.09
+                0 0 0 0 0.06
+                0 0 0 0 0.04
+                0 0 0 0.9 0" result="grain"/>
+    </filter>
+    <filter id="fleck" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"
+                    stitchTiles="stitch" seed="4" result="n"/>
+      <feColorMatrix in="n" type="matrix"
+        values="0 0 0 0 0.16
+                0 0 0 0 0.11
+                0 0 0 0 0.07
+                0 0 0 0.25 0"/>
+    </filter>
+  </defs>
+
+  <!-- Aged-oak base -->
+  <rect width="256" height="256" fill="#231913"/>
+  <!-- Long-grain wood streaks -->
+  <rect width="256" height="256" filter="url(#grain)"/>
+  <!-- Fine speckle for tooth -->
+  <rect width="256" height="256" filter="url(#fleck)" opacity="0.5"/>
+
+  <!-- Plank seams (tile edges kept dark so repeats read as boards) -->
+  <g stroke="#160f0b" stroke-width="2" opacity="0.7">
+    <line x1="0" y1="0.5" x2="256" y2="0.5"/>
+    <line x1="0" y1="128" x2="256" y2="128"/>
+    <line x1="0" y1="255.5" x2="256" y2="255.5"/>
+  </g>
+  <g stroke="#3a2a1e" stroke-width="1" opacity="0.35">
+    <line x1="0" y1="2" x2="256" y2="2"/>
+    <line x1="0" y1="129.5" x2="256" y2="129.5"/>
+  </g>
+</svg>

@@ -14,7 +14,7 @@
  */
 
 import type { GameSession, Exposure } from './session.js';
-import { renderBoard, PLAYER_COLORS } from './board-view.js';
+import { renderBoard, PLAYER_COLORS, HOUSES, houseSigilSvg } from './board-view.js';
 import { AnimationQueue } from './queue.js';
 import { SoundManager } from './sound.js';
 import { diffObservable } from './moves.js';
@@ -140,25 +140,33 @@ export function mountView(root: HTMLElement, session: GameSession): void {
 
 export function renderApp(session: GameSession): string {
   const s = session.observable();
+  // FULL diegetic dissolution (Gate 0.5): NO persistent status column. The board is centre-stage
+  // on the textured table; every datum the old side-pane showed now lives in edge HUD regions —
+  // a top turn ribbon, four house plaques (right), the human's realm plaques (left), and a
+  // bottom action tray. Zero information loss: each renderer below is still called exactly once.
   return `
     ${renderGambitBanner(s)}
-    <div class="layout">
-      <div class="board-pane">${renderBoard(s)}</div>
-      <aside class="side-pane">
-        ${renderHeader(s)}
-        ${renderExposureMeter(session, s)}
-        ${renderStandings(s, session.humanIndex)}
+    <div class="table-stage">
+      ${renderHeader(s)}
+      <div class="hud hud-realm">
+        <div class="realm-title">Your Realm</div>
         ${renderCourt(s, session.humanIndex)}
-        ${renderHoldRail(s)}
         ${renderHand(s, session.humanIndex)}
-        ${renderPanel(session, s)}
+        ${renderHoldRail(s)}
         ${renderOaths(s)}
         ${renderLedger(s)}
         ${renderWraiths(s)}
         ${renderSuspicion(s, session.humanIndex)}
         ${renderAudits(s, session.humanIndex)}
+      </div>
+      <div class="board-region">${renderBoard(s)}</div>
+      <div class="hud hud-houses">
+        ${renderHousePlaques(session, s)}
+      </div>
+      <div class="hud-tray">
+        ${renderPanel(session, s)}
         ${renderNarration(session)}
-      </aside>
+      </div>
     </div>`;
 }
 
@@ -180,55 +188,60 @@ function renderHeader(s: ObservableState): string {
     </div>`;
 }
 
-/** Persistent per-player EXPOSURE METER (§13 P0-11): SAFE / can-lose-land / can-be-DEPOSED. */
-function renderExposureMeter(session: GameSession, s: ObservableState): string {
-  const rows = s.players.map(p => {
-    const level = session.exposure(p.index);
-    const you = p.index === session.humanIndex ? ' (you)' : '';
-    return `<span class="exp exp-${level}" title="${esc(EXPOSURE_LABEL[level])}"><span class="dot" style="background:${PLAYER_COLORS[p.index]}"></span>P${p.index + 1}${you}: ${EXPOSURE_LABEL[level]}</span>`;
-  }).join('');
+/**
+ * The four HOUSE PLAQUES (Gate 0.5 full dissolution) — the old standings table + the persistent
+ * per-player EXPOSURE meter (§13 P0-11), dissolved into one diegetic heraldry plaque per house.
+ * Zero information loss: land / ⚑banners / hand / living court as token chips, every state tag,
+ * and the SAFE / can-lose-land / can-be-DEPOSED exposure band, all per house.
+ */
+function renderHousePlaques(session: GameSession, s: ObservableState): string {
+  const human = session.humanIndex;
   const note = s.act === 'WHISPER'
     ? 'Whisper protects every last stronghold — no one can be deposed yet.'
-    : 'The dark can DEPOSE: a Warlord who loses its last stronghold falls at Dawn.';
-  return `<div class="info-block exposure-meter">
-    <div class="block-title">Exposure</div>
-    <div class="exp-row">${rows}</div>
-    <div class="hint">${note}</div>
-  </div>`;
-}
+    : 'The dark can DEPOSE a Warlord who loses its last stronghold — it falls at Dawn.';
 
-function renderStandings(s: ObservableState, human: number): string {
-  const rows = s.players.map(p => {
-    const color = PLAYER_COLORS[p.index];
+  const plaques = s.players.map(p => {
+    const color = PLAYER_COLORS[p.index] ?? '#888';
+    const house = HOUSES[p.index];
+    const level = session.exposure(p.index);
+    const isYou = p.index === human;
+
     const tags: string[] = [];
-    if (p.crownHeld) tags.push('<span class="tag crown">♛</span>');
+    if (p.crownHeld) tags.push('<span class="tag crown" title="holds the Crown">♛</span>');
     if (p.isEliminated) tags.push('<span class="tag broken">Eliminated</span>');
     else if (p.deposed) tags.push('<span class="tag wounds" title="flagged for deposal at Dawn">deposed</span>');
-    tags.push(p.stance === 'political' ? '<span class="tag stance">🕊</span>' : '<span class="tag stance">⚔</span>');
+    tags.push(p.stance === 'political' ? '<span class="tag stance" title="political build">🕊</span>' : '<span class="tag stance" title="martial build">⚔</span>');
     const oath = findOath(s.oaths, p.index);
-    if (oath) tags.push(`<span class="tag oath" title="sworn">⛓P${oathPartner(oath, p.index) + 1}</span>`);
+    if (oath) tags.push(`<span class="tag oath" title="sworn oath">⛓P${oathPartner(oath, p.index) + 1}</span>`);
     const g = s.shadowking.grudge[p.index] ?? 0;
     if (g > 0) tags.push(`<span class="tag grudge" title="the dark's Ledger — hunted">☠${g}</span>`);
     // Only surface the traitor flag for the human's OWN seat (never leak rivals' secret, §7 D2).
-    if (p.index === human && p.hasBloodPact) tags.push('<span class="tag grudge" title="you hold the Blood Pact">traitor</span>');
-    if (p.index === human) tags.push('<span class="tag you">You</span>');
+    if (isYou && p.hasBloodPact) tags.push('<span class="tag grudge" title="you hold the Blood Pact">traitor</span>');
+
+    const warlordName = p.court.find(c => c.archetype === 'warlord')?.name;
     const living = p.court.filter(c => c.captiveOf === null).length;
-    const faction = p.court.find(c => c.archetype === 'warlord')?.name;
-    return `
-      <tr class="${p.isEliminated ? 'dead' : ''}">
-        <td><span class="dot" style="background:${color}"></span>P${p.index + 1}${faction ? ` <small class="faction">${esc(faction)}</small>` : ''}</td>
-        <td>${territoryOf(s, p.index)}</td>
-        <td>${p.banners}</td>
-        <td>${p.hand.length}</td>
-        <td>${living}</td>
-        <td class="tags">${tags.join(' ')}</td>
-      </tr>`;
+
+    return `<div class="house-plaque${isYou ? ' you' : ''}${p.isEliminated ? ' dead' : ''}" style="--house:${color}"
+        title="${esc(house?.name ?? `P${p.index + 1}`)}${isYou ? ' (you)' : ''}${warlordName ? ` · Warlord ${esc(warlordName)}` : ''} — ${esc(EXPOSURE_LABEL[level])}">
+      <div class="plaque-crest">${houseSigilSvg(p.index, 22, color)}</div>
+      <div class="plaque-body">
+        <div class="plaque-name">${esc(house?.name ?? `Player ${p.index + 1}`)}<small> P${p.index + 1}${isYou ? ' · you' : ''}</small></div>
+        ${warlordName ? `<div class="plaque-warlord">${esc(warlordName)}</div>` : ''}
+        <div class="chips">
+          <span class="chip" title="living land (holdings/keeps + weighted forges)">🏰 ${territoryOf(s, p.index)}</span>
+          <span class="chip" title="banners (the ⚑ resource)">⚑ ${p.banners}</span>
+          <span class="chip" title="cards in hand">🂠 ${p.hand.length}</span>
+          <span class="chip" title="living court retainers">⚔ ${living}</span>
+        </div>
+        <div class="plaque-tags">${tags.join(' ')}</div>
+        <div class="plaque-exposure exp-${level}" title="${esc(EXPOSURE_LABEL[level])}">${EXPOSURE_LABEL[level]}</div>
+      </div>
+    </div>`;
   }).join('');
-  return `
-    <table class="standings">
-      <thead><tr><th>Warlord</th><th>Land</th><th>⚑</th><th>Hand</th><th>Court</th><th>State</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
+
+  return `<div class="houses-title">The Warlords</div>
+    ${plaques}
+    <div class="hint houses-note">${note}</div>`;
 }
 
 /** The human's Court — names first (§2: names are state), archetype + node + the identity line. */

@@ -284,7 +284,7 @@ assertion awaits the `T-106: M1 close — DoD` commit.
 
 ## M2 — Theme foundation ("stop looking like a spreadsheet")
 
-### T-201 · Board-centric layout on a textured table — `status: TODO` · `coder: opus` · `after: T-106`
+### T-201 · Board-centric layout on a textured table — `status: DONE` · `coder: opus` · `after: T-106`
 Restructure the v3 layout: board center-stage on a committed CC0 table-surface texture; dissolve the
 right-hand status column into diegetic HUD regions at the edges (banners/plaques/ribbons). Keep all
 existing verbs reachable. Add the texture asset + credit to `docs/CREDITS.md` (create it).
@@ -303,6 +303,25 @@ twist) are drawn distinctly on top — never render a playable-looking line wher
 **Accept:** a Playwright assertion in `shots-v3.mjs` (or a sibling check) verifies the board element's
 bounding box is the largest top-level region; the table texture is a repo asset referenced from CSS;
 `docs/CREDITS.md` exists with the entry; jsdom E2E + `npm run shots:v3` green.
+**Delivered (2026-07-18):** the 17 real board nodes (from `data/board.json`) now render on an 8-ray
+chaos-magic star (`src/ui-v3/board-view.ts`), diagonals carrying keystone→approach→forge→holding and
+cardinals carrying the keeps, with the 8 full-length rays drawn as non-interactive decorative table
+inlay and the true playable edges drawn distinctly on top from each node's real `connections` — no
+decorative ray is ever mistaken for an edge. Player identity moved to four muted house-heraldry
+colors + sigils (Emberfall/Greyspear/Ravenholt/Duskmere) replacing the old saturated web-primary
+`PLAYER_COLORS`, and owned nodes render as illustrated map locations with a planted house banner. The
+old `.layout` (board-pane + right-hand `.side-pane`) is gone from `view.ts`: the board is now
+centre-stage on a self-authored, CC0-licensed procedural wood-grain table texture
+(`src/ui-v3/assets/table-texture.svg`, credited in the new `docs/CREDITS.md`), with every datum the
+old side-pane held redistributed into diegetic edge HUD regions — a top turn ribbon/header, a left
+"Your Realm" HUD (court/hand/holdings/oaths/ledger/wraiths/suspicion/audits), four right-hand house
+plaques (heraldry crest + territory/banners/hand/court chips + tags + exposure band, replacing the
+old standings table and persistent exposure meter with zero information loss), and a bottom action
+tray — with `scripts/shots-v3.mjs` now asserting via Playwright that the board region is the largest
+top-level child of the table stage. **Scope boundary:** self-hosting the display/body fonts (still
+CDN Cinzel/Inter, flagged in `docs/CREDITS.md`) and turning the new plaque/chip stats into full
+`TokenChip`/gauge components are deliberately left to T-202/T-203 per the roadmap's task split — this
+task closes the board-centric layout and diegetic-HUD dissolution only.
 
 ### T-202 · Typography + palette system — `status: TODO` · `coder: sonnet` · `after: T-201`
 Self-host a thematic display font and a readable body font (OFL-licensed, committed with their license

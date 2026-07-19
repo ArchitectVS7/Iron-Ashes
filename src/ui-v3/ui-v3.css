@@ -43,20 +43,93 @@ h1 { font-family: 'Cinzel', serif; letter-spacing: 1px; }
 .start-form select, .start-form input { background: var(--panel-2); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px; font-size: 15px; }
 .note { color: var(--muted); font-size: 13px; max-width: 420px; }
 
-/* ── Layout ── */
-.layout { display: flex; height: 100vh; }
-.board-pane { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; padding: 16px; min-width: 0; }
-.side-pane { flex: 0 0 400px; background: var(--panel); border-left: 1px solid var(--line); padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+/* ── The table stage (board centre-stage on a textured wood surface; edges hold the HUD) ── */
+.table-stage {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 264px minmax(0, 1fr) 264px;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "top    top    top"
+    "realm  board  houses"
+    "tray   tray   tray";
+  gap: 8px;
+  padding: 8px;
+  /* Committed CC0 wood texture (see docs/CREDITS.md) over a candlelit warm base. */
+  background-color: #1a120c;
+  background-image:
+    radial-gradient(ellipse 70% 60% at 50% 42%, rgba(232, 134, 58, 0.10), rgba(0, 0, 0, 0) 60%),
+    url('./assets/table-texture.svg');
+  background-repeat: no-repeat, repeat;
+  background-size: cover, 256px 256px;
+}
+
+.header { grid-area: top; }
+.hud-realm { grid-area: realm; }
+.board-region { grid-area: board; }
+.hud-houses { grid-area: houses; }
+.hud-tray { grid-area: tray; }
+
+/* The board wrapper — the largest top-level region (asserted by shots:v3). */
+.board-region {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  filter: drop-shadow(0 8px 22px rgba(0, 0, 0, 0.55));
+}
+
+/* Edge HUD rails — diegetic plaque stacks, never a flat status column. */
+.hud {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 2px;
+}
+.hud-tray {
+  max-height: 26vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
 /* ── Board ── */
-.board-svg { width: 100%; height: 100%; max-height: 96vh; }
-.edge { stroke: #34303a; stroke-width: 2; }
-.node { stroke: #000; stroke-width: 2; cursor: default; }
+.board-svg { width: 100%; height: 100%; max-height: 92vh; }
+
+/* Decorative chaos-magic star inlay — table marquetry, NOT playable edges. */
+.star-inlay { fill: none; pointer-events: none; stroke: #6a4a2a; }
+.star-inlay.ray { stroke-width: 1; opacity: 0.14; }
+.star-inlay.octagon { stroke-width: 1.5; opacity: 0.16; }
+.star-inlay.octagram { stroke-width: 1; opacity: 0.10; }
+
+/* Real playable edges — lit iron tracks drawn distinctly on top of the inlay. */
+.edge { stroke: #7a6a52; stroke-width: 3; stroke-linecap: round; opacity: 0.85; }
+
+.node { fill: #2f2820; stroke: #0c0908; stroke-width: 2; cursor: default; }
 .node-group { cursor: pointer; }
 .node.ashed { stroke: #3a2128; opacity: 0.7; }
-.node-keystone { stroke: var(--accent); stroke-width: 3; }
+.node-keystone { fill: #201a24; stroke: var(--accent); stroke-width: 2.5; }
 .node.heart { stroke: var(--danger); stroke-width: 4; }
-.node-label { fill: #fff; font-size: 18px; text-anchor: middle; pointer-events: none; }
+.owner-tint { opacity: 0.22; pointer-events: none; }
+.owner-ring { stroke-width: 3; opacity: 0.9; pointer-events: none; }
+
+/* Illustrated map locations. */
+.loc { pointer-events: none; }
+.loc-fill { fill: #d8c7a6; stroke: #1a120b; stroke-width: 1; stroke-linejoin: round; }
+.loc-line { fill: none; stroke: #1a120b; stroke-width: 1.5; }
+.loc-keystone .loc-fill { fill: #6e5a86; }
+.loc-forge .loc-glow { fill: #e8863a; opacity: 0.35; }
+.loc-approach .loc-fill { fill: #cdbb96; }
+
+/* Planted house banner (claims). */
+.claim-banner { pointer-events: none; }
+.banner-pole { stroke: #d8c7a6; stroke-width: 1.5; }
+.banner-flag { stroke: #1a120b; stroke-width: 0.75; }
+
 .pip { stroke: #000; stroke-width: 0.5; }
 .pip-on { fill: #e0552b; }
 .pip-off { fill: #3a3340; }
@@ -69,16 +142,53 @@ h1 { font-family: 'Cinzel', serif; letter-spacing: 1px; }
 .sigil-bright { fill: #fde68a; }
 .sigil-dark { fill: #a855f7; }
 
-/* ── Header / standings ── */
-.header { border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+/* ── Header — the top TURN RIBBON (round / act / phase + the dark's will) ── */
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 18px;
+  padding: 8px 16px;
+  background: linear-gradient(180deg, rgba(43, 36, 32, 0.92), rgba(23, 20, 26, 0.92));
+  border: 1px solid #3a2f26;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(232, 220, 195, 0.06), 0 3px 8px rgba(0, 0, 0, 0.4);
+}
 .title { font-family: 'Cinzel', serif; color: var(--accent); font-size: 20px; }
-.clock { font-size: 14px; margin-top: 4px; }
-.sk-meter { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.v-tag { color: var(--muted); font-size: 12px; }
+.clock { font-size: 14px; }
+.sk-meter { font-size: 13px; color: var(--muted); margin-left: auto; }
 
-.standings { width: 100%; border-collapse: collapse; font-size: 14px; }
-.standings th { text-align: left; color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--line); padding: 4px 6px; }
-.standings td { padding: 5px 6px; border-bottom: 1px solid #211c26; }
-.standings tr.dead { opacity: 0.45; }
+/* ── House plaques (dissolved standings + exposure) ── */
+.houses-title, .realm-title {
+  font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.06em;
+  color: var(--accent); text-transform: uppercase; opacity: 0.85; padding: 2px;
+}
+.house-plaque {
+  display: flex; gap: 8px; align-items: flex-start;
+  background: linear-gradient(180deg, rgba(43, 36, 32, 0.94), rgba(23, 20, 26, 0.94));
+  border: 1px solid #3a2f26; border-left: 4px solid var(--house);
+  border-radius: 8px; padding: 8px 10px;
+  box-shadow: inset 0 1px 0 rgba(232, 220, 195, 0.05), 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+.house-plaque.you { box-shadow: inset 0 0 0 1px var(--house), 0 2px 8px rgba(0, 0, 0, 0.4); }
+.house-plaque.dead { opacity: 0.5; }
+.plaque-crest { flex: 0 0 auto; display: grid; place-items: center;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35); border: 1px solid var(--house); }
+.sigil-svg { display: block; }
+.plaque-body { min-width: 0; flex: 1 1 auto; }
+.plaque-name { font-family: 'Cinzel', serif; font-size: 14px; color: var(--ink); }
+.plaque-name small { color: var(--muted); font-weight: 400; font-size: 11px; }
+.plaque-warlord { font-size: 11px; color: var(--muted); font-style: italic; margin-top: -1px; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 5px 0; }
+.chip { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 600;
+  background: rgba(0, 0, 0, 0.3); border: 1px solid #4a3d31; border-radius: 10px; padding: 1px 7px; color: #e8dcc3; }
+.plaque-tags { display: flex; flex-wrap: wrap; gap: 3px; }
+.plaque-exposure { font-size: 10px; font-weight: 700; letter-spacing: 0.03em; margin-top: 5px;
+  text-transform: uppercase; }
+.houses-note { padding: 0 2px; }
+
 .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
 .tag { font-size: 11px; padding: 1px 6px; border-radius: 4px; }
 .tag.crown { background: rgba(201,162,39,0.2); color: var(--accent); }
@@ -114,7 +224,7 @@ button.primary { background: var(--accent); color: #1a1206; border: none; font-w
 .hint { font-size: 13px; color: var(--muted); margin-top: 10px; }
 
 /* ── Gambit alarm ── */
-.gambit-alarm { position: absolute; top: 0; left: 0; right: 400px; background: linear-gradient(90deg, #7f1d1d, #b45309); color: #fff; text-align: center; padding: 6px; font-weight: 600; z-index: 5; letter-spacing: 0.5px; }
+.gambit-alarm { position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(90deg, #7f1d1d, #b45309); color: #fff; text-align: center; padding: 6px; font-weight: 600; z-index: 5; letter-spacing: 0.5px; }
 
 /* ── Narration / errors ── */
 .narration { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
