@@ -205,6 +205,12 @@ Milestone DoD as in T-005: verify green → tick M1 boxes here and in both roadm
 Restructure the v3 layout: board center-stage on a committed CC0 table-surface texture; dissolve the
 right-hand status column into diegetic HUD regions at the edges (banners/plaques/ribbons). Keep all
 existing verbs reachable. Add the texture asset + credit to `docs/CREDITS.md` (create it).
+**Gate 0.5 (user, 2026-07-18): FULL dissolution** — no persistent status panel survives; exposure,
+warlord standings, court, and turn prompt become edge plaques/banners/tokens, with **zero information
+loss** (hover/expand plaques acceptable). Player identity uses the four muted **house heraldry**
+colors + sigils (Emberfall ember-orange, Greyspear steel, Ravenholt viridian, Duskmere dusk-violet);
+board nodes are **illustrated map locations** (castles/forges/hamlets/dark throne; claims = planted
+house banners) per the roadmap's M2 Gate 0.5 block.
 **Board layout (user decision 2026-07-18): render the existing 17-node graph as an 8-ray chaos-magic
 star.** The topology already supports it — spokes run keystone→approach→forge on the DIAGONALS, then
 quarter-twist into CARDINAL keeps, holdings on the outer diagonals — so all 17 nodes sit on 8 rays.
@@ -232,7 +238,9 @@ CREDITS entries; jsdom E2E green.
 ### T-204 · Card frames + data-driven card-face generator — `status: TODO` · `coder: opus` · `after: T-202`
 Create `src/ui-v3/card-face.ts`: piece/token data → SVG card face (frame, name, icon, stats), so art
 swaps never touch layout code. Frames from a CC0 pack (credited). Cards across the UI render via the
-generator only.
+generator only. **Gate 0.5 (user, 2026-07-18): faces are RICH TCG-style** — name + art area + rules
+text (art areas generated-ornamental until bespoke art exists), with the value + suit icon
+**corner-indexed** so a fanned card stays readable without raising it.
 **Accept:** a unit test registers a synthetic new piece type and gets a valid face with zero layout-
 file changes; grep shows card DOM built only via the generator; gallery shows framed cards.
 
@@ -264,6 +272,8 @@ read test answered "board game" for every screen; user explicitly approved.
 ### T-301 · Fanned hand — `status: TODO` · `coder: opus` · `after: T-207`
 Render the human player's hand as a CSS-3D fanned card row (arc + rotation math), with hover-raise
 and selected-lift states, using the T-204 card faces. Degrades to a flat row under instant mode/jsdom.
+Because faces are rich (Gate 0.5), the fan relies on T-204's corner index for at-a-glance value/suit
+reads; **hover-raise zooms the card enough to read its rules text**.
 **Accept:** hand DOM is the fan component; hover/selected states are class-driven (unit-testable);
 jsdom E2E + shots green.
 

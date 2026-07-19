@@ -28,3 +28,27 @@ across checkpoints.
 - [ ] HUD reads diegetic
 - [ ] Motion present in transitions
 - [ ] Screens consistent
+
+## Scoring definitions (Gate 0.5, user-calibrated 2026-07-18)
+
+The ten items above are fixed; these definitions pin what "checked" means, per the user's Gate 0.5
+decisions (see ROADMAP-V3.1-UI §4 M2 "Gate 0.5 aesthetic decisions"):
+
+- **Cards read as cards** — rich TCG-style faces (name + art area + rules text); in a fan, the
+  corner-indexed value + suit icon must be legible without raising the card.
+- **Palette cohesive** — the candlelit ash/iron/ember register INCLUDING the four muted house
+  heraldry colors (ember-orange / steel / viridian / dusk-violet); any saturated web primary fails
+  this item.
+- **Board is the largest element** — and its 17 nodes are illustrated map locations (castles /
+  forges / hamlets / dark throne) on the 8-ray star inlay, with claims shown as planted banners —
+  flat colored circles fail.
+- **HUD reads diegetic** — FULL dissolution: any persistent rectangular status panel fails this
+  item; all former sidebar info must remain discoverable from plaques/banners/tokens (information
+  loss also fails it).
+- **Resources are icon tokens** — icon + count chips or gauges everywhere, house sigils on ownership
+  markers; a bare numeral outside a chip fails.
+
+## Score log
+
+- **2026-07-18 (Gate 0.5)** — baseline gallery: **0/10** (anchor; nearest miss "board is the largest
+  element", true only on the mid-game screen). Rubric definitions calibrated with the user above.

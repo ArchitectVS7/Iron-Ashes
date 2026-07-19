@@ -106,6 +106,21 @@ command; baseline gallery in-repo.
 - Full suite green (currently 1,142 tests — count may only go up).
 
 ### M2 — Theme foundation ("stop looking like a spreadsheet")
+
+**Gate 0.5 aesthetic decisions (user, 2026-07-18) — binding for M2/M3 implementation:**
+1. **Player identity = house heraldry:** Emberfall ember-orange, Greyspear iron/steel, Ravenholt deep
+   viridian, Duskmere dusk-violet — muted to the candlelit palette, each with a sigil (colorblind
+   shape+icon rule). No saturated web primaries.
+2. **Board nodes = illustrated map locations:** tiny SVG illustrations — keeps as castles, forges with
+   ember glow, holdings as hamlets, the Keystone as a dark throne — on the 8-ray star inlay; a claimed
+   node shows the owner's **banner planted on it**.
+3. **HUD = FULL dissolution:** no status panel at all — exposure, warlord standings, court, and turn
+   prompt become plaques/banners/tokens around the board edges. Constraint: **zero information loss** —
+   everything the old column showed must remain discoverable (hover/expand plaques are acceptable).
+4. **Card faces = rich (TCG-style):** name + art area + rules text via the generator (art areas may be
+   generated-ornamental until bespoke art exists). Constraint: **value + suit icon must be corner-
+   indexed** and legible in the fan; full text is read via hover-raise zoom (M3).
+
 - [ ] Board-centric layout: board center-stage on a **textured table surface**; the right-hand status
       column dissolves into diegetic HUD elements (banners, plaques, ribbons at the edges).
 - [ ] Typography: thematic display font + readable body font (e.g. Cinzel + a serif/sans body).

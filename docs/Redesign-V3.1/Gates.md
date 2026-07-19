@@ -48,3 +48,21 @@ Gate 0 — Aesthetic direction (now, before M2 starts — the most valuable one,
   shipped difficulty default (item 11), give the Wraith re-tune signal, and render the verdict: ship /
   V3.2 polish / V4 mechanics charter. (Separately still parked on your plate from before this sprint:
   the T-004 BP-exposure +1.4pp call.)
+---
+
+## Gate 0.5 — COMPLETED 2026-07-18
+
+Baseline gallery reviewed and scored **0/10** (anchor; nearest miss: "board is the largest element",
+true only on the mid-game screen). Rubric validated and calibrated via Q&A — four user decisions
+recorded as scoring definitions (RUBRIC.md) and as the binding "Gate 0.5 aesthetic decisions" block
+in ROADMAP-V3.1-UI §4 M2, echoed into TASKS.md T-201/T-204/T-301 and the tabletop-ui skill §8:
+
+1. Player identity: muted HOUSE HERALDRY + sigils (Emberfall ember-orange, Greyspear steel,
+   Ravenholt viridian, Duskmere dusk-violet).
+2. Board nodes: ILLUSTRATED MAP locations (castles/forges/hamlets/dark throne) on the 8-ray star
+   inlay; claims = planted house banners.
+3. HUD: FULL dissolution (no persistent panel; zero information loss; hover/expand plaques OK).
+4. Card faces: RICH TCG-style (name + art + rules text), corner-indexed value/suit for the fan;
+   hover-raise zoom to read text.
+
+Next stop: Gate 1 (T-207) after M2 builds against these definitions.
