@@ -15,7 +15,7 @@
     "semantic_hash": "d5761a1390c7de9de43a266f26e41793"
   },
   "docs/handoff/state.json": {
-    "mtime": 1784429936.6526392,
+    "mtime": 1784435379.4592168,
     "ast_hash": "de889c0ca552dd89062634012aa3618c",
     "semantic_hash": ""
   },
@@ -1020,13 +1020,13 @@
     "semantic_hash": ""
   },
   "src/ui-v3/view.ts": {
-    "mtime": 1784428467.477366,
-    "ast_hash": "df66aba9c40e08304c080341a1c6174e",
+    "mtime": 1784434124.735672,
+    "ast_hash": "44fb4580189668e58c3b8ebafd73bdb0",
     "semantic_hash": ""
   },
   "src/ui-v3/vite-env.d.ts": {
-    "mtime": 1782899148.6242373,
-    "ast_hash": "d9667e786bab24259b7102a75af70210",
+    "mtime": 1784434057.1973825,
+    "ast_hash": "7e718f63eead32f849065cd637cffc6e",
     "semantic_hash": ""
   },
   "vite.config.ts": {
@@ -1045,8 +1045,8 @@
     "semantic_hash": ""
   },
   "tests/v3/ui-parity.test.ts": {
-    "mtime": 1784428724.3471632,
-    "ast_hash": "1132717736af9136726bd310c2fc4120",
+    "mtime": 1784434389.9703798,
+    "ast_hash": "1fd9b568a9dd29ae2851ed25ce8f4a58",
     "semantic_hash": ""
   },
   "docs/human-playtest-checklist-v3.md": {
@@ -1115,8 +1115,8 @@
     "semantic_hash": ""
   },
   "TASKS.md": {
-    "mtime": 1784430172.0235488,
-    "ast_hash": "c012825850ca4ec5ce2fb7dfb44e1609",
+    "mtime": 1784435423.0906947,
+    "ast_hash": "4ee28fb2f4070badb5231033f133cfde",
     "semantic_hash": ""
   },
   "src/v3/harness/harness-core.ts": {
@@ -1315,8 +1315,8 @@
     "semantic_hash": ""
   },
   "docs/CREDITS.md": {
-    "mtime": 1784429572.6705685,
-    "ast_hash": "40259c4d2c93f67d46d01df86e27ab5f",
+    "mtime": 1784434161.4590447,
+    "ast_hash": "09036858623d610393bd05e3f9db7067",
     "semantic_hash": ""
   },
   "src/ui-v3/assets/table-texture.svg": {
@@ -1337,6 +1337,56 @@
   "src/ui-v3/assets/fonts/Inter-OFL.txt": {
     "mtime": 1784429463.8526943,
     "ast_hash": "5e95cb23ed621124015c5d23224ba2d3",
+    "semantic_hash": ""
+  },
+  "tests/v3/token-chip-audit.test.ts": {
+    "mtime": 1784435161.3728132,
+    "ast_hash": "fd958a6a0dc4e54692c6bc8f381d61e2",
+    "semantic_hash": ""
+  },
+  "src/ui-v3/assets/icons/action.svg": {
+    "mtime": 1784434026.513994,
+    "ast_hash": "09ecfd363c108a8ced0a8241b168d288",
+    "semantic_hash": ""
+  },
+  "src/ui-v3/assets/icons/banner.svg": {
+    "mtime": 1784434026.5130086,
+    "ast_hash": "354ec63d6e4d58d101166b3bd7260a8e",
+    "semantic_hash": ""
+  },
+  "src/ui-v3/assets/icons/cards.svg": {
+    "mtime": 1784434026.5133276,
+    "ast_hash": "3daa410ac1525248f2dd2e068bffa85c",
+    "semantic_hash": ""
+  },
+  "src/ui-v3/assets/icons/embers.svg": {
+    "mtime": 1784434026.5137806,
+    "ast_hash": "f3bc1832c059d680ed6ef3ff5e32f732",
+    "semantic_hash": ""
+  },
+  "src/ui-v3/assets/icons/heart.svg": {
+    "mtime": 1784434026.5138838,
+    "ast_hash": "55393efd0c7907fba91c23d4dc00b384",
+    "semantic_hash": ""
+  },
+  "src/ui-v3/assets/icons/holdings.svg": {
+    "mtime": 1784434026.5131884,
+    "ast_hash": "87f3225d3489c4c8e4402edc36689c13",
+    "semantic_hash": ""
+  },
+  "src/ui-v3/assets/icons/hourglass.svg": {
+    "mtime": 1784434026.513672,
+    "ast_hash": "49d7129d1c7f091f45c94a8b3dd5212b",
+    "semantic_hash": ""
+  },
+  "src/ui-v3/assets/icons/retinue.svg": {
+    "mtime": 1784434026.5134463,
+    "ast_hash": "b49359063f2b2ac9b67c2a8468460074",
+    "semantic_hash": ""
+  },
+  "src/ui-v3/assets/icons/skull.svg": {
+    "mtime": 1784434026.5135553,
+    "ast_hash": "47bee432e6def27b97bce5c5794de1c0",
     "semantic_hash": ""
   }
 }
