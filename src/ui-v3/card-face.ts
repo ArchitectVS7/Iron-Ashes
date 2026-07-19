@@ -185,10 +185,16 @@ function rulesText(rules: string, maxChars: number, maxLines: number): string {
     .join('');
 }
 
-/** A corner index group (value over a small suit glyph). `rotate` renders the bottom-right mirror. */
+/**
+ * A corner index group (value over a small suit glyph) on a light backing lozenge so the dark ink
+ * reads legibly regardless of the frame region beneath it (T-209 — the name-banner plate is dark, so
+ * a bare dark value/suit there vanished). The lozenge is a `<rect>` (never an `<svg>`), so a corner's
+ * single suit `<svg>` stays uniquely resolvable (the T-204 face invariant). `rotate` mirrors the BR.
+ */
 function cornerIndex(value: string, suit: IconId, corner: 'tl' | 'br'): string {
   const inner =
-    `<text class="cf-corner-val" x="11" y="16.5" text-anchor="middle">${esc(value)}</text>` +
+    `<rect class="cf-corner-plate" x="2.5" y="6" width="17" height="20" rx="2.5"/>` +
+    `<text class="cf-corner-val" x="11" y="16" text-anchor="middle">${esc(value)}</text>` +
     iconAt(suit, 7.5, 17.5, 7, 'cf-corner-suit');
   const transform = corner === 'br' ? ` transform="rotate(180 ${CX} ${CY})"` : '';
   return `<g class="cf-corner cf-corner-${corner}" data-corner="${corner}"${transform}>${inner}</g>`;

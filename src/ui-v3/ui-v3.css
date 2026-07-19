@@ -379,8 +379,10 @@ button.primary { background: var(--accent); color: #1a1206; border: none; font-w
 .card-face .cf-name { font-family: var(--font-display); font-size: 6.6px; font-weight: 700; fill: #f1e7cf; letter-spacing: 0.2px; }
 .card-face .cf-subtitle { font-family: var(--font-body); font-size: 4px; font-style: italic; fill: #cbb48a; }
 .card-face .cf-rules { font-family: var(--font-body); font-size: 4.6px; fill: #2b2016; }
-.card-face .cf-corner-val { font-family: var(--font-display); font-size: 9px; font-weight: 700; fill: #2b2016; }
+.card-face .cf-corner-val { font-family: var(--font-display); font-size: 11px; font-weight: 700; fill: #2b2016; }
 .card-face .cf-corner-suit, .card-face .cf-corner-val { paint-order: stroke; }
+/* Light parchment lozenge behind the corner index so the dark value + suit read on any frame region. */
+.card-face .cf-corner-plate { fill: #f2e7cd; stroke: #a8874f; stroke-width: 0.5; }
 .card-face .cf-art-icon { color: #d8c7a6; }
 .card-face .cf-corner-suit { color: #6b5836; }
 /* Sigil-tinted token backs reuse the board sigil palette. */
@@ -389,8 +391,10 @@ button.primary { background: var(--accent); color: #1a1206; border: none; font-w
 .card-face .cf-sigil-mark { font-family: var(--font-display); }
 
 /* The fanned hand — overlapping paper with a slight arc + hover-raise (T-204 static; M3 animates). */
-.hand-fan { display: inline-flex; align-items: flex-end; padding: 4px 6px 8px; }
-.card-slot { display: inline-block; width: 62px; margin-left: -16px; transition: transform 0.15s ease, filter 0.15s ease;
+.hand-fan { display: inline-flex; align-items: flex-end; padding: 4px 6px 8px; max-width: 100%; }
+/* Deep overlap (−30px) so a full 6-card hand — 62 + 5×32 = 222px — fits the 264px realm column with
+   no clipping; each earlier card shows its left index strip while the rightmost card shows full. */
+.card-slot { display: inline-block; width: 62px; margin-left: -30px; transition: transform 0.15s ease, filter 0.15s ease;
   filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.5)); }
 .card-slot:first-child { margin-left: 0; }
 .card-slot:nth-child(odd) { transform: rotate(-2deg); }

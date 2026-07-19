@@ -479,7 +479,7 @@ sign-off) remains a separate, still-BLOCKED task — this task only fixes the th
 it does not self-approve the Gate 1 re-review.
 Orchestration: graphify=v3 UI board rendering nodes edges SVG locations claims banners · attempts=1/4.
 
-### T-209 · Rich card faces + hand overflow fix — `status: TODO` · `coder: opus` · `after: T-206`
+### T-209 · Rich card faces + hand overflow fix — `status: DONE` · `coder: opus` · `after: T-206`
 Gate 1 fix (user, 2026-07-19): hand cards render as six identical cream blanks — no corner value/suit,
 no name/art/rules — a readability REGRESSION from the baseline's bare numbers; and the 6-card hand
 clips off the panel edge. Fix the T-204 generator to emit the full rich face per Gate 0.5:
@@ -488,6 +488,18 @@ distinct per card datum. Fix the overflow so 6 cards always render fully (scale/
 **Accept:** a DOM test asserts each hand card shows its distinct corner value + suit + name; a layout
 test or shots assertion proves 6 cards fit inside the hand region; regenerated shots show distinct
 faces; verify green.
+**Delivered (2026-07-19):** the T-204 generator already emitted a distinct name/art/rules per card
+datum; the actual Gate 1 regression was the corner value/suit rendering dark-ink-on-dark-frame
+(illegible, read as blank), fixed by giving each corner a light parchment backing lozenge (`cf-corner-plate`
+rect, sized so the single suit `<svg>` stays uniquely resolvable) and bumping the corner-value font
+size for legibility unraised. The hand overflow was fixed by deepening the fan overlap
+(`margin-left: -16px` → `-30px`), fitting a full 6-card hand (222px) inside the 264px realm column.
+Added a real-browser `auditHandFit` assertion to `scripts/shots-v3.mjs` (Playwright rect containment,
+since jsdom has no layout engine) and two DOM tests locking in the per-corner backing plate and
+per-card value distinctness. **Scope boundary:** T-210…T-214 (HUD dissolution, start screen, and the
+remaining Gate 1 items) are separate, still-open tasks — this task only fixes the named card-face
+legibility and hand-clipping defects.
+Orchestration: graphify=powerCardFace / card-face generator hand rendering (query "card-face generator hand rendering powerCardFace view.ts") · attempts=1/4.
 
 ### T-210 · Full HUD bottom dissolution + election overlap bug — `status: TODO` · `coder: opus` · `after: T-206`
 Gate 1 fix (user, 2026-07-19): the bottom turn/action area is still a persistent full-width rectangle

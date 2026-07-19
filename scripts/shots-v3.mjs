@@ -280,6 +280,29 @@ async function auditStarInlay(page) {
   });
 }
 
+/**
+ * T-209 accept criterion — a full 6-card hand must render fully inside the realm HUD column (no
+ * clipping off the panel edge). jsdom has no layout engine, so this must run in the real Playwright
+ * page. Returns `{ count, allInside }`: every `.card-slot` rect's left/right edge lies within the
+ * `.hud-realm` region rect (± epsilon). Returns null if the hand is not present yet (caller retries).
+ */
+async function auditHandFit(page) {
+  return page.evaluate(() => {
+    const realm = document.querySelector('.hud-realm');
+    const fan = realm && realm.querySelector('.hand-fan');
+    if (!realm || !fan) return null;
+    const slots = Array.from(fan.querySelectorAll('.card-slot'));
+    if (slots.length === 0) return null;
+    const EPS = 1; // sub-pixel rounding tolerance
+    const rr = realm.getBoundingClientRect();
+    const allInside = slots.every((el) => {
+      const r = el.getBoundingClientRect();
+      return r.left >= rr.left - EPS && r.right <= rr.right + EPS;
+    });
+    return { count: slots.length, allInside };
+  });
+}
+
 async function main() {
   const { out } = parseArgs(process.argv.slice(2));
   const outDir = resolve(process.cwd(), out);
@@ -320,6 +343,9 @@ async function main() {
   let fontBoard = null;
   // T-208: assert the carved chaos-star inlay is present on the live mid-game board.
   let starInlay = null;
+  // T-209: track the fullest hand seen on a live mid-game board — a full 6-card hand must fit the
+  // realm column. Keep the max-count sample so a mid-turn spend can't hide the full-hand case.
+  let handFit = null;
 
   const captureIfNeeded = async (sigs) => {
     for (const screen of SCREENS) {
@@ -386,6 +412,11 @@ async function main() {
         if (starInlay === null && obs.round >= 2 && obs.sigs.board) {
           starInlay = await auditStarInlay(page);
         }
+        // T-209: sample the hand fit on every live mid-game board, keeping the fullest hand seen.
+        if (obs.round >= 2 && obs.sigs.board) {
+          const fit = await auditHandFit(page);
+          if (fit && (handFit === null || fit.count > handFit.count)) handFit = fit;
+        }
         if (needed.size === 0 || obs.over) break;
         const clicked = await page.evaluate(() => window.__shotsStep());
         if (clicked === null) break; // no progress possible — move to the next seed
@@ -445,6 +476,18 @@ async function main() {
     process.exit(1);
   }
   console.log('star inlay: decorative chaos-star rays + burned carved-wood fill present on the board');
+
+  // T-209 accept: a full 6-card hand must render fully inside the realm HUD column (no clipping).
+  if (handFit === null) {
+    console.error('\nHAND-FIT assertion never ran (no hand rendered on a live board at round >= 2)');
+    process.exit(1);
+  }
+  if (handFit.count < 6 || !handFit.allInside) {
+    console.error('\nHAND-FIT FAILED — a full hand does not fit inside the realm column.');
+    console.error(`  fullest hand seen: ${handFit.count} card(s); allInside=${handFit.allInside}`);
+    process.exit(1);
+  }
+  console.log(`hand fit: a ${handFit.count}-card hand renders fully inside the realm column`);
 
   if (needed.size === 0) {
     console.log(`\ncaptured ${captured.size}/${SCREENS.length} screens → ${outDir}`);

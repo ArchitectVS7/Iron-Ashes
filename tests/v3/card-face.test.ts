@@ -103,6 +103,42 @@ describe('T-204 card-face generator — corner index invariant (Gate 0.5)', () =
   });
 });
 
+describe('T-209 — rich hand faces (distinct, legible corner index)', () => {
+  const HAND = [1, 2, 3, 4, 2, 4];
+
+  it('each hand card shows its own value + suit + name, on a legible backing plate', () => {
+    for (const v of HAND) {
+      const root = assertValidFace(powerCardFace(v), String(v));
+      // A non-empty name reads.
+      expect((root.querySelector('.cf-name')?.textContent ?? '').length).toBeGreaterThan(0);
+      // Both corners carry a light backing lozenge — the structural guarantee the dark value + suit
+      // are not rendered dark-on-dark (the Gate 1 regression). One plate + one suit <svg> per corner.
+      const corners = root.querySelectorAll('.cf-corner');
+      expect(corners.length).toBe(2);
+      for (const corner of Array.from(corners)) {
+        expect(
+          corner.querySelector('.cf-corner-plate'),
+          `corner ${corner.getAttribute('data-corner')} has a backing plate`,
+        ).not.toBeNull();
+        // The plate is a <rect>, so the suit <svg> stays uniquely resolvable.
+        expect(corner.querySelector('rect.cf-corner-plate')?.tagName.toLowerCase()).toBe('rect');
+        expect(corner.querySelector('svg')).not.toBeNull();
+      }
+    }
+  });
+
+  it('distinctness — each rendered card carries its OWN datum (value tracks the hand)', () => {
+    const shown = HAND.map((v) => {
+      const root = parse(powerCardFace(v));
+      const tl = Array.from(root.querySelectorAll('.cf-corner')).find(
+        (c) => c.getAttribute('data-corner') === 'tl',
+      );
+      return tl?.querySelector('.cf-corner-val')?.textContent ?? '';
+    });
+    expect(shown).toEqual(HAND.map(String));
+  });
+});
+
 describe('T-204 card-face generator — fog invariant (§7 D2 / §13 P0-12)', () => {
   it('a face-DOWN token leaks no kind/name/archetype — only the sigil back', () => {
     const backDark = tokenFace({ flipped: false, sigil: 'dark' });
