@@ -13,6 +13,14 @@ guardrail (`docs/ROADMAP-V3.1-UI.md` §3). This file accrues entries as the spri
 
 ## Fonts
 
-The start screen and titles currently load Cinzel + Inter (see `index-v3.html`). These are still
-served from the Google Fonts CDN and will be **self-hosted (OFL)** in T-202 — at which point the
-font entries move into this file with their SIL Open Font License notices.
+Both faces are **self-hosted** under `src/ui-v3/assets/fonts/` (latin-subset woff2, committed) and
+declared via `@font-face` in `src/ui-v3/ui-v3.css` — there is **no runtime CDN / network fetch**
+(T-202, 2026-07-18). Each family ships its SIL Open Font License notice alongside the woff2.
+
+| Font | Role | Weights | Source | Author | License |
+| --- | --- | --- | --- | --- | --- |
+| Cinzel | Display (titles, plaques) | 400, 700 | [github.com/google/fonts `ofl/cinzel`](https://github.com/google/fonts/tree/main/ofl/cinzel) | Natanael Gama / The Cinzel Project Authors | [OFL-1.1](https://openfontlicense.org) (`src/ui-v3/assets/fonts/Cinzel-OFL.txt`) |
+| Inter | Body / UI | 400, 500, 600 | [github.com/google/fonts `ofl/inter`](https://github.com/google/fonts/tree/main/ofl/inter) | Rasmus Andersson / The Inter Project Authors | [OFL-1.1](https://openfontlicense.org) (`src/ui-v3/assets/fonts/Inter-OFL.txt`) |
+
+Both are variable fonts; the committed latin-subset woff2 covers the declared weight range, so a
+single file backs each family's `@font-face` weights.

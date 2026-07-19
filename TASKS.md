@@ -323,12 +323,27 @@ CDN Cinzel/Inter, flagged in `docs/CREDITS.md`) and turning the new plaque/chip 
 `TokenChip`/gauge components are deliberately left to T-202/T-203 per the roadmap's task split — this
 task closes the board-centric layout and diegetic-HUD dissolution only.
 
-### T-202 · Typography + palette system — `status: TODO` · `coder: sonnet` · `after: T-201`
+### T-202 · Typography + palette system — `status: DONE` · `coder: sonnet` · `after: T-201`
 Self-host a thematic display font and a readable body font (OFL-licensed, committed with their license
 files — no CDN); define the palette as CSS custom properties; apply across all v3 screens.
 **Accept:** font files + licenses committed; a Playwright/jsdom audit asserts no rendered text node
 computes to the browser default font stack; palette lives in `:root` custom properties; gallery
 regenerates.
+**Delivered (2026-07-18):** Cinzel (400/700) and Inter (400/500/600) are self-hosted as committed
+latin-subset woff2 under `src/ui-v3/assets/fonts/`, declared via `@font-face` in `src/ui-v3/ui-v3.css`
+with zero runtime CDN/network fetch (`index-v3.html` no longer references Google Fonts), each family's
+SIL OFL notice committed alongside its woff2 and documented in `docs/CREDITS.md`. Typography and the
+four house-heraldry colors (mirroring `board-view.ts` `PLAYER_COLORS`) now live as `:root` custom
+properties (`--font-display`, `--font-body`, `--house-emberfall/greyspear/ravenholt/duskmere`); every
+prior hardcoded `font-family: 'Cinzel'|'Inter'` call site routes through the properties instead, and
+form controls (`input, select, textarea, optgroup`) explicitly inherit so they can't fall back to the
+UA default stack. Enforced by a new `tests/v3/typography.test.ts` (CDN-free HTML, `@font-face`
+self-hosting, `:root` custom properties, no bare family literals outside `@font-face`/`:root`, all five
+woff2 + two license files committed and non-empty with valid `wOF2` magic bytes) plus the Playwright
+computed-font audit added to `scripts/shots-v3.mjs`. **Scope boundary:** turning the plaque/chip stats
+into full `TokenChip`/gauge components (icon+count treatment) is left to T-203; card-face rendering is
+left to T-204 — this task closes font self-hosting + palette tokenization only, no new visual
+components.
 
 ### T-203 · Token/chip components + DOM audit test — `status: TODO` · `coder: opus` · `after: T-201`
 Every resource/stat becomes an icon+count `TokenChip` (game-icons.net SVGs, committed + credited) or a

@@ -214,6 +214,56 @@ async function measureBoardDominance(page) {
   });
 }
 
+/**
+ * T-202 accept criterion — no rendered text node may compute to the browser default font stack.
+ * jsdom does not resolve @font-face, so this must run in the real Playwright page. Returns
+ * `{ loaded, bad }`: `loaded` proves the self-hosted faces actually loaded (not a silent fallback),
+ * `bad` lists every visible-text element whose FIRST computed family is not one of ours.
+ */
+async function auditFonts(page) {
+  return page.evaluate(async () => {
+    await document.fonts.ready;
+    const OURS = ['cinzel', 'inter'];
+    // 1. Force-fetch every declared weight and prove it actually resolves. A face is only loaded once
+    //    the page renders a glyph at that weight, so e.g. Cinzel-400 stays unloaded on a screen that
+    //    only uses the 700 title — `load()` fetches it explicitly. A broken woff2 url() rejects here
+    //    (caught → loaded=false), so this proves the self-hosted files load, not a silent fallback.
+    let loaded = true;
+    try {
+      await Promise.all([
+        document.fonts.load('400 16px Cinzel'),
+        document.fonts.load('700 16px Cinzel'),
+        document.fonts.load('400 16px Inter'),
+        document.fonts.load('500 16px Inter'),
+        document.fonts.load('600 16px Inter'),
+      ]);
+    } catch {
+      loaded = false;
+    }
+    loaded =
+      loaded &&
+      document.fonts.check('400 16px Cinzel') &&
+      document.fonts.check('700 16px Cinzel') &&
+      document.fonts.check('16px Inter');
+    // 2. Every element bearing visible text must resolve to one of our families first.
+    const bad = [];
+    const root = document.getElementById('app');
+    if (root) {
+      for (const el of root.querySelectorAll('*')) {
+        const hasText = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
+        if (!hasText) continue;
+        const first = getComputedStyle(el)
+          .fontFamily.split(',')[0]
+          .trim()
+          .replace(/['"]/g, '')
+          .toLowerCase();
+        if (!OURS.includes(first)) bad.push({ tag: el.tagName, cls: String(el.className), first });
+      }
+    }
+    return { loaded, bad };
+  });
+}
+
 async function main() {
   const { out } = parseArgs(process.argv.slice(2));
   const outDir = resolve(process.cwd(), out);
@@ -248,6 +298,10 @@ async function main() {
   const needed = new Set(SCREENS.map((s) => s.key));
   const captured = new Set();
   let dominance = null; // T-201: measured once the board layout is live
+  // T-202: font audit run on the start screen (holds the <select>/<input> controls) and once on a
+  // live mid-game board; both must load our faces and expose zero default-stack text nodes.
+  let fontStart = null;
+  let fontBoard = null;
 
   const captureIfNeeded = async (sigs) => {
     for (const screen of SCREENS) {
@@ -283,6 +337,9 @@ async function main() {
       const startObs = await page.evaluate(() => window.__shotsObserve());
       await captureIfNeeded(startObs.sigs);
 
+      // T-202: audit the start screen once (its <select>/<input> are the highest-risk default nodes).
+      if (fontStart === null) fontStart = await auditFonts(page);
+
       // Configure the fixed-seed game and begin (competitive · 4p · warlord).
       await page.evaluate((s) => {
         const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
@@ -302,6 +359,10 @@ async function main() {
         // Measure board dominance once the mid-game board layout is live (round >= 2).
         if (dominance === null && obs.round >= 2) {
           dominance = await measureBoardDominance(page);
+        }
+        // T-202: audit fonts once on the live mid-game board (round >= 2).
+        if (fontBoard === null && obs.round >= 2 && obs.sigs.board) {
+          fontBoard = await auditFonts(page);
         }
         if (needed.size === 0 || obs.over) break;
         const clicked = await page.evaluate(() => window.__shotsStep());
@@ -325,6 +386,32 @@ async function main() {
     process.exit(1);
   }
   console.log(`board dominates: ${dominance.boardArea}px² > [${dominance.others.map((o) => o.area).join(', ')}]`);
+
+  // T-202 accept: no rendered text node computes to the browser default font stack (start + board).
+  const fontChecks = [
+    ['start screen', fontStart],
+    ['mid-game board', fontBoard],
+  ];
+  let fontFailed = false;
+  for (const [label, res] of fontChecks) {
+    if (res === null) {
+      console.error(`\nFONT AUDIT FAILED — ${label} audit never ran.`);
+      fontFailed = true;
+      continue;
+    }
+    if (!res.loaded) {
+      console.error(`\nFONT AUDIT FAILED — self-hosted faces did not load on the ${label}`);
+      console.error('  document.fonts.check failed for Cinzel and/or Inter (check the woff2 url() paths).');
+      fontFailed = true;
+    }
+    if (res.bad.length > 0) {
+      console.error(`\nFONT AUDIT FAILED — ${res.bad.length} default-stack text node(s) on the ${label}:`);
+      for (const b of res.bad.slice(0, 20)) console.error(`  <${b.tag}> class="${b.cls}" → "${b.first}"`);
+      fontFailed = true;
+    }
+  }
+  if (fontFailed) process.exit(1);
+  console.log('font audit: every text node resolves to Cinzel/Inter; self-hosted faces loaded (start + board)');
 
   if (needed.size === 0) {
     console.log(`\ncaptured ${captured.size}/${SCREENS.length} screens → ${outDir}`);

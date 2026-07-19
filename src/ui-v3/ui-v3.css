@@ -1,5 +1,43 @@
 /* Iron Throne of Ashes — v3 render-from-state UI (Stage 3i-a scaffold). */
 
+/* ── Self-hosted fonts (OFL, committed under ./assets/fonts/ — no runtime CDN, see docs/CREDITS.md) ──
+   Cinzel = thematic display face; Inter = readable body face. Latin-subset woff2 (T-202). */
+@font-face {
+  font-family: 'Cinzel';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('./assets/fonts/Cinzel-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cinzel';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('./assets/fonts/Cinzel-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('./assets/fonts/Inter-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url('./assets/fonts/Inter-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  src: url('./assets/fonts/Inter-600.woff2') format('woff2');
+}
+
 :root {
   --bg: #0c0a0d;
   --panel: #17141a;
@@ -10,6 +48,16 @@
   --accent: #c9a227;
   --danger: #ef4444;
   --ash: #1f1014;
+
+  /* Typography (T-202) — self-hosted display + body faces with local fallbacks. */
+  --font-display: 'Cinzel', Georgia, 'Times New Roman', serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* House heraldry (mirror of board-view.ts PLAYER_COLORS, Gate 0.5) — palette lives in :root. */
+  --house-emberfall: #c15f2c;
+  --house-greyspear: #8a93a3;
+  --house-ravenholt: #2f7d5b;
+  --house-duskmere: #7a6aa0;
 }
 
 * { box-sizing: border-box; }
@@ -19,12 +67,12 @@ html, body {
   height: 100%;
   background: var(--bg);
   color: var(--ink);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-body);
 }
 
 #app { height: 100vh; width: 100vw; overflow: hidden; }
 
-h1 { font-family: 'Cinzel', serif; letter-spacing: 1px; }
+h1 { font-family: var(--font-display); letter-spacing: 1px; }
 
 /* ── Start screen ── */
 .start {
@@ -154,14 +202,14 @@ h1 { font-family: 'Cinzel', serif; letter-spacing: 1px; }
   border-radius: 8px;
   box-shadow: inset 0 1px 0 rgba(232, 220, 195, 0.06), 0 3px 8px rgba(0, 0, 0, 0.4);
 }
-.title { font-family: 'Cinzel', serif; color: var(--accent); font-size: 20px; }
+.title { font-family: var(--font-display); color: var(--accent); font-size: 20px; }
 .v-tag { color: var(--muted); font-size: 12px; }
 .clock { font-size: 14px; }
 .sk-meter { font-size: 13px; color: var(--muted); margin-left: auto; }
 
 /* ── House plaques (dissolved standings + exposure) ── */
 .houses-title, .realm-title {
-  font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.06em;
+  font-family: var(--font-display); font-size: 13px; letter-spacing: 0.06em;
   color: var(--accent); text-transform: uppercase; opacity: 0.85; padding: 2px;
 }
 .house-plaque {
@@ -178,7 +226,7 @@ h1 { font-family: 'Cinzel', serif; letter-spacing: 1px; }
   background: rgba(0, 0, 0, 0.35); border: 1px solid var(--house); }
 .sigil-svg { display: block; }
 .plaque-body { min-width: 0; flex: 1 1 auto; }
-.plaque-name { font-family: 'Cinzel', serif; font-size: 14px; color: var(--ink); }
+.plaque-name { font-family: var(--font-display); font-size: 14px; color: var(--ink); }
 .plaque-name small { color: var(--muted); font-weight: 400; font-size: 11px; }
 .plaque-warlord { font-size: 11px; color: var(--muted); font-style: italic; margin-top: -1px; }
 .chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 5px 0; }
@@ -203,6 +251,9 @@ h1 { font-family: 'Cinzel', serif; letter-spacing: 1px; }
 /* ── Panels ── */
 .panel { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
 .panel-title { font-weight: 600; margin-bottom: 8px; }
+/* Form controls do not inherit font-family in browsers — force it so no rendered text node
+   falls back to the UA default stack (T-202 computed-font audit). */
+input, select, textarea, optgroup { font-family: inherit; }
 button { font-family: inherit; cursor: pointer; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); padding: 8px 12px; font-size: 14px; }
 button:hover { border-color: var(--accent); }
 button:disabled { opacity: 0.4; cursor: not-allowed; }
