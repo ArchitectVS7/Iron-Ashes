@@ -58,6 +58,11 @@ but the prompt above is deterministic regardless. The detailed step-by-step is b
 Implement against the spec. All state mutation goes through `applyCommand` (`src/v2/reducer.ts`).
 Write `tests/v2/*.test.ts` as you go. Keep everything deterministic (ALGORITHM §7).
 
+Before touching an area you're not already oriented in, and only if `graphify-out/graph.json`
+exists, run `graphify query "<question>"` (or `explain`/`path`) to see how the touched files relate
+to the rest of the codebase. This is a structural map for orientation, not a source of truth — the
+spec docs above still govern; graphify just cuts down on blind re-reading.
+
 ## DEFINITION OF DONE (the gate — do every step, in order)
 
 - [ ] 1. **`npm run verify`** exits **0**. (It auto-writes `lastVerified` + `sourceHash` + `dirty` into
