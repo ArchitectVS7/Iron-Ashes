@@ -439,7 +439,7 @@ parse the optional `-CHECKPOINT` suffix so it correctly resolves to that box. `n
 existing `vite` devDep); T-207 (the user visual-review checkpoint) is a separate, still-open task — this
 task only closes the M2 build/DoD gate, not the milestone's human sign-off.
 
-### T-208 · Board to spec — illustrated locations, star inlay, planted banners — `status: TODO` · `coder: opus` · `after: T-206`
+### T-208 · Board to spec — illustrated locations, star inlay, planted banners — `status: DONE` · `coder: opus` · `after: T-206`
 Gate 1 fix (user, 2026-07-19): the board fell short of the M2 Gate 0.5 block in three ways. (1) Nodes
 are circles-containing-glyphs — replace with true illustrated SVG map locations sitting ON the table
 (keeps as castles, forges with ember glow, holdings as hamlets, the Keystone as a dark throne;
@@ -451,6 +451,33 @@ planted house banner (heraldry color + sigil) on the node.
 **Accept:** nodes render as circle-free illustrated locations (DOM/SVG assertion); the star inlay is
 asserted present in the shots run; claimed nodes show banner elements carrying the owner's sigil
 class; jsdom E2E + `npm run shots:v3` + verify green.
+**Done (2026-07-19, opus):** T-201 already shipped `locationSvg`/`claimBanner`/the inlay markup;
+this fix removed the leftovers that dominated them. board-view.ts: deleted the enclosing `circle.node`
+disc + `.owner-tint`/`.owner-ring` (the illustration IS the node body now, scaled to full `r`);
+re-homed the disc's ashed/heart/keystone states onto the `.loc` group via classes (zero info loss);
+added a burned `.star-carve` 8-point-star polygon emitted FIRST (under rays/edges/nodes); added a
+`sigil-<name>` class to the banner sigil. ui-v3.css: retired `.node*`/`.owner-*` rules, raised
+`.star-inlay` contrast, added `.star-carve` + `.loc.ashed`/`.loc.heart`/keystone-accent styles.
+New `tests/v3/board-view.test.ts` (8 tests): circle-free assertion, all-5-tier silhouettes,
+carve+inlay present, 28 edges vs 8 decorative rays, keystone=exactly-4-edges, banner-carries-sigil-
+class + no ring, and a fog (D2) back-sigil-only guard. `scripts/shots-v3.mjs` gained `auditStarInlay`
+run at round≥2 with a final hard assertion. verify green (1229 tests); `npm run shots:v3` captures 7/7
+and passes the inlay assertion. T-207 stays BLOCKED(awaiting user visual review) — not self-approved.
+
+**Delivered (2026-07-19):** Rebuilt the board's three Gate 1 misses on top of the T-201 substrate:
+`board-view.ts` dropped the enclosing `circle.node` disc and `.owner-tint`/`.owner-ring` markup so the
+illustrated `locationSvg` silhouette IS the node body (ashed/heart/keystone states re-homed onto the
+`.loc` group, zero info loss), added a burned `.star-carve` 8-point-star polygon rendered first so it
+sits under the rays/edges/nodes, and tagged each planted `claimBanner` sigil with a `sigil-<name>`
+class; `ui-v3.css` retired the old `.node*`/`.owner-*` rules and added the carve/ashed/heart/keystone
+styling and raised `.star-inlay` contrast. `scripts/shots-v3.mjs` gained a hard `auditStarInlay`
+assertion at round≥2, and a new `tests/v3/board-view.test.ts` (8 tests) locks in the circle-free
+nodes, all 5 tier silhouettes, carve+inlay presence, true-edge-count (28) vs decorative-ray-count (8),
+the Keystone's exactly-4-edges invariant, banner-carries-sigil-with-no-ring, and a D2 fog guard that
+only the back-side sigil is visible to non-owners. **Scope boundary:** T-207 (the user visual
+sign-off) remains a separate, still-BLOCKED task — this task only fixes the three named board defects,
+it does not self-approve the Gate 1 re-review.
+Orchestration: graphify=v3 UI board rendering nodes edges SVG locations claims banners · attempts=1/4.
 
 ### T-209 · Rich card faces + hand overflow fix — `status: TODO` · `coder: opus` · `after: T-206`
 Gate 1 fix (user, 2026-07-19): hand cards render as six identical cream blanks — no corner value/suit,

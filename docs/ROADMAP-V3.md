@@ -263,6 +263,21 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-19** — **T-208 (Gate-1 board fix) DONE.** The M2 Gate-1 review (5/10) flagged the board on
+  three counts; all fixed on the LOCKED engine (read-only imports of types + `observableState` only —
+  no `src/v2`/`src/v3`/`src/utils`/tunable edits). (1) Nodes are now **circle-free illustrated locations**:
+  deleted the enclosing `circle.node` disc and the `.owner-tint`/`.owner-ring` circles — `locationSvg`
+  (throne / anvil+ember / crenellated keep / hamlet / signpost) scaled to full `r` IS the node body; the
+  disc's ashed/heart states + the keystone accent are re-homed onto the `.loc` group via classes (zero
+  info loss). (2) The **chaos-star is carved into the wood**: a burned `.star-carve` 8-point-star polygon
+  emitted FIRST (under rays/edges/nodes) with a dark burn fill, the `.star-inlay` rays/octagram raised to
+  visible contrast over it, and the **28 true `.edge` lines kept a distinct class on top** (8 decorative
+  rays ≠ 28 playable edges; the keystone still shows exactly its 4 edges). (3) Claims are a **planted
+  heraldry banner** (colour + `sigil-<name>` class) — the ring is gone. New `tests/v3/board-view.test.ts`
+  (8 DOM/SVG assertions incl. a fog D2 back-sigil-only guard); `scripts/shots-v3.mjs` gained an
+  `auditStarInlay` hard gate at round≥2. verify green (1229 tests), `shots:v3` 7/7 + inlay assertion pass.
+  **T-207 stays BLOCKED(awaiting user visual review)** — a CHECKPOINT, never self-approved; T-215 will
+  regenerate the m2 gallery after the T-208…T-214 fix wave.
 - **2026-07-19** — **V3.1-M2 CLOSED (T-206).** M2 (theme foundation — "stop looking like a spreadsheet")
   deliverables all shipped: board-centric layout on the textured table (T-201), typography + candlelit
   palette (T-202), token/chip components + DOM audit (T-203), data-driven card-face generator (T-204), and

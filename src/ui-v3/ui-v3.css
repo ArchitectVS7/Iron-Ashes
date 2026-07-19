@@ -148,35 +148,44 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
 /* ── Board ── */
 .board-svg { width: 100%; height: 100%; max-height: 92vh; }
 
-/* Decorative chaos-magic star inlay — table marquetry, NOT playable edges. */
-.star-inlay { fill: none; pointer-events: none; stroke: #6a4a2a; }
-.star-inlay.ray { stroke-width: 1; opacity: 0.14; }
-.star-inlay.octagon { stroke-width: 1.5; opacity: 0.16; }
-.star-inlay.octagram { stroke-width: 1; opacity: 0.10; }
+/* Burned chaos-star carved into the wood BENEATH the graph — a scorched inlay, clearly
+   present in a screenshot (not faint scratches). Rendered first, under rays/edges/nodes. */
+.star-carve { pointer-events: none; stroke: #0a0704; stroke-width: 1.5; stroke-linejoin: round; }
+
+/* Decorative chaos-magic star marquetry over the carve — NOT playable edges. Higher-contrast
+   burn strokes so the ray/octagon/octagram read as inlaid lines, kept visually distinct from
+   the lit iron `.edge` tracks below (different colour + weight). */
+.star-inlay { fill: none; pointer-events: none; stroke: #4a3116; }
+.star-inlay.ray { stroke-width: 1.5; opacity: 0.45; }
+.star-inlay.octagon { stroke-width: 2; opacity: 0.5; }
+.star-inlay.octagram { stroke-width: 1.5; opacity: 0.4; }
 
 /* Real playable edges — lit iron tracks drawn distinctly on top of the inlay. */
 .edge { stroke: #7a6a52; stroke-width: 3; stroke-linecap: round; opacity: 0.85; }
 
-.node { fill: #2f2820; stroke: #0c0908; stroke-width: 2; cursor: default; }
+/* The node-group wraps each location; the illustration IS the node body (no enclosing disc). */
 .node-group { cursor: pointer; }
-.node.ashed { stroke: #3a2128; opacity: 0.7; }
-.node-keystone { fill: #201a24; stroke: var(--accent); stroke-width: 2.5; }
-.node.heart { stroke: var(--danger); stroke-width: 4; }
-.owner-tint { opacity: 0.22; pointer-events: none; }
-.owner-ring { stroke-width: 3; opacity: 0.9; pointer-events: none; }
 
-/* Illustrated map locations. */
+/* Illustrated map locations — the node bodies. */
 .loc { pointer-events: none; }
 .loc-fill { fill: #d8c7a6; stroke: #1a120b; stroke-width: 1; stroke-linejoin: round; }
 .loc-line { fill: none; stroke: #1a120b; stroke-width: 1.5; }
-.loc-keystone .loc-fill { fill: #6e5a86; }
+.loc-keystone .loc-fill { fill: #6e5a86; stroke: var(--accent); stroke-width: 1.25; }
 .loc-forge .loc-glow { fill: #e8863a; opacity: 0.35; }
 .loc-approach .loc-fill { fill: #cdbb96; }
+/* Ashed: the former ASH-disc fill re-homed onto the silhouette (zero info loss). */
+.loc.ashed { opacity: 0.7; }
+.loc.ashed .loc-fill { fill: var(--ash); stroke: #3a2128; }
+.loc.ashed .loc-line { stroke: #3a2128; }
+/* Heart: the dark's heart spawns on this location — a danger-lit throne. */
+.loc.heart .loc-fill { stroke: var(--danger); stroke-width: 2; }
+.loc.heart .loc-line { stroke: var(--danger); }
 
-/* Planted house banner (claims). */
+/* Planted house banner — the SOLE claim signal (heraldry colour + sigil, never a ring). */
 .claim-banner { pointer-events: none; }
 .banner-pole { stroke: #d8c7a6; stroke-width: 1.5; }
 .banner-flag { stroke: #1a120b; stroke-width: 0.75; }
+.banner-sigil { pointer-events: none; }
 
 .pip { stroke: #000; stroke-width: 0.5; }
 .pip-on { fill: #e0552b; }

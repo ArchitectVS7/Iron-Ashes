@@ -125,7 +125,11 @@ command; baseline gallery in-repo.
    **diegetic chronicle** scroll (not stacked alerts); the **bequest** is themed as a testament
    parchment NOW, while the **endgame frame deliberately waits** for T-402b's sequences; the hostage
    **hold-rail plaque is validated** as the capture-in-hand treatment. First review scored 5/10 →
-   fix tasks T-208…T-215; T-207 re-review pending.
+   fix tasks T-208…T-215; T-207 re-review pending. **T-208 DONE (2026-07-19):** board to spec —
+   circle-free illustrated locations (the silhouette IS the node body; no enclosing disc/ring),
+   a burned chaos-star carved into the wood (`.star-carve`) beneath the distinct playable edges,
+   and planted heraldry banners as the sole claim signal; new `tests/v3/board-view.test.ts` +
+   an `auditStarInlay` gate in `npm run shots:v3`.
 
 - [x] Board-centric layout: board center-stage on a **textured table surface**; the right-hand status
       column dissolves into diegetic HUD elements (banners, plaques, ribbons at the edges). (2026-07-19, T-201)

@@ -264,6 +264,22 @@ async function auditFonts(page) {
   });
 }
 
+/**
+ * T-208 accept criterion — the carved chaos-star inlay must actually be present in the live board
+ * DOM (not just faint scratches). jsdom-agnostic: runs in the real Playwright page. Returns
+ * `{ present }` — the decorative `.star-inlay` rays AND the burned `.star-carve` fill both exist.
+ */
+async function auditStarInlay(page) {
+  return page.evaluate(() => {
+    const svg = document.querySelector('.board-svg');
+    if (!svg) return null;
+    const rays = svg.querySelectorAll('.star-inlay').length;
+    const carve = svg.querySelector('.star-carve');
+    const carveFill = carve ? carve.getAttribute('fill') || '' : '';
+    return { present: rays > 0 && !!carve && carveFill !== '' && carveFill !== 'none' };
+  });
+}
+
 async function main() {
   const { out } = parseArgs(process.argv.slice(2));
   const outDir = resolve(process.cwd(), out);
@@ -302,6 +318,8 @@ async function main() {
   // live mid-game board; both must load our faces and expose zero default-stack text nodes.
   let fontStart = null;
   let fontBoard = null;
+  // T-208: assert the carved chaos-star inlay is present on the live mid-game board.
+  let starInlay = null;
 
   const captureIfNeeded = async (sigs) => {
     for (const screen of SCREENS) {
@@ -364,6 +382,10 @@ async function main() {
         if (fontBoard === null && obs.round >= 2 && obs.sigs.board) {
           fontBoard = await auditFonts(page);
         }
+        // T-208: assert the carved chaos-star inlay once on the live mid-game board (round >= 2).
+        if (starInlay === null && obs.round >= 2 && obs.sigs.board) {
+          starInlay = await auditStarInlay(page);
+        }
         if (needed.size === 0 || obs.over) break;
         const clicked = await page.evaluate(() => window.__shotsStep());
         if (clicked === null) break; // no progress possible — move to the next seed
@@ -412,6 +434,17 @@ async function main() {
   }
   if (fontFailed) process.exit(1);
   console.log('font audit: every text node resolves to Cinzel/Inter; self-hosted faces loaded (start + board)');
+
+  // T-208 accept: the carved chaos-star inlay must be present in the shots run.
+  if (starInlay === null) {
+    console.error('\nSTAR-INLAY assertion never ran (no live board at round >= 2)');
+    process.exit(1);
+  }
+  if (!starInlay.present) {
+    console.error('\nSTAR-INLAY FAILED — the decorative rays and/or the burned .star-carve fill are absent from the board.');
+    process.exit(1);
+  }
+  console.log('star inlay: decorative chaos-star rays + burned carved-wood fill present on the board');
 
   if (needed.size === 0) {
     console.log(`\ncaptured ${captured.size}/${SCREENS.length} screens → ${outDir}`);

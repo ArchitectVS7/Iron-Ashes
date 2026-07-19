@@ -11,12 +11,16 @@
  * playable edges are drawn distinctly on top (`.edge`) straight from each node's real
  * `connections`, so a decorative ray is never mistaken for an edge and no edge is omitted.
  *
- * Each node is an illustrated map LOCATION (dark throne / anvil-forge / castle-keep /
- * hamlet-holding / road-approach) rather than a flat disc; an owned node shows the
- * owner's HOUSE banner planted on it plus a heraldry-coloured ring. Ownership, ash state,
- * a per-node blightLevel pip ladder, Court pieces / Crown / dark forces, a Discovery
- * back-sigil while face-down, and the dark's heart HP are all preserved. Pure: same
- * observable state ⇒ same SVG.
+ * Each node IS an illustrated map LOCATION (dark throne / anvil-forge / castle-keep /
+ * hamlet-holding / road-approach) — the silhouette itself is the node body; there is NO
+ * enclosing stone disc. An owned node's sole ownership signal is the owner's HOUSE banner
+ * planted on it (heraldry colour + sigil) — never a coloured ring. Ash state (ashed
+ * illustration), the keystone accent, the dark's heart (danger-lit throne), a per-node
+ * blightLevel pip ladder, Court pieces / Crown / dark forces, a Discovery back-sigil while
+ * face-down, and the dark's heart HP are all preserved. Beneath the graph a burned {8-point}
+ * chaos-star is carved into the wood (`.star-carve`, first child), with the decorative rays /
+ * octagram (`.star-inlay`) over it and the true edges (`.edge`) distinct on top of both.
+ * Pure: same observable state ⇒ same SVG.
  */
 
 import type { ObservableState } from '../v3/index.js';
@@ -45,7 +49,8 @@ export const HOUSES: readonly House[] = [
 ];
 
 const NEUTRAL = '#4b5563';
-const ASH = '#1f1014';
+/** Burned-wood fill for the carved chaos-star inlay — darker than the table texture. */
+const STAR_CARVE_FILL = '#1c130b';
 
 const VIEW = 720;
 const CX = VIEW / 2;
@@ -135,10 +140,15 @@ export function houseSigilSvg(seat: number, size: number, color: string): string
   return `<svg class="sigil-svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}" aria-hidden="true">${houseSigilPath(house.sigil)}</svg>`;
 }
 
-/** Illustrated map location per tier, centred at the node origin, scaled to radius `r`. */
-function locationSvg(tier: string, r: number): string {
+/**
+ * Illustrated map location per tier, centred at the node origin, scaled to radius `r`. The
+ * silhouette IS the node body (no enclosing disc). `extra` carries state classes (`ashed`,
+ * `heart`) that re-home the disc's former visual states onto the illustration itself.
+ */
+function locationSvg(tier: string, r: number, extra = ''): string {
   const s = r / 24; // the primitives below are authored in a ~24px box
-  const g = (inner: string): string => `<g class="loc loc-${tier}" transform="scale(${s.toFixed(3)})">${inner}</g>`;
+  const cls = `loc loc-${tier}${extra ? ` ${extra}` : ''}`;
+  const g = (inner: string): string => `<g class="${cls}" transform="scale(${s.toFixed(3)})">${inner}</g>`;
   switch (tier) {
     case 'keystone': // the dark throne
       return g(`<path class="loc-fill" d="M-14 14h28l-3-8h-4l2-16h-6l-1 6h-4l-1-6h-6l2 16h-4z" />
@@ -161,14 +171,19 @@ function locationSvg(tier: string, r: number): string {
   }
 }
 
-/** A planted house banner (pole + pennant + sigil) for an owned, non-ashed node. */
+/**
+ * A planted house banner (pole + pennant + sigil) — the SOLE ownership signal for an owned,
+ * non-ashed node (there is no coloured ring). The sigil `<g>` carries a `sigil-<name>` class so
+ * the owner's heraldry reads at a glance (and is DOM-assertable).
+ */
 function claimBanner(seat: number, r: number): string {
   const color = PLAYER_COLORS[seat] ?? NEUTRAL;
+  const sigil = HOUSES[seat]?.sigil ?? 'flame';
   // Perch the banner on the node's upper-left shoulder so it clears pieces/crown at the top.
   return `<g class="claim-banner" transform="translate(${(-r - 2).toFixed(1)},${(-r - 6).toFixed(1)})">
     <line class="banner-pole" x1="0" y1="4" x2="0" y2="24" />
     <path class="banner-flag" d="M0 4h15l-4 4 4 4H0z" fill="${color}" />
-    <g transform="translate(1.5,4) scale(0.42)" fill="#1a1206">${houseSigilPath(HOUSES[seat]?.sigil ?? 'flame')}</g>
+    <g class="banner-sigil sigil-${sigil}" transform="translate(1.5,4) scale(0.42)" fill="#1a1206">${houseSigilPath(sigil)}</g>
   </g>`;
 }
 
@@ -181,6 +196,19 @@ export function renderBoard(state: ObservableState): string {
   // ── Decorative chaos-magic star inlay (table marquetry — NOT playable edges) ──
   const rim = RAY_ANGLES.map(a => polarPoint(a, RIM));
   let inlay = '';
+  // Carved burned-wood 8-point star beneath the graph: a filled polygon whose 8 outer points
+  // sit under the decorative rays and 8 inner points cinch between them. Rendered FIRST (under
+  // rays / edges / nodes) with an explicit dark burn fill so it reads as a scorched inlay in a
+  // screenshot, not faint scratches. This is decorative wood — never a playable ray.
+  const carvePts: string[] = [];
+  const CARVE_INNER = RIM * 0.4;
+  for (let i = 0; i < 8; i++) {
+    const outer = polarPoint(RAY_ANGLES[i], RIM);
+    const inner = polarPoint(RAY_ANGLES[i] + 22.5, CARVE_INNER);
+    carvePts.push(`${outer.x.toFixed(1)},${outer.y.toFixed(1)}`);
+    carvePts.push(`${inner.x.toFixed(1)},${inner.y.toFixed(1)}`);
+  }
+  inlay += `<polygon points="${carvePts.join(' ')}" class="star-carve" fill="${STAR_CARVE_FILL}" />`;
   // 8 full-length rays from the centre to the rim.
   for (const p of rim) {
     inlay += `<line x1="${CX}" y1="${CY}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" class="star-inlay ray" />`;
@@ -223,22 +251,16 @@ export function renderBoard(state: ObservableState): string {
     const owner = ns.owner;
     const owned = owner !== null && !ns.ashed;
     const isHeart = heart !== null && heart.nodeId === id;
-    const color = owner !== null ? (PLAYER_COLORS[owner] ?? NEUTRAL) : NEUTRAL;
-    const cls = `node node-${ndef.tier}${ns.ashed ? ' ashed' : ''}${isHeart ? ' heart' : ''}${owned ? ' owned' : ''}`;
 
     circles += `<g class="node-group" data-node="${id}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})">`;
     circles += `<title>${esc(id)} — ${esc(ndef.tier)}${owner !== null ? ` · ${esc(HOUSES[owner]?.name ?? `P${owner + 1}`)}` : ' · unclaimed'}${ns.ashed ? ' · ASHED' : ''}</title>`;
 
-    // Base stone disc (fill via CSS; ashed/heart handled by class). Illustration sits on top.
-    circles += `<circle r="${r}" class="${cls}"${ns.ashed ? ` fill="${ASH}"` : ''} />`;
-    // Heraldry ownership tint + ring (never a flat primary-coloured disc).
-    if (owned) {
-      circles += `<circle r="${r}" class="owner-tint" fill="${color}" />`;
-      circles += `<circle r="${(r + 3).toFixed(1)}" class="owner-ring" fill="none" stroke="${color}" />`;
-    }
-
-    // Illustrated map location.
-    circles += locationSvg(ndef.tier, r * 0.82);
+    // The illustrated location IS the node body — no enclosing stone disc. The former disc's
+    // visual states are re-homed onto the illustration via classes: `ashed` (scorched fill),
+    // `heart` (danger-lit throne once the dark's heart spawns); the keystone accent lives on
+    // `.loc-keystone` in CSS. Zero info loss (Gate 0.5).
+    const extra = `${ns.ashed ? ' ashed' : ''}${isHeart ? ' heart' : ''}`.trim();
+    circles += locationSvg(ndef.tier, r, extra);
 
     // The dark's heart HP track (once it spawns at Reckoning).
     if (isHeart && heart) {
