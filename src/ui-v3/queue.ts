@@ -80,6 +80,15 @@ const PRESET_SECONDS: Record<MoveType, number> = {
   game_end: 0.6,
 };
 
+/**
+ * Read-only accessor for a move type's animated preset hold (seconds). Exposed so presentation
+ * tests (T-205) can assert an animated preset exists for a given move (e.g. `act_advance` > 0)
+ * without reaching into the module-private table. Pure read — changes no value or behavior.
+ */
+export function presetSeconds(type: MoveType): number {
+  return PRESET_SECONDS[type];
+}
+
 /** A dummy tween target — placeholder tweens animate this, not real DOM elements (yet). */
 interface TweenProxy {
   _t: number;

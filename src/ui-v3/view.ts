@@ -19,6 +19,7 @@ import { AnimationQueue } from './queue.js';
 import { SoundManager } from './sound.js';
 import { diffObservable } from './moves.js';
 import { tokenChip, gauge } from './token-chip.js';
+import { turnTrack } from './turn-track.js';
 import { powerCardFace } from './card-face.js';
 import {
   TUNABLES,
@@ -181,13 +182,16 @@ function renderGambitBanner(s: ObservableState): string {
 
 function renderHeader(s: ObservableState): string {
   const sk = s.shadowking;
+  // The heart-HP gauge (preserved from the old .clock line — zero information loss) rides beside the
+  // visual turn track. It stays a `.gauge` with `data-stat="heartHp"` so the token-chip audit passes.
   const heart = sk.heart
-    ? ` · <span class="header-stat">Heart ${gauge('heart', sk.heart.hp, TUNABLES.HEART_HP, { stat: 'heartHp', title: sk.heart.exposed ? "the dark's heart HP" : "the dark's heart (broken)" })}${sk.heart.exposed ? '' : ' (broken)'}</span>`
+    ? `<span class="header-heart header-stat">Heart ${gauge('heart', sk.heart.hp, TUNABLES.HEART_HP, { stat: 'heartHp', title: sk.heart.exposed ? "the dark's heart HP" : "the dark's heart (broken)" })}${sk.heart.exposed ? '' : ' (broken)'}</span>`
     : '';
   return `
     <div class="header">
       <div class="title">Iron Throne of Ashes <span class="v-tag">v3</span></div>
-      <div class="clock">Round ${s.round}/${TUNABLES.ROUND_CAP} · Act <b>${s.act}</b> · Phase <b>${s.phase}</b>${heart}</div>
+      ${turnTrack(s)}
+      ${heart}
       <div class="sk-meter">Dark patience ${gauge('hourglass', sk.patience, TUNABLES.PATIENCE_CAP, { stat: 'patience', title: "the dark's patience clock" })}${s.mode === 'blood_pact' ? ' · <b>Blood Pact</b>' : ''} · Strike pool ${tokenChip('embers', sk.strikePool.length, { stat: 'strikepool', title: "the dark's strike-pool cards" })}</div>
     </div>`;
 }

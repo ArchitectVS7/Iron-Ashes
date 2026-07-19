@@ -72,10 +72,10 @@ const DRIVER_INIT = `
   const app = () => document.getElementById('app');
 
   const parseRound = () => {
-    const clock = document.querySelector('.clock');
-    if (!clock) return 0;
-    const m = /Round\\s+(\\d+)/.exec(clock.textContent || '');
-    return m ? Number(m[1]) : 0;
+    // T-205 replaced the textual .clock with a visual turn track carrying data-round.
+    const track = document.querySelector('.turn-track');
+    if (track) return Number(track.getAttribute('data-round')) || 0;
+    return 0;
   };
 
   window.__shotsObserve = () => {

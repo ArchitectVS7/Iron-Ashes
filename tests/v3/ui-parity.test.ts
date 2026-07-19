@@ -146,7 +146,10 @@ describe('UI parity (v3) — P0-11 legibility + full state display', () => {
   it("publishes every seat's hand size + the clock + the four house plaques", () => {
     const html = renderApp(humanTurn('competitive'));
     expect(html).toContain('Your hand');
-    expect(html).toMatch(/Round \d+\/\d+/);
+    // T-205: the round/act/phase clock is now the visual turn track — round is carried on the
+    // machine-readable contract (`data-round`), with a compact `R<round>/<cap>` label alongside.
+    expect(html).toMatch(/class="turn-track" data-round="\d+" data-act="[A-Z]+" data-phase="[A-Z]+"/);
+    expect(html).toMatch(/R\d+\/\d+/);
     // Four dissolved house plaques, each carrying that seat's hand-size chip (T-203: icon + count
     // TokenChip, `data-stat="hand"` — the old 🂠 emoji is now a committed game-icons SVG).
     expect((html.match(/class="house-plaque/g) ?? []).length).toBe(4);

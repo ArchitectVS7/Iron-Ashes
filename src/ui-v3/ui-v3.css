@@ -204,8 +204,60 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
 }
 .title { font-family: var(--font-display); color: var(--accent); font-size: 20px; }
 .v-tag { color: var(--muted); font-size: 12px; }
-.clock { font-size: 14px; }
 .sk-meter { font-size: 13px; color: var(--muted); margin-left: auto; }
+.header-heart { font-size: 13px; color: var(--muted); }
+
+/* ── Turn track (T-205) — a marker rides Whisper→March→Reckoning, with round pips + phase dots ── */
+.turn-track { display: flex; flex-direction: column; gap: 5px; }
+.trk-rail-row { display: flex; align-items: center; gap: 0; }
+.track-rail {
+  flex: 1 1 20px; min-width: 16px; height: 2px; align-self: center;
+  background: linear-gradient(90deg, rgba(201, 162, 39, 0.15), rgba(201, 162, 39, 0.35));
+}
+.act-station {
+  position: relative; display: flex; align-items: center; gap: 5px;
+  font-family: var(--font-display); font-size: 12px; letter-spacing: 0.03em;
+  padding: 3px 9px; border-radius: 12px; border: 1px solid transparent;
+  color: var(--muted); white-space: nowrap;
+}
+.act-station .act-glyph { font-size: 13px; line-height: 1; filter: grayscale(0.5); }
+.act-station .act-label { text-transform: uppercase; }
+/* Per-act treatment — Whisper cool/candlelit, March iron/steel, Reckoning ember/red. */
+.act-station.act-whisper.is-current { --act-tint: #7fb0d6; }
+.act-station.act-march.is-current { --act-tint: #c7cdd6; }
+.act-station.act-reckoning.is-current { --act-tint: #e0552b; }
+.act-station.is-past { color: var(--muted); opacity: 0.6; }
+.act-station.is-future { color: var(--muted); opacity: 0.4; }
+.act-station.is-current {
+  color: var(--ink); border-color: var(--act-tint);
+  background: color-mix(in srgb, var(--act-tint) 16%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--act-tint) 30%, transparent);
+}
+.act-station.is-current .act-glyph { filter: none; }
+.track-marker {
+  position: absolute; top: -5px; left: 50%; transform: translateX(-50%);
+  width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent;
+  border-top: 6px solid var(--act-tint, var(--accent));
+  animation: trk-marker-pulse 1.8s ease-in-out infinite;
+}
+@keyframes trk-marker-pulse {
+  0%, 100% { opacity: 0.7; transform: translateX(-50%) translateY(0); }
+  50% { opacity: 1; transform: translateX(-50%) translateY(-1px); }
+}
+.trk-meta-row { display: flex; align-items: center; gap: 14px; font-size: 12px; color: var(--muted); }
+.trk-rounds, .trk-phase { display: inline-flex; align-items: center; gap: 6px; }
+.trk-pips { display: inline-flex; gap: 2px; align-items: center; }
+.trk-pip { width: 5px; height: 5px; border-radius: 50%; background: #3a3340; }
+.trk-pip.on { background: var(--accent); }
+.trk-round-label { font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+.trk-phase-dots { display: inline-flex; gap: 3px; align-items: center; }
+.trk-phase-dot { width: 6px; height: 6px; border-radius: 50%; background: #3a3340; }
+.trk-phase-dot.on { background: var(--accent); box-shadow: 0 0 4px rgba(201, 162, 39, 0.6); }
+.trk-phase-label { color: var(--ink); font-family: var(--font-display); font-size: 11px;
+  letter-spacing: 0.04em; }
+@media (prefers-reduced-motion: reduce) {
+  .track-marker { animation: none; }
+}
 
 /* ── House plaques (dissolved standings + exposure) ── */
 .houses-title, .realm-title {

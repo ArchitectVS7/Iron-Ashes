@@ -390,12 +390,32 @@ intentionally generated-ornamental filler, not bespoke per-card art — real art
 for this task and were not promised by Gate 0.5; the turn/round/Act visual track (T-205) and bundle
 budget close (T-206) are separate, untouched tasks.
 
-### T-205 · Turn/round/Act visual track — `status: TODO` · `coder: sonnet` · `after: T-203`
+### T-205 · Turn/round/Act visual track — `status: DONE` · `coder: sonnet` · `after: T-203`
 Replace the textual turn/round/act status with a visual track: a marker advancing along
 Whisper→March→Reckoning with round pips, each act visually distinct. Marker movement animates through
 the M1 queue (act/round-advance Move types already exist).
 **Accept:** the track component renders on the board screen; an act-advance transition produces the
 corresponding Move and animated preset (spy test in instant mode); jsdom E2E green.
+
+**Delivered (2026-07-19):** Added `src/ui-v3/turn-track.ts` (`turnTrack`), a pure, deterministic
+markup component reading only the public `round`/`act`/`phase` fields of `observableState` — no new
+data or fog surface. It replaces the old textual `.clock` line in `renderHeader` (`view.ts`) with a
+diegetic escalation rail: three act stations (Whisper 🕯 → March ⚔ → Reckoning 🔥, each visually
+distinct via its own class + glyph) joined by a rail, with a marker nested in the current-act station
+so a full re-render always repositions it correctly; a round-pip row (`R<round>/<cap>`) and a
+phase-dot row (THREAT/PLEDGE/ACTION/DAWN) sit below. The whole track carries `data-round`/`data-act`/
+`data-phase` as the machine-readable contract, updated in `scripts/shots-v3.mjs`'s `parseRound` and
+`tests/v3/ui-parity.test.ts` (both previously scraped `.clock` text). `queue.ts` gained a small
+read-only `presetSeconds(type)` accessor so `tests/v3/turn-track.test.ts` can assert an animated
+preset exists for `act_advance` without reaching into the module-private table — the M1 queue itself
+was not changed, since `act_advance`/`round_advance`/`phase_advance` Moves and their presets already
+existed. Styling lives in `ui-v3.css` (per-act color coding, pip/dot states, marker). The heart-HP
+gauge (previously inline on the `.clock` line) now rides beside the track as its own `.header-heart`
+span, preserving the existing `.gauge`/`data-stat="heartHp"` markup so the token-chip audit still
+passes. **Scope boundary:** the track is presentation-only re-rendered wholesale on `settle` (no
+independent DOM-tween animation of the marker beyond the existing queue preset holds) — a bespoke
+marker-glide animation distinct from the M1 queue's hold-based presets was not promised by the accept
+criteria and is out of scope for this task.
 
 ### T-206 · M2 close — bundle budget + DoD — `status: TODO` · `coder: sonnet` · `after: T-204, T-205`
 Add `scripts/check-budget.mjs` (npm script `budget`): `vite build` output + committed UI assets total
