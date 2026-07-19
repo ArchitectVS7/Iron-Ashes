@@ -172,7 +172,7 @@ reveal, resource change, act advance, elimination, game end).
 `tsc` (spot-check in review, not committed); `diffObservable` imports nothing from `src/v3` except
 types/`observableState`; full suite green.
 
-### T-102 · Determinism + fog-leak + coverage tests over full games — `status: TODO` · `coder: opus` · `after: T-101`
+### T-102 · Determinism + fog-leak + coverage tests over full games — `status: DONE` · `coder: opus` · `after: T-101`
 Drive full simmed games through `diffObservable` by reusing the existing v3 AI/E2E harness patterns
 (from `tests/v3/`): at 2 fixed seeds, (a) determinism — running twice yields byte-identical
 serialized move streams; (b) fog — for every `viewerSeat`, the serialized stream never contains
@@ -180,6 +180,18 @@ redacted token content or the seed value; (c) coverage — every command type ob
 produced a non-crashing `Move[]`. These are vitest tests, not scripts.
 **Accept:** the three properties are distinct green tests over ≥2 seeds of complete games; test names
 identify seed and property; full suite green.
+
+**Delivered (2026-07-18):** Added `tests/v3/move-stream.test.ts`, a full-game complement to T-101's
+unit tests — it spies on the single `applyCommand` reducer entry point to capture every command
+boundary of complete AI-vs-AI headless games (competitive and Blood-Pact modes) at two fixed seeds
+(314159, 161803), then feeds each before/after `observableState` pair through `diffObservable` for
+every `viewerSeat`. Three green vitest properties per seed: determinism (two runs serialize to
+byte-identical move streams), fog (the serialized stream never contains the redaction sentinel or the
+real seed, for any seat), and coverage (every AI-reachable command type is observed and yields only
+moves within its `MOVE_EXPECTATIONS` superset, non-crashing). Scope boundary: the 3 interactive-only
+commands (`LAST_STAND_COMMIT`, `SET_BEQUEST`, `SET_WRAITH_INPUT`) are never issued by the sim/AI and
+are asserted absent rather than covered here — they remain the human-playtest checklist's
+responsibility, not this automated suite's.
 
 ### T-103 · Animation queue + instant mode, wired into the render path — `status: TODO` · `coder: opus` · `after: T-101`
 Create `src/ui-v3/queue.ts`: sequences a `Move[]` through GSAP timelines with per-move-type presets
