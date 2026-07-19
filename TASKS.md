@@ -417,11 +417,27 @@ independent DOM-tween animation of the marker beyond the existing queue preset h
 marker-glide animation distinct from the M1 queue's hold-based presets was not promised by the accept
 criteria and is out of scope for this task.
 
-### T-206 · M2 close — bundle budget + DoD — `status: TODO` · `coder: sonnet` · `after: T-204, T-205`
+### T-206 · M2 close — bundle budget + DoD — `status: DONE` · `coder: sonnet` · `after: T-204, T-205`
 Add `scripts/check-budget.mjs` (npm script `budget`): `vite build` output + committed UI assets total
 ≤ 3 MB, exit non-zero over budget. Then milestone DoD: verify green → tick M2 boxes, `currentStage` →
 `V3.1-M2-CHECKPOINT`, dated §8 entry, commit, handoff:check green.
 **Accept:** `npm run budget` exits 0; DoD commands exit 0; boxes ticked; §8 entry present.
+
+**Delivered (2026-07-19):** Added `scripts/check-budget.mjs` (`npm run budget`), which runs a clean
+`vite build` itself (so `emptyOutDir` wipes any stale `tsc` output before measuring — `dist/` is shared
+between the two and measuring after `npm run build` would falsely fail on ~3 MB of compiled-JS noise),
+sums every file under the resulting `dist/` (vite bundle + copied fonts + inlined `?raw` SVG icons/
+frames, including the v2 bundle since the shared vite config has two rollup inputs), and exits non-zero
+over a 3 MiB budget; current shipped payload is ~444 KB (~2.6 MB of headroom). Closed the M2 milestone
+DoD: all five M2 deliverable boxes (T-201…T-205) ticked in `docs/ROADMAP-V3.1-UI.md` §M2, a dated §8
+entry added to `docs/ROADMAP-V3.md`, `docs/handoff/state.json` `currentStage` repointed
+`V3.1-M2` → `V3.1-M2-CHECKPOINT`, and a new `V3.1-M2-CHECKPOINT` box inserted into ROADMAP-V3 §4 as the
+next first-unchecked stage. `scripts/handoff-check.mjs`'s `firstUncheckedStage` regex was widened to
+parse the optional `-CHECKPOINT` suffix so it correctly resolves to that box. `npm run budget`,
+`npm run verify` (98 files / 1219 passed / 0 failed), and `npm run handoff:check` all exit 0.
+**Scope boundary:** engine/tunables untouched (balance stays LOCKED); no new runtime deps (reuses the
+existing `vite` devDep); T-207 (the user visual-review checkpoint) is a separate, still-open task — this
+task only closes the M2 build/DoD gate, not the milestone's human sign-off.
 
 ### T-207 · CHECKPOINT — user visual review of M2 — `status: TODO` · `coder: sonnet` · `after: T-206`
 Regenerate the gallery into `docs/Redesign-V3.1/m2/` (committed), then **set this task

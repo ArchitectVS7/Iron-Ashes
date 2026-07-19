@@ -22,7 +22,8 @@
     "sim": "npm run gen:data:check && tsc && node scripts/sim.mjs",
     "sim:v3": "tsc && node scripts/sim-v3.mjs",
     "harness": "tsc && node harness/ugt-harness.mjs",
-    "shots:v3": "node scripts/shots-v3.mjs"
+    "shots:v3": "node scripts/shots-v3.mjs",
+    "budget": "node scripts/check-budget.mjs"
   },
   "keywords": [
     "board-game",

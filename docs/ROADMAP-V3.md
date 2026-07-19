@@ -197,7 +197,8 @@ Workflow (same as v2): **① idea → ② textual algorithm → ③ code → ④
   on the LOCKED v3 engine; milestones below (tracking lives in the sub-boxes), human playtest is V3.1-M5.
   - [x] **V3.1-M0 — Foundations & the screenshot feedback loop** → `docs/ROADMAP-V3.1-UI.md` §M0
   - [x] **V3.1-M1 — The semantic move stream (transition layer)** → `docs/ROADMAP-V3.1-UI.md` §M1
-  - [ ] **V3.1-M2 — Theme foundation (stop looking like a spreadsheet)** → `docs/ROADMAP-V3.1-UI.md` §M2
+  - [x] **V3.1-M2 — Theme foundation (stop looking like a spreadsheet)** → `docs/ROADMAP-V3.1-UI.md` §M2
+  - [ ] **V3.1-M2-CHECKPOINT — user visual review of M2 (T-207)** → `docs/ROADMAP-V3.1-UI.md` §M2
   - [ ] **V3.1-M3 — Cards & hand live** → `docs/ROADMAP-V3.1-UI.md` §M3
   - [ ] **V3.1-M4 — Board life & sound** → `docs/ROADMAP-V3.1-UI.md` §M4
   - [ ] **V3.1-M5 — Playtest readiness → run the V3-6 human playtest** → `docs/ROADMAP-V3.1-UI.md` §M5
@@ -262,6 +263,22 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-19** — **V3.1-M2 CLOSED (T-206).** M2 (theme foundation — "stop looking like a spreadsheet")
+  deliverables all shipped: board-centric layout on the textured table (T-201), typography + candlelit
+  palette (T-202), token/chip components + DOM audit (T-203), data-driven card-face generator (T-204), and
+  a visual turn/round/Act track (T-205). This close adds the bundle-budget gate: `scripts/check-budget.mjs`
+  (`npm run budget`) runs a CLEAN `vite build` (emptyOutDir wipes any stale `tsc` output) and sums the
+  resulting `dist/` — the shipped browser payload (vite bundle + copied fonts + inlined `?raw` SVGs; the v2
+  bundle is part of the honest total) — against a 3 MiB budget, exiting non-zero over it. Current total is
+  **~444 KB** (~2.6 MB headroom), so the ≤3 MB M2 exit metric passes. §4: `V3.1-M2` ticked and a new
+  `V3.1-M2-CHECKPOINT` box inserted after it (the first-unchecked box → user visual review of M2, T-207);
+  `scripts/handoff-check.mjs` `firstUncheckedStage` regex widened to parse the optional `-CHECKPOINT` suffix
+  (in-scope: `scripts/`, not the engine; same script T-001 widened for the `V3.1-Mn` form). Engine/tunables
+  untouched — balance stays LOCKED; no new deps (uses the existing `vite` devDep). `npm run budget` 0,
+  `npm run verify` 0 (98 files / 1219 passed / 0 failed), `npm run handoff:check` 0. `docs/handoff/state.json`
+  `currentStage` repointed **V3.1-M2 → V3.1-M2-CHECKPOINT**; the five M2 deliverable boxes in
+  `docs/ROADMAP-V3.1-UI.md` §M2 ticked. Next: T-207 is a CHECKPOINT (regenerate the M2 gallery, set BLOCKED,
+  halt — never self-approved; only the user flips it to DONE after scoring rubric ≥8/10 + the blind-read test).
 - **2026-07-18** — **V3.1-M1 CLOSED (T-106).** M1 (the semantic move stream — the transition layer) complete:
   `src/ui-v3/moves.ts` provides a typed `Move` union + a pure `diffObservable(prevObs, nextObs) → Move[]`
   derived **only** from two `observableState` fog projections (leak-safe by construction; an exhaustive

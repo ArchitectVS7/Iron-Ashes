@@ -121,14 +121,14 @@ command; baseline gallery in-repo.
    generated-ornamental until bespoke art exists). Constraint: **value + suit icon must be corner-
    indexed** and legible in the fan; full text is read via hover-raise zoom (M3).
 
-- [ ] Board-centric layout: board center-stage on a **textured table surface**; the right-hand status
-      column dissolves into diegetic HUD elements (banners, plaques, ribbons at the edges).
-- [ ] Typography: thematic display font + readable body font (e.g. Cinzel + a serif/sans body).
-- [ ] **Every resource/stat becomes a token or gauge**: game-icons.net SVGs + Kenney frames; icon+count
-      chips, never bare numbers in a table.
-- [ ] Card frames + a **data-driven card-face generator** (piece/token data → SVG face) — art swaps
-      never touch layout code.
-- [ ] Turn/round/Act (Whisper→March→Reckoning) as a visual track with a marker, not a text line.
+- [x] Board-centric layout: board center-stage on a **textured table surface**; the right-hand status
+      column dissolves into diegetic HUD elements (banners, plaques, ribbons at the edges). (2026-07-19, T-201)
+- [x] Typography: thematic display font + readable body font (e.g. Cinzel + a serif/sans body). (2026-07-19, T-202)
+- [x] **Every resource/stat becomes a token or gauge**: game-icons.net SVGs + Kenney frames; icon+count
+      chips, never bare numbers in a table. (2026-07-19, T-203)
+- [x] Card frames + a **data-driven card-face generator** (piece/token data → SVG face) — art swaps
+      never touch layout code. (2026-07-19, T-204)
+- [x] Turn/round/Act (Whisper→March→Reckoning) as a visual track with a marker, not a text line. (2026-07-19, T-205)
 
 **Exit metrics:**
 - Grep-able: zero resource values rendered outside the token/chip component (enforced by a DOM audit
