@@ -220,11 +220,22 @@ real per-element card/piece/token animations — that work is explicitly left to
 (replay-test proof that no state change bypasses the queue) and T-105 (SoundManager) remain separate,
 not-yet-started follow-ons.
 
-### T-104 · Replay test — "snap count 0" — `status: TODO` · `coder: sonnet` · `after: T-103`
+### T-104 · Replay test — "snap count 0" — `status: DONE` · `coder: sonnet` · `after: T-103`
 Add a vitest: for a full fixed-seed game, instant-mode playback of the accumulated move stream ends
 with DOM (serialized innerHTML of the game root, normalized) identical to a cold render of the final
 state. This proves no state change can bypass the queue.
 **Accept:** the replay test exists and is green for ≥1 full game at 2 seeds; full suite green.
+
+**Delivered (2026-07-18):** Added `tests/v3/replay-snap-count.test.ts`, a jsdom vitest that drives two
+full fixed-seed competitive games (seeds 42 and 99) entirely by dispatching real clicks on rendered
+`[data-action]`/`[data-node]` controls through `mountView`/`GameSession`, so every state change routes
+`onChange → queue → settle()`. After each game reaches a genuine end state (`isOver` + non-null
+`gameEndReason`), the incrementally-built playback `innerHTML` is asserted byte-identical (post
+whitespace-normalization) to a cold, from-scratch `mountView` render of the same final state — proving
+no mutation bypasses the animation queue. Scope boundary: only the `competitive` mode is exercised
+(2 seeds, per the acceptance bar); `blood_pact` replay parity is not separately asserted here and
+remains open for a future pass if desired. Full suite green (93 files / 1180 passed) per
+`docs/handoff/state.json`.
 
 ### T-105 · SoundManager skeleton — `status: TODO` · `coder: sonnet` · `after: T-103`
 Create `src/ui-v3/sound.ts`: a Howler-backed `SoundManager` with `play(moveType)`, master volume and
