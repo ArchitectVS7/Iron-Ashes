@@ -15,9 +15,7 @@ GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
 [ -f "$GIT_DIR/MERGE_HEAD" ] && exit 0
 [ -f "$GIT_DIR/CHERRY_PICK_HEAD" ] && exit 0
 
-# TEMP (orchestrate M2 run, restore after): default flipped to skip so the
-# background rebuild doesn't dirty the tree between orchestrator task commits.
-[ "${GRAPHIFY_SKIP_HOOK:-1}" = "1" ] && exit 0
+[ "${GRAPHIFY_SKIP_HOOK:-0}" = "1" ] && exit 0
 
 CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git diff --name-only HEAD 2>/dev/null)
 if [ -z "$CHANGED" ]; then
