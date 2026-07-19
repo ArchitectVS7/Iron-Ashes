@@ -10,6 +10,7 @@ guardrail (`docs/ROADMAP-V3.1-UI.md` §3). This file accrues entries as the spri
 | Asset | Description | Source | Author | License |
 | --- | --- | --- | --- | --- |
 | `src/ui-v3/assets/table-texture.svg` | Seamless dark-oak table surface under the board (procedural stitched-turbulence wood grain + plank seams). | Self-authored for this repo (T-201, 2026-07-18). | Iron Throne of Ashes project | [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| `src/ui-v3/assets/frames/card-frame.svg` | Ornamental TCG card frame (iron rim + parchment face, gilt filigree, name banner / art window / rules plate) used by the data-driven card-face generator (`src/ui-v3/card-face.ts`); imported `?raw` so art/frame swaps never touch layout. | Self-authored for this repo (T-204, 2026-07-19). | Iron Throne of Ashes project | [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
 
 ## Icons
 

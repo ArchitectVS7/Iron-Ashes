@@ -19,6 +19,7 @@ import { AnimationQueue } from './queue.js';
 import { SoundManager } from './sound.js';
 import { diffObservable } from './moves.js';
 import { tokenChip, gauge } from './token-chip.js';
+import { powerCardFace } from './card-face.js';
 import {
   TUNABLES,
   HERALD_RECRUIT_COST,
@@ -286,8 +287,9 @@ function renderHand(s: ObservableState, human: number): string {
   const hand = s.players[human].hand;
   const limit = s.players[human].handLimit;
   if (hand.length === 0) return `<div class="hand"><span class="hand-label">Your hand (0/${limit}):</span> <i>empty</i></div>`;
-  const cards = hand.map(v => `<span class="card">${v}</span>`).join('');
-  return `<div class="hand"><span class="hand-label">Your hand (${hand.length}/${limit}):</span> ${cards}</div>`;
+  // Every card renders through the data-driven generator (T-204) — no bespoke card markup here.
+  const cards = hand.map(v => `<span class="card-slot">${powerCardFace(v)}</span>`).join('');
+  return `<div class="hand"><span class="hand-label">Your hand (${hand.length}/${limit}):</span> <span class="hand-fan">${cards}</span></div>`;
 }
 
 function renderOaths(s: ObservableState): string {
@@ -617,7 +619,8 @@ function renderLastStandPanel(session: GameSession, s: ObservableState): string 
 
   const cards = remaining.map((v, i) => {
     const sel = session.lastStandSelection.includes(i) ? ' selected' : '';
-    return `<button class="card-btn${sel}" data-action="laststand-toggle:${i}">${v}</button>`;
+    // The interactive last-stand card is the generator face inside the toggle button (T-204).
+    return `<button class="card-face-btn${sel}" data-action="laststand-toggle:${i}">${powerCardFace(v)}</button>`;
   }).join('');
 
   const verdict = holds

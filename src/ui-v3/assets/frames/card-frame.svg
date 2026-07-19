@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="cf-parch" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#efe4cc"/>
+      <stop offset="0.55" stop-color="#e2d3b2"/>
+      <stop offset="1" stop-color="#cdbb96"/>
+    </linearGradient>
+    <linearGradient id="cf-iron" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5a5560"/>
+      <stop offset="0.5" stop-color="#3a333c"/>
+      <stop offset="1" stop-color="#241d22"/>
+    </linearGradient>
+  </defs>
+  <!-- iron rim -->
+  <rect x="1.25" y="1.25" width="97.5" height="137.5" rx="8.5" fill="url(#cf-iron)"/>
+  <!-- parchment face -->
+  <rect x="4" y="4" width="92" height="132" rx="6.5" fill="url(#cf-parch)"/>
+  <!-- gilt hairline -->
+  <rect x="5.4" y="5.4" width="89.2" height="129.2" rx="5.5" fill="none" stroke="#a8874f" stroke-width="0.7" opacity="0.75"/>
+  <!-- name banner plate -->
+  <rect x="8.5" y="8.5" width="83" height="14.5" rx="3" fill="#2b2420" opacity="0.9"/>
+  <rect x="8.5" y="8.5" width="83" height="14.5" rx="3" fill="none" stroke="#a8874f" stroke-width="0.55" opacity="0.85"/>
+  <!-- art window -->
+  <rect x="10" y="26.5" width="80" height="58" rx="3" fill="#1c1722"/>
+  <rect x="10" y="26.5" width="80" height="58" rx="3" fill="none" stroke="#4a4a52" stroke-width="0.7"/>
+  <rect x="11.4" y="27.9" width="77.2" height="55.2" rx="2" fill="none" stroke="#a8874f" stroke-width="0.35" opacity="0.5"/>
+  <!-- rules plate -->
+  <rect x="9" y="89" width="82" height="44" rx="3" fill="#f4ecd9" opacity="0.5"/>
+  <path d="M12 88 H88" stroke="#a8874f" stroke-width="0.5" opacity="0.6"/>
+  <!-- corner filigree flourishes -->
+  <path d="M5.4 15 Q5.4 5.4 15 5.4" fill="none" stroke="#a8874f" stroke-width="0.8" opacity="0.8"/>
+  <path d="M85 5.4 Q94.6 5.4 94.6 15" fill="none" stroke="#a8874f" stroke-width="0.8" opacity="0.8"/>
+  <path d="M5.4 125 Q5.4 134.6 15 134.6" fill="none" stroke="#a8874f" stroke-width="0.8" opacity="0.8"/>
+  <path d="M85 134.6 Q94.6 134.6 94.6 125" fill="none" stroke="#a8874f" stroke-width="0.8" opacity="0.8"/>
+</svg>

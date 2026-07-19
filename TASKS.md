@@ -368,7 +368,7 @@ deliberately NOT chip-ified (T-205/T-204 territory or non-resource text); the bo
 heart-HP/blight-pip drawing is a diegetic illustration, not an HTML stat node, and stays out of this
 audit.
 
-### T-204 · Card frames + data-driven card-face generator — `status: TODO` · `coder: opus` · `after: T-202`
+### T-204 · Card frames + data-driven card-face generator — `status: DONE` · `coder: opus` · `after: T-202`
 Create `src/ui-v3/card-face.ts`: piece/token data → SVG card face (frame, name, icon, stats), so art
 swaps never touch layout code. Frames from a CC0 pack (credited). Cards across the UI render via the
 generator only. **Gate 0.5 (user, 2026-07-18): faces are RICH TCG-style** — name + art area + rules
@@ -376,6 +376,19 @@ text (art areas generated-ornamental until bespoke art exists), with the value +
 **corner-indexed** so a fanned card stays readable without raising it.
 **Accept:** a unit test registers a synthetic new piece type and gets a valid face with zero layout-
 file changes; grep shows card DOM built only via the generator; gallery shows framed cards.
+
+**Delivered (2026-07-19):** Added the self-authored CC0 `src/ui-v3/assets/frames/card-frame.svg`
+(iron rim + parchment face, gilt filigree, name banner / art window / rules plate, credited in
+`docs/CREDITS.md`) and `src/ui-v3/card-face.ts`, a data-driven generator (`powerCardFace`) that turns
+piece/token data into a corner-indexed, TCG-style SVG face — name, generated-ornamental art window, and
+rules text, entirely from data with zero layout-file edits needed for new piece types (covered by
+`tests/v3/card-face.test.ts`, a synthetic-piece registration test). `src/ui-v3/view.ts` now renders the
+hand and Last Stand card picker exclusively through this generator (no bespoke card markup left in
+either path), with `ui-v3.css` adding the fanned-hand layout (overlap, arc, hover-raise) and the
+selected-state styling for the Last Stand toggle buttons. **Scope boundary:** the art window is
+intentionally generated-ornamental filler, not bespoke per-card art — real art assets are out of scope
+for this task and were not promised by Gate 0.5; the turn/round/Act visual track (T-205) and bundle
+budget close (T-206) are separate, untouched tasks.
 
 ### T-205 · Turn/round/Act visual track — `status: TODO` · `coder: sonnet` · `after: T-203`
 Replace the textual turn/round/act status with a visual track: a marker advancing along
