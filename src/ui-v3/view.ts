@@ -147,9 +147,9 @@ export function renderApp(session: GameSession): string {
   // persistent full-width bottom bar. The board is centre-stage on the textured table; every datum
   // the old side-pane showed lives in edge HUD regions — a top turn ribbon, four house plaques
   // (right), the human's realm plaques (left). The phase controls now ride the board itself as a
-  // compact, board-anchored COMMAND PLAQUE overlay (never full-width), and events surface in a slim
-  // single-line CHRONICLE strip (the exempt toast region). Zero information loss: each renderer
-  // below is still called exactly once.
+  // compact, board-anchored COMMAND PLAQUE overlay (never full-width), and events surface in a single
+  // diegetic CHRONICLE scroll (T-212 — one parchment ticker with scrollback, not stacked alert bars;
+  // the exempt bottom region). Zero information loss: each renderer below is still called exactly once.
   return `
     ${renderGambitBanner(s)}
     <div class="table-stage">
@@ -346,10 +346,15 @@ function renderAudits(s: ObservableState, human: number): string {
   return `<div class="info-block"><div class="block-title">Your audits</div><ul class="audit-list">${items}</ul></div>`;
 }
 
+/**
+ * The CHRONICLE (T-212) — the event feed as one continuous diegetic scroll, NOT stacked alert bars.
+ * A single parchment ticker: a title cap, the human's last error (if any), then the narration ledger
+ * (newest-first, villain lines ember+italic via `.narr.villain`). Height + burn-in live in CSS.
+ */
 function renderNarration(session: GameSession): string {
   const items = session.narration.map(n => `<li class="narr ${n.kind}">${esc(n.text)}</li>`).join('');
   const err = session.lastError ? `<div class="error">⛔ ${esc(session.lastError)}</div>` : '';
-  return `${err}<ul class="narration">${items}</ul>`;
+  return `<div class="chronicle-title">Chronicle</div>${err}<ul class="narration">${items}</ul>`;
 }
 
 // ─── Phase-specific control panel ─────────────────────────────────

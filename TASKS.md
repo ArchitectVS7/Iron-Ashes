@@ -565,12 +565,25 @@ font) remain separate, still-open tasks; the primary `<button>` is intentionally
 `appearance: none` requirement since it already reads as themed via its own gradient/border.
 Orchestration: graphify=start screen setup form difficulty select rendering in ui-v3 · attempts=1/4.
 
-### T-212 · Event feed → diegetic chronicle — `status: TODO` · `coder: sonnet` · `after: T-206`
+### T-212 · Event feed → diegetic chronicle — `status: DONE` · `coder: sonnet` · `after: T-206`
 Gate 1 fix (user, 2026-07-19): game events stack as web-alert bars. Restyle as a chronicle: one
 parchment/scroll ticker region (not stacked alerts), Shadowking voice-lines visually distinct (ember,
 italic), entries burn in via the M1 queue, capped height with scrollback.
 **Accept:** events render inside a single chronicle component (DOM assertion — no stacked alert divs);
 SK lines carry a distinct class; instant-mode tests green; verify green.
+
+**Delivered (2026-07-19):** Restyled `.chronicle` in `src/ui-v3/ui-v3.css` from a row of stacked
+web-alert cards into one board-anchored, aged-parchment scroll region (iron-rimmed, scrollbar-thin,
+height-capped with real scrollback) with a `Chronicle` title cap; consolidated the three duplicate
+`.narration`/`.narr.*` rule blocks into a single source of truth so Shadowking voice-lines resolve to
+ember + italic with a scorch glow instead of the old purple/red, and the newest entry burns in via a
+`prefers-reduced-motion`-gated CSS keyframe (instant mode / jsdom get no animation). `view.ts` gained
+the `Chronicle` title element and updated comments; added `tests/v3/chronicle.test.ts` (DOM assertion
+that entries render inside the single chronicle component with no stacked alert divs, and that SK
+lines carry the distinct villain class). 1242 tests passing (103 files, +3 net). **Scope boundary:**
+only the event-feed region is touched — T-213 (bequest parchment) and T-214 (full-serif body font)
+remain separate, still-open tasks; no tunable, reducer, or balance code was touched.
+Orchestration: graphify=graphify query "how are game events rendered as alert bars in the v3 UI view" · attempts=1/4.
 
 ### T-213 · Bequest as testament parchment — `status: TODO` · `coder: sonnet` · `after: T-206`
 Gate 1 fix (user, 2026-07-19): the death-will moment renders as a plain grey button list. Retheme as a

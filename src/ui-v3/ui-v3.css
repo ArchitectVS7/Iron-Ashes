@@ -48,6 +48,7 @@
   --accent: #c9a227;
   --danger: #ef4444;
   --ash: #1f1014;
+  --ember: #e8863a;
 
   /* Typography (T-202) — self-hosted display + body faces with local fallbacks. */
   --font-display: 'Cinzel', Georgia, 'Times New Roman', serif;
@@ -312,26 +313,62 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
 /* The plaque IS the frame — the nested phase panel drops its own box so they don't double up. */
 .command-plaque .panel { background: none; border: none; border-radius: 0; padding: 0; }
 
-/* ── Chronicle (T-210) — the single-line diegetic event strip (the exempt toast region). Anchored to
-   the board's bottom-right, height-capped to one line so it is never a full-width bottom panel. The
-   full narration stack restyle is T-212; here it only needs to stop being a tall full-width block. */
+/* ── Chronicle (T-212) — the diegetic event feed as a single parchment scroll, NOT stacked web-alert
+   bars. One board-anchored bottom-right region: a warm aged-parchment ticker with an iron rim, capped
+   height + scrollback for older entries, entries reading as one continuous chronicle (hairline-ruled
+   ledger lines, no per-item alert box). Shadowking voice-lines burn in ember + italic; the newest
+   entry scorches in via a CSS keyframe gated behind prefers-reduced-motion (instant mode / jsdom get
+   no animation and never depend on it). The region stays exempt from the shots:v3 bottom-bar audit
+   (matched via `.chronicle`), so the taller scrollback panel does not regress T-210. */
 .chronicle {
   position: absolute;
   right: 12px;
   bottom: 12px;
   z-index: 3;
   max-width: min(360px, 42%);
-  max-height: 34px;
-  overflow: hidden;
-  pointer-events: none;
+  max-height: min(30vh, 200px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  pointer-events: auto;
+  padding: 6px 10px 8px;
+  border: 1px solid #3a2f26;
+  border-radius: 8px;
+  /* Aged parchment leaf: warm ink-stained scroll, not the near-black panel. */
+  background:
+    linear-gradient(180deg, rgba(60, 47, 33, 0.55), rgba(38, 29, 20, 0.6)),
+    linear-gradient(180deg, #2a2119, #201811);
+  box-shadow: inset 0 1px 0 rgba(232, 220, 195, 0.08), 0 6px 16px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  scrollbar-width: thin;
+  scrollbar-color: #5a4a34 transparent;
 }
-.chronicle .narration { flex-direction: row; gap: 8px; flex-wrap: nowrap; overflow: hidden; }
+.chronicle::-webkit-scrollbar { width: 6px; }
+.chronicle::-webkit-scrollbar-thumb { background: #5a4a34; border-radius: 3px; }
+.chronicle .chronicle-title {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #b39c6f;
+  margin-bottom: 4px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid rgba(160, 135, 79, 0.25);
+}
+/* One continuous ledger, newest at top (narration is unshifted newest-first) — no boxed alert cards. */
+.chronicle .narration { flex-direction: column; gap: 0; }
 .chronicle .narr {
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
-  background: linear-gradient(180deg, rgba(23, 20, 26, 0.9), rgba(12, 10, 13, 0.9));
-  border: 1px solid #3a2f26; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(160, 135, 79, 0.16);
+  font-family: var(--font-body);
+  color: #e2d6bd;
+  line-height: 1.35;
 }
-.chronicle .error { pointer-events: auto; }
+.chronicle .narr:last-child { border-bottom: none; }
+.chronicle .error { margin-bottom: 4px; }
 
 /* ── Board ── */
 .board-svg { width: 100%; height: 100%; max-height: 92vh; }
@@ -582,13 +619,30 @@ button.primary { background: linear-gradient(180deg, #e2b23c, #c9a227); color: #
 /* ── Gambit alarm ── */
 .gambit-alarm { position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(90deg, #7f1d1d, #b45309); color: #fff; text-align: center; padding: 6px; font-weight: 600; z-index: 5; letter-spacing: 0.5px; }
 
-/* ── Narration / errors ── */
-.narration { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-.narr { font-size: 13px; padding: 6px 8px; border-radius: 6px; border-left: 3px solid var(--line); background: var(--panel-2); }
-.narr.villain { border-left-color: #a855f7; color: #e9d5ff; font-style: italic; }
-.narr.beat { border-left-color: #e0552b; }
-.narr.system { border-left-color: var(--accent); }
+/* ── Chronicle narration / errors (T-212) — SINGLE source of truth ──
+   The event feed lives only inside `.chronicle` (see the region block above). Base list reset here;
+   per-kind treatment is scoped to the chronicle so villain resolves to EMBER (§1 house style), not the
+   old purple/red. The earlier duplicate `.narration`/`.narr.*` block has been removed. */
+.narration { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; font-size: 13px; }
+/* Shadowking voice-lines — visually distinct: ember, italic, a faint scorch glow. */
+.chronicle .narr.villain { color: var(--ember); font-style: italic; text-shadow: 0 0 6px rgba(232, 134, 58, 0.35); }
+.chronicle .narr.beat { color: #e8dcc3; }
+.chronicle .narr.system { color: #b39c6f; }
 .error { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid #7f1d1d; border-radius: 6px; padding: 8px; font-size: 13px; }
+
+/* The newest entry burns in — CSS-only, gated so instant mode / jsdom / reduced-motion get nothing. */
+@media (prefers-reduced-motion: no-preference) {
+  .chronicle .narr:first-child { animation: chronicle-burn-in 0.55s ease-out both; }
+  .chronicle .narr.villain:first-child { animation: chronicle-ember-burn 0.7s ease-out both; }
+}
+@keyframes chronicle-burn-in {
+  0% { opacity: 0; transform: translateY(-4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes chronicle-ember-burn {
+  0% { opacity: 0; transform: translateY(-4px); text-shadow: 0 0 14px rgba(232, 134, 58, 0.9); }
+  100% { opacity: 1; transform: translateY(0); text-shadow: 0 0 6px rgba(232, 134, 58, 0.35); }
+}
 
 /* ── Accuse / game over ── */
 .accuse { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; }
@@ -689,8 +743,4 @@ button.primary { background: linear-gradient(180deg, #e2b23c, #c9a227); color: #
 .ls-projection .fall { color: var(--danger); }
 .hint.warning { color: var(--danger); }
 
-/* ── Narration kinds ── */
-.narration { list-style: none; padding-left: 0; font-size: 13px; display: flex; flex-direction: column; gap: 3px; }
-.narr.villain { color: var(--danger); font-style: italic; }
-.narr.beat { color: var(--accent); }
-.narr.system { color: var(--ink); }
+/* (Narration kinds consolidated into the single chronicle block above — T-212.) */
