@@ -15,8 +15,8 @@
     "semantic_hash": "d5761a1390c7de9de43a266f26e41793"
   },
   "docs/handoff/state.json": {
-    "mtime": 1784403246.3754928,
-    "ast_hash": "a7af4fda315be80eed536dce630d3717",
+    "mtime": 1784404119.9745111,
+    "ast_hash": "486ce95f3c2ba73b5e3f52d0794bf92f",
     "semantic_hash": ""
   },
   "docs/handoff/state.schema.json": {
@@ -620,8 +620,8 @@
     "semantic_hash": ""
   },
   "docs/ROADMAP-V3.md": {
-    "mtime": 1784398008.749984,
-    "ast_hash": "1402790d4b62f461dff8231a1cd60819",
+    "mtime": 1784403820.188691,
+    "ast_hash": "49f0a593f1ab89c09902873b052befaf",
     "semantic_hash": ""
   },
   "docs/Shadowlord.md": {
@@ -1115,8 +1115,8 @@
     "semantic_hash": ""
   },
   "TASKS.md": {
-    "mtime": 1784403350.8989553,
-    "ast_hash": "bd5b8cba9196e1169df17d470718baaa",
+    "mtime": 1784421108.301461,
+    "ast_hash": "c8485b8133cf8a30cc14e3b83e9d521c",
     "semantic_hash": ""
   },
   "src/v3/harness/harness-core.ts": {
@@ -1150,8 +1150,8 @@
     "semantic_hash": ""
   },
   "docs/ROADMAP-V3.1-UI.md": {
-    "mtime": 1784401376.8134131,
-    "ast_hash": "069cedf1f49fe6ba9dcd3dc98d25f9e6",
+    "mtime": 1784421085.685318,
+    "ast_hash": "13d4209dabc2398afc870cbc9e9751cf",
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/Design Advice (Fable).md": {
@@ -1220,8 +1220,8 @@
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/Gates.md": {
-    "mtime": 1784400827.895458,
-    "ast_hash": "6bf5e06e3c4aa176d7c839fb1a4ef2d0",
+    "mtime": 1784421127.8191745,
+    "ast_hash": "040d93ff3ef00a4643f69bcd0f04140c",
     "semantic_hash": ""
   },
   "tests/v3/baseline-gallery.test.ts": {
@@ -1230,8 +1230,8 @@
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/RUBRIC.md": {
-    "mtime": 1784403106.3069215,
-    "ast_hash": "e42cb2a5f3ea0744672ee51d655a9da2",
+    "mtime": 1784421094.1762533,
+    "ast_hash": "1a46ec1fa2b991ea3425a1e2b27c3c5f",
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/baseline/README.md": {

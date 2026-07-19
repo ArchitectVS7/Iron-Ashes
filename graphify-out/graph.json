@@ -84,20 +84,20 @@
       "norm_label": "t-004 \u00b7 baseline \"before\" gallery + the m2 visual rubric \u2014 `status: done` \u00b7 `coder: sonnet` \u00b7 `after: t-003`"
     },
     {
-      "label": "T-005 \u00b7 M0 close \u2014 DoD \u2014 `status: TODO` \u00b7 `coder: sonnet` \u00b7 `after: T-001, T-002, T-003, T-004`",
+      "label": "T-005 \u00b7 M0 close \u2014 DoD \u2014 `status: DONE` \u00b7 `coder: sonnet` \u00b7 `after: T-001, T-002, T-003, T-004`",
       "file_type": "document",
       "source_file": "TASKS.md",
       "source_location": "L130",
       "_origin": "ast",
-      "id": "tasks_t_005_m0_close_dod_status_todo_coder_sonnet_after_t_001_t_002_t_003_t_004",
+      "id": "tasks_t_005_m0_close_dod_status_done_coder_sonnet_after_t_001_t_002_t_003_t_004",
       "community": 98,
-      "norm_label": "t-005 \u00b7 m0 close \u2014 dod \u2014 `status: todo` \u00b7 `coder: sonnet` \u00b7 `after: t-001, t-002, t-003, t-004`"
+      "norm_label": "t-005 \u00b7 m0 close \u2014 dod \u2014 `status: done` \u00b7 `coder: sonnet` \u00b7 `after: t-001, t-002, t-003, t-004`"
     },
     {
       "label": "M1 \u2014 The semantic move stream (architecture before art)",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L139",
+      "source_location": "L149",
       "_origin": "ast",
       "id": "tasks_m1_the_semantic_move_stream_architecture_before_art",
       "community": 98,
@@ -107,7 +107,7 @@
       "label": "T-101 \u00b7 Move types + `diffObservable` \u2014 `status: TODO` \u00b7 `coder: opus` \u00b7 `after: T-005`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L141",
+      "source_location": "L151",
       "_origin": "ast",
       "id": "tasks_t_101_move_types_diffobservable_status_todo_coder_opus_after_t_005",
       "community": 98,
@@ -117,7 +117,7 @@
       "label": "T-102 \u00b7 Determinism + fog-leak + coverage tests over full games \u2014 `status: TODO` \u00b7 `coder: opus` \u00b7 `after: T-101`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L153",
+      "source_location": "L163",
       "_origin": "ast",
       "id": "tasks_t_102_determinism_fog_leak_coverage_tests_over_full_games_status_todo_coder_opus_after_t_101",
       "community": 98,
@@ -127,7 +127,7 @@
       "label": "T-103 \u00b7 Animation queue + instant mode, wired into the render path \u2014 `status: TODO` \u00b7 `coder: opus` \u00b7 `after: T-101`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L162",
+      "source_location": "L172",
       "_origin": "ast",
       "id": "tasks_t_103_animation_queue_instant_mode_wired_into_the_render_path_status_todo_coder_opus_after_t_101",
       "community": 98,
@@ -137,7 +137,7 @@
       "label": "T-104 \u00b7 Replay test \u2014 \"snap count 0\" \u2014 `status: TODO` \u00b7 `coder: sonnet` \u00b7 `after: T-103`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L172",
+      "source_location": "L182",
       "_origin": "ast",
       "id": "tasks_t_104_replay_test_snap_count_0_status_todo_coder_sonnet_after_t_103",
       "community": 98,
@@ -147,7 +147,7 @@
       "label": "T-105 \u00b7 SoundManager skeleton \u2014 `status: TODO` \u00b7 `coder: sonnet` \u00b7 `after: T-103`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L178",
+      "source_location": "L188",
       "_origin": "ast",
       "id": "tasks_t_105_soundmanager_skeleton_status_todo_coder_sonnet_after_t_103",
       "community": 98,
@@ -157,7 +157,7 @@
       "label": "T-106 \u00b7 M1 close \u2014 DoD \u2014 `status: TODO` \u00b7 `coder: sonnet` \u00b7 `after: T-102, T-104, T-105`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L185",
+      "source_location": "L195",
       "_origin": "ast",
       "id": "tasks_t_106_m1_close_dod_status_todo_coder_sonnet_after_t_102_t_104_t_105",
       "community": 98,
@@ -167,7 +167,7 @@
       "label": "M2 \u2014 Theme foundation (\"stop looking like a spreadsheet\")",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L192",
+      "source_location": "L202",
       "_origin": "ast",
       "id": "tasks_m2_theme_foundation_stop_looking_like_a_spreadsheet",
       "community": 98,
@@ -177,7 +177,7 @@
       "label": "T-201 \u00b7 Board-centric layout on a textured table \u2014 `status: TODO` \u00b7 `coder: opus` \u00b7 `after: T-106`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L194",
+      "source_location": "L204",
       "_origin": "ast",
       "id": "tasks_t_201_board_centric_layout_on_a_textured_table_status_todo_coder_opus_after_t_106",
       "community": 98,
@@ -187,7 +187,7 @@
       "label": "T-202 \u00b7 Typography + palette system \u2014 `status: TODO` \u00b7 `coder: sonnet` \u00b7 `after: T-201`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L208",
+      "source_location": "L224",
       "_origin": "ast",
       "id": "tasks_t_202_typography_palette_system_status_todo_coder_sonnet_after_t_201",
       "community": 98,
@@ -197,7 +197,7 @@
       "label": "T-203 \u00b7 Token/chip components + DOM audit test \u2014 `status: TODO` \u00b7 `coder: opus` \u00b7 `after: T-201`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L215",
+      "source_location": "L231",
       "_origin": "ast",
       "id": "tasks_t_203_token_chip_components_dom_audit_test_status_todo_coder_opus_after_t_201",
       "community": 98,
@@ -207,7 +207,7 @@
       "label": "T-204 \u00b7 Card frames + data-driven card-face generator \u2014 `status: TODO` \u00b7 `coder: opus` \u00b7 `after: T-202`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L222",
+      "source_location": "L238",
       "_origin": "ast",
       "id": "tasks_t_204_card_frames_data_driven_card_face_generator_status_todo_coder_opus_after_t_202",
       "community": 98,
@@ -217,7 +217,7 @@
       "label": "T-205 \u00b7 Turn/round/Act visual track \u2014 `status: TODO` \u00b7 `coder: sonnet` \u00b7 `after: T-203`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L229",
+      "source_location": "L247",
       "_origin": "ast",
       "id": "tasks_t_205_turn_round_act_visual_track_status_todo_coder_sonnet_after_t_203",
       "community": 98,
@@ -227,7 +227,7 @@
       "label": "T-206 \u00b7 M2 close \u2014 bundle budget + DoD \u2014 `status: TODO` \u00b7 `coder: sonnet` \u00b7 `after: T-204, T-205`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L236",
+      "source_location": "L254",
       "_origin": "ast",
       "id": "tasks_t_206_m2_close_bundle_budget_dod_status_todo_coder_sonnet_after_t_204_t_205",
       "community": 98,
@@ -237,7 +237,7 @@
       "label": "T-207 \u00b7 CHECKPOINT \u2014 user visual review of M2 \u2014 `status: TODO` \u00b7 `coder: sonnet` \u00b7 `after: T-206`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L242",
+      "source_location": "L260",
       "_origin": "ast",
       "id": "tasks_t_207_checkpoint_user_visual_review_of_m2_status_todo_coder_sonnet_after_t_206",
       "community": 98,
@@ -247,7 +247,7 @@
       "label": "M3 \u2014 Cards & hand live",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L252",
+      "source_location": "L270",
       "_origin": "ast",
       "id": "tasks_m3_cards_hand_live",
       "community": 98,
@@ -257,7 +257,7 @@
       "label": "T-301 \u00b7 Fanned hand \u2014 `status: TODO` \u00b7 `coder: opus` \u00b7 `after: T-207`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L254",
+      "source_location": "L272",
       "_origin": "ast",
       "id": "tasks_t_301_fanned_hand_status_todo_coder_opus_after_t_207",
       "community": 98,
@@ -267,7 +267,7 @@
       "label": "T-302 \u00b7 Hand-delta animations (deal/draw/play/discard) \u2014 `status: TODO` \u00b7 `coder: sonnet` \u00b7 `after: T-301`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L260",
+      "source_location": "L280",
       "_origin": "ast",
       "id": "tasks_t_302_hand_delta_animations_deal_draw_play_discard_status_todo_coder_sonnet_after_t_301",
       "community": 98,
@@ -277,7 +277,7 @@
       "label": "T-303 \u00b7 3D flip reveal + frame-level fog test \u2014 `status: TODO` \u00b7 `coder: opus` \u00b7 `after: T-301`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L266",
+      "source_location": "L286",
       "_origin": "ast",
       "id": "tasks_t_303_3d_flip_reveal_frame_level_fog_test_status_todo_coder_opus_after_t_301",
       "community": 98,
@@ -287,7 +287,7 @@
       "label": "T-304 \u00b7 Affordances \u2014 legal glow, illegal shake \u2014 `status: TODO` \u00b7 `coder: sonnet` \u00b7 `after: T-302`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L274",
+      "source_location": "L294",
       "_origin": "ast",
       "id": "tasks_t_304_affordances_legal_glow_illegal_shake_status_todo_coder_sonnet_after_t_302",
       "community": 98,
@@ -297,7 +297,7 @@
       "label": "T-305 \u00b7 M3 close \u2014 DoD \u2014 `status: TODO` \u00b7 `coder: sonnet` \u00b7 `after: T-303, T-304`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L280",
+      "source_location": "L300",
       "_origin": "ast",
       "id": "tasks_t_305_m3_close_dod_status_todo_coder_sonnet_after_t_303_t_304",
       "community": 98,
@@ -307,7 +307,7 @@
       "label": "T-306 \u00b7 CHECKPOINT \u2014 user visual review of M3 \u2014 `status: TODO` \u00b7 `coder: sonnet` \u00b7 `after: T-305`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L285",
+      "source_location": "L305",
       "_origin": "ast",
       "id": "tasks_t_306_checkpoint_user_visual_review_of_m3_status_todo_coder_sonnet_after_t_305",
       "community": 98,
@@ -317,7 +317,7 @@
       "label": "M4 \u2014 Board life & sound",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L293",
+      "source_location": "L313",
       "_origin": "ast",
       "id": "tasks_m4_board_life_sound",
       "community": 98,
@@ -327,7 +327,7 @@
       "label": "T-401 \u00b7 Path-following piece movement \u2014 `status: TODO` \u00b7 `coder: opus` \u00b7 `after: T-306`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L295",
+      "source_location": "L315",
       "_origin": "ast",
       "id": "tasks_t_401_path_following_piece_movement_status_todo_coder_opus_after_t_306",
       "community": 98,
@@ -337,7 +337,7 @@
       "label": "T-402a \u00b7 Scene moments \u2014 capture, election, Ransom, discovery \u2014 `status: TODO` \u00b7 `coder: opus` \u00b7 `after: T-401`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L301",
+      "source_location": "L321",
       "_origin": "ast",
       "id": "tasks_t_402a_scene_moments_capture_election_ransom_discovery_status_todo_coder_opus_after_t_401",
       "community": 98,
@@ -347,7 +347,7 @@
       "label": "T-402b \u00b7 Scene moments \u2014 Shadowking telegraphs, heart, endgame \u2014 `status: TODO` \u00b7 `coder: opus` \u00b7 `after: T-401`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L308",
+      "source_location": "L328",
       "_origin": "ast",
       "id": "tasks_t_402b_scene_moments_shadowking_telegraphs_heart_endgame_status_todo_coder_opus_after_t_401",
       "community": 98,
@@ -357,7 +357,7 @@
       "label": "T-403 \u00b7 Full SFX pass \u2014 `status: TODO` \u00b7 `coder: sonnet` \u00b7 `after: T-402a, T-402b`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L314",
+      "source_location": "L334",
       "_origin": "ast",
       "id": "tasks_t_403_full_sfx_pass_status_todo_coder_sonnet_after_t_402a_t_402b",
       "community": 98,
@@ -367,7 +367,7 @@
       "label": "T-404 \u00b7 Mechanic visibility map \u2014 `status: TODO` \u00b7 `coder: sonnet` \u00b7 `after: T-402a, T-402b`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L321",
+      "source_location": "L341",
       "_origin": "ast",
       "id": "tasks_t_404_mechanic_visibility_map_status_todo_coder_sonnet_after_t_402a_t_402b",
       "community": 98,
@@ -377,7 +377,7 @@
       "label": "T-405 \u00b7 Perf + reduced-motion verification run \u2014 `status: TODO` \u00b7 `coder: opus` \u00b7 `after: T-403`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L329",
+      "source_location": "L349",
       "_origin": "ast",
       "id": "tasks_t_405_perf_reduced_motion_verification_run_status_todo_coder_opus_after_t_403",
       "community": 98,
@@ -387,7 +387,7 @@
       "label": "T-406 \u00b7 M4 close \u2014 DoD \u2014 `status: TODO` \u00b7 `coder: sonnet` \u00b7 `after: T-404, T-405`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L338",
+      "source_location": "L358",
       "_origin": "ast",
       "id": "tasks_t_406_m4_close_dod_status_todo_coder_sonnet_after_t_404_t_405",
       "community": 98,
@@ -397,7 +397,7 @@
       "label": "T-407 \u00b7 CHECKPOINT \u2014 final pre-playtest review \u2014 `status: TODO` \u00b7 `coder: sonnet` \u00b7 `after: T-406`",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L343",
+      "source_location": "L363",
       "_origin": "ast",
       "id": "tasks_t_407_checkpoint_final_pre_playtest_review_status_todo_coder_sonnet_after_t_406",
       "community": 98,
@@ -407,11 +407,181 @@
       "label": "Deliberately deferred (do not re-scope in)",
       "file_type": "document",
       "source_file": "TASKS.md",
-      "source_location": "L353",
+      "source_location": "L373",
       "_origin": "ast",
       "id": "tasks_deliberately_deferred_do_not_re_scope_in",
       "community": 98,
       "norm_label": "deliberately deferred (do not re-scope in)"
+    },
+    {
+      "label": "ROADMAP-V3.1-UI.md",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.1-UI.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "docs_roadmap_v3_1_ui",
+      "community": 105,
+      "norm_label": "roadmap-v3.1-ui.md"
+    },
+    {
+      "label": "Iron Throne of Ashes **V3.1** \u2014 Presentation Sprint Roadmap",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.1-UI.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "docs_roadmap_v3_1_ui_iron_throne_of_ashes_v3_1_presentation_sprint_roadmap",
+      "community": 105,
+      "norm_label": "iron throne of ashes **v3.1** \u2014 presentation sprint roadmap"
+    },
+    {
+      "label": "1. Why V3.1 and not V4 (numbering decision)",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.1-UI.md",
+      "source_location": "L14",
+      "_origin": "ast",
+      "id": "docs_roadmap_v3_1_ui_1_why_v3_1_and_not_v4_numbering_decision",
+      "community": 105,
+      "norm_label": "1. why v3.1 and not v4 (numbering decision)"
+    },
+    {
+      "label": "2. Wiring into the handoff machinery (first task of M0)",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.1-UI.md",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "docs_roadmap_v3_1_ui_2_wiring_into_the_handoff_machinery_first_task_of_m0",
+      "community": 105,
+      "norm_label": "2. wiring into the handoff machinery (first task of m0)"
+    },
+    {
+      "label": "3. Guardrails (non-negotiable, inherited)",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.1-UI.md",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "docs_roadmap_v3_1_ui_3_guardrails_non_negotiable_inherited",
+      "community": 105,
+      "norm_label": "3. guardrails (non-negotiable, inherited)"
+    },
+    {
+      "label": "4. Milestones",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.1-UI.md",
+      "source_location": "L73",
+      "_origin": "ast",
+      "id": "docs_roadmap_v3_1_ui_4_milestones",
+      "community": 105,
+      "norm_label": "4. milestones"
+    },
+    {
+      "label": "M0 \u2014 Foundations & the screenshot feedback loop",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.1-UI.md",
+      "source_location": "L75",
+      "_origin": "ast",
+      "id": "docs_roadmap_v3_1_ui_m0_foundations_the_screenshot_feedback_loop",
+      "community": 105,
+      "norm_label": "m0 \u2014 foundations & the screenshot feedback loop"
+    },
+    {
+      "label": "M1 \u2014 The semantic move stream (transition layer; architecture before art)",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.1-UI.md",
+      "source_location": "L89",
+      "_origin": "ast",
+      "id": "docs_roadmap_v3_1_ui_m1_the_semantic_move_stream_transition_layer_architecture_before_art",
+      "community": 105,
+      "norm_label": "m1 \u2014 the semantic move stream (transition layer; architecture before art)"
+    },
+    {
+      "label": "M2 \u2014 Theme foundation (\"stop looking like a spreadsheet\")",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.1-UI.md",
+      "source_location": "L108",
+      "_origin": "ast",
+      "id": "docs_roadmap_v3_1_ui_m2_theme_foundation_stop_looking_like_a_spreadsheet",
+      "community": 105,
+      "norm_label": "m2 \u2014 theme foundation (\"stop looking like a spreadsheet\")"
+    },
+    {
+      "label": "M3 \u2014 Cards & hand live",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.1-UI.md",
+      "source_location": "L144",
+      "_origin": "ast",
+      "id": "docs_roadmap_v3_1_ui_m3_cards_hand_live",
+      "community": 105,
+      "norm_label": "m3 \u2014 cards & hand live"
+    },
+    {
+      "label": "M4 \u2014 Board life & sound",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.1-UI.md",
+      "source_location": "L156",
+      "_origin": "ast",
+      "id": "docs_roadmap_v3_1_ui_m4_board_life_sound",
+      "community": 105,
+      "norm_label": "m4 \u2014 board life & sound"
+    },
+    {
+      "label": "M5 \u2014 Playtest readiness \u2192 **run the V3-6 human playtest** (exit gate for v3)",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.1-UI.md",
+      "source_location": "L170",
+      "_origin": "ast",
+      "id": "docs_roadmap_v3_1_ui_m5_playtest_readiness_run_the_v3_6_human_playtest_exit_gate_for_v3",
+      "community": 105,
+      "norm_label": "m5 \u2014 playtest readiness \u2192 **run the v3-6 human playtest** (exit gate for v3)"
+    },
+    {
+      "label": "M6 \u2014 Extract the tabletop kit (post-vet; cross-project payoff, outside the \u00a74 gate)",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.1-UI.md",
+      "source_location": "L194",
+      "_origin": "ast",
+      "id": "docs_roadmap_v3_1_ui_m6_extract_the_tabletop_kit_post_vet_cross_project_payoff_outside_the_4_gate",
+      "community": 105,
+      "norm_label": "m6 \u2014 extract the tabletop kit (post-vet; cross-project payoff, outside the \u00a74 gate)"
+    },
+    {
+      "label": "5. Sequencing rationale",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.1-UI.md",
+      "source_location": "L204",
+      "_origin": "ast",
+      "id": "docs_roadmap_v3_1_ui_5_sequencing_rationale",
+      "community": 105,
+      "norm_label": "5. sequencing rationale"
+    },
+    {
+      "label": "6. Changelog",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.1-UI.md",
+      "source_location": "L211",
+      "_origin": "ast",
+      "id": "docs_roadmap_v3_1_ui_6_changelog",
+      "community": 105,
+      "norm_label": "6. changelog"
+    },
+    {
+      "label": "Gates.md",
+      "file_type": "document",
+      "source_file": "docs/Redesign-V3.1/Gates.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "redesign_v3_1_gates",
+      "community": 122,
+      "norm_label": "gates.md"
+    },
+    {
+      "label": "Gate 0.5 \u2014 COMPLETED 2026-07-18",
+      "file_type": "document",
+      "source_file": "docs/Redesign-V3.1/Gates.md",
+      "source_location": "L53",
+      "_origin": "ast",
+      "id": "redesign_v3_1_gates_gate_0_5_completed_2026_07_18",
+      "community": 122,
+      "norm_label": "gate 0.5 \u2014 completed 2026-07-18"
     },
     {
       "label": "RUBRIC.md",
@@ -454,14 +624,144 @@
       "norm_label": "checklist (score /10)"
     },
     {
+      "label": "Scoring definitions (Gate 0.5, user-calibrated 2026-07-18)",
+      "file_type": "document",
+      "source_file": "docs/Redesign-V3.1/RUBRIC.md",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "redesign_v3_1_rubric_scoring_definitions_gate_0_5_user_calibrated_2026_07_18",
+      "community": 104,
+      "norm_label": "scoring definitions (gate 0.5, user-calibrated 2026-07-18)"
+    },
+    {
+      "label": "Score log",
+      "file_type": "document",
+      "source_file": "docs/Redesign-V3.1/RUBRIC.md",
+      "source_location": "L51",
+      "_origin": "ast",
+      "id": "redesign_v3_1_rubric_score_log",
+      "community": 104,
+      "norm_label": "score log"
+    },
+    {
+      "label": "ROADMAP-V3.md",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 37,
+      "norm_label": "roadmap-v3.md",
+      "id": "docs_roadmap_v3"
+    },
+    {
+      "label": "Iron Throne of Ashes v3 \u2014 Code-Sprint Roadmap & Resume Point",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 37,
+      "norm_label": "iron throne of ashes v3 \u2014 code-sprint roadmap & resume point",
+      "id": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point"
+    },
+    {
+      "label": "0. Where we are right now",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L11",
+      "_origin": "ast",
+      "community": 37,
+      "norm_label": "0. where we are right now",
+      "id": "docs_roadmap_v3_0_where_we_are_right_now"
+    },
+    {
+      "label": "1. The game in one paragraph (orient a cold session)",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L78",
+      "_origin": "ast",
+      "community": 37,
+      "norm_label": "1. the game in one paragraph (orient a cold session)",
+      "id": "docs_roadmap_v3_1_the_game_in_one_paragraph_orient_a_cold_session"
+    },
+    {
+      "label": "2. Locked decisions (the v3 spine \u2014 do not relitigate without sign-off)",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L95",
+      "_origin": "ast",
+      "community": 37,
+      "norm_label": "2. locked decisions (the v3 spine \u2014 do not relitigate without sign-off)",
+      "id": "docs_roadmap_v3_2_locked_decisions_the_v3_spine_do_not_relitigate_without_sign_off"
+    },
+    {
+      "label": "3. Document map (read order)",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L113",
+      "_origin": "ast",
+      "community": 37,
+      "norm_label": "3. document map (read order)",
+      "id": "docs_roadmap_v3_3_document_map_read_order"
+    },
+    {
+      "label": "4. The plan (stages \u2192 concrete steps \u2192 status)",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L126",
+      "_origin": "ast",
+      "community": 37,
+      "norm_label": "4. the plan (stages \u2192 concrete steps \u2192 status)",
+      "id": "docs_roadmap_v3_4_the_plan_stages_concrete_steps_status"
+    },
+    {
+      "label": "5. Reuse vs. rebuild (v3 builds on `src/v2/`, not v1)",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L207",
+      "_origin": "ast",
+      "community": 37,
+      "norm_label": "5. reuse vs. rebuild (v3 builds on `src/v2/`, not v1)",
+      "id": "docs_roadmap_v3_5_reuse_vs_rebuild_v3_builds_on_src_v2_not_v1"
+    },
+    {
+      "label": "6. Known risks / parked questions (carried from the stress-test P1 list)",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L230",
+      "_origin": "ast",
+      "community": 37,
+      "norm_label": "6. known risks / parked questions (carried from the stress-test p1 list)",
+      "id": "docs_roadmap_v3_6_known_risks_parked_questions_carried_from_the_stress_test_p1_list"
+    },
+    {
+      "label": "7. How to resume (fresh session checklist)",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L246",
+      "_origin": "ast",
+      "community": 37,
+      "norm_label": "7. how to resume (fresh session checklist)",
+      "id": "docs_roadmap_v3_7_how_to_resume_fresh_session_checklist"
+    },
+    {
+      "label": "8. Changelog / decision log (v3)",
+      "file_type": "document",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L263",
+      "_origin": "ast",
+      "community": 37,
+      "norm_label": "8. changelog / decision log (v3)",
+      "id": "docs_roadmap_v3_8_changelog_decision_log_v3"
+    },
+    {
       "label": "README.md",
       "file_type": "document",
       "source_file": "docs/Redesign-V3.1/baseline/README.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "baseline_readme",
       "community": 104,
-      "norm_label": "readme.md"
+      "norm_label": "readme.md",
+      "id": "baseline_readme"
     },
     {
       "label": "Baseline \"before\" gallery (M1)",
@@ -469,9 +769,9 @@
       "source_file": "docs/Redesign-V3.1/baseline/README.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "baseline_readme_baseline_before_gallery_m1",
       "community": 104,
-      "norm_label": "baseline \"before\" gallery (m1)"
+      "norm_label": "baseline \"before\" gallery (m1)",
+      "id": "baseline_readme_baseline_before_gallery_m1"
     },
     {
       "label": "Screens",
@@ -479,9 +779,9 @@
       "source_file": "docs/Redesign-V3.1/baseline/README.md",
       "source_location": "L14",
       "_origin": "ast",
-      "id": "baseline_readme_screens",
       "community": 104,
-      "norm_label": "screens"
+      "norm_label": "screens",
+      "id": "baseline_readme_screens"
     },
     {
       "label": "baseline-gallery.test.ts",
@@ -489,9 +789,9 @@
       "source_file": "tests/v3/baseline-gallery.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "v3_baseline_gallery_test",
       "community": 126,
-      "norm_label": "baseline-gallery.test.ts"
+      "norm_label": "baseline-gallery.test.ts",
+      "id": "v3_baseline_gallery_test"
     },
     {
       "label": "BASELINE_DIR",
@@ -499,9 +799,9 @@
       "source_file": "tests/v3/baseline-gallery.test.ts",
       "source_location": "L9",
       "_origin": "ast",
-      "id": "v3_baseline_gallery_test_baseline_dir",
       "community": 126,
-      "norm_label": "baseline_dir"
+      "norm_label": "baseline_dir",
+      "id": "v3_baseline_gallery_test_baseline_dir"
     },
     {
       "label": "RUBRIC",
@@ -509,169 +809,9 @@
       "source_file": "tests/v3/baseline-gallery.test.ts",
       "source_location": "L10",
       "_origin": "ast",
-      "id": "v3_baseline_gallery_test_rubric",
       "community": 126,
-      "norm_label": "rubric"
-    },
-    {
-      "label": "ROADMAP-V3.1-UI.md",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.1-UI.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 105,
-      "norm_label": "roadmap-v3.1-ui.md",
-      "id": "docs_roadmap_v3_1_ui"
-    },
-    {
-      "label": "Iron Throne of Ashes **V3.1** \u2014 Presentation Sprint Roadmap",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.1-UI.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 105,
-      "norm_label": "iron throne of ashes **v3.1** \u2014 presentation sprint roadmap",
-      "id": "docs_roadmap_v3_1_ui_iron_throne_of_ashes_v3_1_presentation_sprint_roadmap"
-    },
-    {
-      "label": "1. Why V3.1 and not V4 (numbering decision)",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.1-UI.md",
-      "source_location": "L14",
-      "_origin": "ast",
-      "community": 105,
-      "norm_label": "1. why v3.1 and not v4 (numbering decision)",
-      "id": "docs_roadmap_v3_1_ui_1_why_v3_1_and_not_v4_numbering_decision"
-    },
-    {
-      "label": "2. Wiring into the handoff machinery (first task of M0)",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.1-UI.md",
-      "source_location": "L32",
-      "_origin": "ast",
-      "community": 105,
-      "norm_label": "2. wiring into the handoff machinery (first task of m0)",
-      "id": "docs_roadmap_v3_1_ui_2_wiring_into_the_handoff_machinery_first_task_of_m0"
-    },
-    {
-      "label": "3. Guardrails (non-negotiable, inherited)",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.1-UI.md",
-      "source_location": "L42",
-      "_origin": "ast",
-      "community": 105,
-      "norm_label": "3. guardrails (non-negotiable, inherited)",
-      "id": "docs_roadmap_v3_1_ui_3_guardrails_non_negotiable_inherited"
-    },
-    {
-      "label": "4. Milestones",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.1-UI.md",
-      "source_location": "L73",
-      "_origin": "ast",
-      "community": 105,
-      "norm_label": "4. milestones",
-      "id": "docs_roadmap_v3_1_ui_4_milestones"
-    },
-    {
-      "label": "M0 \u2014 Foundations & the screenshot feedback loop",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.1-UI.md",
-      "source_location": "L75",
-      "_origin": "ast",
-      "community": 105,
-      "norm_label": "m0 \u2014 foundations & the screenshot feedback loop",
-      "id": "docs_roadmap_v3_1_ui_m0_foundations_the_screenshot_feedback_loop"
-    },
-    {
-      "label": "M1 \u2014 The semantic move stream (transition layer; architecture before art)",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.1-UI.md",
-      "source_location": "L89",
-      "_origin": "ast",
-      "community": 105,
-      "norm_label": "m1 \u2014 the semantic move stream (transition layer; architecture before art)",
-      "id": "docs_roadmap_v3_1_ui_m1_the_semantic_move_stream_transition_layer_architecture_before_art"
-    },
-    {
-      "label": "M2 \u2014 Theme foundation (\"stop looking like a spreadsheet\")",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.1-UI.md",
-      "source_location": "L108",
-      "_origin": "ast",
-      "community": 105,
-      "norm_label": "m2 \u2014 theme foundation (\"stop looking like a spreadsheet\")",
-      "id": "docs_roadmap_v3_1_ui_m2_theme_foundation_stop_looking_like_a_spreadsheet"
-    },
-    {
-      "label": "M3 \u2014 Cards & hand live",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.1-UI.md",
-      "source_location": "L129",
-      "_origin": "ast",
-      "community": 105,
-      "norm_label": "m3 \u2014 cards & hand live",
-      "id": "docs_roadmap_v3_1_ui_m3_cards_hand_live"
-    },
-    {
-      "label": "M4 \u2014 Board life & sound",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.1-UI.md",
-      "source_location": "L141",
-      "_origin": "ast",
-      "community": 105,
-      "norm_label": "m4 \u2014 board life & sound",
-      "id": "docs_roadmap_v3_1_ui_m4_board_life_sound"
-    },
-    {
-      "label": "M5 \u2014 Playtest readiness \u2192 **run the V3-6 human playtest** (exit gate for v3)",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.1-UI.md",
-      "source_location": "L155",
-      "_origin": "ast",
-      "community": 105,
-      "norm_label": "m5 \u2014 playtest readiness \u2192 **run the v3-6 human playtest** (exit gate for v3)",
-      "id": "docs_roadmap_v3_1_ui_m5_playtest_readiness_run_the_v3_6_human_playtest_exit_gate_for_v3"
-    },
-    {
-      "label": "M6 \u2014 Extract the tabletop kit (post-vet; cross-project payoff, outside the \u00a74 gate)",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.1-UI.md",
-      "source_location": "L179",
-      "_origin": "ast",
-      "community": 105,
-      "norm_label": "m6 \u2014 extract the tabletop kit (post-vet; cross-project payoff, outside the \u00a74 gate)",
-      "id": "docs_roadmap_v3_1_ui_m6_extract_the_tabletop_kit_post_vet_cross_project_payoff_outside_the_4_gate"
-    },
-    {
-      "label": "5. Sequencing rationale",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.1-UI.md",
-      "source_location": "L189",
-      "_origin": "ast",
-      "community": 105,
-      "norm_label": "5. sequencing rationale",
-      "id": "docs_roadmap_v3_1_ui_5_sequencing_rationale"
-    },
-    {
-      "label": "6. Changelog",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.1-UI.md",
-      "source_location": "L196",
-      "_origin": "ast",
-      "community": 105,
-      "norm_label": "6. changelog",
-      "id": "docs_roadmap_v3_1_ui_6_changelog"
-    },
-    {
-      "label": "Gates.md",
-      "file_type": "document",
-      "source_file": "docs/Redesign-V3.1/Gates.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 122,
-      "norm_label": "gates.md",
-      "id": "redesign_v3_1_gates"
+      "norm_label": "rubric",
+      "id": "v3_baseline_gallery_test_rubric"
     },
     {
       "label": "package.json",
@@ -1192,116 +1332,6 @@
       "community": 115,
       "norm_label": "deps-smoke.test.ts",
       "id": "v3_deps_smoke_test"
-    },
-    {
-      "label": "ROADMAP-V3.md",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 37,
-      "norm_label": "roadmap-v3.md",
-      "id": "docs_roadmap_v3"
-    },
-    {
-      "label": "Iron Throne of Ashes v3 \u2014 Code-Sprint Roadmap & Resume Point",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 37,
-      "norm_label": "iron throne of ashes v3 \u2014 code-sprint roadmap & resume point",
-      "id": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point"
-    },
-    {
-      "label": "0. Where we are right now",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L11",
-      "_origin": "ast",
-      "community": 37,
-      "norm_label": "0. where we are right now",
-      "id": "docs_roadmap_v3_0_where_we_are_right_now"
-    },
-    {
-      "label": "1. The game in one paragraph (orient a cold session)",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L78",
-      "_origin": "ast",
-      "community": 37,
-      "norm_label": "1. the game in one paragraph (orient a cold session)",
-      "id": "docs_roadmap_v3_1_the_game_in_one_paragraph_orient_a_cold_session"
-    },
-    {
-      "label": "2. Locked decisions (the v3 spine \u2014 do not relitigate without sign-off)",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L95",
-      "_origin": "ast",
-      "community": 37,
-      "norm_label": "2. locked decisions (the v3 spine \u2014 do not relitigate without sign-off)",
-      "id": "docs_roadmap_v3_2_locked_decisions_the_v3_spine_do_not_relitigate_without_sign_off"
-    },
-    {
-      "label": "3. Document map (read order)",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L113",
-      "_origin": "ast",
-      "community": 37,
-      "norm_label": "3. document map (read order)",
-      "id": "docs_roadmap_v3_3_document_map_read_order"
-    },
-    {
-      "label": "4. The plan (stages \u2192 concrete steps \u2192 status)",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L126",
-      "_origin": "ast",
-      "community": 37,
-      "norm_label": "4. the plan (stages \u2192 concrete steps \u2192 status)",
-      "id": "docs_roadmap_v3_4_the_plan_stages_concrete_steps_status"
-    },
-    {
-      "label": "5. Reuse vs. rebuild (v3 builds on `src/v2/`, not v1)",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L207",
-      "_origin": "ast",
-      "community": 37,
-      "norm_label": "5. reuse vs. rebuild (v3 builds on `src/v2/`, not v1)",
-      "id": "docs_roadmap_v3_5_reuse_vs_rebuild_v3_builds_on_src_v2_not_v1"
-    },
-    {
-      "label": "6. Known risks / parked questions (carried from the stress-test P1 list)",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L230",
-      "_origin": "ast",
-      "community": 37,
-      "norm_label": "6. known risks / parked questions (carried from the stress-test p1 list)",
-      "id": "docs_roadmap_v3_6_known_risks_parked_questions_carried_from_the_stress_test_p1_list"
-    },
-    {
-      "label": "7. How to resume (fresh session checklist)",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L246",
-      "_origin": "ast",
-      "community": 37,
-      "norm_label": "7. how to resume (fresh session checklist)",
-      "id": "docs_roadmap_v3_7_how_to_resume_fresh_session_checklist"
-    },
-    {
-      "label": "8. Changelog / decision log (v3)",
-      "file_type": "document",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L263",
-      "_origin": "ast",
-      "community": 37,
-      "norm_label": "8. changelog / decision log (v3)",
-      "id": "docs_roadmap_v3_8_changelog_decision_log_v3"
     },
     {
       "label": "handoff-check.mjs",
@@ -3809,7 +3839,7 @@
       "source_file": "src/v2/tunables.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 108,
+      "community": 5,
       "norm_label": "tunables.ts",
       "id": "v2_tunables"
     },
@@ -3819,7 +3849,7 @@
       "source_file": "src/v2/tunables.ts",
       "source_location": "L421",
       "_origin": "ast",
-      "community": 100,
+      "community": 2,
       "norm_label": "doomcost()",
       "id": "v2_tunables_doomcost"
     },
@@ -3829,7 +3859,7 @@
       "source_file": "src/v2/tunables.ts",
       "source_location": "L439",
       "_origin": "ast",
-      "community": 2,
+      "community": 87,
       "norm_label": "deathknightcount()",
       "id": "v2_tunables_deathknightcount"
     },
@@ -3849,7 +3879,7 @@
       "source_file": "src/v2/tunables.ts",
       "source_location": "L543",
       "_origin": "ast",
-      "community": 108,
+      "community": 5,
       "norm_label": "default_tunables",
       "id": "v2_tunables_default_tunables"
     },
@@ -3859,7 +3889,7 @@
       "source_file": "src/v2/tunables.ts",
       "source_location": "L567",
       "_origin": "ast",
-      "community": 2,
+      "community": 87,
       "norm_label": "gettunables()",
       "id": "v2_tunables_gettunables"
     },
@@ -3869,7 +3899,7 @@
       "source_file": "src/v2/tunables.ts",
       "source_location": "L572",
       "_origin": "ast",
-      "community": 108,
+      "community": 5,
       "norm_label": "withtunables()",
       "id": "v2_tunables_withtunables"
     },
@@ -3879,7 +3909,7 @@
       "source_file": "src/v3/tunables.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 94,
+      "community": 91,
       "norm_label": "tunables.ts",
       "id": "v3_tunables"
     },
@@ -3889,7 +3919,7 @@
       "source_file": "src/v3/tunables.ts",
       "source_location": "L555",
       "_origin": "ast",
-      "community": 59,
+      "community": 94,
       "norm_label": "doomcost()",
       "id": "v3_tunables_doomcost"
     },
@@ -3919,7 +3949,7 @@
       "source_file": "src/v3/tunables.ts",
       "source_location": "L716",
       "_origin": "ast",
-      "community": 101,
+      "community": 94,
       "norm_label": "default_tunables",
       "id": "v3_tunables_default_tunables"
     },
@@ -3929,7 +3959,7 @@
       "source_file": "src/v3/tunables.ts",
       "source_location": "L776",
       "_origin": "ast",
-      "community": 94,
+      "community": 91,
       "norm_label": "herald_off_rebalance",
       "id": "v3_tunables_herald_off_rebalance"
     },
@@ -3939,7 +3969,7 @@
       "source_file": "src/v3/tunables.ts",
       "source_location": "L792",
       "_origin": "ast",
-      "community": 90,
+      "community": 85,
       "norm_label": "gettunables()",
       "id": "v3_tunables_gettunables"
     },
@@ -3959,7 +3989,7 @@
       "source_file": "tests/v2/balance-lock.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 26,
+      "community": 48,
       "norm_label": "balance-lock.test.ts",
       "id": "v2_balance_lock_test"
     },
@@ -3969,7 +3999,7 @@
       "source_file": "tests/v2/balance-lock.test.ts",
       "source_location": "L29",
       "_origin": "ast",
-      "community": 26,
+      "community": 48,
       "norm_label": "lockseeds()",
       "id": "v2_balance_lock_test_lockseeds"
     },
@@ -4789,7 +4819,7 @@
       "source_file": "src/v3/sim/report.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 26,
+      "community": 58,
       "norm_label": "report.ts",
       "id": "sim_report"
     },
@@ -4799,7 +4829,7 @@
       "source_file": "src/v3/sim/report.ts",
       "source_location": "L21",
       "_origin": "ast",
-      "community": 26,
+      "community": 48,
       "norm_label": "targets",
       "id": "sim_report_targets"
     },
@@ -4809,7 +4839,7 @@
       "source_file": "src/v3/sim/report.ts",
       "source_location": "L30",
       "_origin": "ast",
-      "community": 26,
+      "community": 58,
       "norm_label": "targetcheck",
       "id": "sim_report_targetcheck"
     },
@@ -4819,7 +4849,7 @@
       "source_file": "src/v3/sim/report.ts",
       "source_location": "L38",
       "_origin": "ast",
-      "community": 26,
+      "community": 58,
       "norm_label": "archetypewinrate",
       "id": "sim_report_archetypewinrate"
     },
@@ -4839,7 +4869,7 @@
       "source_file": "src/v3/sim/report.ts",
       "source_location": "L63",
       "_origin": "ast",
-      "community": 88,
+      "community": 58,
       "norm_label": "sweepdiagnostics",
       "id": "sim_report_sweepdiagnostics"
     },
@@ -4849,7 +4879,7 @@
       "source_file": "src/v3/sim/report.ts",
       "source_location": "L191",
       "_origin": "ast",
-      "community": 26,
+      "community": 58,
       "norm_label": "percountstats",
       "id": "sim_report_percountstats"
     },
@@ -4889,7 +4919,7 @@
       "source_file": "src/v3/sim/report.ts",
       "source_location": "L225",
       "_origin": "ast",
-      "community": 26,
+      "community": 58,
       "norm_label": "inband()",
       "id": "sim_report_inband"
     },
@@ -4909,7 +4939,7 @@
       "source_file": "src/v3/sim/report.ts",
       "source_location": "L502",
       "_origin": "ast",
-      "community": 26,
+      "community": 58,
       "norm_label": "mkcheck()",
       "id": "sim_report_mkcheck"
     },
@@ -4929,7 +4959,7 @@
       "source_file": "src/v3/sim/report.ts",
       "source_location": "L530",
       "_origin": "ast",
-      "community": 26,
+      "community": 58,
       "norm_label": "bloodpactsummary",
       "id": "sim_report_bloodpactsummary"
     },
@@ -4949,7 +4979,7 @@
       "source_file": "src/v3/sim/report.ts",
       "source_location": "L553",
       "_origin": "ast",
-      "community": 26,
+      "community": 58,
       "norm_label": "renderbloodpactmarkdown()",
       "id": "sim_report_renderbloodpactmarkdown"
     },
@@ -4959,7 +4989,7 @@
       "source_file": "src/v3/sim/report.ts",
       "source_location": "L574",
       "_origin": "ast",
-      "community": 26,
+      "community": 58,
       "norm_label": "reportmeta",
       "id": "sim_report_reportmeta"
     },
@@ -5019,7 +5049,7 @@
       "source_file": "tests/v2/sim-archetypes.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 108,
+      "community": 81,
       "norm_label": "sim-archetypes.test.ts",
       "id": "v2_sim_archetypes_test"
     },
@@ -5029,7 +5059,7 @@
       "source_file": "tests/v2/sim-archetypes.test.ts",
       "source_location": "L21",
       "_origin": "ast",
-      "community": 108,
+      "community": 81,
       "norm_label": "apply()",
       "id": "v2_sim_archetypes_test_apply"
     },
@@ -5039,7 +5069,7 @@
       "source_file": "tests/v2/sim-archetypes.test.ts",
       "source_location": "L25",
       "_origin": "ast",
-      "community": 108,
+      "community": 81,
       "norm_label": "placewarlord()",
       "id": "v2_sim_archetypes_test_placewarlord"
     },
@@ -5049,7 +5079,7 @@
       "source_file": "tests/v2/sim-archetypes.test.ts",
       "source_location": "L109",
       "_origin": "ast",
-      "community": 108,
+      "community": 81,
       "norm_label": "seatsfor()",
       "id": "v2_sim_archetypes_test_seatsfor"
     },
@@ -5069,7 +5099,7 @@
       "source_file": "tests/v3/sim-archetypes.test.ts",
       "source_location": "L24",
       "_origin": "ast",
-      "community": 45,
+      "community": 71,
       "norm_label": "apply()",
       "id": "v3_sim_archetypes_test_apply"
     },
@@ -5389,7 +5419,7 @@
       "source_file": "src/ui-v3/session.ts",
       "source_location": "L64",
       "_origin": "ast",
-      "community": 71,
+      "community": 1,
       "norm_label": "exposure",
       "id": "ui_v3_session_exposure"
     },
@@ -5429,7 +5459,7 @@
       "source_file": "src/ui-v3/session.ts",
       "source_location": "L115",
       "_origin": "ast",
-      "community": 27,
+      "community": 58,
       "norm_label": ".constructor()",
       "id": "ui_v3_session_gamesession_constructor"
     },
@@ -5579,7 +5609,7 @@
       "source_file": "src/ui-v3/session.ts",
       "source_location": "L400",
       "_origin": "ast",
-      "community": 28,
+      "community": 27,
       "norm_label": ".suggestedhumanpledge()",
       "id": "ui_v3_session_gamesession_suggestedhumanpledge"
     },
@@ -5599,7 +5629,7 @@
       "source_file": "src/ui-v3/session.ts",
       "source_location": "L422",
       "_origin": "ast",
-      "community": 71,
+      "community": 27,
       "norm_label": ".pendinglaststand()",
       "id": "ui_v3_session_gamesession_pendinglaststand"
     },
@@ -5689,7 +5719,7 @@
       "source_file": "src/ui-v3/session.ts",
       "source_location": "L535",
       "_origin": "ast",
-      "community": 71,
+      "community": 27,
       "norm_label": ".wraithinput()",
       "id": "ui_v3_session_gamesession_wraithinput"
     },
@@ -5699,7 +5729,7 @@
       "source_file": "src/ui-v3/session.ts",
       "source_location": "L540",
       "_origin": "ast",
-      "community": 71,
+      "community": 27,
       "norm_label": ".pendingbequest()",
       "id": "ui_v3_session_gamesession_pendingbequest"
     },
@@ -5729,7 +5759,7 @@
       "source_file": "src/ui-v3/session.ts",
       "source_location": "L572",
       "_origin": "ast",
-      "community": 27,
+      "community": 28,
       "norm_label": ".raidprojection()",
       "id": "ui_v3_session_gamesession_raidprojection"
     },
@@ -5869,7 +5899,7 @@
       "source_file": "src/ui-v3/view.ts",
       "source_location": "L60",
       "_origin": "ast",
-      "community": 108,
+      "community": 1,
       "norm_label": "territoryof()",
       "id": "ui_v3_view_territoryof"
     },
@@ -6159,7 +6189,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "actions.ts",
       "id": "v3_actions"
     },
@@ -6169,7 +6199,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L55",
       "_origin": "ast",
-      "community": 83,
+      "community": 95,
       "norm_label": "actionresult",
       "id": "v3_actions_actionresult"
     },
@@ -6179,7 +6209,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L69",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "areadjacent()",
       "id": "v3_actions_areadjacent"
     },
@@ -6189,7 +6219,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L77",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "isplayeratnode()",
       "id": "v3_actions_isplayeratnode"
     },
@@ -6219,7 +6249,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L109",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "executemarch()",
       "id": "v3_actions_executemarch"
     },
@@ -6229,7 +6259,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L225",
       "_origin": "ast",
-      "community": 79,
+      "community": 83,
       "norm_label": "executeheraldmarch()",
       "id": "v3_actions_executeheraldmarch"
     },
@@ -6249,7 +6279,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L324",
       "_origin": "ast",
-      "community": 79,
+      "community": 83,
       "norm_label": "executeclaim()",
       "id": "v3_actions_executeclaim"
     },
@@ -6259,7 +6289,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L390",
       "_origin": "ast",
-      "community": 79,
+      "community": 0,
       "norm_label": "executestrike()",
       "id": "v3_actions_executestrike"
     },
@@ -6269,7 +6299,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L444",
       "_origin": "ast",
-      "community": 79,
+      "community": 1,
       "norm_label": "raideffect",
       "id": "v3_actions_raideffect"
     },
@@ -6279,7 +6309,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L448",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "raidelect",
       "id": "v3_actions_raidelect"
     },
@@ -6289,7 +6319,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L463",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "executeraid()",
       "id": "v3_actions_executeraid"
     },
@@ -6299,7 +6329,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L614",
       "_origin": "ast",
-      "community": 79,
+      "community": 85,
       "norm_label": "finishraidresolution()",
       "id": "v3_actions_finishraidresolution"
     },
@@ -6309,7 +6339,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L730",
       "_origin": "ast",
-      "community": 91,
+      "community": 83,
       "norm_label": "resumelaststand()",
       "id": "v3_actions_resumelaststand"
     },
@@ -6329,7 +6359,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L872",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "findoath()",
       "id": "v3_actions_findoath"
     },
@@ -6349,7 +6379,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L882",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "forgeoath()",
       "id": "v3_actions_forgeoath"
     },
@@ -6359,7 +6389,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L899",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "executeswearoath()",
       "id": "v3_actions_executeswearoath"
     },
@@ -6369,7 +6399,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L921",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "executebreakoath()",
       "id": "v3_actions_executebreakoath"
     },
@@ -6379,7 +6409,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L957",
       "_origin": "ast",
-      "community": 90,
+      "community": 28,
       "norm_label": "runoathupkeep()",
       "id": "v3_actions_runoathupkeep"
     },
@@ -6389,7 +6419,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L987",
       "_origin": "ast",
-      "community": 94,
+      "community": 100,
       "norm_label": "executerecruit()",
       "id": "v3_actions_executerecruit"
     },
@@ -6399,7 +6429,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L1050",
       "_origin": "ast",
-      "community": 94,
+      "community": 28,
       "norm_label": "parleytarget()",
       "id": "v3_actions_parleytarget"
     },
@@ -6409,7 +6439,7 @@
       "source_file": "src/v3/actions.ts",
       "source_location": "L1068",
       "_origin": "ast",
-      "community": 94,
+      "community": 100,
       "norm_label": "executeparley()",
       "id": "v3_actions_executeparley"
     },
@@ -6459,7 +6489,7 @@
       "source_file": "src/v3/ai-player.ts",
       "source_location": "L227",
       "_origin": "ast",
-      "community": 28,
+      "community": 71,
       "norm_label": "choosepledge()",
       "id": "v3_ai_player_choosepledge"
     },
@@ -6469,7 +6499,7 @@
       "source_file": "src/v3/ai-player.ts",
       "source_location": "L329",
       "_origin": "ast",
-      "community": 28,
+      "community": 85,
       "norm_label": "isclaimantsealed()",
       "id": "v3_ai_player_isclaimantsealed"
     },
@@ -6499,7 +6529,7 @@
       "source_file": "src/v3/ai-player.ts",
       "source_location": "L377",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "canstrikewin()",
       "id": "v3_ai_player_canstrikewin"
     },
@@ -6609,7 +6639,7 @@
       "source_file": "src/v3/ai-player.ts",
       "source_location": "L624",
       "_origin": "ast",
-      "community": 28,
+      "community": 91,
       "norm_label": "chooseaction()",
       "id": "v3_ai_player_chooseaction"
     },
@@ -6719,7 +6749,7 @@
       "source_file": "src/v3/ai-player.ts",
       "source_location": "L1178",
       "_origin": "ast",
-      "community": 28,
+      "community": 71,
       "norm_label": "runaipledge()",
       "id": "v3_ai_player_runaipledge"
     },
@@ -6729,7 +6759,7 @@
       "source_file": "src/v3/ai-player.ts",
       "source_location": "L1198",
       "_origin": "ast",
-      "community": 28,
+      "community": 71,
       "norm_label": "runaiturn()",
       "id": "v3_ai_player_runaiturn"
     },
@@ -6749,7 +6779,7 @@
       "source_file": "src/v3/blight.ts",
       "source_location": "L28",
       "_origin": "ast",
-      "community": 83,
+      "community": 95,
       "norm_label": "blightresult",
       "id": "v3_blight_blightresult"
     },
@@ -6899,7 +6929,7 @@
       "source_file": "src/v3/difficulty.ts",
       "source_location": "L58",
       "_origin": "ast",
-      "community": 94,
+      "community": 0,
       "norm_label": "difficulty_tunables",
       "id": "v3_difficulty_difficulty_tunables"
     },
@@ -6939,7 +6969,7 @@
       "source_file": "src/v3/difficulty.ts",
       "source_location": "L108",
       "_origin": "ast",
-      "community": 27,
+      "community": 94,
       "norm_label": "withsessiontunables()",
       "id": "v3_difficulty_withsessiontunables"
     },
@@ -6969,7 +6999,7 @@
       "source_file": "src/v3/sequencer.ts",
       "source_location": "L68",
       "_origin": "ast",
-      "community": 83,
+      "community": 95,
       "norm_label": "sequencerresult",
       "id": "v3_sequencer_sequencerresult"
     },
@@ -7009,7 +7039,7 @@
       "source_file": "src/v3/sequencer.ts",
       "source_location": "L127",
       "_origin": "ast",
-      "community": 91,
+      "community": 83,
       "norm_label": "ispledgecomplete()",
       "id": "v3_sequencer_ispledgecomplete"
     },
@@ -7019,7 +7049,7 @@
       "source_file": "src/v3/sequencer.ts",
       "source_location": "L136",
       "_origin": "ast",
-      "community": 91,
+      "community": 83,
       "norm_label": "classifypledgetier()",
       "id": "v3_sequencer_classifypledgetier"
     },
@@ -7039,7 +7069,7 @@
       "source_file": "src/v3/sequencer.ts",
       "source_location": "L264",
       "_origin": "ast",
-      "community": 91,
+      "community": 83,
       "norm_label": "isactionphasecomplete()",
       "id": "v3_sequencer_isactionphasecomplete"
     },
@@ -7059,7 +7089,7 @@
       "source_file": "src/v3/sequencer.ts",
       "source_location": "L304",
       "_origin": "ast",
-      "community": 79,
+      "community": 83,
       "norm_label": "advanceactiveplayer()",
       "id": "v3_sequencer_advanceactiveplayer"
     },
@@ -7079,7 +7109,7 @@
       "source_file": "src/v3/sequencer.ts",
       "source_location": "L557",
       "_origin": "ast",
-      "community": 90,
+      "community": 59,
       "norm_label": "resolvedeposals()",
       "id": "v3_sequencer_resolvedeposals"
     },
@@ -7109,7 +7139,7 @@
       "source_file": "src/v3/sequencer.ts",
       "source_location": "L723",
       "_origin": "ast",
-      "community": 90,
+      "community": 79,
       "norm_label": "generatebannersforplayer()",
       "id": "v3_sequencer_generatebannersforplayer"
     },
@@ -7139,7 +7169,7 @@
       "source_file": "src/v3/setup.ts",
       "source_location": "L44",
       "_origin": "ast",
-      "community": 91,
+      "community": 79,
       "norm_label": "faction_names",
       "id": "v3_setup_faction_names"
     },
@@ -7199,7 +7229,7 @@
       "source_file": "src/v3/sim/driver.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 108,
+      "community": 58,
       "norm_label": "driver.ts",
       "id": "sim_driver"
     },
@@ -7229,7 +7259,7 @@
       "source_file": "src/v3/sim/driver.ts",
       "source_location": "L66",
       "_origin": "ast",
-      "community": 108,
+      "community": 95,
       "norm_label": "gamerunresult",
       "id": "sim_driver_gamerunresult"
     },
@@ -7239,7 +7269,7 @@
       "source_file": "src/v3/sim/driver.ts",
       "source_location": "L92",
       "_origin": "ast",
-      "community": 108,
+      "community": 94,
       "norm_label": "playheadlessgame()",
       "id": "sim_driver_playheadlessgame"
     },
@@ -7249,7 +7279,7 @@
       "source_file": "src/v3/sim/driver.ts",
       "source_location": "L106",
       "_origin": "ast",
-      "community": 45,
+      "community": 71,
       "norm_label": "runheadlessgame()",
       "id": "sim_driver_runheadlessgame"
     },
@@ -7259,7 +7289,7 @@
       "source_file": "src/v3/sim/driver.ts",
       "source_location": "L208",
       "_origin": "ast",
-      "community": 108,
+      "community": 58,
       "norm_label": "territoryleader()",
       "id": "sim_driver_territoryleader"
     },
@@ -7269,7 +7299,7 @@
       "source_file": "src/v3/sim/driver.ts",
       "source_location": "L225",
       "_origin": "ast",
-      "community": 45,
+      "community": 71,
       "norm_label": "runaiaccusations()",
       "id": "sim_driver_runaiaccusations"
     },
@@ -7309,7 +7339,7 @@
       "source_file": "src/v3/sim/sweep.ts",
       "source_location": "L60",
       "_origin": "ast",
-      "community": 11,
+      "community": 48,
       "norm_label": "runsweep()",
       "id": "sim_sweep_runsweep"
     },
@@ -7359,7 +7389,7 @@
       "source_file": "src/v3/types.ts",
       "source_location": "L28",
       "_origin": "ast",
-      "community": 88,
+      "community": 58,
       "norm_label": "act",
       "id": "v3_types_act"
     },
@@ -7459,7 +7489,7 @@
       "source_file": "src/v3/types.ts",
       "source_location": "L149",
       "_origin": "ast",
-      "community": 0,
+      "community": 79,
       "norm_label": "archetype",
       "id": "v3_types_archetype"
     },
@@ -7529,7 +7559,7 @@
       "source_file": "src/v3/types.ts",
       "source_location": "L253",
       "_origin": "ast",
-      "community": 90,
+      "community": 0,
       "norm_label": "heartstate",
       "id": "v3_types_heartstate"
     },
@@ -7609,7 +7639,7 @@
       "source_file": "src/v3/types.ts",
       "source_location": "L437",
       "_origin": "ast",
-      "community": 83,
+      "community": 0,
       "norm_label": "pledgeentry",
       "id": "v3_types_pledgeentry"
     },
@@ -7619,7 +7649,7 @@
       "source_file": "src/v3/types.ts",
       "source_location": "L452",
       "_origin": "ast",
-      "community": 0,
+      "community": 1,
       "norm_label": "oath",
       "id": "v3_types_oath"
     },
@@ -7689,7 +7719,7 @@
       "source_file": "src/v3/types.ts",
       "source_location": "L545",
       "_origin": "ast",
-      "community": 83,
+      "community": 95,
       "norm_label": "gamestate",
       "id": "v3_types_gamestate"
     },
@@ -7699,7 +7729,7 @@
       "source_file": "src/v3/types.ts",
       "source_location": "L677",
       "_origin": "ast",
-      "community": 71,
+      "community": 27,
       "norm_label": "pendinglaststand",
       "id": "v3_types_pendinglaststand"
     },
@@ -7709,7 +7739,7 @@
       "source_file": "src/v3/types.ts",
       "source_location": "L702",
       "_origin": "ast",
-      "community": 71,
+      "community": 27,
       "norm_label": "wraithinputkind",
       "id": "v3_types_wraithinputkind"
     },
@@ -7719,7 +7749,7 @@
       "source_file": "src/v3/types.ts",
       "source_location": "L708",
       "_origin": "ast",
-      "community": 71,
+      "community": 27,
       "norm_label": "bequestchoiceinput",
       "id": "v3_types_bequestchoiceinput"
     },
@@ -7739,7 +7769,7 @@
       "source_file": "tests/v3/court.test.ts",
       "source_location": "L36",
       "_origin": "ast",
-      "community": 91,
+      "community": 79,
       "norm_label": "game()",
       "id": "v3_court_test_game"
     },
@@ -7789,7 +7819,7 @@
       "source_file": "tests/v3/engagement-t2-2.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 94,
+      "community": 100,
       "norm_label": "engagement-t2-2.test.ts",
       "id": "v3_engagement_t2_2_test"
     },
@@ -7799,7 +7829,7 @@
       "source_file": "tests/v3/engagement-t2-2.test.ts",
       "source_location": "L27",
       "_origin": "ast",
-      "community": 94,
+      "community": 100,
       "norm_label": "placewarlord()",
       "id": "v3_engagement_t2_2_test_placewarlord"
     },
@@ -7809,7 +7839,7 @@
       "source_file": "tests/v3/engagement-t2-2.test.ts",
       "source_location": "L94",
       "_origin": "ast",
-      "community": 94,
+      "community": 100,
       "norm_label": "placewarlordon()",
       "id": "v3_engagement_t2_2_test_placewarlordon"
     },
@@ -7819,7 +7849,7 @@
       "source_file": "tests/v3/fixtures.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 94,
+      "community": 100,
       "norm_label": "fixtures.ts",
       "id": "v3_fixtures"
     },
@@ -7829,7 +7859,7 @@
       "source_file": "tests/v3/fixtures.ts",
       "source_location": "L15",
       "_origin": "ast",
-      "community": 94,
+      "community": 100,
       "norm_label": "withheraldenabled()",
       "id": "v3_fixtures_withheraldenabled"
     },
@@ -7839,7 +7869,7 @@
       "source_file": "tests/v3/fixtures.ts",
       "source_location": "L22",
       "_origin": "ast",
-      "community": 91,
+      "community": 100,
       "norm_label": "stripstartingretainers()",
       "id": "v3_fixtures_stripstartingretainers"
     },
@@ -7849,7 +7879,7 @@
       "source_file": "tests/v3/herald-piece.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 94,
+      "community": 100,
       "norm_label": "herald-piece.test.ts",
       "id": "v3_herald_piece_test"
     },
@@ -7859,7 +7889,7 @@
       "source_file": "tests/v3/herald-piece.test.ts",
       "source_location": "L21",
       "_origin": "ast",
-      "community": 94,
+      "community": 100,
       "norm_label": "recruited()",
       "id": "v3_herald_piece_test_recruited"
     },
@@ -7869,7 +7899,7 @@
       "source_file": "tests/v3/herald-toggle.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 94,
+      "community": 91,
       "norm_label": "herald-toggle.test.ts",
       "id": "v3_herald_toggle_test"
     },
@@ -7879,7 +7909,7 @@
       "source_file": "tests/v3/herald-toggle.test.ts",
       "source_location": "L28",
       "_origin": "ast",
-      "community": 94,
+      "community": 91,
       "norm_label": "herald_hungry",
       "id": "v3_herald_toggle_test_herald_hungry"
     },
@@ -7889,7 +7919,7 @@
       "source_file": "tests/v3/herald.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 94,
+      "community": 100,
       "norm_label": "herald.test.ts",
       "id": "v3_herald_test"
     },
@@ -7909,7 +7939,7 @@
       "source_file": "tests/v3/retainer-names.test.ts",
       "source_location": "L25",
       "_origin": "ast",
-      "community": 91,
+      "community": 79,
       "norm_label": "gamewithrecruittoken()",
       "id": "v3_retainer_names_test_gamewithrecruittoken"
     },
@@ -7929,7 +7959,7 @@
       "source_file": "tests/v3/sim-tunables.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 101,
+      "community": 94,
       "norm_label": "sim-tunables.test.ts",
       "id": "v3_sim_tunables_test"
     },
@@ -8039,7 +8069,7 @@
       "source_file": "tests/v3/ui-parity.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 71,
+      "community": 79,
       "norm_label": "ui-parity.test.ts",
       "id": "v3_ui_parity_test"
     },
@@ -8049,7 +8079,7 @@
       "source_file": "tests/v3/ui-parity.test.ts",
       "source_location": "L20",
       "_origin": "ast",
-      "community": 71,
+      "community": 79,
       "norm_label": "humanturn()",
       "id": "v3_ui_parity_test_humanturn"
     },
@@ -8059,7 +8089,7 @@
       "source_file": "tests/v3/ui-parity.test.ts",
       "source_location": "L33",
       "_origin": "ast",
-      "community": 71,
+      "community": 79,
       "norm_label": "colocaterival()",
       "id": "v3_ui_parity_test_colocaterival"
     },
@@ -8579,7 +8609,7 @@
       "source_file": "src/v3/elimination.ts",
       "source_location": "L127",
       "_origin": "ast",
-      "community": 90,
+      "community": 59,
       "norm_label": "joinwraith()",
       "id": "v3_elimination_joinwraith"
     },
@@ -8589,7 +8619,7 @@
       "source_file": "src/v3/elimination.ts",
       "source_location": "L136",
       "_origin": "ast",
-      "community": 79,
+      "community": 59,
       "norm_label": "markstrippedbyrival()",
       "id": "v3_elimination_markstrippedbyrival"
     },
@@ -8639,7 +8669,7 @@
       "source_file": "src/v3/elimination.ts",
       "source_location": "L228",
       "_origin": "ast",
-      "community": 90,
+      "community": 59,
       "norm_label": "applyreckoningautopressure()",
       "id": "v3_elimination_applyreckoningautopressure"
     },
@@ -8799,7 +8829,7 @@
       "source_file": "src/v3/events.ts",
       "source_location": "L24",
       "_origin": "ast",
-      "community": 83,
+      "community": 95,
       "norm_label": "gameevent",
       "id": "v3_events_gameevent"
     },
@@ -9119,7 +9149,7 @@
       "source_file": "src/v3/sim/metrics.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 58,
+      "community": 127,
       "norm_label": "metrics.ts",
       "id": "sim_metrics"
     },
@@ -9129,7 +9159,7 @@
       "source_file": "src/v3/sim/metrics.ts",
       "source_location": "L14",
       "_origin": "ast",
-      "community": 58,
+      "community": 127,
       "norm_label": "discoveryflipmix",
       "id": "sim_metrics_discoveryflipmix"
     },
@@ -9149,7 +9179,7 @@
       "source_file": "src/v3/sim/metrics.ts",
       "source_location": "L120",
       "_origin": "ast",
-      "community": 108,
+      "community": 58,
       "norm_label": "territoryof()",
       "id": "sim_metrics_territoryof"
     },
@@ -9159,7 +9189,7 @@
       "source_file": "src/v3/sim/metrics.ts",
       "source_location": "L132",
       "_origin": "ast",
-      "community": 58,
+      "community": 127,
       "norm_label": "meanpledges()",
       "id": "sim_metrics_meanpledges"
     },
@@ -9169,7 +9199,7 @@
       "source_file": "src/v3/sim/metrics.ts",
       "source_location": "L146",
       "_origin": "ast",
-      "community": 58,
+      "community": 127,
       "norm_label": "computemetrics()",
       "id": "sim_metrics_computemetrics"
     },
@@ -9289,7 +9319,7 @@
       "source_file": "src/v3/discovery.ts",
       "source_location": "L231",
       "_origin": "ast",
-      "community": 79,
+      "community": 0,
       "norm_label": "flipdiscoverytoken()",
       "id": "v3_discovery_flipdiscoverytoken"
     },
@@ -9299,7 +9329,7 @@
       "source_file": "src/v3/discovery.ts",
       "source_location": "L268",
       "_origin": "ast",
-      "community": 79,
+      "community": 0,
       "norm_label": "redeemblightseed()",
       "id": "v3_discovery_redeemblightseed"
     },
@@ -9329,7 +9359,7 @@
       "source_file": "tests/v3/capture.test.ts",
       "source_location": "L43",
       "_origin": "ast",
-      "community": 91,
+      "community": 79,
       "norm_label": "arena()",
       "id": "v3_capture_test_arena"
     },
@@ -9339,7 +9369,7 @@
       "source_file": "tests/v3/capture.test.ts",
       "source_location": "L300",
       "_origin": "ast",
-      "community": 91,
+      "community": 79,
       "norm_label": "laststrongholdarena()",
       "id": "v3_capture_test_laststrongholdarena"
     },
@@ -9369,7 +9399,7 @@
       "source_file": "tests/v3/last-stand-pause.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 91,
+      "community": 100,
       "norm_label": "last-stand-pause.test.ts",
       "id": "v3_last_stand_pause_test"
     },
@@ -9379,7 +9409,7 @@
       "source_file": "tests/v3/last-stand-pause.test.ts",
       "source_location": "L37",
       "_origin": "ast",
-      "community": 91,
+      "community": 100,
       "norm_label": "arena()",
       "id": "v3_last_stand_pause_test_arena"
     },
@@ -9389,7 +9419,7 @@
       "source_file": "tests/v3/last-stand-pause.test.ts",
       "source_location": "L55",
       "_origin": "ast",
-      "community": 91,
+      "community": 100,
       "norm_label": "raidforland()",
       "id": "v3_last_stand_pause_test_raidforland"
     },
@@ -9399,7 +9429,7 @@
       "source_file": "tests/v3/last-stand-pause.test.ts",
       "source_location": "L209",
       "_origin": "ast",
-      "community": 91,
+      "community": 100,
       "norm_label": "pauseviareducer()",
       "id": "v3_last_stand_pause_test_pauseviareducer"
     },
@@ -9409,7 +9439,7 @@
       "source_file": "tests/v3/last-stand-pause.test.ts",
       "source_location": "L278",
       "_origin": "ast",
-      "community": 91,
+      "community": 100,
       "norm_label": "pausedsession()",
       "id": "v3_last_stand_pause_test_pausedsession"
     },
@@ -9629,7 +9659,7 @@
       "source_file": "src/v3/commands.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 28,
+      "community": 0,
       "norm_label": "commands.ts",
       "id": "v3_commands"
     },
@@ -9649,7 +9679,7 @@
       "source_file": "src/v3/commands.ts",
       "source_location": "L29",
       "_origin": "ast",
-      "community": 28,
+      "community": 0,
       "norm_label": "raideffect",
       "id": "v3_commands_raideffect"
     },
@@ -9659,7 +9689,7 @@
       "source_file": "src/v3/commands.ts",
       "source_location": "L32",
       "_origin": "ast",
-      "community": 28,
+      "community": 0,
       "norm_label": "playeraction",
       "id": "v3_commands_playeraction"
     },
@@ -9669,7 +9699,7 @@
       "source_file": "src/v3/commands.ts",
       "source_location": "L59",
       "_origin": "ast",
-      "community": 27,
+      "community": 71,
       "norm_label": "command",
       "id": "v3_commands_command"
     },
@@ -9679,7 +9709,7 @@
       "source_file": "src/v3/commands.ts",
       "source_location": "L70",
       "_origin": "ast",
-      "community": 28,
+      "community": 0,
       "norm_label": "advancephasecommand",
       "id": "v3_commands_advancephasecommand"
     },
@@ -9689,7 +9719,7 @@
       "source_file": "src/v3/commands.ts",
       "source_location": "L75",
       "_origin": "ast",
-      "community": 28,
+      "community": 0,
       "norm_label": "submitpledgecommand",
       "id": "v3_commands_submitpledgecommand"
     },
@@ -9699,7 +9729,7 @@
       "source_file": "src/v3/commands.ts",
       "source_location": "L83",
       "_origin": "ast",
-      "community": 28,
+      "community": 0,
       "norm_label": "playeractioncommand",
       "id": "v3_commands_playeractioncommand"
     },
@@ -9709,7 +9739,7 @@
       "source_file": "src/v3/commands.ts",
       "source_location": "L95",
       "_origin": "ast",
-      "community": 28,
+      "community": 0,
       "norm_label": "laststandcommitcommand",
       "id": "v3_commands_laststandcommitcommand"
     },
@@ -9719,7 +9749,7 @@
       "source_file": "src/v3/commands.ts",
       "source_location": "L105",
       "_origin": "ast",
-      "community": 28,
+      "community": 0,
       "norm_label": "initiateaccusationcommand",
       "id": "v3_commands_initiateaccusationcommand"
     },
@@ -9729,7 +9759,7 @@
       "source_file": "src/v3/commands.ts",
       "source_location": "L112",
       "_origin": "ast",
-      "community": 28,
+      "community": 0,
       "norm_label": "accusationvotecommand",
       "id": "v3_commands_accusationvotecommand"
     },
@@ -9739,7 +9769,7 @@
       "source_file": "src/v3/commands.ts",
       "source_location": "L123",
       "_origin": "ast",
-      "community": 28,
+      "community": 0,
       "norm_label": "setbequestcommand",
       "id": "v3_commands_setbequestcommand"
     },
@@ -9749,7 +9779,7 @@
       "source_file": "src/v3/commands.ts",
       "source_location": "L134",
       "_origin": "ast",
-      "community": 28,
+      "community": 0,
       "norm_label": "setwraithinputcommand",
       "id": "v3_commands_setwraithinputcommand"
     },
@@ -9759,7 +9789,7 @@
       "source_file": "src/v3/reducer.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 91,
+      "community": 83,
       "norm_label": "reducer.ts",
       "id": "v3_reducer"
     },
@@ -9769,7 +9799,7 @@
       "source_file": "src/v3/reducer.ts",
       "source_location": "L26",
       "_origin": "ast",
-      "community": 83,
+      "community": 95,
       "norm_label": "commandresult",
       "id": "v3_reducer_commandresult"
     },
@@ -9779,7 +9809,7 @@
       "source_file": "src/v3/reducer.ts",
       "source_location": "L33",
       "_origin": "ast",
-      "community": 91,
+      "community": 83,
       "norm_label": "invalidcommanderror",
       "id": "v3_reducer_invalidcommanderror"
     },
@@ -9789,7 +9819,7 @@
       "source_file": "src/v3/reducer.ts",
       "source_location": "L34",
       "_origin": "ast",
-      "community": 91,
+      "community": 83,
       "norm_label": ".constructor()",
       "id": "v3_reducer_invalidcommanderror_constructor"
     },
@@ -9799,7 +9829,7 @@
       "source_file": "src/v3/reducer.ts",
       "source_location": "L49",
       "_origin": "ast",
-      "community": 91,
+      "community": 83,
       "norm_label": "clonestate()",
       "id": "v3_reducer_clonestate"
     },
@@ -9809,7 +9839,7 @@
       "source_file": "src/v3/reducer.ts",
       "source_location": "L62",
       "_origin": "ast",
-      "community": 91,
+      "community": 71,
       "norm_label": "applycommand()",
       "id": "v3_reducer_applycommand"
     },
@@ -9819,7 +9849,7 @@
       "source_file": "src/v3/reducer.ts",
       "source_location": "L123",
       "_origin": "ast",
-      "community": 91,
+      "community": 83,
       "norm_label": "handleadvancephase()",
       "id": "v3_reducer_handleadvancephase"
     },
@@ -9829,7 +9859,7 @@
       "source_file": "src/v3/reducer.ts",
       "source_location": "L158",
       "_origin": "ast",
-      "community": 91,
+      "community": 83,
       "norm_label": "handlesubmitpledge()",
       "id": "v3_reducer_handlesubmitpledge"
     },
@@ -9839,7 +9869,7 @@
       "source_file": "src/v3/reducer.ts",
       "source_location": "L260",
       "_origin": "ast",
-      "community": 91,
+      "community": 83,
       "norm_label": "ispledgesealed()",
       "id": "v3_reducer_ispledgesealed"
     },
@@ -9849,7 +9879,7 @@
       "source_file": "src/v3/reducer.ts",
       "source_location": "L270",
       "_origin": "ast",
-      "community": 79,
+      "community": 83,
       "norm_label": "handleplayeraction()",
       "id": "v3_reducer_handleplayeraction"
     },
@@ -9859,7 +9889,7 @@
       "source_file": "src/v3/reducer.ts",
       "source_location": "L566",
       "_origin": "ast",
-      "community": 91,
+      "community": 83,
       "norm_label": "handlesetbequest()",
       "id": "v3_reducer_handlesetbequest"
     },
@@ -9869,7 +9899,7 @@
       "source_file": "src/v3/reducer.ts",
       "source_location": "L594",
       "_origin": "ast",
-      "community": 91,
+      "community": 83,
       "norm_label": "handlesetwraithinput()",
       "id": "v3_reducer_handlesetwraithinput"
     },
@@ -9879,7 +9909,7 @@
       "source_file": "src/v3/reducer.ts",
       "source_location": "L621",
       "_origin": "ast",
-      "community": 91,
+      "community": 83,
       "norm_label": "handlelaststandcommit()",
       "id": "v3_reducer_handlelaststandcommit"
     },
@@ -9889,7 +9919,7 @@
       "source_file": "src/v3/reducer.ts",
       "source_location": "L652",
       "_origin": "ast",
-      "community": 91,
+      "community": 83,
       "norm_label": "handleinitiateaccusation()",
       "id": "v3_reducer_handleinitiateaccusation"
     },
@@ -9899,7 +9929,7 @@
       "source_file": "src/v3/reducer.ts",
       "source_location": "L670",
       "_origin": "ast",
-      "community": 91,
+      "community": 83,
       "norm_label": "handleaccusationvote()",
       "id": "v3_reducer_handleaccusationvote"
     },
@@ -9909,7 +9939,7 @@
       "source_file": "tests/v3/reducer.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 91,
+      "community": 83,
       "norm_label": "reducer.test.ts",
       "id": "v3_reducer_test"
     },
@@ -9999,7 +10029,7 @@
       "source_file": "src/v3/capture.ts",
       "source_location": "L136",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "cantakeland()",
       "id": "v3_capture_cantakeland"
     },
@@ -10079,7 +10109,7 @@
       "source_file": "src/v3/capture.ts",
       "source_location": "L302",
       "_origin": "ast",
-      "community": 90,
+      "community": 79,
       "norm_label": "resolvecaptivesafterdeposals()",
       "id": "v3_capture_resolvecaptivesafterdeposals"
     },
@@ -10089,7 +10119,7 @@
       "source_file": "tests/v3/actions.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "actions.test.ts",
       "id": "v3_actions_test"
     },
@@ -10099,7 +10129,7 @@
       "source_file": "tests/v3/actions.test.ts",
       "source_location": "L174",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "siege()",
       "id": "v3_actions_test_siege"
     },
@@ -10109,7 +10139,7 @@
       "source_file": "tests/v3/sequencer.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 91,
+      "community": 128,
       "norm_label": "sequencer.test.ts",
       "id": "v3_sequencer_test"
     },
@@ -10119,7 +10149,7 @@
       "source_file": "tests/v3/sequencer.test.ts",
       "source_location": "L21",
       "_origin": "ast",
-      "community": 91,
+      "community": 128,
       "norm_label": "apply()",
       "id": "v3_sequencer_test_apply"
     },
@@ -10129,7 +10159,7 @@
       "source_file": "tests/v3/sequencer.test.ts",
       "source_location": "L26",
       "_origin": "ast",
-      "community": 91,
+      "community": 128,
       "norm_label": "submitallpledges()",
       "id": "v3_sequencer_test_submitallpledges"
     },
@@ -10139,7 +10169,7 @@
       "source_file": "tests/v3/sequencer.test.ts",
       "source_location": "L79",
       "_origin": "ast",
-      "community": 91,
+      "community": 128,
       "norm_label": "passallactions()",
       "id": "v3_sequencer_test_passallactions"
     },
@@ -10149,7 +10179,7 @@
       "source_file": "tests/v3/sequencer.test.ts",
       "source_location": "L216",
       "_origin": "ast",
-      "community": 91,
+      "community": 128,
       "norm_label": "gettoactionphase()",
       "id": "v3_sequencer_test_gettoactionphase"
     },
@@ -10239,7 +10269,7 @@
       "source_file": "src/v3/court.ts",
       "source_location": "L142",
       "_origin": "ast",
-      "community": 90,
+      "community": 79,
       "norm_label": "stewardincome()",
       "id": "v3_court_stewardincome"
     },
@@ -10489,7 +10519,7 @@
       "source_file": "tests/v3/sim-bloodpact.test.ts",
       "source_location": "L21",
       "_origin": "ast",
-      "community": 48,
+      "community": 71,
       "norm_label": "apply()",
       "id": "v3_sim_bloodpact_test_apply"
     },
@@ -10689,7 +10719,7 @@
       "source_file": "tests/v3/kill-the-dark-3g.test.ts",
       "source_location": "L101",
       "_origin": "ast",
-      "community": 91,
+      "community": 90,
       "norm_label": "reckoningcleandawn()",
       "id": "v3_kill_the_dark_3g_test_reckoningcleandawn"
     },
@@ -10699,7 +10729,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 79,
+      "community": 95,
       "norm_label": "combat.ts",
       "id": "v3_combat"
     },
@@ -10709,7 +10739,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L34",
       "_origin": "ast",
-      "community": 79,
+      "community": 95,
       "norm_label": "productionof()",
       "id": "v3_combat_productionof"
     },
@@ -10719,7 +10749,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L50",
       "_origin": "ast",
-      "community": 79,
+      "community": 59,
       "norm_label": "livingstrongholdcount()",
       "id": "v3_combat_livingstrongholdcount"
     },
@@ -10729,7 +10759,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L68",
       "_origin": "ast",
-      "community": 79,
+      "community": 95,
       "norm_label": "territoryrank()",
       "id": "v3_combat_territoryrank"
     },
@@ -10739,7 +10769,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L85",
       "_origin": "ast",
-      "community": 79,
+      "community": 95,
       "norm_label": "ranksbelow()",
       "id": "v3_combat_ranksbelow"
     },
@@ -10749,7 +10779,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L100",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "effectivecapturemargin()",
       "id": "v3_combat_effectivecapturemargin"
     },
@@ -10759,7 +10789,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L106",
       "_origin": "ast",
-      "community": 79,
+      "community": 95,
       "norm_label": "isproductionleader()",
       "id": "v3_combat_isproductionleader"
     },
@@ -10769,7 +10799,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L115",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "trailingdefensebonus()",
       "id": "v3_combat_trailingdefensebonus"
     },
@@ -10779,7 +10809,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L126",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "stewardhomedefensebonus()",
       "id": "v3_combat_stewardhomedefensebonus"
     },
@@ -10789,7 +10819,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L135",
       "_origin": "ast",
-      "community": 79,
+      "community": 95,
       "norm_label": "combattype",
       "id": "v3_combat_combattype"
     },
@@ -10799,7 +10829,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L137",
       "_origin": "ast",
-      "community": 79,
+      "community": 95,
       "norm_label": "combatsetup",
       "id": "v3_combat_combatsetup"
     },
@@ -10809,7 +10839,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L158",
       "_origin": "ast",
-      "community": 83,
+      "community": 95,
       "norm_label": "combatresult",
       "id": "v3_combat_combatresult"
     },
@@ -10819,7 +10849,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L173",
       "_origin": "ast",
-      "community": 83,
+      "community": 95,
       "norm_label": "laststandresult",
       "id": "v3_combat_laststandresult"
     },
@@ -10829,7 +10859,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L193",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "getplayerpoweratnode()",
       "id": "v3_combat_getplayerpoweratnode"
     },
@@ -10839,7 +10869,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L216",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "getshadowkingpoweratnode()",
       "id": "v3_combat_getshadowkingpoweratnode"
     },
@@ -10849,7 +10879,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L234",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "resolvecombat()",
       "id": "v3_combat_resolvecombat"
     },
@@ -10859,7 +10889,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L325",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "choosecombatcommit()",
       "id": "v3_combat_choosecombatcommit"
     },
@@ -10869,7 +10899,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L364",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "chooseraidattackcommit()",
       "id": "v3_combat_chooseraidattackcommit"
     },
@@ -10879,7 +10909,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L397",
       "_origin": "ast",
-      "community": 79,
+      "community": 85,
       "norm_label": "chooselaststandcards()",
       "id": "v3_combat_chooselaststandcards"
     },
@@ -10889,7 +10919,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L431",
       "_origin": "ast",
-      "community": 79,
+      "community": 95,
       "norm_label": "resolvelaststand()",
       "id": "v3_combat_resolvelaststand"
     },
@@ -10899,7 +10929,7 @@
       "source_file": "src/v3/combat.ts",
       "source_location": "L463",
       "_origin": "ast",
-      "community": 79,
+      "community": 95,
       "norm_label": "applycombatoutcome()",
       "id": "v3_combat_applycombatoutcome"
     },
@@ -10969,7 +10999,7 @@
       "source_file": "src/v3/sim/archetypes.ts",
       "source_location": "L59",
       "_origin": "ast",
-      "community": 108,
+      "community": 48,
       "norm_label": "archetypes",
       "id": "sim_archetypes_archetypes"
     },
@@ -10989,7 +11019,7 @@
       "source_file": "src/v3/sim/archetypes.ts",
       "source_location": "L73",
       "_origin": "ast",
-      "community": 108,
+      "community": 91,
       "norm_label": "policyof()",
       "id": "sim_archetypes_policyof"
     },
@@ -10999,7 +11029,7 @@
       "source_file": "tests/v3/sim-metrics.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 58,
+      "community": 127,
       "norm_label": "sim-metrics.test.ts",
       "id": "v3_sim_metrics_test"
     },
@@ -11079,7 +11109,7 @@
       "source_file": "src/v3/shadowking-policy.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 59,
+      "community": 95,
       "norm_label": "shadowking-policy.ts",
       "id": "v3_shadowking_policy"
     },
@@ -11089,7 +11119,7 @@
       "source_file": "src/v3/shadowking-policy.ts",
       "source_location": "L45",
       "_origin": "ast",
-      "community": 59,
+      "community": 95,
       "norm_label": "addgrudge()",
       "id": "v3_shadowking_policy_addgrudge"
     },
@@ -11099,7 +11129,7 @@
       "source_file": "src/v3/shadowking-policy.ts",
       "source_location": "L81",
       "_origin": "ast",
-      "community": 59,
+      "community": 95,
       "norm_label": "decaygrudge()",
       "id": "v3_shadowking_policy_decaygrudge"
     },
@@ -11109,7 +11139,7 @@
       "source_file": "src/v3/shadowking-policy.ts",
       "source_location": "L118",
       "_origin": "ast",
-      "community": 59,
+      "community": 95,
       "norm_label": "choosetarget()",
       "id": "v3_shadowking_policy_choosetarget"
     },
@@ -11119,7 +11149,7 @@
       "source_file": "src/v3/shadowking-policy.ts",
       "source_location": "L149",
       "_origin": "ast",
-      "community": 59,
+      "community": 95,
       "norm_label": "shadowkingeffect",
       "id": "v3_shadowking_policy_shadowkingeffect"
     },
@@ -11129,7 +11159,7 @@
       "source_file": "src/v3/shadowking-policy.ts",
       "source_location": "L165",
       "_origin": "ast",
-      "community": 59,
+      "community": 95,
       "norm_label": "chooseeffect()",
       "id": "v3_shadowking_policy_chooseeffect"
     },
@@ -11139,7 +11169,7 @@
       "source_file": "src/v3/shadowking-policy.ts",
       "source_location": "L197",
       "_origin": "ast",
-      "community": 59,
+      "community": 95,
       "norm_label": "choosetargetnode()",
       "id": "v3_shadowking_policy_choosetargetnode"
     },
@@ -11149,7 +11179,7 @@
       "source_file": "src/v3/shadowking-policy.ts",
       "source_location": "L244",
       "_origin": "ast",
-      "community": 59,
+      "community": 95,
       "norm_label": "getspokepathsimple()",
       "id": "v3_shadowking_policy_getspokepathsimple"
     },
@@ -11159,7 +11189,7 @@
       "source_file": "src/v3/shadowking-policy.ts",
       "source_location": "L272",
       "_origin": "ast",
-      "community": 59,
+      "community": 95,
       "norm_label": "generatevoiceline()",
       "id": "v3_shadowking_policy_generatevoiceline"
     },
@@ -11179,7 +11209,7 @@
       "source_file": "src/v3/shadowking-policy.ts",
       "source_location": "L391",
       "_origin": "ast",
-      "community": 59,
+      "community": 95,
       "norm_label": "chooseshadowkingintent()",
       "id": "v3_shadowking_policy_chooseshadowkingintent"
     },
@@ -11309,7 +11339,7 @@
       "source_file": "src/v3/board.ts",
       "source_location": "L114",
       "_origin": "ast",
-      "community": 0,
+      "community": 91,
       "norm_label": "createinitialboardstate()",
       "id": "v3_board_createinitialboardstate"
     },
@@ -11489,7 +11519,7 @@
       "source_file": "src/v3/blood-pact.ts",
       "source_location": "L61",
       "_origin": "ast",
-      "community": 79,
+      "community": 83,
       "norm_label": "executeaudit()",
       "id": "v3_blood_pact_executeaudit"
     },
@@ -11509,7 +11539,7 @@
       "source_file": "src/v3/blood-pact.ts",
       "source_location": "L123",
       "_origin": "ast",
-      "community": 91,
+      "community": 83,
       "norm_label": "initiateaccusation()",
       "id": "v3_blood_pact_initiateaccusation"
     },
@@ -11599,7 +11629,7 @@
       "source_file": "src/v3/tunables.gen.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 94,
+      "community": 91,
       "norm_label": "tunables.gen.ts",
       "id": "v3_tunables_gen"
     },
@@ -11609,7 +11639,7 @@
       "source_file": "src/v3/tunables.gen.ts",
       "source_location": "L2",
       "_origin": "ast",
-      "community": 94,
+      "community": 91,
       "norm_label": "tunables_data",
       "id": "v3_tunables_gen_tunables_data"
     },
@@ -11619,7 +11649,7 @@
       "source_file": "tests/v3/all-broken-victory.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 90,
+      "community": 127,
       "norm_label": "all-broken-victory.test.ts",
       "id": "v3_all_broken_victory_test"
     },
@@ -11629,7 +11659,7 @@
       "source_file": "tests/v3/all-broken-victory.test.ts",
       "source_location": "L21",
       "_origin": "ast",
-      "community": 90,
+      "community": 127,
       "norm_label": "stripallstrongholds()",
       "id": "v3_all_broken_victory_test_stripallstrongholds"
     },
@@ -11639,7 +11669,7 @@
       "source_file": "tests/v3/all-broken-victory.test.ts",
       "source_location": "L28",
       "_origin": "ast",
-      "community": 90,
+      "community": 127,
       "norm_label": "stripseat()",
       "id": "v3_all_broken_victory_test_stripseat"
     },
@@ -11649,7 +11679,7 @@
       "source_file": "tests/v3/combat.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 79,
+      "community": 95,
       "norm_label": "combat.test.ts",
       "id": "v3_combat_test"
     },
@@ -11659,7 +11689,7 @@
       "source_file": "tests/v3/dark-engagement.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 79,
+      "community": 91,
       "norm_label": "dark-engagement.test.ts",
       "id": "v3_dark_engagement_test"
     },
@@ -11669,7 +11699,7 @@
       "source_file": "tests/v3/dark-engagement.test.ts",
       "source_location": "L26",
       "_origin": "ast",
-      "community": 79,
+      "community": 91,
       "norm_label": "placewarlordon()",
       "id": "v3_dark_engagement_test_placewarlordon"
     },
@@ -11679,7 +11709,7 @@
       "source_file": "tests/v3/determinism.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 91,
+      "community": 71,
       "norm_label": "determinism.test.ts",
       "id": "v3_determinism_test"
     },
@@ -11689,7 +11719,7 @@
       "source_file": "tests/v3/determinism.test.ts",
       "source_location": "L23",
       "_origin": "ast",
-      "community": 91,
+      "community": 71,
       "norm_label": "statesequal()",
       "id": "v3_determinism_test_statesequal"
     },
@@ -11699,7 +11729,7 @@
       "source_file": "tests/v3/determinism.test.ts",
       "source_location": "L28",
       "_origin": "ast",
-      "community": 91,
+      "community": 71,
       "norm_label": "applysequence()",
       "id": "v3_determinism_test_applysequence"
     },
@@ -11709,7 +11739,7 @@
       "source_file": "tests/v3/oaths.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 79,
+      "community": 28,
       "norm_label": "oaths.test.ts",
       "id": "v3_oaths_test"
     },
@@ -11869,7 +11899,7 @@
       "source_file": "src/v3/sim/matchups.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 101,
+      "community": 48,
       "norm_label": "matchups.ts",
       "id": "sim_matchups"
     },
@@ -11889,7 +11919,7 @@
       "source_file": "src/v3/sim/matchups.ts",
       "source_location": "L19",
       "_origin": "ast",
-      "community": 101,
+      "community": 48,
       "norm_label": "homogeneous()",
       "id": "sim_matchups_homogeneous"
     },
@@ -11899,7 +11929,7 @@
       "source_file": "src/v3/sim/matchups.ts",
       "source_location": "L24",
       "_origin": "ast",
-      "community": 101,
+      "community": 48,
       "norm_label": "mixed_canonical",
       "id": "sim_matchups_mixed_canonical"
     },
@@ -11909,7 +11939,7 @@
       "source_file": "src/v3/sim/matchups.ts",
       "source_location": "L33",
       "_origin": "ast",
-      "community": 101,
+      "community": 48,
       "norm_label": "roundrobin()",
       "id": "sim_matchups_roundrobin"
     },
@@ -11919,7 +11949,7 @@
       "source_file": "src/v3/sim/matchups.ts",
       "source_location": "L38",
       "_origin": "ast",
-      "community": 101,
+      "community": 48,
       "norm_label": "onevsfield()",
       "id": "sim_matchups_onevsfield"
     },
@@ -11929,7 +11959,7 @@
       "source_file": "src/v3/sim/matchups.ts",
       "source_location": "L43",
       "_origin": "ast",
-      "community": 101,
+      "community": 48,
       "norm_label": "allroundrobins()",
       "id": "sim_matchups_allroundrobins"
     },
@@ -11949,7 +11979,7 @@
       "source_file": "src/v3/sim/matchups.ts",
       "source_location": "L67",
       "_origin": "ast",
-      "community": 101,
+      "community": 48,
       "norm_label": "standardmatchups()",
       "id": "sim_matchups_standardmatchups"
     },
@@ -11989,7 +12019,7 @@
       "source_file": "src/v3/sim/search.ts",
       "source_location": "L29",
       "_origin": "ast",
-      "community": 101,
+      "community": 94,
       "norm_label": "runtunablecandidates()",
       "id": "sim_search_runtunablecandidates"
     },
@@ -11999,7 +12029,7 @@
       "source_file": "tests/v3/ai-player.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 28,
+      "community": 71,
       "norm_label": "ai-player.test.ts",
       "id": "v3_ai_player_test"
     },
@@ -12009,7 +12039,7 @@
       "source_file": "tests/v3/ai-player.test.ts",
       "source_location": "L26",
       "_origin": "ast",
-      "community": 28,
+      "community": 71,
       "norm_label": "apply()",
       "id": "v3_ai_player_test_apply"
     },
@@ -12019,7 +12049,7 @@
       "source_file": "tests/v3/ai-player.test.ts",
       "source_location": "L31",
       "_origin": "ast",
-      "community": 28,
+      "community": 71,
       "norm_label": "topledge()",
       "id": "v3_ai_player_test_topledge"
     },
@@ -12029,7 +12059,7 @@
       "source_file": "tests/v3/ai-player.test.ts",
       "source_location": "L41",
       "_origin": "ast",
-      "community": 28,
+      "community": 71,
       "norm_label": "playfullgame()",
       "id": "v3_ai_player_test_playfullgame"
     },
@@ -12039,7 +12069,7 @@
       "source_file": "tests/v3/ai-player.test.ts",
       "source_location": "L117",
       "_origin": "ast",
-      "community": 28,
+      "community": 71,
       "norm_label": "toaction()",
       "id": "v3_ai_player_test_toaction"
     },
@@ -12089,7 +12119,7 @@
       "source_file": "tests/v3/forge-tolls.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 79,
+      "community": 91,
       "norm_label": "forge-tolls.test.ts",
       "id": "v3_forge_tolls_test"
     },
@@ -12099,7 +12129,7 @@
       "source_file": "tests/v3/forge-tolls.test.ts",
       "source_location": "L15",
       "_origin": "ast",
-      "community": 79,
+      "community": 91,
       "norm_label": "atkeepby()",
       "id": "v3_forge_tolls_test_atkeepby"
     },
@@ -12119,7 +12149,7 @@
       "source_file": "tests/v3/hardening-4g.test.ts",
       "source_location": "L20",
       "_origin": "ast",
-      "community": 91,
+      "community": 71,
       "norm_label": "apply()",
       "id": "v3_hardening_4g_test_apply"
     },
@@ -12139,7 +12169,7 @@
       "source_file": "tests/v3/sealed-bailout.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 91,
+      "community": 71,
       "norm_label": "sealed-bailout.test.ts",
       "id": "v3_sealed_bailout_test"
     },
@@ -12149,7 +12179,7 @@
       "source_file": "tests/v3/sealed-bailout.test.ts",
       "source_location": "L19",
       "_origin": "ast",
-      "community": 91,
+      "community": 71,
       "norm_label": "setup()",
       "id": "v3_sealed_bailout_test_setup"
     },
@@ -12159,7 +12189,7 @@
       "source_file": "tests/v3/sealed-bailout.test.ts",
       "source_location": "L28",
       "_origin": "ast",
-      "community": 91,
+      "community": 71,
       "norm_label": "withgambit()",
       "id": "v3_sealed_bailout_test_withgambit"
     },
@@ -12179,7 +12209,7 @@
       "source_file": "tests/v3/sealed-pledge.test.ts",
       "source_location": "L19",
       "_origin": "ast",
-      "community": 91,
+      "community": 71,
       "norm_label": "pledgeeventtype()",
       "id": "v3_sealed_pledge_test_pledgeeventtype"
     },
@@ -12199,7 +12229,7 @@
       "source_file": "tests/v3/shadowking-policy.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 59,
+      "community": 95,
       "norm_label": "shadowking-policy.test.ts",
       "id": "v3_shadowking_policy_test"
     },
@@ -12209,7 +12239,7 @@
       "source_file": "tests/v3/sim-sweep.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 101,
+      "community": 48,
       "norm_label": "sim-sweep.test.ts",
       "id": "v3_sim_sweep_test"
     },
@@ -13179,7 +13209,7 @@
       "source_file": "scripts/sim.mjs",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 95,
+      "community": 48,
       "norm_label": "sim.mjs",
       "id": "scripts_sim"
     },
@@ -13189,7 +13219,7 @@
       "source_file": "scripts/sim.mjs",
       "source_location": "L31",
       "_origin": "ast",
-      "community": 95,
+      "community": 48,
       "norm_label": "root",
       "id": "scripts_sim_root"
     },
@@ -13199,7 +13229,7 @@
       "source_file": "scripts/sim.mjs",
       "source_location": "L32",
       "_origin": "ast",
-      "community": 95,
+      "community": 48,
       "norm_label": "args",
       "id": "scripts_sim_args"
     },
@@ -13209,7 +13239,7 @@
       "source_file": "scripts/sim.mjs",
       "source_location": "L33",
       "_origin": "ast",
-      "community": 95,
+      "community": 48,
       "norm_label": "quick",
       "id": "scripts_sim_quick"
     },
@@ -13219,7 +13249,7 @@
       "source_file": "scripts/sim.mjs",
       "source_location": "L34",
       "_origin": "ast",
-      "community": 95,
+      "community": 48,
       "norm_label": "bloodpact",
       "id": "scripts_sim_bloodpact"
     },
@@ -13229,7 +13259,7 @@
       "source_file": "scripts/sim.mjs",
       "source_location": "L35",
       "_origin": "ast",
-      "community": 95,
+      "community": 48,
       "norm_label": "reportonly",
       "id": "scripts_sim_reportonly"
     },
@@ -13239,7 +13269,7 @@
       "source_file": "scripts/sim.mjs",
       "source_location": "L36",
       "_origin": "ast",
-      "community": 95,
+      "community": 48,
       "norm_label": "positional",
       "id": "scripts_sim_positional"
     },
@@ -13249,7 +13279,7 @@
       "source_file": "scripts/sim.mjs",
       "source_location": "L42",
       "_origin": "ast",
-      "community": 95,
+      "community": 48,
       "norm_label": "rng",
       "id": "scripts_sim_rng"
     },
@@ -13259,7 +13289,7 @@
       "source_file": "scripts/sim.mjs",
       "source_location": "L43",
       "_origin": "ast",
-      "community": 95,
+      "community": 48,
       "norm_label": "seeds",
       "id": "scripts_sim_seeds"
     },
@@ -13269,7 +13299,7 @@
       "source_file": "scripts/sim.mjs",
       "source_location": "L52",
       "_origin": "ast",
-      "community": 95,
+      "community": 48,
       "norm_label": "t0",
       "id": "scripts_sim_t0"
     },
@@ -13279,7 +13309,7 @@
       "source_file": "scripts/sim.mjs",
       "source_location": "L53",
       "_origin": "ast",
-      "community": 95,
+      "community": 48,
       "norm_label": "rows",
       "id": "scripts_sim_rows"
     },
@@ -13289,7 +13319,7 @@
       "source_file": "scripts/sim.mjs",
       "source_location": "L57",
       "_origin": "ast",
-      "community": 95,
+      "community": 48,
       "norm_label": "meta",
       "id": "scripts_sim_meta"
     },
@@ -13299,7 +13329,7 @@
       "source_file": "scripts/sim.mjs",
       "source_location": "L59",
       "_origin": "ast",
-      "community": 95,
+      "community": 48,
       "norm_label": "outdir",
       "id": "scripts_sim_outdir"
     },
@@ -13549,7 +13579,7 @@
       "source_file": "scripts/tune-5dark.mjs",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 11,
+      "community": 102,
       "norm_label": "tune-5dark.mjs",
       "id": "scripts_tune_5dark"
     },
@@ -13559,7 +13589,7 @@
       "source_file": "scripts/tune-5dark.mjs",
       "source_location": "L24",
       "_origin": "ast",
-      "community": 11,
+      "community": 102,
       "norm_label": "args",
       "id": "scripts_tune_5dark_args"
     },
@@ -13569,7 +13599,7 @@
       "source_file": "scripts/tune-5dark.mjs",
       "source_location": "L28",
       "_origin": "ast",
-      "community": 11,
+      "community": 102,
       "norm_label": "rng",
       "id": "scripts_tune_5dark_rng"
     },
@@ -13579,7 +13609,7 @@
       "source_file": "scripts/tune-5dark.mjs",
       "source_location": "L29",
       "_origin": "ast",
-      "community": 11,
+      "community": 102,
       "norm_label": "seeds",
       "id": "scripts_tune_5dark_seeds"
     },
@@ -13589,7 +13619,7 @@
       "source_file": "scripts/tune-5dark.mjs",
       "source_location": "L30",
       "_origin": "ast",
-      "community": 11,
+      "community": 102,
       "norm_label": "playercounts",
       "id": "scripts_tune_5dark_playercounts"
     },
@@ -13599,7 +13629,7 @@
       "source_file": "scripts/tune-5dark.mjs",
       "source_location": "L31",
       "_origin": "ast",
-      "community": 11,
+      "community": 102,
       "norm_label": "modes",
       "id": "scripts_tune_5dark_modes"
     },
@@ -13609,7 +13639,7 @@
       "source_file": "scripts/tune-5dark.mjs",
       "source_location": "L32",
       "_origin": "ast",
-      "community": 11,
+      "community": 102,
       "norm_label": "matchups",
       "id": "scripts_tune_5dark_matchups"
     },
@@ -13619,7 +13649,7 @@
       "source_file": "scripts/tune-5dark.mjs",
       "source_location": "L36",
       "_origin": "ast",
-      "community": 11,
+      "community": 102,
       "norm_label": "candidates",
       "id": "scripts_tune_5dark_candidates"
     },
@@ -13629,7 +13659,7 @@
       "source_file": "scripts/tune-5dark.mjs",
       "source_location": "L42",
       "_origin": "ast",
-      "community": 11,
+      "community": 102,
       "norm_label": "pct()",
       "id": "scripts_tune_5dark_pct"
     },
@@ -13639,7 +13669,7 @@
       "source_file": "scripts/tune-5dark.mjs",
       "source_location": "L43",
       "_origin": "ast",
-      "community": 11,
+      "community": 102,
       "norm_label": "measured()",
       "id": "scripts_tune_5dark_measured"
     },
@@ -13649,7 +13679,7 @@
       "source_file": "scripts/tune-5dark.mjs",
       "source_location": "L49",
       "_origin": "ast",
-      "community": 11,
+      "community": 102,
       "norm_label": "results",
       "id": "scripts_tune_5dark_results"
     },
@@ -13659,7 +13689,7 @@
       "source_file": "scripts/tune-5e.mjs",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 48,
+      "community": 101,
       "norm_label": "tune-5e.mjs",
       "id": "scripts_tune_5e"
     },
@@ -13669,7 +13699,7 @@
       "source_file": "scripts/tune-5e.mjs",
       "source_location": "L18",
       "_origin": "ast",
-      "community": 48,
+      "community": 101,
       "norm_label": "args",
       "id": "scripts_tune_5e_args"
     },
@@ -13679,7 +13709,7 @@
       "source_file": "scripts/tune-5e.mjs",
       "source_location": "L21",
       "_origin": "ast",
-      "community": 48,
+      "community": 101,
       "norm_label": "rng",
       "id": "scripts_tune_5e_rng"
     },
@@ -13689,7 +13719,7 @@
       "source_file": "scripts/tune-5e.mjs",
       "source_location": "L22",
       "_origin": "ast",
-      "community": 48,
+      "community": 101,
       "norm_label": "seeds",
       "id": "scripts_tune_5e_seeds"
     },
@@ -13699,7 +13729,7 @@
       "source_file": "scripts/tune-5e.mjs",
       "source_location": "L23",
       "_origin": "ast",
-      "community": 48,
+      "community": 101,
       "norm_label": "playercounts",
       "id": "scripts_tune_5e_playercounts"
     },
@@ -13709,7 +13739,7 @@
       "source_file": "scripts/tune-5e.mjs",
       "source_location": "L24",
       "_origin": "ast",
-      "community": 48,
+      "community": 101,
       "norm_label": "modes",
       "id": "scripts_tune_5e_modes"
     },
@@ -13719,7 +13749,7 @@
       "source_file": "scripts/tune-5e.mjs",
       "source_location": "L25",
       "_origin": "ast",
-      "community": 48,
+      "community": 101,
       "norm_label": "matchups",
       "id": "scripts_tune_5e_matchups"
     },
@@ -13729,7 +13759,7 @@
       "source_file": "scripts/tune-5e.mjs",
       "source_location": "L29",
       "_origin": "ast",
-      "community": 48,
+      "community": 101,
       "norm_label": "covers",
       "id": "scripts_tune_5e_covers"
     },
@@ -13739,7 +13769,7 @@
       "source_file": "scripts/tune-5e.mjs",
       "source_location": "L30",
       "_origin": "ast",
-      "community": 48,
+      "community": 101,
       "norm_label": "bars",
       "id": "scripts_tune_5e_bars"
     },
@@ -13749,7 +13779,7 @@
       "source_file": "scripts/tune-5e.mjs",
       "source_location": "L31",
       "_origin": "ast",
-      "community": 48,
+      "community": 101,
       "norm_label": "bonuses",
       "id": "scripts_tune_5e_bonuses"
     },
@@ -13759,7 +13789,7 @@
       "source_file": "scripts/tune-5e.mjs",
       "source_location": "L33",
       "_origin": "ast",
-      "community": 48,
+      "community": 101,
       "norm_label": "pct()",
       "id": "scripts_tune_5e_pct"
     },
@@ -13769,7 +13799,7 @@
       "source_file": "scripts/tune-5e.mjs",
       "source_location": "L38",
       "_origin": "ast",
-      "community": 48,
+      "community": 101,
       "norm_label": "passes",
       "id": "scripts_tune_5e_passes"
     },
@@ -14849,7 +14879,7 @@
       "source_file": "src/ui-v2/session.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 102,
+      "community": 81,
       "norm_label": "session.ts",
       "id": "ui_v2_session"
     },
@@ -14859,7 +14889,7 @@
       "source_file": "src/ui-v2/session.ts",
       "source_location": "L29",
       "_origin": "ast",
-      "community": 102,
+      "community": 81,
       "norm_label": "narration",
       "id": "ui_v2_session_narration"
     },
@@ -14889,7 +14919,7 @@
       "source_file": "src/ui-v2/session.ts",
       "source_location": "L49",
       "_origin": "ast",
-      "community": 2,
+      "community": 92,
       "norm_label": ".constructor()",
       "id": "ui_v2_session_gamesession_constructor"
     },
@@ -15299,7 +15329,7 @@
       "source_file": "src/utils/seeded-random.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 2,
+      "community": 5,
       "norm_label": "seeded-random.ts",
       "id": "utils_seeded_random"
     },
@@ -15429,7 +15459,7 @@
       "source_file": "src/v2/actions.ts",
       "source_location": "L41",
       "_origin": "ast",
-      "community": 102,
+      "community": 2,
       "norm_label": "actionresult",
       "id": "v2_actions_actionresult"
     },
@@ -15449,7 +15479,7 @@
       "source_file": "src/v2/actions.ts",
       "source_location": "L63",
       "_origin": "ast",
-      "community": 7,
+      "community": 8,
       "norm_label": "isplayeratnode()",
       "id": "v2_actions_isplayeratnode"
     },
@@ -15499,7 +15529,7 @@
       "source_file": "src/v2/actions.ts",
       "source_location": "L259",
       "_origin": "ast",
-      "community": 2,
+      "community": 8,
       "norm_label": "resolveheraldcaptures()",
       "id": "v2_actions_resolveheraldcaptures"
     },
@@ -15549,7 +15579,7 @@
       "source_file": "src/v2/actions.ts",
       "source_location": "L600",
       "_origin": "ast",
-      "community": 8,
+      "community": 57,
       "norm_label": "findoath()",
       "id": "v2_actions_findoath"
     },
@@ -15599,7 +15629,7 @@
       "source_file": "src/v2/actions.ts",
       "source_location": "L683",
       "_origin": "ast",
-      "community": 2,
+      "community": 8,
       "norm_label": "runoathupkeep()",
       "id": "v2_actions_runoathupkeep"
     },
@@ -15609,7 +15639,7 @@
       "source_file": "src/v2/actions.ts",
       "source_location": "L713",
       "_origin": "ast",
-      "community": 2,
+      "community": 8,
       "norm_label": "executerecruit()",
       "id": "v2_actions_executerecruit"
     },
@@ -15619,7 +15649,7 @@
       "source_file": "src/v2/actions.ts",
       "source_location": "L759",
       "_origin": "ast",
-      "community": 81,
+      "community": 57,
       "norm_label": "parleytarget()",
       "id": "v2_actions_parleytarget"
     },
@@ -15629,7 +15659,7 @@
       "source_file": "src/v2/actions.ts",
       "source_location": "L777",
       "_origin": "ast",
-      "community": 2,
+      "community": 8,
       "norm_label": "executeparley()",
       "id": "v2_actions_executeparley"
     },
@@ -15639,7 +15669,7 @@
       "source_file": "src/v2/actions.ts",
       "source_location": "L808",
       "_origin": "ast",
-      "community": 2,
+      "community": 8,
       "norm_label": "checkbrokenrecovery()",
       "id": "v2_actions_checkbrokenrecovery"
     },
@@ -15669,7 +15699,7 @@
       "source_file": "src/v2/ai-player.ts",
       "source_location": "L125",
       "_origin": "ast",
-      "community": 108,
+      "community": 81,
       "norm_label": "default_ai_policy",
       "id": "v2_ai_player_default_ai_policy"
     },
@@ -15699,7 +15729,7 @@
       "source_file": "src/v2/ai-player.ts",
       "source_location": "L242",
       "_origin": "ast",
-      "community": 81,
+      "community": 87,
       "norm_label": "isclaimantsealed()",
       "id": "v2_ai_player_isclaimantsealed"
     },
@@ -15939,7 +15969,7 @@
       "source_file": "src/v2/blight.ts",
       "source_location": "L29",
       "_origin": "ast",
-      "community": 102,
+      "community": 2,
       "norm_label": "blightresult",
       "id": "v2_blight_blightresult"
     },
@@ -16119,7 +16149,7 @@
       "source_file": "src/v2/blood-pact.ts",
       "source_location": "L62",
       "_origin": "ast",
-      "community": 45,
+      "community": 87,
       "norm_label": "executeaudit()",
       "id": "v2_blood_pact_executeaudit"
     },
@@ -16289,7 +16319,7 @@
       "source_file": "src/v2/board.ts",
       "source_location": "L114",
       "_origin": "ast",
-      "community": 7,
+      "community": 5,
       "norm_label": "createinitialboardstate()",
       "id": "v2_board_createinitialboardstate"
     },
@@ -16379,7 +16409,7 @@
       "source_file": "src/v2/combat.ts",
       "source_location": "L65",
       "_origin": "ast",
-      "community": 7,
+      "community": 8,
       "norm_label": "combattype",
       "id": "v2_combat_combattype"
     },
@@ -16399,7 +16429,7 @@
       "source_file": "src/v2/combat.ts",
       "source_location": "L82",
       "_origin": "ast",
-      "community": 102,
+      "community": 2,
       "norm_label": "combatresult",
       "id": "v2_combat_combatresult"
     },
@@ -16409,7 +16439,7 @@
       "source_file": "src/v2/combat.ts",
       "source_location": "L97",
       "_origin": "ast",
-      "community": 102,
+      "community": 2,
       "norm_label": "laststandresult",
       "id": "v2_combat_laststandresult"
     },
@@ -16419,7 +16449,7 @@
       "source_file": "src/v2/combat.ts",
       "source_location": "L116",
       "_origin": "ast",
-      "community": 8,
+      "community": 81,
       "norm_label": "getplayerpoweratnode()",
       "id": "v2_combat_getplayerpoweratnode"
     },
@@ -16529,7 +16559,7 @@
       "source_file": "src/v2/commands.ts",
       "source_location": "L42",
       "_origin": "ast",
-      "community": 5,
+      "community": 81,
       "norm_label": "command",
       "id": "v2_commands_command"
     },
@@ -16609,7 +16639,7 @@
       "source_file": "src/v2/events.ts",
       "source_location": "L23",
       "_origin": "ast",
-      "community": 102,
+      "community": 2,
       "norm_label": "gameevent",
       "id": "v2_events_gameevent"
     },
@@ -16909,7 +16939,7 @@
       "source_file": "src/v2/reducer.ts",
       "source_location": "L26",
       "_origin": "ast",
-      "community": 102,
+      "community": 2,
       "norm_label": "commandresult",
       "id": "v2_reducer_commandresult"
     },
@@ -16939,7 +16969,7 @@
       "source_file": "src/v2/reducer.ts",
       "source_location": "L49",
       "_origin": "ast",
-      "community": 5,
+      "community": 2,
       "norm_label": "clonestate()",
       "id": "v2_reducer_clonestate"
     },
@@ -16949,7 +16979,7 @@
       "source_file": "src/v2/reducer.ts",
       "source_location": "L62",
       "_origin": "ast",
-      "community": 5,
+      "community": 81,
       "norm_label": "applycommand()",
       "id": "v2_reducer_applycommand"
     },
@@ -16999,7 +17029,7 @@
       "source_file": "src/v2/reducer.ts",
       "source_location": "L529",
       "_origin": "ast",
-      "community": 5,
+      "community": 2,
       "norm_label": "handlelaststandcommit()",
       "id": "v2_reducer_handlelaststandcommit"
     },
@@ -17009,7 +17039,7 @@
       "source_file": "src/v2/reducer.ts",
       "source_location": "L563",
       "_origin": "ast",
-      "community": 5,
+      "community": 45,
       "norm_label": "handleinitiateaccusation()",
       "id": "v2_reducer_handleinitiateaccusation"
     },
@@ -17019,7 +17049,7 @@
       "source_file": "src/v2/reducer.ts",
       "source_location": "L581",
       "_origin": "ast",
-      "community": 5,
+      "community": 45,
       "norm_label": "handleaccusationvote()",
       "id": "v2_reducer_handleaccusationvote"
     },
@@ -17039,7 +17069,7 @@
       "source_file": "src/v2/sequencer.ts",
       "source_location": "L52",
       "_origin": "ast",
-      "community": 102,
+      "community": 2,
       "norm_label": "sequencerresult",
       "id": "v2_sequencer_sequencerresult"
     },
@@ -17149,7 +17179,7 @@
       "source_file": "src/v2/sequencer.ts",
       "source_location": "L480",
       "_origin": "ast",
-      "community": 2,
+      "community": 5,
       "norm_label": "computecrownholder()",
       "id": "v2_sequencer_computecrownholder"
     },
@@ -17159,7 +17189,7 @@
       "source_file": "src/v2/sequencer.ts",
       "source_location": "L519",
       "_origin": "ast",
-      "community": 2,
+      "community": 5,
       "norm_label": "generatebannersforplayer()",
       "id": "v2_sequencer_generatebannersforplayer"
     },
@@ -17179,7 +17209,7 @@
       "source_file": "src/v2/setup.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 2,
+      "community": 5,
       "norm_label": "setup.ts",
       "id": "v2_setup"
     },
@@ -17189,7 +17219,7 @@
       "source_file": "src/v2/setup.ts",
       "source_location": "L42",
       "_origin": "ast",
-      "community": 2,
+      "community": 5,
       "norm_label": "drawcards()",
       "id": "v2_setup_drawcards"
     },
@@ -17199,7 +17229,7 @@
       "source_file": "src/v2/setup.ts",
       "source_location": "L52",
       "_origin": "ast",
-      "community": 2,
+      "community": 5,
       "norm_label": "createplayerstate()",
       "id": "v2_setup_createplayerstate"
     },
@@ -17209,7 +17239,7 @@
       "source_file": "src/v2/setup.ts",
       "source_location": "L80",
       "_origin": "ast",
-      "community": 2,
+      "community": 87,
       "norm_label": "createinitialforces()",
       "id": "v2_setup_createinitialforces"
     },
@@ -17219,7 +17249,7 @@
       "source_file": "src/v2/setup.ts",
       "source_location": "L115",
       "_origin": "ast",
-      "community": 2,
+      "community": 5,
       "norm_label": "creategame()",
       "id": "v2_setup_creategame"
     },
@@ -17249,7 +17279,7 @@
       "source_file": "src/v2/shadowking-effects.ts",
       "source_location": "L119",
       "_origin": "ast",
-      "community": 2,
+      "community": 87,
       "norm_label": "respawndeathknights()",
       "id": "v2_shadowking_effects_respawndeathknights"
     },
@@ -17329,7 +17359,7 @@
       "source_file": "src/v2/shadowking-policy.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 100,
+      "community": 2,
       "norm_label": "shadowking-policy.ts",
       "id": "v2_shadowking_policy"
     },
@@ -17339,7 +17369,7 @@
       "source_file": "src/v2/shadowking-policy.ts",
       "source_location": "L45",
       "_origin": "ast",
-      "community": 8,
+      "community": 2,
       "norm_label": "addgrudge()",
       "id": "v2_shadowking_policy_addgrudge"
     },
@@ -17349,7 +17379,7 @@
       "source_file": "src/v2/shadowking-policy.ts",
       "source_location": "L81",
       "_origin": "ast",
-      "community": 100,
+      "community": 2,
       "norm_label": "decaygrudge()",
       "id": "v2_shadowking_policy_decaygrudge"
     },
@@ -17359,7 +17389,7 @@
       "source_file": "src/v2/shadowking-policy.ts",
       "source_location": "L118",
       "_origin": "ast",
-      "community": 100,
+      "community": 2,
       "norm_label": "choosetarget()",
       "id": "v2_shadowking_policy_choosetarget"
     },
@@ -17369,7 +17399,7 @@
       "source_file": "src/v2/shadowking-policy.ts",
       "source_location": "L149",
       "_origin": "ast",
-      "community": 100,
+      "community": 2,
       "norm_label": "shadowkingeffect",
       "id": "v2_shadowking_policy_shadowkingeffect"
     },
@@ -17379,7 +17409,7 @@
       "source_file": "src/v2/shadowking-policy.ts",
       "source_location": "L165",
       "_origin": "ast",
-      "community": 100,
+      "community": 2,
       "norm_label": "chooseeffect()",
       "id": "v2_shadowking_policy_chooseeffect"
     },
@@ -17389,7 +17419,7 @@
       "source_file": "src/v2/shadowking-policy.ts",
       "source_location": "L197",
       "_origin": "ast",
-      "community": 100,
+      "community": 2,
       "norm_label": "choosetargetnode()",
       "id": "v2_shadowking_policy_choosetargetnode"
     },
@@ -17399,7 +17429,7 @@
       "source_file": "src/v2/shadowking-policy.ts",
       "source_location": "L244",
       "_origin": "ast",
-      "community": 100,
+      "community": 2,
       "norm_label": "getspokepathsimple()",
       "id": "v2_shadowking_policy_getspokepathsimple"
     },
@@ -17409,7 +17439,7 @@
       "source_file": "src/v2/shadowking-policy.ts",
       "source_location": "L272",
       "_origin": "ast",
-      "community": 100,
+      "community": 2,
       "norm_label": "generatevoiceline()",
       "id": "v2_shadowking_policy_generatevoiceline"
     },
@@ -17429,7 +17459,7 @@
       "source_file": "src/v2/shadowking-policy.ts",
       "source_location": "L387",
       "_origin": "ast",
-      "community": 100,
+      "community": 2,
       "norm_label": "chooseshadowkingintent()",
       "id": "v2_shadowking_policy_chooseshadowkingintent"
     },
@@ -17479,7 +17509,7 @@
       "source_file": "src/v2/types.ts",
       "source_location": "L17",
       "_origin": "ast",
-      "community": 2,
+      "community": 58,
       "norm_label": "gamemode",
       "id": "v2_types_gamemode"
     },
@@ -17659,7 +17689,7 @@
       "source_file": "src/v2/types.ts",
       "source_location": "L217",
       "_origin": "ast",
-      "community": 102,
+      "community": 7,
       "norm_label": "oath",
       "id": "v2_types_oath"
     },
@@ -17729,7 +17759,7 @@
       "source_file": "src/v2/types.ts",
       "source_location": "L305",
       "_origin": "ast",
-      "community": 102,
+      "community": 2,
       "norm_label": "gamestate",
       "id": "v2_types_gamestate"
     },
@@ -17789,7 +17819,7 @@
       "source_file": "tests/v2/ai-player.test.ts",
       "source_location": "L41",
       "_origin": "ast",
-      "community": 108,
+      "community": 94,
       "norm_label": "playfullgame()",
       "id": "v2_ai_player_test_playfullgame"
     },
@@ -17809,7 +17839,7 @@
       "source_file": "tests/v2/all-broken-victory.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 2,
+      "community": 5,
       "norm_label": "all-broken-victory.test.ts",
       "id": "v2_all_broken_victory_test"
     },
@@ -17819,7 +17849,7 @@
       "source_file": "tests/v2/all-broken-victory.test.ts",
       "source_location": "L18",
       "_origin": "ast",
-      "community": 2,
+      "community": 5,
       "norm_label": "breakeveryone()",
       "id": "v2_all_broken_victory_test_breakeveryone"
     },
@@ -17839,7 +17869,7 @@
       "source_file": "tests/v2/blood-pact-5e.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 108,
+      "community": 81,
       "norm_label": "blood-pact-5e.test.ts",
       "id": "v2_blood_pact_5e_test"
     },
@@ -17849,7 +17879,7 @@
       "source_file": "tests/v2/blood-pact-5e.test.ts",
       "source_location": "L17",
       "_origin": "ast",
-      "community": 5,
+      "community": 81,
       "norm_label": "traitoratpledge()",
       "id": "v2_blood_pact_5e_test_traitoratpledge"
     },
@@ -17969,7 +17999,7 @@
       "source_file": "tests/v2/dark-engagement.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 108,
+      "community": 8,
       "norm_label": "dark-engagement.test.ts",
       "id": "v2_dark_engagement_test"
     },
@@ -17979,7 +18009,7 @@
       "source_file": "tests/v2/dark-engagement.test.ts",
       "source_location": "L26",
       "_origin": "ast",
-      "community": 108,
+      "community": 8,
       "norm_label": "placewarlordon()",
       "id": "v2_dark_engagement_test_placewarlordon"
     },
@@ -18019,7 +18049,7 @@
       "source_file": "tests/v2/determinism.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 5,
+      "community": 81,
       "norm_label": "determinism.test.ts",
       "id": "v2_determinism_test"
     },
@@ -18029,7 +18059,7 @@
       "source_file": "tests/v2/determinism.test.ts",
       "source_location": "L23",
       "_origin": "ast",
-      "community": 5,
+      "community": 81,
       "norm_label": "statesequal()",
       "id": "v2_determinism_test_statesequal"
     },
@@ -18039,7 +18069,7 @@
       "source_file": "tests/v2/determinism.test.ts",
       "source_location": "L28",
       "_origin": "ast",
-      "community": 5,
+      "community": 81,
       "norm_label": "applysequence()",
       "id": "v2_determinism_test_applysequence"
     },
@@ -18049,7 +18079,7 @@
       "source_file": "tests/v2/forge-tolls.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 108,
+      "community": 5,
       "norm_label": "forge-tolls.test.ts",
       "id": "v2_forge_tolls_test"
     },
@@ -18059,7 +18089,7 @@
       "source_file": "tests/v2/forge-tolls.test.ts",
       "source_location": "L15",
       "_origin": "ast",
-      "community": 108,
+      "community": 5,
       "norm_label": "atkeepby()",
       "id": "v2_forge_tolls_test_atkeepby"
     },
@@ -18079,7 +18109,7 @@
       "source_file": "tests/v2/hardening-4g.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 5,
+      "community": 81,
       "norm_label": "hardening-4g.test.ts",
       "id": "v2_hardening_4g_test"
     },
@@ -18089,7 +18119,7 @@
       "source_file": "tests/v2/hardening-4g.test.ts",
       "source_location": "L20",
       "_origin": "ast",
-      "community": 5,
+      "community": 81,
       "norm_label": "apply()",
       "id": "v2_hardening_4g_test_apply"
     },
@@ -18099,7 +18129,7 @@
       "source_file": "tests/v2/hardening-4g.test.ts",
       "source_location": "L22",
       "_origin": "ast",
-      "community": 5,
+      "community": 81,
       "norm_label": "placewarlord()",
       "id": "v2_hardening_4g_test_placewarlord"
     },
@@ -18109,7 +18139,7 @@
       "source_file": "tests/v2/herald-piece.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 2,
+      "community": 8,
       "norm_label": "herald-piece.test.ts",
       "id": "v2_herald_piece_test"
     },
@@ -18119,7 +18149,7 @@
       "source_file": "tests/v2/herald-piece.test.ts",
       "source_location": "L20",
       "_origin": "ast",
-      "community": 2,
+      "community": 8,
       "norm_label": "recruited()",
       "id": "v2_herald_piece_test_recruited"
     },
@@ -18129,7 +18159,7 @@
       "source_file": "tests/v2/herald.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 2,
+      "community": 5,
       "norm_label": "herald.test.ts",
       "id": "v2_herald_test"
     },
@@ -18139,7 +18169,7 @@
       "source_file": "tests/v2/mechanics-3f.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 8,
+      "community": 87,
       "norm_label": "mechanics-3f.test.ts",
       "id": "v2_mechanics_3f_test"
     },
@@ -18149,7 +18179,7 @@
       "source_file": "tests/v2/mechanics-3f.test.ts",
       "source_location": "L38",
       "_origin": "ast",
-      "community": 5,
+      "community": 87,
       "norm_label": "apply()",
       "id": "v2_mechanics_3f_test_apply"
     },
@@ -18159,7 +18189,7 @@
       "source_file": "tests/v2/mechanics-3f.test.ts",
       "source_location": "L43",
       "_origin": "ast",
-      "community": 8,
+      "community": 87,
       "norm_label": "placewarlord()",
       "id": "v2_mechanics_3f_test_placewarlord"
     },
@@ -18169,7 +18199,7 @@
       "source_file": "tests/v2/mechanics-3f.test.ts",
       "source_location": "L53",
       "_origin": "ast",
-      "community": 8,
+      "community": 87,
       "norm_label": "totalblight()",
       "id": "v2_mechanics_3f_test_totalblight"
     },
@@ -18179,7 +18209,7 @@
       "source_file": "tests/v2/mechanics-3f.test.ts",
       "source_location": "L135",
       "_origin": "ast",
-      "community": 8,
+      "community": 87,
       "norm_label": "garrisonedgame()",
       "id": "v2_mechanics_3f_test_garrisonedgame"
     },
@@ -18189,7 +18219,7 @@
       "source_file": "tests/v2/mechanics-3f.test.ts",
       "source_location": "L201",
       "_origin": "ast",
-      "community": 8,
+      "community": 87,
       "norm_label": "telegraph()",
       "id": "v2_mechanics_3f_test_telegraph"
     },
@@ -18209,7 +18239,7 @@
       "source_file": "tests/v2/reducer.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 2,
+      "community": 5,
       "norm_label": "reducer.test.ts",
       "id": "v2_reducer_test"
     },
@@ -18219,7 +18249,7 @@
       "source_file": "tests/v2/rescue-economy.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 108,
+      "community": 5,
       "norm_label": "rescue-economy.test.ts",
       "id": "v2_rescue_economy_test"
     },
@@ -18259,7 +18289,7 @@
       "source_file": "tests/v2/sealed-pledge.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 108,
+      "community": 5,
       "norm_label": "sealed-pledge.test.ts",
       "id": "v2_sealed_pledge_test"
     },
@@ -18279,7 +18309,7 @@
       "source_file": "tests/v2/sealed-pledge.test.ts",
       "source_location": "L25",
       "_origin": "ast",
-      "community": 108,
+      "community": 5,
       "norm_label": "inpledge()",
       "id": "v2_sealed_pledge_test_inpledge"
     },
@@ -18339,7 +18369,7 @@
       "source_file": "tests/v2/setup.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 2,
+      "community": 5,
       "norm_label": "setup.test.ts",
       "id": "v2_setup_test"
     },
@@ -18349,7 +18379,7 @@
       "source_file": "tests/v2/shadowking-policy.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 100,
+      "community": 2,
       "norm_label": "shadowking-policy.test.ts",
       "id": "v2_shadowking_policy_test"
     },
@@ -18359,7 +18389,7 @@
       "source_file": "tests/v2/sim-bloodpact.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 108,
+      "community": 48,
       "norm_label": "sim-bloodpact.test.ts",
       "id": "v2_sim_bloodpact_test"
     },
@@ -18369,7 +18399,7 @@
       "source_file": "tests/v2/sim-bloodpact.test.ts",
       "source_location": "L21",
       "_origin": "ast",
-      "community": 108,
+      "community": 48,
       "norm_label": "apply()",
       "id": "v2_sim_bloodpact_test_apply"
     },
@@ -18379,7 +18409,7 @@
       "source_file": "tests/v2/sim-driver.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 108,
+      "community": 94,
       "norm_label": "sim-driver.test.ts",
       "id": "v2_sim_driver_test"
     },
@@ -18389,7 +18419,7 @@
       "source_file": "tests/v2/sim-metrics.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 58,
+      "community": 127,
       "norm_label": "sim-metrics.test.ts",
       "id": "v2_sim_metrics_test"
     },
@@ -18439,7 +18469,7 @@
       "source_file": "tests/v2/sim-sweep.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 101,
+      "community": 48,
       "norm_label": "sim-sweep.test.ts",
       "id": "v2_sim_sweep_test"
     },
@@ -18449,7 +18479,7 @@
       "source_file": "tests/v2/sim-tunables.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 108,
+      "community": 5,
       "norm_label": "sim-tunables.test.ts",
       "id": "v2_sim_tunables_test"
     },
@@ -18519,7 +18549,7 @@
       "source_file": "tests/v2/ui-parity.test.ts",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 102,
+      "community": 7,
       "norm_label": "ui-parity.test.ts",
       "id": "v2_ui_parity_test"
     },
@@ -18529,7 +18559,7 @@
       "source_file": "tests/v2/ui-parity.test.ts",
       "source_location": "L20",
       "_origin": "ast",
-      "community": 102,
+      "community": 7,
       "norm_label": "humanturn()",
       "id": "v2_ui_parity_test_humanturn"
     },
@@ -21836,19 +21866,19 @@
       "source_file": "TASKS.md",
       "source_location": "L106",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tasks_m0_foundations_the_screenshot_feedback_loop",
-      "target": "tasks_t_004_baseline_before_gallery_the_m2_visual_rubric_status_done_coder_sonnet_after_t_003",
-      "confidence_score": 1.0
+      "target": "tasks_t_004_baseline_before_gallery_the_m2_visual_rubric_status_done_coder_sonnet_after_t_003"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "TASKS.md",
-      "source_location": "L84",
+      "source_location": "L130",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tasks_m0_foundations_the_screenshot_feedback_loop",
-      "target": "tasks_t_005_m0_close_dod_status_todo_coder_sonnet_after_t_001_t_002_t_003_t_004"
+      "target": "tasks_t_005_m0_close_dod_status_done_coder_sonnet_after_t_001_t_002_t_003_t_004"
     },
     {
       "relation": "contains",
@@ -22121,86 +22151,6 @@
       "target": "tasks_t_407_checkpoint_final_pre_playtest_review_status_todo_coder_sonnet_after_t_406"
     },
     {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/Redesign-V3.1/baseline/README.md",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "baseline_readme",
-      "target": "redesign_v3_1_rubric",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/Redesign-V3.1/RUBRIC.md",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "redesign_v3_1_rubric",
-      "target": "redesign_v3_1_rubric_m2_visual_rubric_the_board_game_read_checklist",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/Redesign-V3.1/RUBRIC.md",
-      "source_location": "L19",
-      "weight": 1.0,
-      "source": "redesign_v3_1_rubric_m2_visual_rubric_the_board_game_read_checklist",
-      "target": "redesign_v3_1_rubric_checklist_score_10",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/Redesign-V3.1/RUBRIC.md",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "redesign_v3_1_rubric_m2_visual_rubric_the_board_game_read_checklist",
-      "target": "redesign_v3_1_rubric_how_to_use_it",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/Redesign-V3.1/baseline/README.md",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "baseline_readme",
-      "target": "baseline_readme_baseline_before_gallery_m1",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/Redesign-V3.1/baseline/README.md",
-      "source_location": "L14",
-      "weight": 1.0,
-      "source": "baseline_readme_baseline_before_gallery_m1",
-      "target": "baseline_readme_screens",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/v3/baseline-gallery.test.ts",
-      "source_location": "L9",
-      "weight": 1.0,
-      "source": "v3_baseline_gallery_test",
-      "target": "v3_baseline_gallery_test_baseline_dir",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/v3/baseline-gallery.test.ts",
-      "source_location": "L10",
-      "weight": 1.0,
-      "source": "v3_baseline_gallery_test",
-      "target": "v3_baseline_gallery_test_rubric",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ROADMAP-V3.1-UI.md",
@@ -22339,6 +22289,226 @@
       "confidence_score": 1.0,
       "source": "docs_roadmap_v3_1_ui_4_milestones",
       "target": "docs_roadmap_v3_1_ui_m6_extract_the_tabletop_kit_post_vet_cross_project_payoff_outside_the_4_gate"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/Redesign-V3.1/Gates.md",
+      "source_location": "L53",
+      "weight": 1.0,
+      "source": "redesign_v3_1_gates",
+      "target": "redesign_v3_1_gates_gate_0_5_completed_2026_07_18",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/Redesign-V3.1/baseline/README.md",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "baseline_readme",
+      "target": "redesign_v3_1_rubric"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/Redesign-V3.1/RUBRIC.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "redesign_v3_1_rubric",
+      "target": "redesign_v3_1_rubric_m2_visual_rubric_the_board_game_read_checklist"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/Redesign-V3.1/RUBRIC.md",
+      "source_location": "L19",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "redesign_v3_1_rubric_m2_visual_rubric_the_board_game_read_checklist",
+      "target": "redesign_v3_1_rubric_checklist_score_10"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/Redesign-V3.1/RUBRIC.md",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "redesign_v3_1_rubric_m2_visual_rubric_the_board_game_read_checklist",
+      "target": "redesign_v3_1_rubric_how_to_use_it"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/Redesign-V3.1/RUBRIC.md",
+      "source_location": "L51",
+      "weight": 1.0,
+      "source": "redesign_v3_1_rubric_m2_visual_rubric_the_board_game_read_checklist",
+      "target": "redesign_v3_1_rubric_score_log",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/Redesign-V3.1/RUBRIC.md",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "redesign_v3_1_rubric_m2_visual_rubric_the_board_game_read_checklist",
+      "target": "redesign_v3_1_rubric_scoring_definitions_gate_0_5_user_calibrated_2026_07_18",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/architecture.md",
+      "source_location": "L28",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "docs_architecture",
+      "target": "docs_roadmap_v3"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "docs_roadmap_v3",
+      "target": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L11",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point",
+      "target": "docs_roadmap_v3_0_where_we_are_right_now"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L35",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point",
+      "target": "docs_roadmap_v3_1_the_game_in_one_paragraph_orient_a_cold_session"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L52",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point",
+      "target": "docs_roadmap_v3_2_locked_decisions_the_v3_spine_do_not_relitigate_without_sign_off"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L70",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point",
+      "target": "docs_roadmap_v3_3_document_map_read_order"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L83",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point",
+      "target": "docs_roadmap_v3_4_the_plan_stages_concrete_steps_status"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L129",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point",
+      "target": "docs_roadmap_v3_5_reuse_vs_rebuild_v3_builds_on_src_v2_not_v1"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L152",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point",
+      "target": "docs_roadmap_v3_6_known_risks_parked_questions_carried_from_the_stress_test_p1_list"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L168",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point",
+      "target": "docs_roadmap_v3_7_how_to_resume_fresh_session_checklist"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/ROADMAP-V3.md",
+      "source_location": "L185",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point",
+      "target": "docs_roadmap_v3_8_changelog_decision_log_v3"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/Redesign-V3.1/baseline/README.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "baseline_readme",
+      "target": "baseline_readme_baseline_before_gallery_m1"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/Redesign-V3.1/baseline/README.md",
+      "source_location": "L14",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "baseline_readme_baseline_before_gallery_m1",
+      "target": "baseline_readme_screens"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/v3/baseline-gallery.test.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "v3_baseline_gallery_test",
+      "target": "v3_baseline_gallery_test_baseline_dir"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/v3/baseline-gallery.test.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "v3_baseline_gallery_test",
+      "target": "v3_baseline_gallery_test_rubric"
     },
     {
       "relation": "contains",
@@ -22840,116 +23010,6 @@
       "confidence_score": 1.0,
       "source": "scripts_shots_v3_main",
       "target": "scripts_shots_v3_parseargs"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/architecture.md",
-      "source_location": "L28",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "docs_architecture",
-      "target": "docs_roadmap_v3"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "docs_roadmap_v3",
-      "target": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L11",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point",
-      "target": "docs_roadmap_v3_0_where_we_are_right_now"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L35",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point",
-      "target": "docs_roadmap_v3_1_the_game_in_one_paragraph_orient_a_cold_session"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L52",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point",
-      "target": "docs_roadmap_v3_2_locked_decisions_the_v3_spine_do_not_relitigate_without_sign_off"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L70",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point",
-      "target": "docs_roadmap_v3_3_document_map_read_order"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L83",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point",
-      "target": "docs_roadmap_v3_4_the_plan_stages_concrete_steps_status"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L129",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point",
-      "target": "docs_roadmap_v3_5_reuse_vs_rebuild_v3_builds_on_src_v2_not_v1"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L152",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point",
-      "target": "docs_roadmap_v3_6_known_risks_parked_questions_carried_from_the_stress_test_p1_list"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L168",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point",
-      "target": "docs_roadmap_v3_7_how_to_resume_fresh_session_checklist"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/ROADMAP-V3.md",
-      "source_location": "L185",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "docs_roadmap_v3_iron_throne_of_ashes_v3_code_sprint_roadmap_resume_point",
-      "target": "docs_roadmap_v3_8_changelog_decision_log_v3"
     },
     {
       "relation": "contains",
@@ -78333,5 +78393,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "ac42522a317928586de83209593a4a3dec2289f0"
+  "built_at_commit": "8cefc75122d9914c93b45dd2c140d9045eafc7e2"
 }
