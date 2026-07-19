@@ -18,6 +18,7 @@ import { renderBoard, PLAYER_COLORS, HOUSES, houseSigilSvg } from './board-view.
 import { AnimationQueue } from './queue.js';
 import { SoundManager } from './sound.js';
 import { diffObservable } from './moves.js';
+import { tokenChip, gauge } from './token-chip.js';
 import {
   TUNABLES,
   HERALD_RECRUIT_COST,
@@ -179,12 +180,14 @@ function renderGambitBanner(s: ObservableState): string {
 
 function renderHeader(s: ObservableState): string {
   const sk = s.shadowking;
-  const heart = sk.heart ? ` · <b>Heart ♥${sk.heart.hp}${sk.heart.exposed ? '' : ' (broken)'}</b>` : '';
+  const heart = sk.heart
+    ? ` · <span class="header-stat">Heart ${gauge('heart', sk.heart.hp, TUNABLES.HEART_HP, { stat: 'heartHp', title: sk.heart.exposed ? "the dark's heart HP" : "the dark's heart (broken)" })}${sk.heart.exposed ? '' : ' (broken)'}</span>`
+    : '';
   return `
     <div class="header">
       <div class="title">Iron Throne of Ashes <span class="v-tag">v3</span></div>
       <div class="clock">Round ${s.round}/${TUNABLES.ROUND_CAP} · Act <b>${s.act}</b> · Phase <b>${s.phase}</b>${heart}</div>
-      <div class="sk-meter">Dark patience ${sk.patience}/${TUNABLES.PATIENCE_CAP}${s.mode === 'blood_pact' ? ' · <b>Blood Pact</b>' : ''} · Strike pool <b>${sk.strikePool.length}</b></div>
+      <div class="sk-meter">Dark patience ${gauge('hourglass', sk.patience, TUNABLES.PATIENCE_CAP, { stat: 'patience', title: "the dark's patience clock" })}${s.mode === 'blood_pact' ? ' · <b>Blood Pact</b>' : ''} · Strike pool ${tokenChip('embers', sk.strikePool.length, { stat: 'strikepool', title: "the dark's strike-pool cards" })}</div>
     </div>`;
 }
 
@@ -214,7 +217,7 @@ function renderHousePlaques(session: GameSession, s: ObservableState): string {
     const oath = findOath(s.oaths, p.index);
     if (oath) tags.push(`<span class="tag oath" title="sworn oath">⛓P${oathPartner(oath, p.index) + 1}</span>`);
     const g = s.shadowking.grudge[p.index] ?? 0;
-    if (g > 0) tags.push(`<span class="tag grudge" title="the dark's Ledger — hunted">☠${g}</span>`);
+    if (g > 0) tags.push(tokenChip('skull', g, { stat: 'grudge', cls: 'tag grudge', title: "the dark's Ledger — hunted" }));
     // Only surface the traitor flag for the human's OWN seat (never leak rivals' secret, §7 D2).
     if (isYou && p.hasBloodPact) tags.push('<span class="tag grudge" title="you hold the Blood Pact">traitor</span>');
 
@@ -228,10 +231,10 @@ function renderHousePlaques(session: GameSession, s: ObservableState): string {
         <div class="plaque-name">${esc(house?.name ?? `Player ${p.index + 1}`)}<small> P${p.index + 1}${isYou ? ' · you' : ''}</small></div>
         ${warlordName ? `<div class="plaque-warlord">${esc(warlordName)}</div>` : ''}
         <div class="chips">
-          <span class="chip" title="living land (holdings/keeps + weighted forges)">🏰 ${territoryOf(s, p.index)}</span>
-          <span class="chip" title="banners (the ⚑ resource)">⚑ ${p.banners}</span>
-          <span class="chip" title="cards in hand">🂠 ${p.hand.length}</span>
-          <span class="chip" title="living court retainers">⚔ ${living}</span>
+          ${tokenChip('holdings', territoryOf(s, p.index), { stat: 'land', title: 'living land (holdings/keeps + weighted forges)' })}
+          ${tokenChip('banner', p.banners, { stat: 'banners', title: 'banners (the muster resource)' })}
+          ${tokenChip('cards', p.hand.length, { stat: 'hand', title: 'cards in hand' })}
+          ${tokenChip('retinue', living, { stat: 'court', title: 'living court retainers' })}
         </div>
         <div class="plaque-tags">${tags.join(' ')}</div>
         <div class="plaque-exposure exp-${level}" title="${esc(EXPOSURE_LABEL[level])}">${EXPOSURE_LABEL[level]}</div>
@@ -299,7 +302,9 @@ function renderLedger(s: ObservableState): string {
   const g = s.shadowking.grudge;
   const marked = g.map((v, i) => ({ v, i })).filter(x => x.v > 0).sort((a, b) => b.v - a.v);
   if (marked.length === 0) return '';
-  const items = marked.map(x => `<li>P${x.i + 1} <b>${x.v}</b></li>`).join('');
+  const items = marked
+    .map(x => `<li>P${x.i + 1} ${tokenChip('skull', x.v, { stat: 'grudge', title: "the dark's grudge weight" })}</li>`)
+    .join('');
   return `<div class="info-block"><div class="block-title">The Ledger (the dark hunts)</div><ul class="ledger-list">${items}</ul></div>`;
 }
 
@@ -519,7 +524,7 @@ function renderActionPanel(session: GameSession, s: ObservableState): string {
 
   return `
     <div class="panel action">
-      <div class="panel-title">Your turn — ${human.actionsRemaining} action${human.actionsRemaining === 1 ? '' : 's'} · ⚑${human.banners} · ${human.stance === 'political' ? '🕊 political' : '⚔ martial'}</div>
+      <div class="panel-title">Your turn — ${tokenChip('action', human.actionsRemaining, { stat: 'actions', title: 'actions remaining this turn' })} ${tokenChip('banner', human.banners, { stat: 'banners', title: 'your banners' })} · ${human.stance === 'political' ? '🕊 political' : '⚔ martial'}</div>
       ${marchHint}
       <div class="action-btns">${btns.join('')}</div>
       <button class="end-turn" data-action="pass">End turn</button>

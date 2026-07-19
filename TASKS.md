@@ -345,12 +345,28 @@ into full `TokenChip`/gauge components (icon+count treatment) is left to T-203; 
 left to T-204 — this task closes font self-hosting + palette tokenization only, no new visual
 components.
 
-### T-203 · Token/chip components + DOM audit test — `status: TODO` · `coder: opus` · `after: T-201`
+### T-203 · Token/chip components + DOM audit test — `status: DONE` · `coder: opus` · `after: T-201`
 Every resource/stat becomes an icon+count `TokenChip` (game-icons.net SVGs, committed + credited) or a
 gauge — never a bare number in a table. Add the enforcing vitest: over a full jsdom game, every
 numeric stat node in the game root carries the chip/gauge class and contains an inline `<svg>`.
 **Accept:** the DOM-audit test exists and is green over a full fixed-seed game; SVGs committed with
 CREDITS entries; jsdom E2E green.
+**Delivered (2026-07-18):** New `src/ui-v3/token-chip.ts` renders `tokenChip()`/`gauge()` components —
+each an inline committed `<svg>` (game-icons.net, `?raw` import, no CDN) plus a `data-stat`-tagged
+numeric count/fill, styled via new `.token-chip`/`.gauge`/`.gauge-track`/`.gauge-fill` rules in
+`ui-v3.css`. `view.ts`'s header (heart HP, dark patience, strike pool), house plaques (land/banners/
+hand/court, Ledger grudge), Ledger block, and action panel (actions/banners) all now route through
+these components instead of bare emoji+number strings. Nine icon SVGs committed under
+`src/ui-v3/assets/icons/` with full author/license entries in `docs/CREDITS.md` (CC-BY 3.0,
+game-icons.net, background stripped + recolored to `currentColor`). The enforcing
+`tests/v3/token-chip-audit.test.ts` drives a full fixed-seed game through the real DOM click-harness
+and asserts, at every settled frame, that every `[data-stat]` node is a `.token-chip`/`.gauge`,
+contains an inline `<svg>`, and carries a `.tc-count` — plus that none of the old bare resource glyphs
+(⚑ 🏰 🂠 ☠) survive loose in a stat region. **Scope boundary (recorded in the test file):** player/
+round/act/phase track text, card face values, oath countdowns, suspicion glyphs, and history dates are
+deliberately NOT chip-ified (T-205/T-204 territory or non-resource text); the board SVG's own internal
+heart-HP/blight-pip drawing is a diegetic illustration, not an HTML stat node, and stays out of this
+audit.
 
 ### T-204 · Card frames + data-driven card-face generator — `status: TODO` · `coder: opus` · `after: T-202`
 Create `src/ui-v3/card-face.ts`: piece/token data → SVG card face (frame, name, icon, stats), so art

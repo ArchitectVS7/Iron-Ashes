@@ -147,9 +147,10 @@ describe('UI parity (v3) — P0-11 legibility + full state display', () => {
     const html = renderApp(humanTurn('competitive'));
     expect(html).toContain('Your hand');
     expect(html).toMatch(/Round \d+\/\d+/);
-    // Four dissolved house plaques, each carrying that seat's hand-size chip (🂠 N).
+    // Four dissolved house plaques, each carrying that seat's hand-size chip (T-203: icon + count
+    // TokenChip, `data-stat="hand"` — the old 🂠 emoji is now a committed game-icons SVG).
     expect((html.match(/class="house-plaque/g) ?? []).length).toBe(4);
-    expect(html).toContain('🂠'); // the hand-size chip icon
+    expect((html.match(/data-stat="hand"/g) ?? []).length).toBe(4); // one hand-size chip per house
     expect(html).toContain('Emberfall'); // house identity rendered (heraldry names)
   });
 
