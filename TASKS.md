@@ -609,13 +609,37 @@ clicking a themed curse entry still routes `SET_BEQUEST` through the engine; ver
 tests passed).
 Orchestration: graphify=query "bequest death testament panel rendering v3 UI view" · attempts=1/4.
 
-### T-214 · Full-serif body font — `status: TODO` · `coder: sonnet` · `after: T-206`
+### T-214 · Full-serif body font — `status: DONE` · `coder: sonnet` · `after: T-206`
 Gate 1 decision (user, 2026-07-19): body text goes FULL old-style serif per the house style — replace
 Inter everywhere with Alegreya or EB Garamond (self-hosted OFL, license committed); Cinzel stays for
 headers/labels. Update the shots font audit so a neutral sans (Inter) now FAILS; RUBRIC's
 "No default-font text" definition already reflects this.
 **Accept:** serif font files + license committed; the font audit rejects Inter and passes with every
 text node resolving to Cinzel or the serif across all screens; verify green.
+
+**Delivered (2026-07-19):** Swapped the readable body face from Inter (neutral web sans) to Alegreya,
+an old-style OFL serif, per the Gate 1 full-serif decision — Cinzel stays the display face. Replaced
+the three Inter `@font-face` blocks in `src/ui-v3/ui-v3.css` with Alegreya (weights 400/500/700; note
+weight 600 → 700 since Alegreya's heavy body weight is 700) and repointed `--font-body` from
+`'Inter', system-ui, …, sans-serif` to `'Alegreya', Georgia, 'Times New Roman', serif`, so every
+control that inherits the body family now resolves to the serif; the two remaining `font-weight: 600`
+chip/token literals were bumped to 700 to match the committed Alegreya weight set. Committed the
+self-hosted latin-subset woff2 faces `Alegreya-{400,500,700}.woff2` under `src/ui-v3/assets/fonts/`
+plus the SIL OFL 1.1 text `Alegreya-OFL.txt`, and deleted the now-unused `Inter-*.woff2` + `Inter-OFL.txt`
+(no runtime CDN — see the `@font-face` header comment). As with Cinzel (since T-202), each face is a
+single variable woff2 (`wght` axis 400–900) pinned per weight by its `@font-face` `font-weight` — verified
+via fontTools (`fvar` present), so the shared bytes across weights are correct, not stub copies.
+`docs/CREDITS.md` now credits Alegreya (Juan Pablo del Peral / Huerta Tipográfica, google/fonts
+`ofl/alegreya`, OFL-1.1) in place of Inter, with a dated Gate-1 rationale note. Updated the shots
+font audit (`scripts/shots-v3.mjs`) so `OURS` is `['cinzel','alegreya']` and it force-loads/checks
+the Alegreya weights — a neutral sans now FAILS the audit; ran `npm run shots:v3` end-to-end and the
+browser font audit passed across all 7 screens ("every text node resolves to Cinzel/Alegreya"). Updated
+`tests/v3/typography.test.ts` (Inter→Alegreya throughout) and added a dedicated regression test that
+rejects any word-bounded `Inter` reference in the v3 CSS (word-boundary so "Interactive" comments do not
+false-positive). Standing constraints hold: no engine/tunable edits (`src/v2`,`src/v3`,`src/utils`
+untouched), no `Math.random`, runtime deps unchanged (gsap+howler pinned, playwright dev-only). Verify
+green (1244 tests passed, typecheck + lint clean); `npx vite build` bundles the Alegreya woff2.
+Orchestration: graphify=font audit Inter Cinzel serif body text · attempts=2/4.
 
 ### T-215 · Regenerate m2 gallery post-fixes — `status: TODO` · `coder: sonnet` · `after: T-208, T-209, T-210, T-211, T-212, T-213, T-214`
 Re-run `npm run shots:v3 -- --out docs/Redesign-V3.1/m2` after the fix round, refresh the README if

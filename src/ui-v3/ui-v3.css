@@ -1,7 +1,8 @@
 /* Iron Throne of Ashes — v3 render-from-state UI (Stage 3i-a scaffold). */
 
 /* ── Self-hosted fonts (OFL, committed under ./assets/fonts/ — no runtime CDN, see docs/CREDITS.md) ──
-   Cinzel = thematic display face; Inter = readable body face. Latin-subset woff2 (T-202). */
+   Cinzel = thematic display face; Alegreya = readable old-style serif body face (T-214, Gate 1 full
+   serif). Latin-subset woff2 (T-202). */
 @font-face {
   font-family: 'Cinzel';
   font-weight: 400;
@@ -17,25 +18,25 @@
   src: url('./assets/fonts/Cinzel-700.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Inter';
+  font-family: 'Alegreya';
   font-weight: 400;
   font-style: normal;
   font-display: swap;
-  src: url('./assets/fonts/Inter-400.woff2') format('woff2');
+  src: url('./assets/fonts/Alegreya-400.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Inter';
+  font-family: 'Alegreya';
   font-weight: 500;
   font-style: normal;
   font-display: swap;
-  src: url('./assets/fonts/Inter-500.woff2') format('woff2');
+  src: url('./assets/fonts/Alegreya-500.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Inter';
-  font-weight: 600;
+  font-family: 'Alegreya';
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
-  src: url('./assets/fonts/Inter-600.woff2') format('woff2');
+  src: url('./assets/fonts/Alegreya-700.woff2') format('woff2');
 }
 
 :root {
@@ -52,7 +53,7 @@
 
   /* Typography (T-202) — self-hosted display + body faces with local fallbacks. */
   --font-display: 'Cinzel', Georgia, 'Times New Roman', serif;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-body: 'Alegreya', Georgia, 'Times New Roman', serif;
 
   /* House heraldry (mirror of board-view.ts PLAYER_COLORS, Gate 0.5) — palette lives in :root. */
   --house-emberfall: #c15f2c;
@@ -516,16 +517,16 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
 .plaque-name small { color: var(--muted); font-weight: 400; font-size: 11px; }
 .plaque-warlord { font-size: 11px; color: var(--muted); font-style: italic; margin-top: -1px; }
 .chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 5px 0; }
-.chip { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 600;
+.chip { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 700;
   background: rgba(0, 0, 0, 0.3); border: 1px solid #4a3d31; border-radius: 10px; padding: 1px 7px; color: #e8dcc3; }
 
 /* ── Token chips + gauges (T-203) — every resource/stat is an icon + count, never a bare number ── */
-.token-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600;
+.token-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700;
   background: rgba(0, 0, 0, 0.3); border: 1px solid #4a3d31; border-radius: 10px; padding: 1px 7px;
   color: #e8dcc3; vertical-align: middle; line-height: 1; }
 .tc-icon { width: 14px; height: 14px; display: inline-flex; flex: 0 0 auto; color: inherit; }
 .tc-icon svg { width: 100%; height: 100%; display: block; fill: currentColor; }
-.tc-count { font-variant-numeric: tabular-nums; font-weight: 600; }
+.tc-count { font-variant-numeric: tabular-nums; font-weight: 700; }
 /* The grudge chip reuses the danger tag palette (it is the dark's Ledger mark). */
 .token-chip.grudge { background: rgba(239, 68, 68, 0.22); border-color: #7f1d1d; color: #fca5a5; }
 
@@ -555,7 +556,7 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
 
 /* ── Panels ── */
 .panel { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
-.panel-title { font-weight: 600; margin-bottom: 8px; }
+.panel-title { font-weight: 700; margin-bottom: 8px; }
 /* Form controls do not inherit font-family in browsers — force it so no rendered text node
    falls back to the UA default stack (T-202 computed-font audit). */
 input, select, textarea, optgroup { font-family: inherit; }
@@ -617,7 +618,7 @@ button.primary { background: linear-gradient(180deg, #e2b23c, #c9a227); color: #
 .hint { font-size: 13px; color: var(--muted); margin-top: 10px; }
 
 /* ── Gambit alarm ── */
-.gambit-alarm { position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(90deg, #7f1d1d, #b45309); color: #fff; text-align: center; padding: 6px; font-weight: 600; z-index: 5; letter-spacing: 0.5px; }
+.gambit-alarm { position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(90deg, #7f1d1d, #b45309); color: #fff; text-align: center; padding: 6px; font-weight: 700; z-index: 5; letter-spacing: 0.5px; }
 
 /* ── Chronicle narration / errors (T-212) — SINGLE source of truth ──
    The event feed lives only inside `.chronicle` (see the region block above). Base list reset here;
@@ -703,7 +704,7 @@ button.primary { background: linear-gradient(180deg, #e2b23c, #c9a227); color: #
 
 /* ── Exposure meter (§13 P0-11) — colour-coded danger legibility ── */
 .exposure-meter .exp-row { display: flex; flex-wrap: wrap; gap: 6px; }
-.exp { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600;
+.exp { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700;
   border: 1px solid var(--line); border-radius: 4px; padding: 2px 6px; }
 .exp .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 .exp-safe { color: #86efac; }

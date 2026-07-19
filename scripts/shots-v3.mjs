@@ -223,7 +223,7 @@ async function measureBoardDominance(page) {
 async function auditFonts(page) {
   return page.evaluate(async () => {
     await document.fonts.ready;
-    const OURS = ['cinzel', 'inter'];
+    const OURS = ['cinzel', 'alegreya'];
     // 1. Force-fetch every declared weight and prove it actually resolves. A face is only loaded once
     //    the page renders a glyph at that weight, so e.g. Cinzel-400 stays unloaded on a screen that
     //    only uses the 700 title — `load()` fetches it explicitly. A broken woff2 url() rejects here
@@ -233,9 +233,9 @@ async function auditFonts(page) {
       await Promise.all([
         document.fonts.load('400 16px Cinzel'),
         document.fonts.load('700 16px Cinzel'),
-        document.fonts.load('400 16px Inter'),
-        document.fonts.load('500 16px Inter'),
-        document.fonts.load('600 16px Inter'),
+        document.fonts.load('400 16px Alegreya'),
+        document.fonts.load('500 16px Alegreya'),
+        document.fonts.load('700 16px Alegreya'),
       ]);
     } catch {
       loaded = false;
@@ -244,7 +244,7 @@ async function auditFonts(page) {
       loaded &&
       document.fonts.check('400 16px Cinzel') &&
       document.fonts.check('700 16px Cinzel') &&
-      document.fonts.check('16px Inter');
+      document.fonts.check('16px Alegreya');
     // 2. Every element bearing visible text must resolve to one of our families first.
     const bad = [];
     const root = document.getElementById('app');
@@ -566,7 +566,7 @@ async function main() {
     }
     if (!res.loaded) {
       console.error(`\nFONT AUDIT FAILED — self-hosted faces did not load on the ${label}`);
-      console.error('  document.fonts.check failed for Cinzel and/or Inter (check the woff2 url() paths).');
+      console.error('  document.fonts.check failed for Cinzel and/or Alegreya (check the woff2 url() paths).');
       fontFailed = true;
     }
     if (res.bad.length > 0) {
@@ -576,7 +576,7 @@ async function main() {
     }
   }
   if (fontFailed) process.exit(1);
-  console.log('font audit: every text node resolves to Cinzel/Inter; self-hosted faces loaded (start + board)');
+  console.log('font audit: every text node resolves to Cinzel/Alegreya; self-hosted faces loaded (start + board)');
 
   // T-211 accept: the appearance audit must have run and found no default-styled control.
   if (controlsStart === null) {

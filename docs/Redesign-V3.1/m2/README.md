@@ -8,7 +8,7 @@ a viewer's `observableState` leaks into them.
 This is the Gate 1 / T-207 checkpoint gallery: the user scores it against [`../RUBRIC.md`](../RUBRIC.md)
 (target ≥8/10) and runs the blind read test ("web app or board game?" on a fresh agent given only these
 screenshots). The `shots:v3` run that produced these images also enforces the board-dominance assertion
-(board is the largest top-level region) and the font audit (every text node resolves to Cinzel/Inter,
+(board is the largest top-level region) and the font audit (every text node resolves to Cinzel/Alegreya,
 self-hosted faces loaded) — machine-verified evidence for two of the rubric's ten items.
 
 To regenerate: `npm run shots:v3 -- --out docs/Redesign-V3.1/m2`

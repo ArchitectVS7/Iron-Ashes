@@ -43,7 +43,9 @@ declared via `@font-face` in `src/ui-v3/ui-v3.css` — there is **no runtime CDN
 | Font | Role | Weights | Source | Author | License |
 | --- | --- | --- | --- | --- | --- |
 | Cinzel | Display (titles, plaques) | 400, 700 | [github.com/google/fonts `ofl/cinzel`](https://github.com/google/fonts/tree/main/ofl/cinzel) | Natanael Gama / The Cinzel Project Authors | [OFL-1.1](https://openfontlicense.org) (`src/ui-v3/assets/fonts/Cinzel-OFL.txt`) |
-| Inter | Body / UI | 400, 500, 600 | [github.com/google/fonts `ofl/inter`](https://github.com/google/fonts/tree/main/ofl/inter) | Rasmus Andersson / The Inter Project Authors | [OFL-1.1](https://openfontlicense.org) (`src/ui-v3/assets/fonts/Inter-OFL.txt`) |
+| Alegreya | Body / UI | 400, 500, 700 | [github.com/google/fonts `ofl/alegreya`](https://github.com/google/fonts/tree/main/ofl/alegreya) | Juan Pablo del Peral / Huerta Tipográfica | [OFL-1.1](https://openfontlicense.org) (`src/ui-v3/assets/fonts/Alegreya-OFL.txt`) |
 
-Both are variable fonts; the committed latin-subset woff2 covers the declared weight range, so a
-single file backs each family's `@font-face` weights.
+Alegreya is a readable old-style serif chosen for dense body legibility (Gate 1 full-serif decision,
+2026-07-19 — replaced Inter; no neutral sans anywhere in the v3 UI). Both are variable fonts; the
+committed latin-subset woff2 covers the declared weight range, so a single file backs each family's
+`@font-face` weights.
