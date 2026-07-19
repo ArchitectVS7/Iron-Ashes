@@ -89,11 +89,11 @@ command; baseline gallery in-repo.
 ### M1 — The semantic move stream (transition layer; architecture before art)
 *The §3b fix for "snaps instead of animates": diff old→new `observableState`, emit typed semantic
 `Move`s ("card hand→discard", "token A→B", "score 4→7"), play them through an animation queue.*
-- [ ] `src/ui-v3/moves.ts`: `diffObservable(prevObs, nextObs) → Move[]` — pure, typed, derived **only**
-      from the two fog projections (leak-safe by construction).
-- [ ] Animation queue: sequences `Move[]` through GSAP timelines; **instant mode** collapses to
-      synchronous DOM settlement.
-- [ ] `SoundManager` skeleton (Howler): `play(moveType)`; silent in tests.
+- [x] `src/ui-v3/moves.ts`: `diffObservable(prevObs, nextObs) → Move[]` — pure, typed, derived **only**
+      from the two fog projections (leak-safe by construction). (2026-07-18, T-101)
+- [x] Animation queue: sequences `Move[]` through GSAP timelines; **instant mode** collapses to
+      synchronous DOM settlement. (2026-07-18, T-103)
+- [x] `SoundManager` skeleton (Howler): `play(moveType)`; silent in tests. (2026-07-18, T-105)
 
 **Exit metrics (all vitest-enforced):**
 - Every v3 command type, driven over full simmed games (reuse the sim/E2E harnesses), produces a typed

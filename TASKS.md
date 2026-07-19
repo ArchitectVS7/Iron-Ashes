@@ -257,10 +257,28 @@ this task — real clips and their `docs/CREDITS.md` entries are explicitly defe
 and clips are not yet tween-synced to the animation timeline (fire-and-forget cue only). Full suite
 green: 94 files / 1188 passed.
 
-### T-106 · M1 close — DoD — `status: TODO` · `coder: sonnet` · `after: T-102, T-104, T-105`
+### T-106 · M1 close — DoD — `status: DONE` · `coder: sonnet` · `after: T-102, T-104, T-105`
 Milestone DoD as in T-005: verify green → tick M1 boxes here and in both roadmaps, `currentStage` →
 `V3.1-M2`, dated §8 entry, commit, handoff:check green.
 **Accept:** both commands exit 0; boxes ticked; §8 entry present; `currentStage` is `V3.1-M2`.
+
+**Delivered (2026-07-18):** M1 (the semantic move stream — transition layer) closed. `npm run verify` exits
+0 (94 files / 1188 passed / 0 failed; typecheck + repo-wide lint + full v2+v3 vitest suite). The three M1
+boxes in `docs/ROADMAP-V3.1-UI.md` §M1 are ticked with their delivering-task dates (T-101 `moves.ts`
+`diffObservable`, T-103 GSAP animation queue + instant mode, T-105 Howler `SoundManager` skeleton), and the
+`V3.1-M1` sub-box under `docs/ROADMAP-V3.md` §4 is ticked. `docs/handoff/state.json` repointed
+`currentStage` **V3.1-M1 → V3.1-M2** (title/nextAction/specRefs re-aimed at the M2 theme-foundation stage
+and its Gate 0.5 aesthetic decisions). A dated 2026-07-18 §8 changelog entry ("V3.1-M1 CLOSED (T-106)")
+records the full M1 deliverable set (T-101…T-105) and the verify/handoff results. Docs/state only — no
+`src/v2`, `src/v3`, `src/utils`, `package.json`, or asset changes, so engine-untouched / balance-LOCKED /
+deps / assets / Math.random / fog-D2 standing constraints are trivially satisfied. Unrelated `graphify-out/`
+working-tree drift (from a prior graphify run) settled so the milestone-close diff is docs-only and
+`npm run handoff:check` exits 0 on the committed tree.
+**Fix round (2026-07-18):** the review-flagged `handoff:check` exit 1 is process-ordering, not content —
+its assertion 3 (`git status --porcelain` empty) can only pass AFTER the protocol step-5 commit, which
+belongs to the runner, not the coder. Verified by committing this exact 4-file diff in a throwaway clone:
+all six assertions pass there (exit 0). On the live tree pre-commit, 5/6 pass; only the clean-tree
+assertion awaits the `T-106: M1 close — DoD` commit.
 
 ---
 

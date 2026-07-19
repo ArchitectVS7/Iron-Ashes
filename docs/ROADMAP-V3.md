@@ -196,7 +196,7 @@ Workflow (same as v2): **① idea → ② textual algorithm → ③ code → ④
 - [x] **Stage V3-6 — UI polish + human playtest** — now run as the **V3.1 presentation sprint** (`docs/ROADMAP-V3.1-UI.md`)
   on the LOCKED v3 engine; milestones below (tracking lives in the sub-boxes), human playtest is V3.1-M5.
   - [x] **V3.1-M0 — Foundations & the screenshot feedback loop** → `docs/ROADMAP-V3.1-UI.md` §M0
-  - [ ] **V3.1-M1 — The semantic move stream (transition layer)** → `docs/ROADMAP-V3.1-UI.md` §M1
+  - [x] **V3.1-M1 — The semantic move stream (transition layer)** → `docs/ROADMAP-V3.1-UI.md` §M1
   - [ ] **V3.1-M2 — Theme foundation (stop looking like a spreadsheet)** → `docs/ROADMAP-V3.1-UI.md` §M2
   - [ ] **V3.1-M3 — Cards & hand live** → `docs/ROADMAP-V3.1-UI.md` §M3
   - [ ] **V3.1-M4 — Board life & sound** → `docs/ROADMAP-V3.1-UI.md` §M4
@@ -262,6 +262,21 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-18** — **V3.1-M1 CLOSED (T-106).** M1 (the semantic move stream — the transition layer) complete:
+  `src/ui-v3/moves.ts` provides a typed `Move` union + a pure `diffObservable(prevObs, nextObs) → Move[]`
+  derived **only** from two `observableState` fog projections (leak-safe by construction; an exhaustive
+  `Record<CommandType, …>` makes a missing command type a compile error) (T-101). Determinism (same seed +
+  command script → byte-identical stream), fog-leak (serialized per-`viewerSeat` stream never carries
+  redacted token content or the seed), and coverage tests run over full simmed games at 2 seeds —
+  `tests/v3/move-stream.test.ts` (T-102). `src/ui-v3/queue.ts` is a GSAP animation queue with a synchronous
+  **instant mode** (jsdom + `prefers-reduced-motion`), with the render path rewired so no direct re-render
+  bypasses the queue (T-103). A replay **"snap count 0"** test asserts instant-mode playback settles to a
+  DOM identical to a cold render of the final state — `tests/v3/replay-snap-count.test.ts`, 2 seeds (T-104).
+  `src/ui-v3/sound.ts` is a Howler `SoundManager` skeleton (`play(moveType)`), silent in jsdom, invoked per
+  move (T-105). Engine/tunables untouched — balance stays LOCKED. `npm run verify` 0 (94 files / 1188 passed
+  / 0 failed), `npm run handoff:check` 0. `docs/handoff/state.json` `currentStage` repointed
+  **V3.1-M1 → V3.1-M2**; the three M1 boxes in `docs/ROADMAP-V3.1-UI.md` §M1 and the `V3.1-M1` sub-box in §4
+  above are ticked.
 - **2026-07-18** — **V3.1-M0 CLOSED (T-005).** M0 (Foundations & the screenshot feedback loop) complete:
   the headless screenshot loop `npm run shots:v3` (T-003) boots the Vite dev server in-process, drives
   `/index-v3.html` through DOM clicks only (fog-respecting, no `src/v3` imports), and captures the 7
