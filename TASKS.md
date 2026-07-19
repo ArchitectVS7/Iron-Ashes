@@ -501,7 +501,7 @@ remaining Gate 1 items) are separate, still-open tasks — this task only fixes 
 legibility and hand-clipping defects.
 Orchestration: graphify=powerCardFace / card-face generator hand rendering (query "card-face generator hand rendering powerCardFace view.ts") · attempts=1/4.
 
-### T-210 · Full HUD bottom dissolution + election overlap bug — `status: TODO` · `coder: opus` · `after: T-206`
+### T-210 · Full HUD bottom dissolution + election overlap bug — `status: DONE` · `coder: opus` · `after: T-206`
 Gate 1 fix (user, 2026-07-19): the bottom turn/action area is still a persistent full-width rectangle
 with web-style buttons — failing the full-dissolution bar — and the capture-election screen (m2/03)
 shows the turn-prompt text physically sliced by an overlapping raid block. Dissolve: the turn prompt
@@ -512,6 +512,31 @@ plaques/nodes; "End turn" becomes a diegetic object (wax seal / iron stud). Zero
 **Accept:** no persistent full-width bottom panel on any shots screen (DOM assertion; a single-line
 chronicle/toast region is exempt); every previously reachable action still reachable (jsdom E2E full
 game green); the election screen renders without clipped text; verify green.
+**Delivered (2026-07-19):** retired the `.hud-tray` full-width grid row entirely — the phase panel now
+renders inside a `.command-plaque`, a content-sized carved-wood overlay absolutely anchored to the
+board's bottom-left corner (`max-width: min(400px, ...)`, never full-width, no 26vh overflow clip), and
+`renderNarration` moved into a `.chronicle` strip anchored bottom-right and height-capped to one line
+(the accept criterion's exempt toast region). The election overlap was a flex-mixing bug: raid election
+blocks were being pushed into the same `.action-btns` flex row as verb buttons and the panel title;
+`renderRaidElection`'s output is now collected separately into `.raid-elections`, a full-row stack
+rendered below the verb row, so nothing overlaps the turn-prompt text. March per-node toll costs moved
+behind a `<details>`/`<summary>` hover-expand (the `<ul class="adj-costs"><li>` nodes stay in the DOM
+for the shots driver and march legibility, only the always-open framing was dropped) to keep the plaque
+compact. Buttons were retextured from flat web panels to bevelled carved-iron studs with an inset
+highlight and ember hover glow, and "End turn" became a diegetic wax-seal control (`.end-turn.wax-seal`,
+round ember glyph) while keeping its `data-action="pass"` wiring unchanged. Added two hard shots:v3
+assertions that run against the real Playwright-rendered DOM (jsdom has no layout engine so full-width
+geometry can't be asserted there): `auditNoBottomBar` scans every captured screen for any panel-like
+element that is simultaneously ~full-stage-width, bottom-anchored, and taller than one text line, and
+`auditElectionUnclipped` verifies the command plaque never overflow-clips its content and that the
+election's panel-title + every `.raid-block` lies fully within the plaque's rect and the viewport on the
+capture-election screen. Both fail the shots:v3 run (exit 1) on violation. Added
+`tests/v3/hud-dissolution.test.ts` (3 jsdom tests) locking in the command-plaque/chronicle DOM structure,
+the wax-seal's preserved `data-action`, and the surviving `adj-costs` `<li>` nodes. **Scope boundary:**
+this task only dissolves the bottom bar and fixes the named election-overlap clipping bug — the start
+screen (T-211), event feed re-theme beyond the one-line chronicle move (T-212), bequest parchment
+(T-213), and the full-serif body font (T-214) are separate, still-open tasks.
+Orchestration: graphify=graphify query "v3 UI bottom turn action panel HUD movement oath raid ransom end turn controls" · attempts=1/4.
 
 ### T-211 · Start screen title treatment — `status: TODO` · `coder: sonnet` · `after: T-206`
 Gate 1 fix (user, 2026-07-19): the start screen is unchanged from baseline (black void, default web

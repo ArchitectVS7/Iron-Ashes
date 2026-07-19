@@ -143,10 +143,13 @@ export function mountView(root: HTMLElement, session: GameSession): void {
 
 export function renderApp(session: GameSession): string {
   const s = session.observable();
-  // FULL diegetic dissolution (Gate 0.5): NO persistent status column. The board is centre-stage
-  // on the textured table; every datum the old side-pane showed now lives in edge HUD regions —
-  // a top turn ribbon, four house plaques (right), the human's realm plaques (left), and a
-  // bottom action tray. Zero information loss: each renderer below is still called exactly once.
+  // FULL diegetic dissolution (Gate 0.5 + Gate 1 fix T-210): NO persistent status column AND no
+  // persistent full-width bottom bar. The board is centre-stage on the textured table; every datum
+  // the old side-pane showed lives in edge HUD regions — a top turn ribbon, four house plaques
+  // (right), the human's realm plaques (left). The phase controls now ride the board itself as a
+  // compact, board-anchored COMMAND PLAQUE overlay (never full-width), and events surface in a slim
+  // single-line CHRONICLE strip (the exempt toast region). Zero information loss: each renderer
+  // below is still called exactly once.
   return `
     ${renderGambitBanner(s)}
     <div class="table-stage">
@@ -162,13 +165,13 @@ export function renderApp(session: GameSession): string {
         ${renderSuspicion(s, session.humanIndex)}
         ${renderAudits(s, session.humanIndex)}
       </div>
-      <div class="board-region">${renderBoard(s)}</div>
+      <div class="board-region">
+        ${renderBoard(s)}
+        <div class="command-plaque">${renderPanel(session, s)}</div>
+        <div class="chronicle">${renderNarration(session)}</div>
+      </div>
       <div class="hud hud-houses">
         ${renderHousePlaques(session, s)}
-      </div>
-      <div class="hud-tray">
-        ${renderPanel(session, s)}
-        ${renderNarration(session)}
       </div>
     </div>`;
 }
@@ -462,8 +465,10 @@ function renderActionPanel(session: GameSession, s: ObservableState): string {
     btns.push(`<button data-action="assault-heart">⚔ Assault the dark's heart <small>(commit ~${hp?.commit ?? 0} vs ♥${heart.hp})</small></button>`);
   }
 
-  // RAID — the capture ELECTION, gated by the projected margin (§5.2 / §13 P0-11).
-  btns.push(...renderRaidElection(session, s, here));
+  // RAID — the capture ELECTION, gated by the projected margin (§5.2 / §13 P0-11). Collected into a
+  // SEPARATE stack (not mixed into the .action-btns flex row) so each election is a clean full-row
+  // card below the verb buttons — this de-mixing is what killed the Gate 1 election overlap.
+  const raidBlocks = renderRaidElection(session, s, here);
 
   // RANSOM — any captive the human can reach (owner, or Warlord at/adjacent the captor's hold).
   btns.push(...renderRansom(session, s, here));
@@ -523,7 +528,11 @@ function renderActionPanel(session: GameSession, s: ObservableState): string {
     return `<li>${esc(adj)} <b>⚑${cost + toll}</b>${tollNote}</li>`;
   }).join('');
 
-  const marchHint = `<div class="hint">Click an adjacent board node to <b>March</b> your Warlord. From <b>${esc(here)}</b>:<ul class="adj-costs">${adjCosts}</ul></div>`;
+  // March is board-attached (click a node); the per-node toll readout collapses behind a hover/expand
+  // affordance so it no longer bulks the plaque. The <ul class="adj-costs"><li> nodes stay rendered
+  // (the shots driver + march legibility depend on them) — only the always-open framing is dropped.
+  const marchHint = `<details class="march-costs"><summary>March costs from <b>${esc(here)}</b></summary><div class="hint">Click an adjacent board node to <b>March</b> your Warlord.<ul class="adj-costs">${adjCosts}</ul></div></details>`;
+  const raidElections = raidBlocks.length > 0 ? `<div class="raid-elections">${raidBlocks.join('')}</div>` : '';
   const bequest = (session.exposure(session.humanIndex) === 'can-be-deposed' || session.exposure(session.humanIndex) === 'deposed')
     ? renderBequestPanel(session, s, false) : '';
   const accuse = s.mode === 'blood_pact' ? renderAccusePanel(session, s) : '';
@@ -533,7 +542,8 @@ function renderActionPanel(session: GameSession, s: ObservableState): string {
       <div class="panel-title">Your turn — ${tokenChip('action', human.actionsRemaining, { stat: 'actions', title: 'actions remaining this turn' })} ${tokenChip('banner', human.banners, { stat: 'banners', title: 'your banners' })} · ${human.stance === 'political' ? '🕊 political' : '⚔ martial'}</div>
       ${marchHint}
       <div class="action-btns">${btns.join('')}</div>
-      <button class="end-turn" data-action="pass">End turn</button>
+      ${raidElections}
+      <button class="end-turn wax-seal" data-action="pass" title="End your turn"><span class="seal-glyph" aria-hidden="true">✕</span><span class="seal-label">End turn</span></button>
       ${bequest}
       ${accuse}
     </div>`;

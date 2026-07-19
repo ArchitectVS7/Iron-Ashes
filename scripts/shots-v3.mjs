@@ -49,7 +49,7 @@ const VIEWPORT = { width: 1280, height: 900 };
 const SCREENS = [
   { key: 'start', file: '01-start-select.png', scroll: [] },
   { key: 'board', file: '02-board-midgame.png', scroll: ['.header'] },
-  { key: 'election', file: '03-capture-election.png', scroll: ['.raid-block'] },
+  { key: 'election', file: '03-capture-election.png', scroll: ['.command-plaque', '.raid-block'] },
   { key: 'ransom', file: '04-ransom.png', scroll: ['[data-action^="ransom:"]'] },
   { key: 'wraith', file: '05-wraith.png', scroll: ['.wraith-input', '.wraith-list'] },
   { key: 'bequest', file: '06-bequest.png', scroll: ['.panel.bequest'] },
@@ -303,6 +303,77 @@ async function auditHandFit(page) {
   });
 }
 
+/**
+ * T-210 accept criterion — NO persistent full-width bottom panel on any shots screen (a single-line
+ * `.chronicle` toast region is exempt). jsdom has no layout, so this runs in the real Playwright page.
+ * Fails if any panel-like element is simultaneously (a) ~full stage width, (b) bottom-anchored, and
+ * (c) taller than one text line. Returns `{ offenders: [...] }` (empty ⇒ clean) for the current DOM.
+ */
+async function auditNoBottomBar(page) {
+  return page.evaluate(() => {
+    const stage = document.querySelector('.table-stage');
+    if (!stage) return { offenders: [] };
+    const sr = stage.getBoundingClientRect();
+    if (sr.width <= 0 || sr.height <= 0) return { offenders: [] };
+    // The chronicle toast strip is the ONE exempt bottom region (kept ≤ one line tall by CSS).
+    const exempt = new Set(['CHRONICLE', 'TABLE-STAGE', 'BOARD-REGION']);
+    const cls = (el) => (typeof el.className === 'string' ? el.className : '');
+    const isExempt = (el) =>
+      el.closest('.chronicle') || exempt.has((cls(el).split(/\s+/)[0] || '').toUpperCase());
+    const candidates = document.querySelectorAll(
+      '.command-plaque, .panel, .action, .pledge, .bequest, [class*="panel"], .hud-tray',
+    );
+    const offenders = [];
+    for (const el of candidates) {
+      if (isExempt(el)) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width <= 0 || r.height <= 0) continue;
+      const fullWidth = r.width >= sr.width * 0.9;
+      const bottomAnchored = sr.bottom - r.bottom <= sr.height * 0.03;
+      const tallerThanLine = r.height > 48;
+      if (fullWidth && bottomAnchored && tallerThanLine) {
+        offenders.push({ cls: cls(el) || el.tagName, w: Math.round(r.width), h: Math.round(r.height) });
+      }
+    }
+    return { offenders };
+  });
+}
+
+/**
+ * T-210 accept criterion — the capture-election screen renders WITHOUT clipped text. Runs only when a
+ * `.raid-block` is present. Asserts (a) the command plaque hides nothing via overflow
+ * (`scrollHeight <= clientHeight`), and (b) every `.raid-block` + the `.panel-title` lies within the
+ * plaque's client rect and within the viewport (no vertical slice). Returns `{ ok, why }`.
+ */
+async function auditElectionUnclipped(page) {
+  return page.evaluate((vh) => {
+    const raid = document.querySelector('.raid-block');
+    if (!raid) return { ok: true, why: 'no election on screen' };
+    const plaque = document.querySelector('.command-plaque');
+    if (!plaque) return { ok: false, why: 'no .command-plaque present on the election screen' };
+    if (plaque.scrollHeight > plaque.clientHeight + 1) {
+      return { ok: false, why: `plaque overflow-clips content (scrollH ${plaque.scrollHeight} > clientH ${plaque.clientHeight})` };
+    }
+    const pr = plaque.getBoundingClientRect();
+    const EPS = 1;
+    const within = (el, label) => {
+      const r = el.getBoundingClientRect();
+      if (r.top < pr.top - EPS || r.bottom > pr.bottom + EPS) return `${label} escapes the plaque vertically`;
+      if (r.top < -EPS || r.bottom > vh + EPS) return `${label} is clipped by the viewport`;
+      return null;
+    };
+    const targets = [
+      [plaque.querySelector('.panel-title'), 'panel-title'],
+      ...Array.from(plaque.querySelectorAll('.raid-block')).map((b, i) => [b, `raid-block[${i}]`]),
+    ].filter(([el]) => el);
+    for (const [el, label] of targets) {
+      const why = within(el, label);
+      if (why) return { ok: false, why };
+    }
+    return { ok: true, why: 'election renders fully within the plaque + viewport' };
+  }, VIEWPORT.height);
+}
+
 async function main() {
   const { out } = parseArgs(process.argv.slice(2));
   const outDir = resolve(process.cwd(), out);
@@ -346,6 +417,10 @@ async function main() {
   // T-209: track the fullest hand seen on a live mid-game board — a full 6-card hand must fit the
   // realm column. Keep the max-count sample so a mid-turn spend can't hide the full-hand case.
   let handFit = null;
+  // T-210: accumulate any full-width bottom-bar offenders across every captured screen, and record
+  // the election-unclipped verdict on the election screen. Both hard-assert at the end.
+  const bottomBarViolations = [];
+  let electionAudit = null;
 
   const captureIfNeeded = async (sigs) => {
     for (const screen of SCREENS) {
@@ -363,6 +438,13 @@ async function main() {
         }, screen.scroll);
       }
       await page.screenshot({ path: join(outDir, screen.file), fullPage: true });
+      // T-210: every captured shots screen must be free of a persistent full-width bottom panel.
+      if (screen.key !== 'start') {
+        const bar = await auditNoBottomBar(page);
+        for (const o of bar.offenders) bottomBarViolations.push({ screen: screen.key, ...o });
+      }
+      // T-210: the election screen must render without clipped text.
+      if (screen.key === 'election') electionAudit = await auditElectionUnclipped(page);
       needed.delete(screen.key);
       captured.add(screen.key);
       console.log(`  captured ${screen.file} (${screen.key})`);
@@ -488,6 +570,25 @@ async function main() {
     process.exit(1);
   }
   console.log(`hand fit: a ${handFit.count}-card hand renders fully inside the realm column`);
+
+  // T-210 accept: no persistent full-width bottom panel on any captured screen (chronicle exempt).
+  if (bottomBarViolations.length > 0) {
+    console.error('\nBOTTOM-BAR FAILED — a persistent full-width bottom panel is present:');
+    for (const v of bottomBarViolations) console.error(`  [${v.screen}] ${v.cls} — ${v.w}×${v.h}px`);
+    process.exit(1);
+  }
+  console.log('bottom-bar: no persistent full-width bottom panel on any captured screen');
+
+  // T-210 accept: the capture-election screen renders without clipped text.
+  if (electionAudit === null) {
+    console.error('\nELECTION-UNCLIPPED assertion never ran (the capture-election screen was not captured)');
+    process.exit(1);
+  }
+  if (!electionAudit.ok) {
+    console.error(`\nELECTION-UNCLIPPED FAILED — ${electionAudit.why}`);
+    process.exit(1);
+  }
+  console.log(`election unclipped: ${electionAudit.why}`);
 
   if (needed.size === 0) {
     console.log(`\ncaptured ${captured.size}/${SCREENS.length} screens → ${outDir}`);
