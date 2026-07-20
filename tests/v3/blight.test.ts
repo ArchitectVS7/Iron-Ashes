@@ -28,9 +28,15 @@ import {
   getBlightFrontier,
   getSpokeFrontier,
   getSpokePath,
+  getSpokeSeam,
   isKeystoneAshed,
   resolveStrike,
 } from '../../src/v3/blight.js';
+import {
+  getApproachForQuadrant,
+  getForgeForQuadrant,
+  getKeepForQuadrant,
+} from '../../src/v3/board.js';
 import { BLIGHT_TO_ASH, ACT_THRESHOLDS, SPREAD_AMOUNT_BASE, withTunables } from '../../src/v3/tunables.js';
 import type { GameState } from '../../src/v3/types.js';
 
@@ -136,54 +142,99 @@ describe('Blight System', () => {
     });
   });
 
-  describe('getSpokePath()', () => {
-    it('returns a path from outer to inner for each quadrant', () => {
+  describe('getSpokePath() — 8-ray diagonal spoke (§13 [T-224])', () => {
+    it('is EXACTLY [seam-holding, forge, approach, keystone] for each quadrant', () => {
+      const def = state.board.definition;
       for (let q = 0; q < 4; q++) {
-        const path = getSpokePath(state.board.definition, q);
-        expect(path.length).toBeGreaterThan(0);
-        // Path should end at keystone
-        expect(path[path.length - 1]).toBe(state.board.definition.keystoneId);
-        // Path should start with holdings
-        const firstTier = state.board.definition.nodes[path[0]].tier;
-        expect(firstTier).toBe('holding');
+        const path = getSpokePath(def, q);
+        // The diagonal ray: 4 nodes, outer → inner.
+        expect(path).toEqual([
+          getSpokeSeam(def, q),
+          getForgeForQuadrant(def, q),
+          getApproachForQuadrant(def, q),
+          def.keystoneId,
+        ]);
+        expect(path.length).toBe(4);
+        // First tier is a Holding (the seam), last id is the keystone.
+        expect(def.nodes[path[0]].tier).toBe('holding');
+        expect(path[path.length - 1]).toBe(def.keystoneId);
       }
     });
 
-    it('includes keep, forge, approach for each quadrant', () => {
+    it('contains the quadrant Forge + Approach but NEVER a Keep or a Mid', () => {
+      const def = state.board.definition;
       for (let q = 0; q < 4; q++) {
-        const path = getSpokePath(state.board.definition, q);
-        const tiers = path.map(id => state.board.definition.nodes[id].tier);
-        expect(tiers).toContain('keep');
-        expect(tiers).toContain('forge');
-        expect(tiers).toContain('approach');
+        const path = getSpokePath(def, q);
+        expect(path).toContain(getForgeForQuadrant(def, q));
+        expect(path).toContain(getApproachForQuadrant(def, q));
+        const tiers = path.map(id => def.nodes[id].tier);
+        // The behavioural flip vs the 4-spoke version: Keeps (homes) and Mids
+        // (cardinal transit) are excluded from every blight spoke.
+        expect(tiers).not.toContain('keep');
+        expect(tiers).not.toContain('mid');
+      }
+    });
+  });
+
+  describe('8-ray seam coherence (§13 [T-224])', () => {
+    it('the 4 seams are 4 DISTINCT holdings, each a declared blight-entry seam', () => {
+      const def = state.board.definition;
+      const seams = [0, 1, 2, 3].map(q => getSpokeSeam(def, q));
+      // No overlap — one seam per diagonal ray.
+      expect(new Set(seams).size).toBe(4);
+      for (const seam of seams) {
+        expect(seam).toBeDefined();
+        expect(def.nodes[seam!].tier).toBe('holding');
+        expect(def.blightEntrySeams).toContain(seam);
+      }
+    });
+
+    it('seam(q) is the Holding adjacent to BOTH keep(q) and keep((q+3) mod 4)', () => {
+      const def = state.board.definition;
+      for (let q = 0; q < 4; q++) {
+        const seam = getSpokeSeam(def, q);
+        expect(seam).toBeDefined();
+        const keepA = getKeepForQuadrant(def, q)!;
+        const keepB = getKeepForQuadrant(def, (q + 3) % 4)!;
+        const conns = def.nodes[seam!].connections;
+        expect(conns).toContain(keepA);
+        expect(conns).toContain(keepB);
       }
     });
   });
 
   describe('getSpokeFrontier()', () => {
-    it('returns the first non-ashed node on the spoke', () => {
+    it('returns the first non-ashed node on the spoke (the seam holding)', () => {
       const frontier = getSpokeFrontier(state, 0);
       expect(frontier.length).toBe(1);
-      // With no ashing, frontier should be a holding (outer edge)
-      const tier = state.board.definition.nodes[frontier[0]].tier;
-      expect(tier).toBe('holding');
+      // With no ashing, frontier is the seam holding (outer edge).
+      expect(frontier[0]).toBe(getSpokeSeam(state.board.definition, 0));
+      expect(state.board.definition.nodes[frontier[0]].tier).toBe('holding');
     });
 
-    it('advances inward when outer nodes are ashed', () => {
-      // Ash all holdings in quadrant 0's spoke
-      const spokePath = getSpokePath(state.board.definition, 0);
-      const holdings = spokePath.filter(
-        id => state.board.definition.nodes[id].tier === 'holding'
-      );
-      for (const h of holdings) {
-        ashNode(state, h);
-      }
+    it('advances inward to the FORGE when the seam holding is ashed', () => {
+      // Ash the seam holding on quadrant 0's spoke.
+      ashNode(state, getSpokeSeam(state.board.definition, 0)!);
 
       const frontier = getSpokeFrontier(state, 0);
       expect(frontier.length).toBe(1);
-      // After ashing holdings, frontier should be the keep
-      const tier = state.board.definition.nodes[frontier[0]].tier;
-      expect(tier).toBe('keep');
+      // After the seam ashes, the frontier is the Forge (Keep is not on the spoke).
+      expect(frontier[0]).toBe(getForgeForQuadrant(state.board.definition, 0));
+      expect(state.board.definition.nodes[frontier[0]].tier).toBe('forge');
+    });
+  });
+
+  describe('blight reaches the Keystone from every seam (§13 [T-224])', () => {
+    it('advancing each diagonal spoke to full ash eventually ashes the Keystone', () => {
+      for (let q = 0; q < 4; q++) {
+        const fresh = createGame(4, 'competitive', 42);
+        // Repeatedly advance the frontier until the whole spoke (incl. keystone) has ashed.
+        let guard = 0;
+        while (!isKeystoneAshed(fresh) && guard++ < 100) {
+          advanceBlightOnSpoke(fresh, q, BLIGHT_TO_ASH, 'dawn');
+        }
+        expect(isKeystoneAshed(fresh)).toBe(true);
+      }
     });
   });
 

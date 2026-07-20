@@ -886,13 +886,28 @@ typecheck clean and the full suite is green (1275 passed, up from 1272, reflecti
 quadrant-helper coverage added to `tests/v3/board.test.ts`).
 Orchestration: graphify=query "keepIds 4-tuple Quadrant seat quadrant assignment in setup blight heart" · attempts=2/4.
 
-### T-224 · Blight seams + spoke paths for 8 rays — `status: TODO` · `coder: opus` · `after: T-223`
+### T-224 · Blight seams + spoke paths for 8 rays — `status: DONE` · `coder: opus` · `after: T-223`
 Blight enters at symmetric outer seams and converges inward along spokes; with 8 real rays the seam
 set and convergence paths must be redefined coherently (per `DESIGN-V3-ALGORITHM.md` §2's intent, not
 by ad-hoc patching). Write the rule down in the spec doc as a dated amendment, implement it, and
 cover it with the spoke-path tests that previously guarded the 4-spoke version.
 **Accept:** spec amendment written and dated; blight spoke-path tests rewritten for 8 rays and green;
 blight still reaches the Keystone from every seam; verify green.
+**Delivered (2026-07-20):** Restated the blight-seam & spoke rule as a dated, authoritative §13 amendment
+in `DESIGN-V3-ALGORITHM.md`, splitting the 8 rays of the T-222 21-node board into 4 diagonal blight
+spokes (`Holding → Forge → Approach → Keystone`, seam = the Holding) and 4 cardinal home rays
+(`Keep → Mid → Approach`, never on a blight spoke). Added `getSpokeSeam`/`getSpokePath` to `board.ts` as
+the single source of truth — seams derived from node adjacency (the Holding adjacent to both flanking
+Keeps), not id-string hacks — and rewired `blight.ts` and `shadowking-policy.ts` onto it, deleting their
+old ad-hoc 4-spoke path logic. Every spoke still terminates at the Keystone, so doom remains reachable
+from all four seams. Rewrote the spoke-path tests in `tests/v3/blight.test.ts` and
+`tests/v3/mechanics-3f.test.ts` for the 8-ray geometry; full suite green (1278 passed, up from 1275).
+Scope boundary: the spoke now structurally excludes the Keep from the blight path (previously blight
+could pile onto/ash a Keep en route) — this is flagged in the spec as a structural change for T-227 to
+read, not tuned; zero `tunables.ts`/`tunables.gen.ts` value edits were made, and fresh balance
+measurement stays out of scope here (owned by T-227). Rendering the new nodes (T-225) and sim/harness/AI
+generalization (T-226) are separate, already-queued tasks and were not touched.
+Orchestration: graphify=blight seam spoke path convergence ray keystone · attempts=1/4.
 
 ### T-225 · Render the 21-node board — `status: TODO` · `coder: opus` · `after: T-222, T-220`
 Update `src/ui-v3` board rendering for the new topology: the four new cardinal mid-belt nodes get

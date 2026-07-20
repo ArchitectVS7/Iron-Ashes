@@ -1,9 +1,12 @@
 /**
  * Blight System — the ash-map mechanic (§5.1).
  *
- * The Shadowking's primary weapon. Blight enters at 4 outer-ring seams
- * (Holdings), converges inward along spokes toward the Keystone. The
- * steered front accelerates down the Crown holder's quadrant each round.
+ * The Shadowking's primary weapon. Blight enters at the 4 outer-ring seams
+ * (one Holding per diagonal ray) and converges inward along the diagonal spokes
+ * (seam Holding → Forge → Approach → Keystone) — never through the protected
+ * Keeps or the cardinal Mids (§13 [T-224 2026-07-20]; spoke geometry lives in
+ * board.ts `getSpokePath`). The steered front accelerates down the Crown
+ * holder's quadrant each round.
  *
  * When a node's blightLevel reaches BLIGHT_TO_ASH, it permanently ashes:
  * owner cleared, produces nothing, remains traversable at extra cost (P0-3).
@@ -17,16 +20,16 @@
  */
 
 import type { GameEvent, BlightSource } from './events.js';
-import type { Act, GameState, V2BoardDef } from './types.js';
+import type { Act, GameState } from './types.js';
 import {
   getTunables,
 } from './tunables.js';
 import { isKeystoneGarrisoned } from './gambit.js';
-import {
-  getApproachForQuadrant,
-  getForgeForQuadrant,
-  getKeepForQuadrant,
-} from './board.js';
+
+// The spoke geometry (getSpokePath / getSpokeSeam) is the single source of truth in board.ts —
+// re-exported here so blight.ts stays the import surface tests/consumers expect (§13 [T-224]).
+export { getSpokePath, getSpokeSeam } from './board.js';
+import { getSpokePath } from './board.js';
 
 // ─── Core Blight Operations ──────────────────────────────────────
 
@@ -121,8 +124,9 @@ export function ashNode(state: GameState, nodeId: string): GameEvent[] {
  * outermost non-ashed nodes along the spoke. Each frontier node gets
  * `amount` blight levels added.
  *
- * Spoke path per quadrant (outer → inner):
- *   Holding → Keep → Forge → Approach → Keystone
+ * Spoke path per quadrant — the diagonal ray, outer → inner (§13 [T-224 2026-07-20]):
+ *   Holding(seam) → Forge → Approach → Keystone
+ * (the Keep and cardinal Mid are protected/transit, never on the spoke).
  *
  * @param amount — total blight levels to distribute across frontier
  */
@@ -176,40 +180,6 @@ export function applyPushback(
 }
 
 // ─── Frontier Queries ─────────────────────────────────────────────
-
-/**
- * Get the spoke path for a quadrant (outer → inner → keystone).
- *
- * For quadrant Q, the spoke is:
- *   [holdingA, holdingB] → keepQ → forgeQ → approachQ → keystone
- *
- * Where holdingA and holdingB are the two holdings adjacent to keepQ.
- */
-export function getSpokePath(definition: V2BoardDef, quadrant: number): string[] {
-  // Quadrant → node ids are DERIVED from the board data (the node whose tier+quadrant match),
-  // never assumed from array position — so the path is correct regardless of node count or the
-  // ordering of the keep/forge/approach id lists.
-  const keepId = getKeepForQuadrant(definition, quadrant);
-  const forgeId = getForgeForQuadrant(definition, quadrant);
-  const approachId = getApproachForQuadrant(definition, quadrant);
-
-  const keepNode = keepId ? definition.nodes[keepId] : undefined;
-
-  // Find the two holdings adjacent to this keep
-  const adjacentHoldings = keepNode
-    ? keepNode.connections.filter(connId => definition.nodes[connId]?.tier === 'holding')
-    : [];
-
-  // Build path from outer to inner (drop any tier with no member in this quadrant — impossible
-  // for the fixed 4-quadrant board, but keeps the builder total).
-  return [
-    ...adjacentHoldings,
-    keepId,
-    forgeId,
-    approachId,
-    definition.keystoneId,
-  ].filter((id): id is string => id !== undefined);
-}
 
 /**
  * Get the frontier nodes for a quadrant — the outermost non-ashed nodes

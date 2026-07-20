@@ -20,6 +20,7 @@ import {
   chooseLastStandCards,
   computeTerritoryWinner,
   getPlayerPowerAtNode,
+  getSpokePath,
   executeRaid,
 } from '../../src/v3/index.js';
 import {
@@ -107,13 +108,12 @@ describe('anti-free-rider reward (§4.2 step 5)', () => {
   });
 
   it('a contributor\'s own frontier land is shielded from the strike', () => {
+    // Quadrant 0's spoke (8-ray, §13 [T-224]): the seam Holding is the fresh-game frontier. Give it
+    // to P0 so the strike lands on the pledger's own land, then compare shielded vs unshielded.
+    const seam = (s: GameState): string => getSpokePath(s.board.definition, 0)[0];
     const make = (): GameState => {
       const s = createGame(4, 'competitive', 42);
-      // Ash the two outer Holdings on quadrant 0's spoke so the frontier is keep-n (P0-owned).
-      const keep = s.board.definition.keepIds[0];
-      for (const c of s.board.definition.nodes[keep].connections) {
-        if (s.board.definition.nodes[c].tier === 'holding') s.board.state.nodes[c].ashed = true;
-      }
+      s.board.state.nodes[seam(s)].owner = 0; // P0 owns its spoke's seam holding
       return s;
     };
     const shielded = make();
@@ -121,9 +121,9 @@ describe('anti-free-rider reward (§4.2 step 5)', () => {
     const unshielded = make();
     spreadShieldedOnSpoke(unshielded, 0, 2, new Set()); // no pledgers
 
-    const keep = shielded.board.definition.keepIds[0];
-    expect(shielded.board.state.nodes[keep].blightLevel)
-      .toBe(unshielded.board.state.nodes[keep].blightLevel - PLEDGE_SHIELD_AMOUNT);
+    const node = seam(shielded);
+    expect(shielded.board.state.nodes[node].blightLevel)
+      .toBe(unshielded.board.state.nodes[node].blightLevel - PLEDGE_SHIELD_AMOUNT);
   });
 });
 

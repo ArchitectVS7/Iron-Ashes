@@ -351,3 +351,47 @@ export function getApproachForQuadrant(
 ): string | undefined {
   return getNodeInQuadrant(definition, 'approach', quadrant);
 }
+
+// ─── Blight Spokes (8-ray board) ──────────────────────────────────
+
+/**
+ * The outer blight seam (Holding) for a quadrant's spoke.
+ *
+ * 8-ray rule (DESIGN-V3-ALGORITHM.md §13 `[T-224 2026-07-20]`): on the 21-node board the 8 compass
+ * rays split into 4 DIAGONAL blight rays (NW/NE/SE/SW — each `Holding → Forge → Approach → Keystone`)
+ * and 4 CARDINAL home rays (N/E/S/W — `Keep → Mid → Approach`, never a blight path). Quadrant `q`
+ * owns the diagonal forge(q)/approach(q); its seam is the single **Holding colinear with them** — the
+ * one Holding adjacent to BOTH keep(q) and keep((q+3) mod 4) (the two Keeps flanking that diagonal
+ * corner). Derived from node data (adjacency), never from an id string. Returns `undefined` when no
+ * such Holding exists (keeps the builder total).
+ */
+export function getSpokeSeam(definition: V2BoardDef, quadrant: number): string | undefined {
+  const keepA = getKeepForQuadrant(definition, quadrant);
+  const keepB = getKeepForQuadrant(definition, (quadrant + 3) % 4);
+  if (!keepA || !keepB) return undefined;
+
+  for (const n of Object.values(definition.nodes)) {
+    if (n.tier !== 'holding') continue;
+    if (n.connections.includes(keepA) && n.connections.includes(keepB)) return n.id;
+  }
+  return undefined;
+}
+
+/**
+ * The steered blight spoke for a quadrant, outer → inner: `[seam, forge, approach, keystone]`.
+ *
+ * 8-ray rule (DESIGN-V3-ALGORITHM.md §13 `[T-224 2026-07-20]`): the spoke is the quadrant's DIAGONAL
+ * ray. It runs the seam Holding, then the Forge, then the Approach, then the Keystone — **the Keep
+ * (protected home) and the cardinal Mid (transit) are never on a blight spoke**. Every spoke
+ * terminates at the Keystone, so doom is reachable from any seam. Any tier with no member in the
+ * quadrant is dropped so the builder stays total. Supersedes the v2 §2 4-spoke (keep-bearing)
+ * phrasing on the 21-node board.
+ */
+export function getSpokePath(definition: V2BoardDef, quadrant: number): string[] {
+  return [
+    getSpokeSeam(definition, quadrant),
+    getForgeForQuadrant(definition, quadrant),
+    getApproachForQuadrant(definition, quadrant),
+    definition.keystoneId,
+  ].filter((id): id is string => id !== undefined);
+}

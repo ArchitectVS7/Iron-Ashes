@@ -29,7 +29,6 @@ import type { GameEvent } from './events.js';
 import type {
   GameState,
   ShadowkingTelegraph,
-  V2BoardDef,
 } from './types.js';
 import {
   getTunables,
@@ -37,8 +36,8 @@ import {
 } from './tunables.js';
 import {
   getApproachForQuadrant,
-  getForgeForQuadrant,
   getKeepForQuadrant,
+  getSpokePath,
 } from './board.js';
 
 // ─── Grudge Tracking ──────────────────────────────────────────────
@@ -215,8 +214,9 @@ function chooseTargetNode(
       const keepId = getKeepForQuadrant(definition, steerQuadrant);
       if (!keepId) return definition.approachIds[0];
 
-      // Find first non-ashed node on the spoke from the outer edge
-      const spokePath = getSpokePathSimple(definition, steerQuadrant);
+      // Find first non-ashed node on the spoke from the outer edge (shared board.ts geometry —
+      // the diagonal ray seam → forge → approach → keystone, §13 [T-224]).
+      const spokePath = getSpokePath(definition, steerQuadrant);
       for (const nodeId of spokePath) {
         const ns = state.board.state.nodes[nodeId];
         if (ns && !ns.ashed) return nodeId;
@@ -244,30 +244,6 @@ function chooseTargetNode(
     }
   }
 }
-
-/** Simple spoke path from outer to inner. Quadrant → node ids are DERIVED from the board data
- *  (tier+quadrant match), never assumed from array position — kept behavior-identical to
- *  blight.ts `getSpokePath` (both route through the shared board.ts quadrant helpers). */
-function getSpokePathSimple(definition: V2BoardDef, quadrant: number): string[] {
-  const keepId = getKeepForQuadrant(definition, quadrant);
-  const forgeId = getForgeForQuadrant(definition, quadrant);
-  const approachId = getApproachForQuadrant(definition, quadrant);
-
-  const keepNode = keepId ? definition.nodes[keepId] : undefined;
-  const adjacentHoldings = keepNode
-    ? keepNode.connections.filter(connId => definition.nodes[connId]?.tier === 'holding')
-    : [];
-
-  return [
-    ...adjacentHoldings,
-    keepId,
-    forgeId,
-    approachId,
-    definition.keystoneId,
-  ].filter((id): id is string => id !== undefined);
-}
-
-
 
 // ─── Voice Lines ──────────────────────────────────────────────────
 

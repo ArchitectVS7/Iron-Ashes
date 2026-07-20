@@ -60,6 +60,9 @@ The Closing Ring, 17 nodes, concentric four-fold symmetry, steered front. See `D
 One restatement is forced by retiring Broken (§6, edge #24): **Keep-ashing rule** — a Keep cannot be ashed
 while its owner holds **any** living stronghold; once a Warlord holds zero strongholds it is `deposed` and
 eliminated at Dawn (§6), at which point its Keep ashes normally.
+> **Amended for the 21-node board (T-222 8-spoke ring):** the map now has 21 nodes and 8 real rays.
+> The blight-seam & spoke geometry that the v2 §2 4-spoke phrasing implied is restated authoritatively
+> in **§13 `[T-224 2026-07-20 — 8-ray blight seams & spokes]`** — read that for the current rule.
 
 ### Pieces — THE COURT (new)
 Each player commands a small court. **Start minimal: 4 archetypes max** (the v2 rule holds).
@@ -564,6 +567,30 @@ tension; the accusation tools (Audit, Suspicion Log) are unchanged. Re-tune in a
   resolved in `resolveDeposals` in seat order. **D9** — hidden derivations use a namespaced sub-stream
   `SeededRandom(hash(seed, nodeId))`; `tokenId ≡ nodeId`; the Blight-seed bonus-recruit pre-binds under the
   same key.
+
+- **`[T-224 2026-07-20 — 8-ray blight seams & spokes]`** (AUTHORITATIVE; supersedes the v2 §2 4-spoke
+  phrasing on the 21-node board). The T-222 Closing Ring has 21 nodes and **8 real rays**, which split
+  cleanly into two families:
+  - **4 DIAGONAL blight rays** (NW / NE / SE / SW). Each is colinear `Holding → Forge → Approach →
+    Keystone`. These are the blight spokes; the outer **Holding is the seam** where blight enters.
+  - **4 CARDINAL home rays** (N / E / S / W). Each runs `Keep → Mid → Approach` — the players' protected
+    homes and cardinal transit. **A Keep or a Mid is never on a blight spoke.**
+
+  **Blight entry & convergence.** Blight enters at the 4 Holdings (one per diagonal ray, the
+  `blightEntrySeams`) and converges inward along the diagonal spoke `seam → Forge → Approach →
+  Keystone`. The Keep (protected while its owner holds any stronghold — the Keep-ashing rule above) and
+  the cardinal Mid (transit, income 0) are excluded from the path. The steered spoke for quadrant `q`
+  is `q`'s diagonal ray; its seam is **derived from node adjacency** (no id-string hacks): the single
+  Holding adjacent to BOTH `keep(q)` and `keep((q+3) mod 4)` — the two Keeps flanking that diagonal
+  corner. The four seams are four **distinct** Holdings (q0→holding-nw, q1→holding-ne, q2→holding-se,
+  q3→holding-sw). Every spoke terminates at the Keystone, so **doom is reachable from every seam**.
+
+  Implemented in `board.ts` (`getSpokeSeam` / `getSpokePath` — the single source of truth, consumed by
+  both `blight.ts` and `shadowking-policy.ts`); covered by the rewritten 8-ray spoke-path tests.
+  **Structural note for the fresh balance baseline (T-227):** the spoke now **excludes the Keep**
+  (previously blight could pile onto / ash a Keep via the spoke). This is a *structural* shift in the
+  doom path on the new topology — to be read in the tunable-vs-structural split of the fresh baseline,
+  **never tuned** (balance is VOIDED/unmeasured until T-227; zero tunable-VALUE edits were made here).
 
 **Carried to the code sprint as openRisks (P1):** wraith/curse concentration, ransom-direction kingmaking,
 discovery bonus rewards the strong, unclocked negotiation dead-time, attachment-without-recourse, the
