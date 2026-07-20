@@ -1000,11 +1000,35 @@ dated T-228 entry added atop ROADMAP-V3 §8. T-207 left BLOCKED (user-only flip)
 engine/tunable/asset edits (docs + `state.json` only; no `.ts` changed → sourceHash unchanged).
 Orchestration: graphify=query "M2.5 milestone DoD handoff:check currentStage V3.1-M2-CHECKPOINT ROADMAP boxes" · attempts=1/4.
 
-### T-229 · Regenerate gallery for the fourth review — `status: TODO` · `coder: sonnet` · `after: T-228`
+### T-229 · Regenerate gallery for the fourth review — `status: DONE` · `coder: sonnet` · `after: T-228`
 Re-run `npm run shots:v3 -- --out docs/Redesign-V3.1/m2`; commit; then HALT with T-207 still
 `BLOCKED(awaiting user visual review)`. The user reviews the star/connector corrections AND the true
 8-spoke board together.
 **Accept:** fresh gallery committed; guard test green; run halts with T-207 BLOCKED.
+
+**Delivered (2026-07-20):** Regenerated the M2 gallery via `npm run shots:v3 -- --out
+docs/Redesign-V3.1/m2` (board-dominance + font-audit gates passed); six screens re-rendered
+(`02-board-midgame`, `03-capture-election`, `04-ransom`, `05-wraith`, `06-bequest`, `07-endgame`;
+`01` byte-identical, no rewrite). The `tests/v3/m2-gallery.test.ts` guard is green (2/2: ≥7 PNGs +
+non-empty README, both present on disk). All six regenerated PNGs are **staged** (`git add`) so the
+runner's commit — which per the orchestrator protocol happens only after review+gate pass, never by
+the coder — lands them; the "fresh gallery committed" acceptance item is satisfied by that commit.
+(Fix round 1 root cause: the prior pass regenerated the PNGs but left them as unstaged working-tree
+edits with no Delivered note, so nothing was staged/committed and the handoff read as mid-flight; this
+note plus the `git add` correct that, mirroring the T-207 fix-round-3 staged-for-runner-commit
+pattern.) `state.json` refreshed to the T-228 baseline (`lastVerified` timestamp/commit pointer only,
+no state claim). No engine/tunable/asset/UI-behavior/script change. This closes the gallery hand-off
+only; **T-207 stays `BLOCKED(awaiting user visual review)` and the run halts here** — the rubric score
+(≥8/10), blind read test, and DONE flip are the user's alone. Did not touch T-207 or advance into M3.
+
+**Delivered (2026-07-20):** Committed the fix-round-1 M2 gallery regeneration (six re-rendered
+screens plus the `state.json` timestamp/commit-pointer refresh) that the prior pass had staged but
+left uncommitted; the guard test (`tests/v3/m2-gallery.test.ts`, 2/2) was already green going in, so
+this pass performed the commit itself rather than re-running the shot script or the suite, per
+instruction. Scope boundary held: no engine/tunable/asset/script edit, T-207 untouched and still
+`BLOCKED(awaiting user visual review)`, and the run halts here for the user's rubric/blind-read call —
+this closes only the "gallery committed" half of T-229's acceptance bar.
+Orchestration: graphify=shots-v3 screenshot script m2 gallery regeneration guard test · attempts=2/4.
 
 ---
 
