@@ -965,7 +965,7 @@ non-termination and exited 0. Diff is tests + TASKS/state trail only; ZERO engin
 (`src/v2`, `src/v3` production code, `src/v3/tunables.ts`, `tunables.gen.ts` all untouched). verify green.
 Orchestration: graphify=how does the v3 sim, AI player, and shadowking policy reference board nodes, quadrants, and distances · attempts=1/4.
 
-### T-227 · Fresh balance READING on the 21-node board — `status: TODO` · `coder: opus` · `after: T-226`
+### T-227 · Fresh balance READING on the 21-node board — `status: DONE` · `coder: opus` · `after: T-226`
 Run the standard 2-seed sim sweep on the new topology and **record** the results (dark win %, doom vs
 attrition split, capture rate, rounds, Blood-Pact triple) into a new `sim-results/` run dir plus a
 dated ROADMAP-V3 §8 entry and `state.json`. This is a MEASUREMENT, not a tuning stage: bands will
@@ -975,6 +975,18 @@ attrition-dominant dark wins, dead capture economy).
 **Accept:** new sim run dir committed with a REPORT; §8 entry + `state.json` record the numbers and
 name the deltas vs the old lock; zero tunable value edits; a written tunable-vs-structural assessment
 is present.
+
+**Delivered (2026-07-20):** Ran the canonical 2-seed sweep (seeds 20260622 + 20260628, n=40, 2/3/4p,
+competitive + Blood Pact) on the new 21-node board and committed it as `sim-results/v3-21node-baseline-n40/`
+(REPORT.md + four sub-run REPORTs/rows/summaries), with the delta table against the voided 17-node lock and
+a dated ROADMAP-V3 §8 entry plus `state.json` update. Headline: pooled dark win jumped to 53.4%/52.3%
+(+34pp vs 18.9/18.3%), driven almost entirely by a faster/denser doom path (doom share +34.9pp, attrition
+share fell to 0.5%) while the capture economy stayed healthy (1.32–1.42 captures/game, 33–36% ransom-back);
+Blood-Pact traitor win roughly doubled to 33–36% for the same structural reason. The written
+tunable-vs-structural assessment concludes this is STRUCTURAL doom-pacing from the +4 mid-belt nodes / 8
+blight seams, not a clean single-knob band-recenter, and defers the actual re-lock to post-playtest/V4 —
+scope boundary: this task measures and records only, zero tunable-value or engine edits were made.
+Orchestration: graphify=v3 balance sim harness sim-v3 dark win rate capture doom attrition blood pact · attempts=1/4.
 
 ### T-228 · M2.5 close — DoD — `status: TODO` · `coder: sonnet` · `after: T-225, T-227`
 Milestone DoD: verify green → tick M2.5 boxes in both roadmaps → `currentStage` → `V3.1-M2-CHECKPOINT`

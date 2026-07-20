@@ -192,9 +192,9 @@ voided by the change and replaced with a fresh baseline (T-227), not re-tuned.**
       rewritten spoke-path tests; blight still reaches the Keystone from every seam).
 - [ ] **T-225** — Render the 21-node board in `src/ui-v3`: the 4 new cardinal nodes get their own
       illustrated silhouettes; T-220 star/connector treatment carries over; edge-parity test passes.
-- [ ] **T-226** — Sim / UGT harness / AI + Shadowking policy run correctly on the 21-node board
+- [x] **T-226** — Sim / UGT harness / AI + Shadowking policy run correctly on the 21-node board
       (generalize hard-coded node ids / quadrant maps / distances); correctness only, no tuning.
-- [ ] **T-227** — Fresh balance READING (2-seed sweep) on the new topology, recorded as the NEW baseline
+- [x] **T-227** — Fresh balance READING (2-seed sweep) on the new topology, recorded as the NEW baseline
       (dark win %, doom-vs-attrition, capture rate, rounds, BP triple) with a tunable-vs-structural
       assessment; band misses recorded, nothing tuned.
 

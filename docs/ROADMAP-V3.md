@@ -264,6 +264,38 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-20** — **T-227 — 21-node baseline READING (fresh 2-seed sweep; measurement, NOT tuning).**
+  The M2.5 true-8-spoke topology change (17 → 21 nodes) **voids the old §9 balance lock** (it measured a
+  different board); per the user-authorized M2.5 exception (ROADMAP-V3.1-UI §3 / T-221) this reading is
+  recorded as the **NEW baseline that REPLACES the old lock**. Every band miss is recorded, **zero
+  tunable values changed** (`git diff` on `src/v3/tunables.ts` / `tunables.gen.ts` / `src/` / `data/` is
+  empty). Protocol = the canonical 2-seed sweep: seeds **20260622** + **20260628**, each **n=40**, 2/3/4p,
+  both modes (competitive + `--bloodpact`) — identical seeds/AI to the old lock, so all deltas are
+  attributable to the topology change alone. Run dir: **`sim-results/v3-21node-baseline-n40/`** (4 sub-runs
+  + combined REPORT with the full delta table + assessment). The old 17-node lock dirs
+  (`sim-results/v3-s20260622-n40{,-bp}`, `…-s20260628-n40{,-bp}`) were restored after the run overwrote
+  them — they still hold the 17-node regression-gate numbers.
+  - **Competitive (shipped game):** pooled dark win **53.4% (s622) / 52.3% (s628)** — a **+34 pp** miss
+    vs the old 18.9/18.3% lock (2p 44.8/41.9, 3p 58.6/58.6, 4p 56.7/56.3). Mean rounds **10.62 / 10.68**
+    (−1.55). **Dark win by path — doom/attrition = 53.1/0.3 and 52.0/0.2** (was 17.8/1.1 and 17.4/1.0):
+    doom **+34.9 pp**, attrition **−0.8 pp**; attrition share of SK wins **fell** 5.3–6.0% → **0.5%**.
+    territory_victory 60.6% → ~34.3%. Capture economy **alive**: captures 1.57–1.64 → **1.32 / 1.42**,
+    capture→ransom-back **33.1% / 35.6%** (held/rose). Nodes-ashed-at-end **5.56 → ~4.85** (doom completes
+    on *fewer* ashings). Top-archetype guard now PASSes (26.5% ≤ 30).
+  - **Blood Pact (advanced toggle):** the triple (traitor-win / exposure / accuracy) =
+    **s622 33.1 / 62.8 / 79.3; s628 36.1 / 59.7 / 81.1** — traitor win **~doubled** (+18 pp vs 15.8/17.2),
+    exposure −6.9 pp, accuracy flat ~80%.
+  - **Tunable-vs-structural verdict:** the two named 4-spoke failure modes are **NOT present** — (a)
+    attrition-dominant dark wins: **NO**, attrition share *dropped* to 0.5% and the dark now wins by a
+    clean, fast **doom-completion** (the §6-desired route); (b) dead capture economy: **NO**, captures
+    only −0.24 with ransom-back held. The actual miss (dark far too strong) is **STRUCTURAL doom-pacing**:
+    the +4 cardinal mid-belt nodes + **8 blight seams** (vs 4 on the old board, T-224) give the dark a
+    denser, faster doom front, so doom completes sooner and 3× more often while rounds drop. Re-centering
+    to 18–22% is **not a clean single-knob tunable** — the miss is set by the topology's own doom
+    seam/node economy (coupled to blight-threshold Act pacing + doom-completion node count); a real re-lock
+    would need a *topology-aware* doom recalibration, **deferred to post-playtest / V4, out of M2.5 scope**.
+    The BP traitor-win doubling is the same doom acceleration from the traitor's chair — same structural
+    root, same recorded-not-tuned disposition. **Nothing tuned; reading only.**
 - **2026-07-20** — **T-226 (sim/harness/AI on the 21-node board) — AUDIT + regression guard, NO src
   change.** The four target areas (`src/v3/sim/`, `src/v3/harness/`, `ai-player.ts`,
   `shadowking-policy.ts`) were already generalized incrementally in T-222/T-223/T-224: AI navigation is
