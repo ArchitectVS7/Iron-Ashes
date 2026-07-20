@@ -26,10 +26,17 @@ import { chromium } from 'playwright';
 
 /**
  * Seeds tried in order until every screen is captured (the loop stops early once covered, so trailing
- * seeds are pure insurance and cost nothing). Fully reproducible: seed 42 yields six of the seven
- * screens and seed 7 the mid-game Wraith scene; the rest are spares.
+ * seeds are pure insurance and cost nothing). Fully reproducible: seeds 42/11 yield the first six
+ * screens (start, board, election, ransom, endgame, and the human's Death-Bequest testament), and
+ * seed 24 the mid-game Wraith scene — a rival Warlord falls at round 7 (MARCH), so the sidebar Wraiths
+ * block renders while the game is still live. NOTE: this seed set is topology-specific. The 21-node
+ * true-8-spoke board (T-222/T-224) shifted every seed's trajectory — the game now typically doom-
+ * completes in MARCH before RECKONING, so a mid-game Warlord elimination (the Wraith scene's
+ * precondition) is rare and only some seeds produce it. If a re-tune of the board or balance (e.g.
+ * T-227) moves the trajectories again, re-cover the missing screen by sweeping seeds here (the loop's
+ * failure message points here); the driver policy below is deliberately left untouched.
  */
-const SEED_LIST = [42, 7, 99, 3, 17, 5, 23, 11];
+const SEED_LIST = [42, 7, 99, 3, 17, 5, 23, 11, 24];
 
 /** Per-seed hard step cap (each step is one observe+click evaluate) — mirrors the E2E 8000 guard. */
 const STEP_CAP = 4000;

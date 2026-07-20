@@ -11,14 +11,14 @@
     "docs/human-playtest-checklist-v3.md + docs/v3-teach-script.md (the V3-6 playtest walkthrough + teaching script); index-v3.html + src/ui-v3 (the fog-respecting render-from-state UI)"
   ],
   "lastVerified": {
-    "timestamp": "2026-07-20T21:43:15.061Z",
-    "commit": "3c5d3ed",
-    "sourceHash": "ae00dfb58efe4b48c58b57d2f8a4a8eeafc172810795063acc6cf4094a44826b",
+    "timestamp": "2026-07-20T22:18:30.307Z",
+    "commit": "8dc7697",
+    "sourceHash": "6e8699f74050db59c75ef665401c3d70f82d113a4aac4888ce63ea81a03039a1",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
       "files": 105,
-      "passed": 1278,
+      "passed": 1282,
       "failed": 0,
       "status": "pass"
     }
@@ -47,6 +47,7 @@
     "DIFFICULTY-TIER MAGNITUDES STALE POST-T2-1 — the knight/squire tier magnitudes are stale after T2-1 (feed-the-court); tier monotonicity is test-verified, but recalibrate at the next difficulty-touching stage (the V3-6 playtest picks the shipped default). (ROADMAP-V3 §8 T2-1.)",
     "T2-4 WRAITH IS PLAYTEST-GATED — the Wraith re-tune awaits the human playtest signal; not scheduled as sim work. (ROADMAP-V3 §8 T2-3.)",
     "T2-V FRESH-SEED BP-EXPOSURE EDGE (user call) — fresh seed 20260717 read BP exposure 71.4% (+1.4pp over the 40–70 ceiling) with traitor-win healthy mid-band (16.4%); recorded-not-tuned per the fresh-seed band-miss protocol. T-004 is set BLOCKED for the user to decide whether a +1.4pp fresh-seed exposure edge warrants action. (ROADMAP-V3 §8 2026-07-17 T2-V.)",
-    "POST-TOPOLOGY BALANCE IS UNMEASURED until T-227 — the M2.5 true 8-spoke board (data/board.json 17 → 21 nodes, user-authorized 2026-07-20; ROADMAP-V3.1-UI §3 exception) voids the prior §9 balance lock (the lock measured a 17-node board). Dark-win %, doom-vs-attrition split, and the capture economy on the 21-node board are UNMEASURED until the T-227 fresh 2-seed reading; bands will very likely miss and are recorded-not-tuned this milestone (topology-only, zero tunable-VALUE edits). Re-establishing the §9 bands is deferred to post-playtest/V4 work."
+    "POST-TOPOLOGY BALANCE IS UNMEASURED until T-227 — the M2.5 true 8-spoke board (data/board.json 17 → 21 nodes, user-authorized 2026-07-20; ROADMAP-V3.1-UI §3 exception) voids the prior §9 balance lock (the lock measured a 17-node board). Dark-win %, doom-vs-attrition split, and the capture economy on the 21-node board are UNMEASURED until the T-227 fresh 2-seed reading; bands will very likely miss and are recorded-not-tuned this milestone (topology-only, zero tunable-VALUE edits). Re-establishing the §9 bands is deferred to post-playtest/V4 work.",
+    "RESOLVED 2026-07-20 (T-225 fix round 1) — SHOTS:V3 WRAITH SCENE POST-TOPOLOGY: `npm run shots:v3` was exiting 1 ('MISSING 1 screen(s): wraith') because the T-222/T-224 21-node topology shifted every seed's trajectory and the old SEED_LIST no longer contained a seed producing a mid-game Warlord elimination (the Wraith scene's precondition — the board now typically doom-completes in MARCH before RECKONING, and RECKONING_AUTOPRESSURE_NODES=0 means no executioner). FIX: appended a deterministic covering seed (24) to SEED_LIST in scripts/shots-v3.mjs (a rival falls at round 7/MARCH → the live Wraiths sidebar renders → wraith captures); driver policy untouched, zero engine/tunable/data changes. shots:v3 now captures 7/7 and exits 0, stable across four runs. NOTE (still open, owned by T-227): the eliminated-HUMAN `.wraith-input` afterlife scene and reliable RECKONING-reaching remain a balance property voided by the topology change — the shots gate is now satisfied via the rival-wraith `.wraith-list` path, and re-establishing the elimination/attrition balance is part of the T-227 fresh reading."
   ]
 }

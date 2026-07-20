@@ -909,13 +909,33 @@ measurement stays out of scope here (owned by T-227). Rendering the new nodes (T
 generalization (T-226) are separate, already-queued tasks and were not touched.
 Orchestration: graphify=blight seam spoke path convergence ray keystone · attempts=1/4.
 
-### T-225 · Render the 21-node board — `status: TODO` · `coder: opus` · `after: T-222, T-220`
+### T-225 · Render the 21-node board — `status: DONE` · `coder: opus` · `after: T-222, T-220`
 Update `src/ui-v3` board rendering for the new topology: the four new cardinal mid-belt nodes get
 their own illustrated location silhouette (distinct from forges — e.g. waystation/bridge), positioned
 on the cardinal rays so the star's 8 arms each carry real nodes. Star + connector treatment from
 T-220 carries over unchanged in style.
 **Accept:** all 21 nodes render with tier-appropriate silhouettes; the T-217 edge-parity test passes
 against the NEW board data (render == data, 8 real rays); shots regenerate clean; verify green.
+**Delivered (2026-07-20):** Rebuilt `src/ui-v3/board-view.ts` `LAYOUT` around the 21 node ids from
+`data/board-v3.json` and gave `locationSvg()` a distinct tier-appropriate silhouette for all six tiers
+present in the data (keystone / forge / keep / holding / approach / mid), wired end-to-end via
+`ndef.tier` (no hard-coded ids) — the four new cardinal mid-belt nodes get their own waystation
+silhouette on the cardinal rays. Star + connector treatment from T-220 carries over unchanged. Rewrote
+`tests/v3/board-view.test.ts` (30/30) with the new mid-node cases and the T-217 edge-parity assertions
+re-derived from `data/board-v3.json` (40/40 edges, render == data, all four keystone→approach spokes
+present). Fix round 1: `npm run shots:v3` was exiting 1 with "MISSING 1 screen(s): wraith". ROOT CAUSE
+(verified pre-existing — reproduced on the pre-T-225 baseline with the diff stashed): the T-222/T-224
+topology change shifted every seed's trajectory, so the old `SEED_LIST` no longer contained a seed that
+produces a *mid-game* Warlord elimination (the Wraith scene's precondition) — the 21-node board now
+typically doom-completes in MARCH before RECKONING, and with the Reckoning executioner disabled
+(`RECKONING_AUTOPRESSURE_NODES=0`) no seed in the old list eliminated a rival before game-over. FIX:
+appended a deterministic covering seed (24) to `SEED_LIST` in `scripts/shots-v3.mjs` — on it a rival
+falls at round 7 (MARCH), so the sidebar Wraiths block renders live and the wraith screen captures; the
+driver policy is untouched (the script's own failure message directs exactly this). `npm run shots:v3`
+now captures 7/7 and exits 0 (verified stable across four runs, incl. the previously-reported
+context-destroyed flake, which no longer occurs since the loop stops early on coverage). Zero engine /
+tunable / dependency / asset changes; `src/v2`, `src/v3`, `src/utils` untouched.
+Orchestration: graphify=how does src/ui-v3/board-view.ts render nodes and edges from board data · attempts=2/4.
 
 ### T-226 · Sim/harness + AI on the new board — `status: TODO` · `coder: opus` · `after: T-224`
 Make the v3 sim, UGT harness, and AI/Shadowking policies run correctly on the 21-node board: any

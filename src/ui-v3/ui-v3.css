@@ -418,6 +418,14 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
 .loc-forge .loc-glow { fill: #e8863a; opacity: 0.55; }
 .loc-forge .loc-glow-core { fill: #ffb457; opacity: 0.7; }
 .loc-approach .loc-fill { fill: #cdbb96; }
+/* Mid transit BRIDGE (T-225): cool weathered river-stone — deliberately cooler + greyer than the warm
+   parchment-stone forge/keep/holding (#d8c7a6) and the approach gatehouse (#cdbb96), so the cardinal
+   waystation reads as a distinct masonry crossing. Kept pale enough to hold against the dark burned
+   star ground (mid-tier legibility, Gate-1). The `.mid-span` arch gets a slightly softened outline so
+   the span line reads as a stone arch, not a hard cut. Lower specificity (0,2,0) than the ashed/heart
+   state rules (0,3,0) below, so ash + danger-lit heart states still re-home correctly onto the bridge. */
+.loc-mid .loc-fill { fill: #a6a49c; }
+.loc-mid .mid-span { stroke: #2c2620; stroke-width: 1.75; }
 /* Ashed: the former ASH-disc fill re-homed onto the silhouette (zero info loss). */
 .loc.ashed { opacity: 0.7; }
 .loc.ashed .loc-fill { fill: var(--ash); stroke: #3a2128; }

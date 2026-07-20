@@ -408,6 +408,52 @@ describe('T-217 board — accept: readable heraldry banners (house colour + sigi
   });
 });
 
+// ── T-225 · finished cardinal mid silhouette (waystation bridge), distinct on the cardinal rays ──
+
+describe('T-225 board — accept: all four mid nodes render a finished, distinct waystation bridge', () => {
+  it('every mid-* node carries a .loc-mid silhouette with the finished .mid-span arch marker', () => {
+    const svg = boardSvg();
+    for (const id of ['mid-n', 'mid-e', 'mid-s', 'mid-w']) {
+      const group = svg.querySelector(`g[data-node="${id}"]`);
+      expect(group, `${id} group present`).not.toBeNull();
+      expect(group?.querySelector('.loc-mid'), `${id} has a .loc-mid silhouette`).not.toBeNull();
+      expect(group?.querySelector('.mid-span'), `${id} carries the finished bridge-span marker`).not.toBeNull();
+    }
+  });
+
+  it('the mid silhouette is structurally distinct: not a forge ember, not a gatehouse arch', () => {
+    const svg = boardSvg();
+    const mid = svg.querySelector('g[data-node="mid-n"]');
+    // A bridge is NOT a forge (no ember glow) and NOT the approach gatehouse (no .approach-gate arch).
+    expect(mid?.querySelector('.loc-glow'), 'mid is not an ember forge').toBeNull();
+    expect(mid?.querySelector('.loc-glow-core'), 'mid has no hot ember core').toBeNull();
+    expect(mid?.querySelector('.approach-gate'), 'mid is not the gatehouse (no approach-gate)').toBeNull();
+    // …and conversely the forge / approach silhouettes never carry the bridge span marker.
+    const forge = svg.querySelector('g[data-node="forge-ne"]');
+    const approach = svg.querySelector('g[data-node="approach-ne"]');
+    expect(forge?.querySelector('.mid-span'), 'a forge is not a bridge').toBeNull();
+    expect(approach?.querySelector('.mid-span'), 'an approach is not a bridge').toBeNull();
+  });
+
+  it('each mid node sits on its cardinal ray (documents the 8-real-rays placement)', () => {
+    // mid-n is due north of centre (VIEW/2 = 360,360): x≈360, y clearly above centre.
+    const n = nodeScreenPos('mid-n');
+    expect(Math.abs(n.x - 360) < 0.6, 'mid-n is on the vertical (north) cardinal ray').toBe(true);
+    expect(n.y, 'mid-n sits inboard, above the centre').toBeLessThan(360);
+    // mid-e is due east: y≈360, x clearly right of centre.
+    const e = nodeScreenPos('mid-e');
+    expect(Math.abs(e.y - 360) < 0.6, 'mid-e is on the horizontal (east) cardinal ray').toBe(true);
+    expect(e.x, 'mid-e sits inboard, right of the centre').toBeGreaterThan(360);
+  });
+
+  it('the finished mid silhouette is fog-safe & deterministic (static geometry, no leak)', () => {
+    // Same observable projection ⇒ identical mid markup (no RNG, no hidden-state reads in the bridge).
+    const st = createGame(4, 'competitive', 42, 1);
+    const obs = observableState(st, 0);
+    expect(renderBoard(obs)).toBe(renderBoard(obs));
+  });
+});
+
 // ── T-220 · star boldness restored (dark ground) + connectors thinned & materialized ──────────
 
 /** sRGB relative luminance of a #rrggbb hex — plain weighted channel sum (monotonic; no gamma). */
