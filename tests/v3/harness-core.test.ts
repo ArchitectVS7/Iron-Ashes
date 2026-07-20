@@ -214,6 +214,26 @@ describe('harness-core protocol', () => {
     expect((garbage.error as { kind: string }).kind).toBe('ILLEGAL_COMMAND');
   });
 
+  it('create → run_ai runs on the 21-node board at every {2,3,4}p × mode cell (T-226)', () => {
+    // The harness is a transport over the real engine; a fresh create + run_ai exercises setup +
+    // the AI/Shadowking board navigation on the new board without a crash. Every cell must return
+    // ok and stop at a legal gate (a fresh game halts at THREAT before any human input).
+    const legalGates = ['human_action', 'human_pledge', 'threat', 'bequest', 'last_stand', 'terminal'];
+    for (const playerCount of [2, 3, 4]) {
+      for (const mode of ['competitive', 'blood_pact'] as const) {
+        const registry = createRegistry();
+        const created = dispatch(
+          { op: 'create', id: 1, config: { seed: 20260720, playerCount, mode } } as Request,
+          registry,
+        );
+        expect(created.ok, `create ${playerCount}p ${mode}`).toBe(true);
+        const ran = dispatch({ op: 'run_ai', id: 2, gameId: gameIdOf(created) } as Request, registry);
+        expect(ran.ok, `run_ai ${playerCount}p ${mode}`).toBe(true);
+        expect(legalGates, `waitingFor ${playerCount}p ${mode}`).toContain(ran.waitingFor);
+      }
+    }
+  });
+
   it('parseRequestLine: rejects non-JSON and op-less lines, accepts a valid line', () => {
     expect(parseRequestLine('{nope').ok).toBe(false);
     expect(parseRequestLine('{"noOp":1}').ok).toBe(false);

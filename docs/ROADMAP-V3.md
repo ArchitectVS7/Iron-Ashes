@@ -264,6 +264,21 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-20** — **T-226 (sim/harness/AI on the 21-node board) — AUDIT + regression guard, NO src
+  change.** The four target areas (`src/v3/sim/`, `src/v3/harness/`, `ai-player.ts`,
+  `shadowking-policy.ts`) were already generalized incrementally in T-222/T-223/T-224: AI navigation is
+  BFS `value-per-distance` (`firstStepTowardNode`) that traverses the new `mid` nodes transparently;
+  the Shadowking policy routes through the board-derived `getKeepForQuadrant` / `getForgeForQuadrant` /
+  `getApproachForQuadrant` / `getSpokePath` helpers (reading each keep's own `.quadrant`); `claimValue`
+  keys off `tier` so `mid` (income 0) scores 0. Re-ran both audit greps — **zero node-id string
+  literals, zero `===3|4` / distance / `.quadrant` / `%4` assumptions, no real `Math.random`** — so no
+  generalization was required and none was manufactured (would risk balance). Locked the acceptance
+  criteria with automated guards: a `{2,3,4}p × {competitive,blood_pact}` termination matrix in
+  `sim-driver.test.ts` (asserts `hitGuard===false` + `gameEndReason!==null` per cell) and a
+  `harness-core.test.ts` create→run_ai smoke over the same 6 cells. Verified: `npm run sim:v3 --
+  20260622 2` and `--bloodpact` both exit 0, rounds 9.9/11.0/11.8 (under the 14 cap); harness piped
+  create+run_ai ok. Band misses (SK 34/49/50%) are EXPECTED and owned by **T-227** (recorded-not-tuned).
+  Diff is tests + state trail only; **zero engine/tunable/data edits**.
 - **2026-07-20** — **T-222 (M2.5 board grow) — SOURCE SPLIT decision.** The 21-node true 8-spoke board
   lands in a **new `data/board-v3.json`**, *not* an in-place edit of `data/board.json` as the original spec
   wording said. Reason: `data/board.json` is also the `scripts/gen-data.mjs` source for the **frozen v2**

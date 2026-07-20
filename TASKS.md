@@ -937,13 +937,33 @@ context-destroyed flake, which no longer occurs since the loop stops early on co
 tunable / dependency / asset changes; `src/v2`, `src/v3`, `src/utils` untouched.
 Orchestration: graphify=how does src/ui-v3/board-view.ts render nodes and edges from board data · attempts=2/4.
 
-### T-226 · Sim/harness + AI on the new board — `status: TODO` · `coder: opus` · `after: T-224`
+### T-226 · Sim/harness + AI on the new board — `status: DONE` · `coder: opus` · `after: T-224`
 Make the v3 sim, UGT harness, and AI/Shadowking policies run correctly on the 21-node board: any
 hard-coded node ids, quadrant maps, or distance assumptions in `src/v3/sim/`, `src/v3/harness/`,
 `ai-player.ts`, and `shadowking-policy.ts` get generalized. Games must still terminate at 2/3/4p in
 both modes. **Do not tune anything** — this task is correctness only.
 **Accept:** `npm run sim:v3` completes for both modes at 2/3/4p with no crash and sane termination;
 harness runs; zero tunable value edits in the diff; verify green.
+**Delivered (2026-07-20):** AUDIT + regression-guard task — the four target areas were ALREADY
+generalized incrementally in T-222/T-223/T-224 (AI navigation is BFS `value-per-distance`
+`firstStepTowardNode` that traverses the new `mid` nodes transparently; `shadowking-policy.ts` routes
+through the board-derived `getKeepForQuadrant` / `getForgeForQuadrant` / `getApproachForQuadrant` /
+`getSpokePath` helpers reading each keep node's own `.quadrant` field; `ai-player.ts::claimValue` keys
+off `tier` so `mid` scores 0). Re-ran both audit greps over `src/v3/sim`, `src/v3/harness`,
+`ai-player.ts`, `shadowking-policy.ts` — ZERO node-id string literals, ZERO
+`=== 3|4` / `distance …` / `.quadrant …` / `% 4` assumptions, and no real `Math.random` (only doc
+comments). So NO src generalization was required and none was manufactured (that would risk balance).
+VERIFIED on the 21-node board and locked it with automated guards: (1) rewrote the
+`sim-driver.test.ts` termination test into a full `{2,3,4}p × {competitive,blood_pact}` matrix
+asserting `hitGuard === false` AND `gameEndReason !== null` per cell (guard-hit = the non-termination
+bug this task rules out); (2) added a `harness-core.test.ts` create→run_ai smoke over the same 6 cells
+asserting `ok` + a legal `waitingFor` gate. Ran the acceptance commands: `npm run sim:v3 -- 20260622 2`
+(2/3/4p competitive) exit 0, rounds 9.9/11.0/11.8 (well under the 14 cap); `... --bloodpact` (2/3/4p
+blood_pact) exit 0; harness create+run_ai piped at 2p-comp and 4p-blood_pact both `ok:true` no crash.
+Band misses (SK 34/49/50%) are EXPECTED and owned by T-227 — the runner exits non-zero only on
+non-termination and exited 0. Diff is tests + TASKS/state trail only; ZERO engine/tunable/data edits
+(`src/v2`, `src/v3` production code, `src/v3/tunables.ts`, `tunables.gen.ts` all untouched). verify green.
+Orchestration: graphify=how does the v3 sim, AI player, and shadowking policy reference board nodes, quadrants, and distances · attempts=1/4.
 
 ### T-227 · Fresh balance READING on the 21-node board — `status: TODO` · `coder: opus` · `after: T-226`
 Run the standard 2-seed sim sweep on the new topology and **record** the results (dark win %, doom vs

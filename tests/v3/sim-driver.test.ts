@@ -46,11 +46,22 @@ describe('playHeadlessGame', () => {
     expect(JSON.stringify(explicit.finalState)).toBe(JSON.stringify(none.finalState));
   });
 
-  it('terminates for 2- and 3-player counts and blood_pact mode', () => {
-    expect(playHeadlessGame({ seed: 7, playerCount: 2, mode: 'competitive' }).finalState.gameEndReason).not.toBeNull();
-    expect(playHeadlessGame({ seed: 7, playerCount: 3, mode: 'competitive' }).finalState.gameEndReason).not.toBeNull();
-    const bp = playHeadlessGame({ seed: 7, playerCount: 4, mode: 'blood_pact' });
-    expect(bp.finalState.gameEndReason).not.toBeNull();
+  it('terminates SANELY across the full {2,3,4}p × {competitive,blood_pact} matrix (T-226 board-generality guard)', () => {
+    // On the 21-node board every player-count / mode cell must reach a real terminal state
+    // WITHOUT hitting the step guard — a guard-hit is the non-termination bug signal this
+    // task exists to rule out. blood_pact seats the Pact on seat 0 (sim-only, §10).
+    for (const playerCount of [2, 3, 4] as const) {
+      for (const mode of ['competitive', 'blood_pact'] as const) {
+        const r = playHeadlessGame({
+          seed: 7,
+          playerCount,
+          mode,
+          ...(mode === 'blood_pact' ? { bloodPactSeat: 0 } : {}),
+        });
+        expect(r.hitGuard, `${playerCount}p ${mode} hit the step guard`).toBe(false);
+        expect(r.finalState.gameEndReason, `${playerCount}p ${mode} never terminated`).not.toBeNull();
+      }
+    }
   });
 
   it('different seeds generally diverge', () => {
