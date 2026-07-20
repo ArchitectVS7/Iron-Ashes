@@ -102,3 +102,27 @@ forges/approaches/banners get legibility fixes AND the user caught missing true 
 Keystone→approach spokes were absent from the render → edge-parity guard render==data (T-217);
 threat prompt themed (T-218); T-219 regenerates the gallery. T-207 stays BLOCKED — the user chose an
 in-person third review over conditional approval before any flip.
+
+---
+
+## Gate 1 (T-207) — THIRD REVIEW 2026-07-20: fourth review required; M2.5 topology milestone opened
+
+T-217/T-218 verified good: all true connectors now render (Keystone spokes back, edge-parity guard
+green), approaches read as watchtowers, forges are ember-lit, claim banners carry readable house
+sigils, and the Reckoning threat prompt is a themed ember plaque.
+
+Two corrections filed (T-220): T-216 traded the star's boldness for texture — the dark star faded to
+near table-value and reads as background line-work; the ruling was keep bold AND add depth. And the
+true connectors over-corrected into thick bright-gold bars (circuit-board feel) — thin + materialize
+as roads/ley-lines.
+
+**Scope correction (the big one).** The user has asked three times for a genuine 8-direction board.
+It was mis-scoped by Fable as a visual-only star — the user's 2026-07-18 "I fully accept that new
+balance testing is needed" was AUTHORIZATION for the mechanical change, and the task spec's
+"visual only" wording sent three coders to build decoration. Now corrected: **milestone M2.5
+(T-221…T-229)** implements the real topology — **+4 cardinal mid-belt nodes, 17 → 21**, keeping the
+agreed 4-doors-to-the-Keystone rule — before M3, so cards/animations are built once on the final
+board. The balance LOCK is deliberately VOIDED and replaced by a fresh measured baseline (T-227,
+measurement only, no tuning); re-establishing the §9 bands stays post-playtest V4 work.
+
+T-207 remains BLOCKED for a fourth review covering both the art corrections and the new board.

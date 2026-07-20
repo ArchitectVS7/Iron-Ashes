@@ -747,7 +747,118 @@ asset / UI-behavior / script change — image artifacts + this status note only.
 `currentStage` unchanged (`V3.1-M2-CHECKPOINT`); did not flip T-207 or advance into M3.
 Orchestration: graphify=shots-v3 screenshot gallery generation m2 · attempts=1/4.
 
-### T-207 · CHECKPOINT — user visual review of M2 — `status: BLOCKED(awaiting user visual review)` · `coder: sonnet` · `after: T-206, T-219`
+### T-220 · Star boldness restored + connectors thinned/materialized — `status: TODO` · `coder: opus` · `after: T-219`
+Gate 1 third review (user, 2026-07-20). Two corrections to T-216/T-217. (1) **The star lost its
+boldness** — T-216 replaced the solid dark star with charred fill so close to the table's value that
+the star reads as faint background line-work. The user's ruling was "keep bold, ADD depth", not
+"trade boldness for texture": restore a star ground clearly darker than the table, keeping the charred
+texture + ember edge treatment. The nodes now carry their own contrast (ember forges, pale towers), so
+a dark ground no longer swallows them. (2) **Connectors over-corrected** — true edges render as thick
+bright-gold bars (circuit-board feel). Thin them and materialize: worn stone road / etched gold vein,
+not solid bars. The edge-parity guard from T-217 stays green throughout.
+**Accept:** star fill is measurably darker than the table surface (asserted, e.g. token/computed
+value) while retaining texture + ember edge; connector stroke weight reduced with a material
+treatment; edge-parity test still green; verify green.
+
+---
+
+## M2.5 — TRUE 8-SPOKE BOARD (engine topology change; user-authorized 2026-07-20)
+
+**Why this milestone exists:** the user asked three times for a real 8-direction board. It was
+mis-scoped as visual-only (a Fable error: the user's "I fully accept that new balance testing is
+needed" at the 2026-07-18 exchange was acceptance of the MECHANICAL change, and every coder since
+faithfully built decoration because the task spec said "visual only"). The user has now authorized
+the engine change, shape **+4 cardinal mid-belt nodes (17 → 21)**, keeping the agreed rule that only
+**4 approaches touch the Keystone**.
+
+**Guardrail change required first (T-221).** V3.1 §3 currently forbids engine edits and locks
+balance; M2.5 legitimately breaks both. No task here may proceed until the roadmap + `state.json`
+record the dated, user-authorized exception. The balance LOCK is **voided, not silently ignored** —
+the measured post-change numbers are recorded as a NEW baseline, and the §9 bands are re-established
+by a later stage (V4-scale), not tuned during this milestone.
+
+### T-221 · Authorize + record the topology exception — `status: TODO` · `coder: sonnet` · `after: T-220`
+Amend `docs/ROADMAP-V3.1-UI.md` §3: the "engine untouched / balance LOCKED" guardrails gain a dated
+user-authorized exception scoped to M2.5 (topology only — no tunable VALUE edits; the lock is voided
+by the topology change itself and a fresh baseline replaces it). Record the same in `state.json`
+`invariants` + `openRisks` (openRisk: "post-topology balance is UNMEASURED until T-227"), and add an
+M2.5 sub-box to ROADMAP-V3 §4 + this sprint's §4 milestone list.
+**Accept:** roadmap §3 exception present and dated; `state.json` invariants/openRisks updated;
+`npm run handoff:check` exits 0.
+
+### T-222 · Board topology: +4 cardinal mid-belt nodes — `status: TODO` · `coder: opus` · `after: T-221`
+Extend `data/board.json` from 17 to 21 nodes: add four CARDINAL mid-belt nodes (`mid-n`, `mid-e`,
+`mid-s`, `mid-w`) alongside the four existing diagonal forges. Each new node connects **outward** to
+its cardinal keep and **laterally** to its two neighbouring diagonal approaches, so all 8 compass
+directions become real routes inward while the Keystone keeps exactly its 4 approach doors. Keeps
+therefore gain the new mid node as a route (adjust their existing forge links per the spec you write).
+Regenerate `board.gen.ts` (`npm run gen:data`); update `NODE_IDS`, the tier union, and
+`validateClosingRing()` for the new tier/count; keep the definition frozen/JSON-serializable.
+**Accept:** `data/board.json` has 21 nodes with symmetric 8-fold ring structure; the Keystone still
+has exactly 4 connections; graph is connected; every new node's links are bidirectional (validator
+test); `board.gen.ts` regenerated and byte-consistent with `gen:data:check`; board tests updated and
+green.
+
+### T-223 · Untangle the 4-fold assumptions in types + setup — `status: TODO` · `coder: opus` · `after: T-222`
+The engine hard-codes four-ness in places the new board breaks: `keepIds: readonly [string,string,
+string,string]` (4-tuple), `Quadrant = 0|1|2|3`, seat/quadrant assignment in `setup.ts`, and the
+blight entry seams. Generalize where the board defines it (keep ids from board data; quadrant mapping
+derived, not assumed) WITHOUT changing game rules: 4 seats and 4 quadrants remain the game's shape —
+only the node count per quadrant changes. Update `blight.ts`, `heart.ts`, `shadowking-policy.ts`,
+`shadowking-effects.ts` call sites as needed.
+**Accept:** no `[string,string,string,string]` board-tuple assumption remains for node collections;
+typecheck clean; all existing v3 tests updated to the 21-node board and green; no tunable VALUE
+changed (diff shows zero edits to tunables.ts / tunables.gen.ts).
+
+### T-224 · Blight seams + spoke paths for 8 rays — `status: TODO` · `coder: opus` · `after: T-223`
+Blight enters at symmetric outer seams and converges inward along spokes; with 8 real rays the seam
+set and convergence paths must be redefined coherently (per `DESIGN-V3-ALGORITHM.md` §2's intent, not
+by ad-hoc patching). Write the rule down in the spec doc as a dated amendment, implement it, and
+cover it with the spoke-path tests that previously guarded the 4-spoke version.
+**Accept:** spec amendment written and dated; blight spoke-path tests rewritten for 8 rays and green;
+blight still reaches the Keystone from every seam; verify green.
+
+### T-225 · Render the 21-node board — `status: TODO` · `coder: opus` · `after: T-222, T-220`
+Update `src/ui-v3` board rendering for the new topology: the four new cardinal mid-belt nodes get
+their own illustrated location silhouette (distinct from forges — e.g. waystation/bridge), positioned
+on the cardinal rays so the star's 8 arms each carry real nodes. Star + connector treatment from
+T-220 carries over unchanged in style.
+**Accept:** all 21 nodes render with tier-appropriate silhouettes; the T-217 edge-parity test passes
+against the NEW board data (render == data, 8 real rays); shots regenerate clean; verify green.
+
+### T-226 · Sim/harness + AI on the new board — `status: TODO` · `coder: opus` · `after: T-224`
+Make the v3 sim, UGT harness, and AI/Shadowking policies run correctly on the 21-node board: any
+hard-coded node ids, quadrant maps, or distance assumptions in `src/v3/sim/`, `src/v3/harness/`,
+`ai-player.ts`, and `shadowking-policy.ts` get generalized. Games must still terminate at 2/3/4p in
+both modes. **Do not tune anything** — this task is correctness only.
+**Accept:** `npm run sim:v3` completes for both modes at 2/3/4p with no crash and sane termination;
+harness runs; zero tunable value edits in the diff; verify green.
+
+### T-227 · Fresh balance READING on the 21-node board — `status: TODO` · `coder: opus` · `after: T-226`
+Run the standard 2-seed sim sweep on the new topology and **record** the results (dark win %, doom vs
+attrition split, capture rate, rounds, Blood-Pact triple) into a new `sim-results/` run dir plus a
+dated ROADMAP-V3 §8 entry and `state.json`. This is a MEASUREMENT, not a tuning stage: bands will
+almost certainly miss (the old lock measured a different board) — record every miss, change nothing.
+Flag explicitly whether the misses look tunable or structural (the 4-spoke-era failure modes to watch:
+attrition-dominant dark wins, dead capture economy).
+**Accept:** new sim run dir committed with a REPORT; §8 entry + `state.json` record the numbers and
+name the deltas vs the old lock; zero tunable value edits; a written tunable-vs-structural assessment
+is present.
+
+### T-228 · M2.5 close — DoD — `status: TODO` · `coder: sonnet` · `after: T-225, T-227`
+Milestone DoD: verify green → tick M2.5 boxes in both roadmaps → `currentStage` → `V3.1-M2-CHECKPOINT`
+(the Gate 1 re-review) → dated §8 entry → commit → `handoff:check` exits 0.
+**Accept:** both commands exit 0; boxes ticked; §8 entry present.
+
+### T-229 · Regenerate gallery for the fourth review — `status: TODO` · `coder: sonnet` · `after: T-228`
+Re-run `npm run shots:v3 -- --out docs/Redesign-V3.1/m2`; commit; then HALT with T-207 still
+`BLOCKED(awaiting user visual review)`. The user reviews the star/connector corrections AND the true
+8-spoke board together.
+**Accept:** fresh gallery committed; guard test green; run halts with T-207 BLOCKED.
+
+---
+
+### T-207 · CHECKPOINT — user visual review of M2 — `status: BLOCKED(awaiting user visual review)` · `coder: sonnet` · `after: T-206, T-229`
 Regenerate the gallery into `docs/Redesign-V3.1/m2/` (committed), then **set this task
 `BLOCKED(awaiting user visual review)` and halt the run** — do not proceed into M3. The user scores
 `docs/Redesign-V3.1/RUBRIC.md` (target ≥8/10) and runs the blind read test ("web app or board game?" on
@@ -894,7 +1005,8 @@ playtest-ready.
 - **`tabletop-ui` house-style skill** (`~/.claude/skills/`): a user-machine artifact, authored
   interactively — not repo work the runner can gate or commit.
 - **T-004 BP-exposure fresh-seed edge** (`state.json` openRisks): user call, unrelated to this sprint.
-- **Mechanical 8-spoke board (true diagonal approaches, user idea 2026-07-18): V4 candidate, NOT this
-  sprint.** New nodes/edges void the balance LOCK (18–22% band, 2-seed + 40-seed sweeps, byte-identical
-  sim baselines) and break 4-fold-symmetry types (`keepIds` 4-tuple, `Quadrant`, blight seams). Park it
-  for the post-playtest V4 charter; V3.1 ships the 8-ray *visual* on the locked 17-node topology (T-201).
+- ~~**Mechanical 8-spoke board: V4 candidate, NOT this sprint.**~~ **SUPERSEDED 2026-07-20 — now
+  milestone M2.5 (T-221…T-229), user-authorized.** The original deferral misread the user's
+  2026-07-18 acceptance ("I fully accept that new balance testing is needed") as agreement to defer;
+  it was authorization. The balance LOCK is deliberately voided and replaced by a fresh measured
+  baseline (T-227); re-establishing the §9 bands remains post-playtest V4 work.
