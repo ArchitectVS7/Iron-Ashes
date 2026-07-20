@@ -814,18 +814,49 @@ this task authorizes and records the exception only; no `src/` or `data/` file c
 `git diff --stat -- src/ data/` is empty. `npm run handoff:check` exits 0.
 Orchestration: graphify=query "ROADMAP-V3.1-UI §3 guardrails engine untouched balance LOCKED topology exception M2.5" · attempts=1/4.
 
-### T-222 · Board topology: +4 cardinal mid-belt nodes — `status: TODO` · `coder: opus` · `after: T-221`
-Extend `data/board.json` from 17 to 21 nodes: add four CARDINAL mid-belt nodes (`mid-n`, `mid-e`,
-`mid-s`, `mid-w`) alongside the four existing diagonal forges. Each new node connects **outward** to
-its cardinal keep and **laterally** to its two neighbouring diagonal approaches, so all 8 compass
-directions become real routes inward while the Keystone keeps exactly its 4 approach doors. Keeps
-therefore gain the new mid node as a route (adjust their existing forge links per the spec you write).
-Regenerate `board.gen.ts` (`npm run gen:data`); update `NODE_IDS`, the tier union, and
-`validateClosingRing()` for the new tier/count; keep the definition frozen/JSON-serializable.
-**Accept:** `data/board.json` has 21 nodes with symmetric 8-fold ring structure; the Keystone still
+### T-222 · Board topology: +4 cardinal mid-belt nodes — `status: DONE` · `coder: opus` · `after: T-221`
+Create the v3 board source **`data/board-v3.json`** (a fork of the 17-node v2 `data/board.json`) and
+extend it from 17 to 21 nodes: add four CARDINAL mid-belt nodes (`mid-n`, `mid-e`, `mid-s`, `mid-w`)
+alongside the four existing diagonal forges. Each new node connects **outward** to its cardinal keep and
+**laterally** to its two neighbouring diagonal approaches, so all 8 compass directions become real routes
+inward while the Keystone keeps exactly its 4 approach doors. Keeps therefore gain the new mid node as a
+route (adjust their existing forge links per the spec you write). Regenerate `src/v3/board.gen.ts`
+(`npm run gen:data`); update `NODE_IDS`, the tier union, and `validateClosingRing()` for the new
+tier/count; keep the definition frozen/JSON-serializable.
+**Source-split note (dated decision, 2026-07-20 — see `docs/ROADMAP-V3.1-UI.md` §3):** the original spec
+said "`data/board.json` 17 → 21". That file is *also* codegen'd into the **frozen v2** `src/v2/board.gen.ts`
+by `scripts/gen-data.mjs`, so an in-place edit would break the untouched-v2 guardrail. The 21-node board is
+therefore a **new `data/board-v3.json`** feeding only `src/v3/board.gen.ts`; `data/board.json` +
+`src/v2/board.gen.ts` are byte-for-byte untouched. Topology/node-count/invariants unchanged — this is a
+source-path split only.
+**Accept:** `data/board-v3.json` has 21 nodes with symmetric 8-fold ring structure; the Keystone still
 has exactly 4 connections; graph is connected; every new node's links are bidirectional (validator
-test); `board.gen.ts` regenerated and byte-consistent with `gen:data:check`; board tests updated and
-green.
+test); `src/v3/board.gen.ts` regenerated and byte-consistent with `gen:data:check`; `data/board.json` /
+`src/v2/board.gen.ts` unchanged; board tests updated and green.
+**Delivered (2026-07-20, fix round 1):** Forked `data/board-v3.json` from the 17-node v2 board and added
+the 4 cardinal `mid` nodes (`mid-n/e/s/w`, tier `mid`), each linked outward to its cardinal keep and
+laterally to its two neighbouring diagonal approaches → 21 nodes, all 8 rays real inward routes, Keystone
+kept at exactly 4 approach doors. Wired `data/board-v3.json` → `src/v3/board.gen.ts` as a distinct
+`scripts/gen-data.mjs` target (the v2 `data/board.json` → `src/v2/board.gen.ts` target is left untouched,
+so the frozen v2 board is byte-identical), extended the board schema's tier enum with `mid`, generalized
+`src/v3/board.ts` (`NODE_IDS` / tier union / `validateClosingRing`) and `src/v3/types.ts` for the new
+tier/count, and updated `src/ui-v3/board-view.ts` + the v3 board tests. New `tests/v3/data-sync.test.ts`
+guards the split (v3 gen output matches `data/board-v3.json`; v2 board untouched). `gen:data:check`
+byte-consistent for all 4 targets; verify green. **Fix-round cause:** round-0 review CRITICAL was the
+unrecorded `data/board.json` → `data/board-v3.json` substitution, not a code defect — the split is now
+recorded as a dated decision in `docs/ROADMAP-V3.1-UI.md` §3, this task body + accept criteria,
+`docs/ROADMAP-V3.md` §8, and `state.json` `nextAction`, all naming `data/board-v3.json` as the real target.
+**Delivered (2026-07-20):** Shipped the 21-node v3 board as a new, dedicated `data/board-v3.json` source
+(forked from the 17-node v2 `data/board.json`, which stays byte-for-byte untouched) carrying the 4 new
+cardinal `mid-n/e/s/w` nodes, wired through a distinct `scripts/gen-data.mjs` target into a regenerated
+`src/v3/board.gen.ts`, with `src/v3/board.ts` / `src/v3/types.ts` generalized for the new `mid` tier and
+node count, `src/ui-v3/board-view.ts` updated to render the ring, and `tests/v3/board.test.ts` +
+`tests/v3/board-view.test.ts` + `tests/v3/setup.test.ts` updated plus a new `tests/v3/data-sync.test.ts`
+guarding the source split. Deliberate scope boundary: this task touches only the board topology/data layer
+(`data/board-v3.json`, `src/v3/board.gen.ts`, `src/v3/board.ts`, `src/v3/types.ts`, `src/ui-v3/board-view.ts`,
+`scripts/gen-data.mjs`) plus its direct tests and the doc/state trail recording the source-split decision;
+no other v3 engine module, no v2 file, and no balance tunable was touched.
+Orchestration: graphify=none — graph.json is present but the task is a tightly-scoped topology/data change; I grounded the plan directly in the real source files (board.json, board.ts, · attempts=2/4.
 
 ### T-223 · Untangle the 4-fold assumptions in types + setup — `status: TODO` · `coder: opus` · `after: T-222`
 The engine hard-codes four-ness in places the new board breaks: `keepIds: readonly [string,string,

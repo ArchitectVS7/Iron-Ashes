@@ -1,12 +1,13 @@
 /**
- * Board view (v3) — renders the 17-node Closing Ring as an SVG, purely from the
+ * Board view (v3) — renders the 21-node Closing Ring as an SVG, purely from the
  * OBSERVABLE projection (§7 D2). Never reads full GameState: unflipped Discovery
  * tokens arrive already fogged (sigil only), so this layer cannot leak content.
  *
- * Layout (T-201): the 17 nodes are laid out as an 8-ray CHAOS-MAGIC STAR. Spokes run
- * keystone → approach → forge on the DIAGONAL rays; the keeps sit on the CARDINAL rays
- * (the forge → keep quarter-twist), and the holdings on the outer diagonals — so all 17
- * nodes land on 8 rays {0,45,90,135,180,225,270,315}. The 8 full-length star rays +
+ * Layout (T-201, extended T-222): the 21 nodes are laid out as an 8-ray CHAOS-MAGIC STAR.
+ * Spokes run keystone → approach → forge on the DIAGONAL rays; the keeps sit on the CARDINAL
+ * rays (the forge → keep quarter-twist) with the new cardinal `mid` transit nodes on the same
+ * rays inboard of their keeps, and the holdings on the outer diagonals — so all 21 nodes land
+ * on 8 rays {0,45,90,135,180,225,270,315}. The 8 full-length star rays +
  * octagram are DECORATIVE table inlay only (`.star-inlay`, non-interactive); the true
  * playable edges are drawn distinctly on top (`.edge`) straight from each node's real
  * `connections`, so a decorative ray is never mistaken for an edge and no edge is omitted.
@@ -111,6 +112,14 @@ const LAYOUT: Record<string, Polar> = {
   'keep-e': { angle: 0, radius: 268 },
   'keep-s': { angle: 90, radius: 268 },
   'keep-w': { angle: 180, radius: 268 },
+
+  // Cardinal mid-belt transit nodes (T-222) — on the same cardinal rays as their keeps, set
+  // inboard at the forge-belt radius so each sits between the centre and its keep (distinct
+  // coordinates keep edge-parity endpoint matching unambiguous). Art polish is deferred to T-225.
+  'mid-n': { angle: 270, radius: 190 },
+  'mid-e': { angle: 0, radius: 190 },
+  'mid-s': { angle: 90, radius: 190 },
+  'mid-w': { angle: 180, radius: 190 },
 };
 
 interface Point { x: number; y: number; }
@@ -135,7 +144,7 @@ export function nodeScreenPos(nodeId: string): { x: number; y: number } {
 }
 
 const NODE_R: Record<string, number> = {
-  keystone: 40, approach: 27, forge: 30, keep: 32, holding: 26,
+  keystone: 40, approach: 27, forge: 30, keep: 32, holding: 26, mid: 28,
 };
 
 function esc(s: string): string {
@@ -211,6 +220,12 @@ function locationSvg(tier: string, r: number, extra = ''): string {
         <rect class="loc-fill" x="-1.25" y="-6" width="2.5" height="2" />
         <rect class="loc-fill" x="2.5" y="-6" width="2.5" height="2" />
         <path class="loc-line approach-gate" d="M-2.6 12V1.5a2.6 2.6 0 0 1 5.2 0V12" />`);
+    case 'mid': // a cardinal WAYSTONE beacon — a stacked stone cairn under a lit brazier (T-222
+      // placeholder; the finished cardinal-node illustration lands in T-225). Structurally distinct
+      // from the forge anvil / keep battlements / approach gatehouse: a slim tapered marker.
+      return g(`<path class="loc-fill" d="M-6 12h12l-2-9h-8z" />
+        <path class="loc-fill" d="M-4 3h8l-1.5-6h-5z" />
+        <circle class="loc-line" cx="0" cy="-5" r="3" />`);
     default:
       return '';
   }

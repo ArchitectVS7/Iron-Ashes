@@ -247,7 +247,7 @@ describe('createGame()', () => {
     const state = createGame(4, 'competitive', 42);
 
     it('has the Closing Ring definition', () => {
-      expect(Object.keys(state.board.definition.nodes).length).toBe(17);
+      expect(Object.keys(state.board.definition.nodes).length).toBe(21);
     });
 
     it('non-keep nodes are unclaimed', () => {

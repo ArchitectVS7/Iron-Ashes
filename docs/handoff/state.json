@@ -3,7 +3,7 @@
   "currentStage": "V3.1-M2.5",
   "currentStageTitle": "Stage V3.1-M2.5 — True 8-spoke board (engine topology change; user-authorized 2026-07-20): grow the board 17 → 21 nodes (+4 cardinal mid-belt nodes) so all 8 compass rays are real routes inward, Keystone keeping exactly 4 approaches. This is the one V3.1 milestone that legitimately touches the engine — under the dated §3 exception (T-221), topology-only, NO tunable-VALUE edits; the balance LOCK is voided by the change and replaced by a fresh baseline (T-227), not re-tuned. See docs/ROADMAP-V3.1-UI.md §M2.5 + TASKS.md M2.5 (T-221…T-229).",
   "status": "in-progress",
-  "nextAction": "M2.5 is authorized (T-221 done: §3 topology exception recorded, §M2.5 milestone + §4 sub-box added, this state.json repointed). Next is T-222 — extend data/board.json 17 → 21 nodes (+4 cardinal mid-belt nodes: mid-n/e/s/w), each linking outward to its cardinal keep and laterally to its two neighbouring diagonal approaches so all 8 compass directions become real inward routes while the Keystone keeps exactly 4 approach doors; regenerate board.gen.ts (`npm run gen:data`), update NODE_IDS / tier union / validateClosingRing(), keep JSON-serializable. Then T-223 (untangle 4-fold type/setup assumptions), T-224 (blight seams for 8 rays), T-225 (render 21 nodes), T-226 (sim/harness/AI on the new board), T-227 (fresh 2-seed balance READING — record as the new baseline, tunable-vs-structural assessment, band misses recorded not tuned), T-228 (M2.5 DoD → currentStage V3.1-M2-CHECKPOINT), T-229 (regenerate gallery, then HALT with T-207 BLOCKED). M2.5 guardrails (ROADMAP-V3.1-UI §3, 2026-07-20 exception): engine topology MAY change under the dated exception but tunable VALUES stay frozen (src/v3/tunables.ts / tunables.gen.ts untouched — a diff touching any tunable value is forbidden); the balance §9 lock is voided and replaced by the T-227 baseline, band misses recorded not tuned; all other V3.1 guardrails still hold (fog D2 to presentation, instant mode, no Math.random, pinned gsap+howler, CC0/CC-BY committed assets in docs/CREDITS.md).",
+  "nextAction": "M2.5 is authorized (T-221 done: §3 topology exception recorded, §M2.5 milestone + §4 sub-box added, this state.json repointed). Next is T-222 — grow the v3 board to 21 nodes in a NEW data/board-v3.json (NOT an in-place edit of data/board.json). SPLIT DECISION (dated 2026-07-20, ROADMAP-V3.1-UI §3 / TASKS.md T-222 / ROADMAP-V3 §8): data/board.json is ALSO the gen-data.mjs source for the frozen v2 src/v2/board.gen.ts, so editing it in place would break the untouched-v2 guardrail — v3 therefore forks data/board-v3.json (17-node v2 board + 4 cardinal mid nodes) as a distinct codegen target feeding src/v3/board.gen.ts, leaving data/board.json + src/v2/board.gen.ts byte-for-byte untouched. The build adds +4 cardinal mid-belt nodes (mid-n/e/s/w), each linking outward to its cardinal keep and laterally to its two neighbouring diagonal approaches so all 8 compass directions become real inward routes while the Keystone keeps exactly 4 approach doors; regenerate src/v3/board.gen.ts (`npm run gen:data`), update NODE_IDS / tier union / validateClosingRing(), keep JSON-serializable. Then T-223 (untangle 4-fold type/setup assumptions), T-224 (blight seams for 8 rays), T-225 (render 21 nodes), T-226 (sim/harness/AI on the new board), T-227 (fresh 2-seed balance READING — record as the new baseline, tunable-vs-structural assessment, band misses recorded not tuned), T-228 (M2.5 DoD → currentStage V3.1-M2-CHECKPOINT), T-229 (regenerate gallery, then HALT with T-207 BLOCKED). M2.5 guardrails (ROADMAP-V3.1-UI §3, 2026-07-20 exception): engine topology MAY change under the dated exception but tunable VALUES stay frozen (src/v3/tunables.ts / tunables.gen.ts untouched — a diff touching any tunable value is forbidden); the balance §9 lock is voided and replaced by the T-227 baseline, band misses recorded not tuned; all other V3.1 guardrails still hold (fog D2 to presentation, instant mode, no Math.random, pinned gsap+howler, CC0/CC-BY committed assets in docs/CREDITS.md).",
   "specRefs": [
     "docs/DESIGN-V3-ALGORITHM.md — ⭐ §13 (authoritative build checklist + P0 fixes), §12 (edge cases), §9 (tunable registry), §7 D1–D9 (determinism contract incl. the observableState fog projection)",
     "docs/ROADMAP-V3.md — §4 (plan/stages, first unchecked = V3.1-M2, the V3.1 presentation-sprint sub-track under Stage V3-6 → docs/ROADMAP-V3.1-UI.md §M2), §8 (running record: T2-1 feed-the-court, T2-2 hiding-is-dangerous, T2-3 herald default-OFF LOCK, T2-V 40-seed pressure sweep)",
@@ -11,14 +11,14 @@
     "docs/human-playtest-checklist-v3.md + docs/v3-teach-script.md (the V3-6 playtest walkthrough + teaching script); index-v3.html + src/ui-v3 (the fog-respecting render-from-state UI)"
   ],
   "lastVerified": {
-    "timestamp": "2026-07-20T20:36:55.008Z",
-    "commit": "37714c8",
-    "sourceHash": "5ba9fdf0a7669e1ccdeadb71ab190c7339aa30ee017d80551a99ed6eb3451fb0",
+    "timestamp": "2026-07-20T21:05:37.368Z",
+    "commit": "2b9627c",
+    "sourceHash": "50fc10ca118a078e528e287262e8dd0bfa42817310c1684fcca3d11c4520e292",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 104,
-      "passed": 1267,
+      "files": 105,
+      "passed": 1272,
       "failed": 0,
       "status": "pass"
     }

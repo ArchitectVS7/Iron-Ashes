@@ -133,7 +133,7 @@ const archetypesSchema = z
 const boardNodeSchema = z
   .object({
     id: z.string(),
-    tier: z.enum(['keystone', 'approach', 'forge', 'keep', 'holding']),
+    tier: z.enum(['keystone', 'approach', 'forge', 'keep', 'holding', 'mid']),
     quadrant: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.null()]),
     connections: z.array(z.string()).min(1),
     income: z.number().int().nonnegative(),
@@ -168,6 +168,15 @@ const TARGETS = [
   {
     json: 'data/board.json',
     out: 'src/v2/board.gen.ts',
+    constName: 'BOARD_DATA',
+    schema: boardSchema,
+  },
+  // v3 has its own board (T-222: 21-node true 8-spoke ring — 4 cardinal `mid` nodes added
+  // to the 17-node v2 topology). Distinct source + distinct output so the frozen v2 board is
+  // never touched; v3's engine/UI read this generated copy exclusively.
+  {
+    json: 'data/board-v3.json',
+    out: 'src/v3/board.gen.ts',
     constName: 'BOARD_DATA',
     schema: boardSchema,
   },

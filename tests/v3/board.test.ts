@@ -1,14 +1,15 @@
 /**
- * Board topology tests — validate the 17-node Closing Ring.
+ * Board topology tests — validate the 21-node Closing Ring (T-222 8-spoke ring).
  *
- * Checks from the spec (ALGORITHM §2):
- *   - 17 nodes, correct tier counts
+ * Checks from the spec (ALGORITHM §2; T-222 adds the 4 cardinal `mid` transit nodes):
+ *   - 21 nodes, correct tier counts
  *   - Bidirectional connections
  *   - Full connectivity
- *   - Keystone reachable only via Approaches
+ *   - Keystone reachable only via Approaches (still exactly 4 doors)
  *   - Lateral rings (Approach 4-cycle, Forge 4-cycle)
- *   - Four-fold rotational symmetry
+ *   - Four-fold rotational symmetry (incl. the 4 mids)
  *   - Each Keep distance 3 from Keystone
+ *   - Each Mid bridges 2 Approaches + 1 Keep (degree 3, income 0)
  */
 
 import { describe, expect, it } from 'vitest';
@@ -33,8 +34,8 @@ describe('Closing Ring Board', () => {
   describe('node counts', () => {
     const allNodes = Object.values(board.nodes);
 
-    it('has exactly 17 nodes', () => {
-      expect(allNodes.length).toBe(17);
+    it('has exactly 21 nodes', () => {
+      expect(allNodes.length).toBe(21);
     });
 
     it('has 1 keystone', () => {
@@ -55,6 +56,10 @@ describe('Closing Ring Board', () => {
 
     it('has 4 holdings', () => {
       expect(allNodes.filter(n => n.tier === 'holding').length).toBe(4);
+    });
+
+    it('has 4 mids', () => {
+      expect(allNodes.filter(n => n.tier === 'mid').length).toBe(4);
     });
   });
 
@@ -85,7 +90,7 @@ describe('Closing Ring Board', () => {
           }
         }
       }
-      expect(visited.size).toBe(17);
+      expect(visited.size).toBe(21);
     });
   });
 
@@ -160,9 +165,9 @@ describe('Closing Ring Board', () => {
       expect(board.nodes[board.keystoneId].connections.length).toBe(4);
     });
 
-    it('each approach has degree 4 (Keystone + Forge + 2 lateral)', () => {
+    it('each approach has degree 6 (Keystone + Forge + 2 lateral + 2 mids)', () => {
       for (const appId of board.approachIds) {
-        expect(board.nodes[appId].connections.length).toBe(4);
+        expect(board.nodes[appId].connections.length).toBe(6);
       }
     });
 
@@ -172,15 +177,23 @@ describe('Closing Ring Board', () => {
       }
     });
 
-    it('each keep has degree 3 (Forge + 2 Holdings)', () => {
+    it('each keep has degree 4 (Forge + 2 Holdings + Mid)', () => {
       for (const keepId of board.keepIds) {
-        expect(board.nodes[keepId].connections.length).toBe(3);
+        expect(board.nodes[keepId].connections.length).toBe(4);
       }
     });
 
     it('each holding has degree 2 (2 Keeps)', () => {
       for (const holdId of board.holdingIds) {
         expect(board.nodes[holdId].connections.length).toBe(2);
+      }
+    });
+
+    it('each mid has degree 3 (2 Approaches + 1 Keep)', () => {
+      const midIds = Object.values(board.nodes).filter(n => n.tier === 'mid').map(n => n.id);
+      expect(midIds.length).toBe(4);
+      for (const midId of midIds) {
+        expect(board.nodes[midId].connections.length).toBe(3);
       }
     });
   });
@@ -268,6 +281,19 @@ describe('Closing Ring Board', () => {
       });
       expect(new Set(patterns).size).toBe(1);
     });
+
+    it('all mids have the same connection pattern by tier (2 approaches + 1 keep)', () => {
+      const midIds = Object.values(board.nodes).filter(n => n.tier === 'mid').map(n => n.id);
+      const patterns = midIds.map(id => {
+        const node = board.nodes[id];
+        return node.connections
+          .map(c => board.nodes[c].tier)
+          .sort()
+          .join(',');
+      });
+      expect(new Set(patterns).size).toBe(1);
+      expect(patterns[0]).toBe('approach,approach,keep');
+    });
   });
 
   describe('income values', () => {
@@ -298,13 +324,20 @@ describe('Closing Ring Board', () => {
         expect(board.nodes[id].income).toBe(1);
       }
     });
+
+    it('mids have 0 income (non-claimable transit — T-222)', () => {
+      const midIds = Object.values(board.nodes).filter(n => n.tier === 'mid').map(n => n.id);
+      for (const id of midIds) {
+        expect(board.nodes[id].income).toBe(0);
+      }
+    });
   });
 
   describe('createInitialBoardState()', () => {
     const boardState = createInitialBoardState(board);
 
-    it('creates state for all 17 nodes', () => {
-      expect(Object.keys(boardState.nodes).length).toBe(17);
+    it('creates state for all 21 nodes', () => {
+      expect(Object.keys(boardState.nodes).length).toBe(21);
     });
 
     it('all nodes start un-ashed', () => {
@@ -346,13 +379,13 @@ describe('Closing Ring Board', () => {
   });
 
   describe('edge count', () => {
-    it('has exactly 28 undirected edges', () => {
-      // Sum of all degrees / 2
+    it('has exactly 40 undirected edges', () => {
+      // Sum of all degrees / 2. T-222 adds 4 mids × 3 links = +12 undirected edges (28 → 40).
       let totalDegree = 0;
       for (const node of Object.values(board.nodes)) {
         totalDegree += node.connections.length;
       }
-      expect(totalDegree / 2).toBe(28);
+      expect(totalDegree / 2).toBe(40);
     });
   });
 });

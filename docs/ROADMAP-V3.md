@@ -264,6 +264,17 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-20** — **T-222 (M2.5 board grow) — SOURCE SPLIT decision.** The 21-node true 8-spoke board
+  lands in a **new `data/board-v3.json`**, *not* an in-place edit of `data/board.json` as the original spec
+  wording said. Reason: `data/board.json` is also the `scripts/gen-data.mjs` source for the **frozen v2**
+  `src/v2/board.gen.ts`, so growing it in place would push the 4 new nodes into the untouched v2 engine —
+  a worse guardrail violation than the file-name deviation. Resolution: v3 forks `data/board-v3.json`
+  (17-node v2 board + 4 cardinal `mid` nodes) as a distinct codegen target → `src/v3/board.gen.ts`;
+  `data/board.json` and `src/v2/board.gen.ts` stay byte-for-byte untouched. Topology/node-count (21)/
+  Keystone-4-doors/no-tunable-VALUE-edits all unchanged — a source-path split only. Recorded as a dated
+  decision in `docs/ROADMAP-V3.1-UI.md` §3 + `TASKS.md` T-222 + `state.json`; every M2.5 acceptance
+  reference now names `data/board-v3.json`. (Fix round 1 for the round-0 review CRITICAL, which flagged the
+  substitution as unrecorded — engineering was already correct.)
 - **2026-07-20** — **M2.5 AUTHORIZED (T-221).** The user authorized a real engine-topology change — the
   **true 8-spoke board** (`data/board.json` 17 → 21 nodes, +4 cardinal mid-belt nodes; Keystone keeps
   exactly 4 approaches). This is the one milestone in the V3.1 sprint that legitimately touches the engine,

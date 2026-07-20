@@ -29,8 +29,12 @@ export type Act = 'WHISPER' | 'MARCH' | 'RECKONING';
 
 // ─── Board ────────────────────────────────────────────────────────
 
-/** The structural tier of a node on the Closing Ring. */
-export type NodeTier = 'keystone' | 'approach' | 'forge' | 'keep' | 'holding';
+/**
+ * The structural tier of a node on the Closing Ring.
+ * `mid` (T-222): the 4 cardinal mid-belt transit nodes that turn the diagonal-only ring into a
+ * true 8-spoke ring — non-claimable (like approaches), income 0.
+ */
+export type NodeTier = 'keystone' | 'approach' | 'forge' | 'keep' | 'holding' | 'mid';
 
 /** Which quadrant a node belongs to (0 = N, 1 = E, 2 = S, 3 = W). null = center (Keystone). */
 export type Quadrant = 0 | 1 | 2 | 3 | null;
@@ -49,7 +53,7 @@ export interface V2NodeDef {
   readonly income: number;
 }
 
-/** The fixed board graph — a 17-node Closing Ring (§2). */
+/** The fixed board graph — a 21-node Closing Ring (§2; T-222 8-spoke: +4 cardinal `mid` nodes). */
 export interface V2BoardDef {
   /** All node definitions keyed by ID. */
   readonly nodes: Readonly<Record<string, V2NodeDef>>;

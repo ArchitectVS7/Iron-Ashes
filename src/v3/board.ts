@@ -1,34 +1,39 @@
 /**
- * The Closing Ring — the 17-node v2 board topology.
+ * The Closing Ring — the 21-node v3 board topology (T-222 true 8-spoke ring).
  *
- * Built from ALGORITHM §2 (panel R2 consensus).
+ * Built from ALGORITHM §2 (panel R2 consensus), extended in T-222 with 4 cardinal `mid`
+ * transit nodes so every one of the 8 compass directions is a real route inward: the 4
+ * diagonal rays run through the Forges, the 4 cardinal rays now run through the Mids.
  * Concentric, four-fold symmetric, with lateral mid-belt and inner-ring links.
  *
  * Layout (from spec):
  *
  *                  [Keep N]──[Hold NE]──[Keep E]
- *                    │   ╲              ╱   │
- *                 [Forge NW]        [Forge NE]
- *                    │      ╲      ╱      │
- *               [Approach NW]─[Approach NE]
- *                    │      KEYSTONE      │
- *               [Approach SW]─[Approach SE]
- *                    │      ╱      ╲      │
- *                 [Forge SW]        [Forge SE]
- *                    │   ╱              ╲   │
+ *                    │  ╲      [Mid N]     ╱  │
+ *                 [Forge NW]      │     [Forge NE]
+ *                    │    ╲       │       ╱    │
+ *               [Approach NW]───[Approach NE]
+ *          [Mid W]──   │       KEYSTONE     │   ──[Mid E]
+ *               [Approach SW]───[Approach SE]
+ *                    │    ╱       │       ╲    │
+ *                 [Forge SW]      │     [Forge SE]
+ *                    │  ╱      [Mid S]     ╲  │
  *                  [Keep S]──[Hold SW]──[Keep W]
  *
  *   (Holdings also connect: Hold NW between Keep W and Keep N,
- *    Hold SE between Keep E and Keep S — completing the outer ring.)
+ *    Hold SE between Keep E and Keep S — completing the outer ring.
+ *    Each Mid connects OUTWARD to its cardinal Keep and LATERALLY to the
+ *    two diagonal Approaches flanking its cardinal ray.)
  *
  * Tiers:
  *   center     : 1 Keystone
  *   inner ring : 4 Approaches (chokepoints; only routes to Keystone)
  *   mid-belt   : 4 Forges (high-value; lateral ring connects them)
+ *              + 4 Mids (cardinal transit; non-claimable, income 0 — T-222)
  *   outer ring : 4 Keeps + 4 Holdings (homes / claimable land)
  *
  * Blight enters at 4 symmetric outer seams (between Keeps) and
- * converges inward along the spokes.
+ * converges inward along the (diagonal) spokes.
  */
 
 import type {
@@ -64,6 +69,12 @@ export const NODE_IDS = {
   HOLDING_SE: 'holding-se',
   HOLDING_SW: 'holding-sw',
   HOLDING_NW: 'holding-nw',
+
+  // Cardinal mid-belt transit nodes (T-222 — the 8-spoke ring).
+  MID_N: 'mid-n',
+  MID_E: 'mid-e',
+  MID_S: 'mid-s',
+  MID_W: 'mid-w',
 } as const;
 
 // ─── Helper ───────────────────────────────────────────────────────
@@ -81,11 +92,11 @@ function nodeDef(
 // ─── Build the Closing Ring ───────────────────────────────────────
 
 /**
- * Build the fixed 17-node Closing Ring board definition.
+ * Build the fixed 21-node Closing Ring board definition (T-222 8-spoke ring).
  * The topology is hardcoded per the spec — no procedural generation.
  */
 export function buildClosingRing(): V2BoardDef {
-  // Topology is DATA: data/board.json -> board.gen.ts (run `npm run gen:data` after
+  // Topology is DATA: data/board-v3.json -> src/v3/board.gen.ts (run `npm run gen:data` after
   // editing). validateClosingRing() + the blight spoke-path tests + the 18-22% balance
   // lock guard every edge, so a wrong connection fails CI loudly.
   const nodes: Record<string, V2NodeDef> = {};
@@ -139,22 +150,23 @@ export interface BoardValidationResult {
  * Validate the Closing Ring board definition against the spec's constraints.
  *
  * Checks:
- *   1. Total node count is 17
- *   2. Tier counts: 1 keystone, 4 approach, 4 forge, 4 keep, 4 holding
+ *   1. Total node count is 21
+ *   2. Tier counts: 1 keystone, 4 approach, 4 forge, 4 keep, 4 holding, 4 mid
  *   3. All connections are bidirectional
  *   4. All connection targets exist
  *   5. Fully connected graph
  *   6. Keystone reachable only via Approaches
  *   7. Lateral rings: Approach 4-cycle, Forge 4-cycle
- *   8. Each Keep is distance 2 from Keystone (Keep → Forge → Approach → Keystone)
+ *   8. Each Keep is distance 3 from Keystone (Keep → Forge → Approach → Keystone)
+ *   9. Each Mid connects to exactly 2 Approaches + 1 Keep (T-222 8-spoke ring)
  */
 export function validateClosingRing(definition: V2BoardDef): BoardValidationResult {
   const errors: string[] = [];
   const allNodes = Object.values(definition.nodes);
 
   // 1. Total count
-  if (allNodes.length !== 17) {
-    errors.push(`Expected 17 nodes, found ${allNodes.length}`);
+  if (allNodes.length !== 21) {
+    errors.push(`Expected 21 nodes, found ${allNodes.length}`);
   }
 
   // 2. Tier counts
@@ -163,7 +175,7 @@ export function validateClosingRing(definition: V2BoardDef): BoardValidationResu
     tierCounts[n.tier] = (tierCounts[n.tier] ?? 0) + 1;
   }
   const expectedTiers: Record<string, number> = {
-    keystone: 1, approach: 4, forge: 4, keep: 4, holding: 4,
+    keystone: 1, approach: 4, forge: 4, keep: 4, holding: 4, mid: 4,
   };
   for (const [tier, expected] of Object.entries(expectedTiers)) {
     const actual = tierCounts[tier] ?? 0;
@@ -245,6 +257,23 @@ export function validateClosingRing(definition: V2BoardDef): BoardValidationResu
     const dist = bfsDistance(definition, keepId, definition.keystoneId);
     if (dist !== 3) {
       errors.push(`Keep ${keepId} is distance ${dist} from Keystone (expected 3)`);
+    }
+  }
+
+  // 9. Mid-belt (T-222 8-spoke ring): each Mid bridges its cardinal ray — exactly 2 Approaches
+  //    (the flanking diagonals) + 1 Keep (its cardinal home), degree 3, income 0.
+  const midNodes = allNodes.filter(n => n.tier === 'mid');
+  for (const mid of midNodes) {
+    const approachLinks = mid.connections.filter(c => definition.nodes[c]?.tier === 'approach').length;
+    const keepLinks = mid.connections.filter(c => definition.nodes[c]?.tier === 'keep').length;
+    if (approachLinks !== 2) {
+      errors.push(`Mid ${mid.id} connects to ${approachLinks} approaches (expected 2)`);
+    }
+    if (keepLinks !== 1) {
+      errors.push(`Mid ${mid.id} connects to ${keepLinks} keeps (expected 1)`);
+    }
+    if (mid.connections.length !== 3) {
+      errors.push(`Mid ${mid.id} has degree ${mid.connections.length} (expected 3)`);
     }
   }
 

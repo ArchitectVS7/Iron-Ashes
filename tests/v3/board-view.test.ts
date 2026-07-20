@@ -8,7 +8,7 @@
  *      and all five tier silhouettes appear across the board.
  *   2. The chaos-star inlay is present in the DOM — the decorative `.star-inlay` rays/octagram
  *      AND a burned carved-wood `.star-carve` fill beneath the graph — while the TRUE playable
- *      edges (`.edge`) stay a distinct element class (topology count = 28, decorative rays = 8),
+ *      edges (`.edge`) stay a distinct element class (topology count = 40, decorative rays = 8),
  *      so a decorative ray is never mistaken for a playable edge.
  *   3. A claimed node's SOLE ownership signal is a planted `.claim-banner` carrying the owner's
  *      heraldry sigil class (`sigil-<name>`) — never a coloured ring.
@@ -65,10 +65,10 @@ describe('T-208 board — accept #1: circle-free illustrated locations (no enclo
   it('every node-group carries a tier-matched illustrated location', () => {
     const svg = boardSvg();
     const groups = Array.from(svg.querySelectorAll('g[data-node]'));
-    expect(groups.length, '17 nodes rendered').toBe(17);
+    expect(groups.length, '21 nodes rendered').toBe(21);
     for (const g of groups) {
       const id = g.getAttribute('data-node') ?? '';
-      const tier = id.split('-')[0]; // keystone / approach / forge / keep / holding
+      const tier = id.split('-')[0]; // keystone / approach / forge / keep / holding / mid
       const loc = g.querySelector('.loc');
       expect(loc, `${id} has a .loc silhouette`).not.toBeNull();
       expect(
@@ -78,9 +78,9 @@ describe('T-208 board — accept #1: circle-free illustrated locations (no enclo
     }
   });
 
-  it('all five tier silhouettes appear across the board', () => {
+  it('all six tier silhouettes appear across the board', () => {
     const svg = boardSvg();
-    for (const tier of ['keystone', 'forge', 'keep', 'holding', 'approach']) {
+    for (const tier of ['keystone', 'forge', 'keep', 'holding', 'approach', 'mid']) {
       expect(
         svg.querySelectorAll(`.loc-${tier}`).length,
         `at least one .loc-${tier} silhouette`,
@@ -99,10 +99,11 @@ describe('T-208 board — accept #2: carved chaos-star inlay present, edges dist
     expect(fill.length > 0 && fill !== 'none', 'carve has a real (non-none) burn fill').toBe(true);
   });
 
-  it('true edges are a distinct element class: 28 playable edges vs 8 decorative rays', () => {
+  it('true edges are a distinct element class: 40 playable edges vs 8 decorative rays', () => {
     const svg = boardSvg();
-    // 28 is the Closing-Ring topology (data/board.json): a decorative ray is NEVER an edge.
-    expect(svg.querySelectorAll('.edge').length, '28 real playable edges').toBe(28);
+    // 40 is the v3 8-spoke Closing-Ring topology (data/board-v3.json): a decorative ray is NEVER
+    // an edge. (28 diagonal-ring edges + 12 from the 4 cardinal mids — T-222.)
+    expect(svg.querySelectorAll('.edge').length, '40 real playable edges').toBe(40);
     expect(svg.querySelectorAll('.star-inlay.ray').length, '8 decorative rays').toBe(8);
   });
 
@@ -230,11 +231,12 @@ function edgeKey(a: string, b: string): string {
   return a < b ? `${a}|${b}` : `${b}|${a}`;
 }
 
-/** The authoritative undirected edge set straight from `data/board.json` node connections. */
+/** The authoritative undirected edge set straight from `data/board-v3.json` node connections. */
 function dataEdgeSet(): Set<string> {
   // Vitest runs from the repo root; read the data file directly (jsdom's import.meta.url is not a
-  // file: URL, so resolve from cwd instead).
-  const raw = readFileSync(resolve(process.cwd(), 'data/board.json'), 'utf8');
+  // file: URL, so resolve from cwd instead). v3 renders the 21-node board, so the edge-parity
+  // source must be the v3 board data (T-222), not the frozen 17-node v2 board.json.
+  const raw = readFileSync(resolve(process.cwd(), 'data/board-v3.json'), 'utf8');
   const board = JSON.parse(raw) as { nodes: { id: string; connections: string[] }[] };
   const conn = new Map<string, Set<string>>();
   for (const n of board.nodes) conn.set(n.id, new Set(n.connections));
@@ -252,11 +254,11 @@ function dataEdgeSet(): Set<string> {
 describe('T-217 board — accept: edge-parity (render == data, no missing / no phantom edges)', () => {
   it('every data/board.json edge is rendered exactly once and no extra connectors exist', () => {
     const data = dataEdgeSet();
-    expect(data.size, 'Closing-Ring topology has 28 undirected edges').toBe(28);
+    expect(data.size, 'v3 8-spoke Closing-Ring topology has 40 undirected edges').toBe(40);
 
     const svg = boardSvg();
     const rendered = Array.from(svg.querySelectorAll('line.edge'));
-    expect(rendered.length, 'one line.edge per data edge (28)').toBe(28);
+    expect(rendered.length, 'one line.edge per data edge (40)').toBe(40);
 
     // Map each rendered endpoint back to a node id by nearest layout position (tight epsilon).
     const ids = new Set<string>();
@@ -318,7 +320,7 @@ describe('T-217 board — accept: edge-parity (render == data, no missing / no p
     expect((group?.getAttribute('filter') ?? '').includes('edgeGlow'), 'group carries the road glow').toBe(true);
     expect(svg.querySelector('defs filter#edgeGlow'), 'the edge-glow filter is defined').not.toBeNull();
     // The glow is a GROUP filter — the DOM still holds exactly one line.edge per edge.
-    expect(group?.querySelectorAll('line.edge').length, '28 edge lines live inside the group').toBe(28);
+    expect(group?.querySelectorAll('line.edge').length, '40 edge lines live inside the group').toBe(40);
   });
 });
 
@@ -465,7 +467,7 @@ describe('T-220 board — accept #2: connectors thinned & materialized (worn-sto
     expect(EDGE_STROKE_W, 'vein weight reduced from the old 4').toBeLessThan(4);
     const svg = boardSvg();
     const edges = Array.from(svg.querySelectorAll('line.edge'));
-    expect(edges.length, 'still 28 playable edges').toBe(28);
+    expect(edges.length, 'still 40 playable edges').toBe(40);
     for (const e of edges) {
       expect(e.getAttribute('stroke-width'), 'edge carries the inline thinned width').toBe(String(EDGE_STROKE_W));
     }
@@ -476,7 +478,7 @@ describe('T-220 board — accept #2: connectors thinned & materialized (worn-sto
     const svg = boardSvg();
     const beds = Array.from(svg.querySelectorAll('line.edge-bed'));
     const edges = Array.from(svg.querySelectorAll('line.edge'));
-    expect(beds.length, 'one road bed per edge (28)').toBe(28);
+    expect(beds.length, 'one road bed per edge (40)').toBe(40);
     expect(beds.length, 'bed count matches edge count').toBe(edges.length);
     for (const b of beds) {
       expect(b.getAttribute('stroke-width'), 'bed carries the inline wider width').toBe(String(EDGE_BED_W));

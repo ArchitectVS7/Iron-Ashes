@@ -46,9 +46,10 @@ When this sprint opens:
   - **2026-07-20 (T-221) — USER-AUTHORIZED TOPOLOGY EXCEPTION, scoped to M2.5 only.** The user has
     authorized the **true 8-spoke board** engine change (see §M2.5 + `TASKS.md` M2.5, T-221…T-229). For
     that milestone *only*, the "engine untouched" guardrail is lifted for the **board-topology change**:
-    `data/board.json` grows 17 → 21 nodes (+4 cardinal mid-belt nodes), and the four-fold
-    type/setup/blight/sim/AI assumptions may be generalized under `src/v2/` / `src/v3/`. The Keystone
-    still keeps **exactly 4 approach doors**; 4 seats / 4 quadrants remain the game's shape.
+    the v3 board grows 17 → 21 nodes (+4 cardinal mid-belt nodes) — see the 2026-07-20 (T-222) split
+    decision below for why this lands in a **new `data/board-v3.json`**, not in-place on `data/board.json`
+    — and the four-fold type/setup/blight/sim/AI assumptions may be generalized under `src/v2/` / `src/v3/`.
+    The Keystone still keeps **exactly 4 approach doors**; 4 seats / 4 quadrants remain the game's shape.
     - **Topology-only — no tunable VALUE edits.** `src/v3/tunables.ts` and `tunables.gen.ts` stay
       untouched; the exception permits *structural* changes, never a tunable-value change. Any diff
       touching a tunable value is out of scope and forbidden.
@@ -57,6 +58,18 @@ When this sprint opens:
       A fresh 2-seed baseline reading (T-227) is recorded as the NEW baseline that *replaces* the old
       lock; every band miss is **recorded, not tuned**. Re-establishing the §9 bands on the new board is
       deferred to post-playtest / V4-scale work — it is explicitly out of scope for M2.5.
+    - **2026-07-20 (T-222) — the 21-node board is a NEW `data/board-v3.json`, NOT an in-place edit of
+      `data/board.json`.** The original spec text (this §3, §M2.5 T-222, exit metric, `state.json`) said
+      "`data/board.json` 17 → 21 nodes". Implementation surfaced a hard blocker: `data/board.json` is *also*
+      the source `scripts/gen-data.mjs` codegens into `src/v2/board.gen.ts` — the **frozen v2 engine** reads
+      it. Growing `data/board.json` in place would flow the 4 new nodes into the v2 board and break the
+      untouched-v2 guardrail (a strictly worse violation than the file-name deviation). Resolution: v3 forks
+      its own board source **`data/board-v3.json`** (the 17-node v2 board + the 4 cardinal `mid` nodes),
+      added as a distinct `gen-data.mjs` target feeding `src/v3/board.gen.ts`; `data/board.json` and
+      `src/v2/board.gen.ts` stay byte-for-byte untouched. Every acceptance reference that read
+      "`data/board.json`" for the M2.5 build now reads **`data/board-v3.json`**. This is a file-path/source
+      split only — the topology, node count (21), Keystone-4-doors invariant, and "no tunable-VALUE edits"
+      constraint are all unchanged.
 - **Fog (D2) extends to presentation.** Animations must not leak: nothing hidden from `viewerSeat`'s
   `observableState` projection may ever reach the DOM, a texture, or the move stream — including
   *mid-animation* (a flip may not show face content before the reveal frame). Enforced by leak tests (M1).
@@ -170,8 +183,9 @@ command; baseline gallery in-repo.
 a real 8-direction board; it was mis-scoped as visual-only. Under the §3 dated exception (T-221), the
 board grows to a true 8-spoke topology. **Topology only — zero tunable-value edits; the balance LOCK is
 voided by the change and replaced with a fresh baseline (T-227), not re-tuned.***
-- [ ] **T-222** — `data/board.json` 17 → 21 nodes: +4 cardinal mid-belt nodes so all 8 compass rays are
-      real routes inward; Keystone keeps exactly 4 approaches; regenerate `board.gen.ts`.
+- [ ] **T-222** — `data/board-v3.json` (new v3 board source; see the 2026-07-20 §3 split decision — kept
+      off the frozen-v2 `data/board.json`) 17 → 21 nodes: +4 cardinal mid-belt nodes so all 8 compass rays
+      are real routes inward; Keystone keeps exactly 4 approaches; regenerate `src/v3/board.gen.ts`.
 - [ ] **T-223** — Untangle the 4-fold assumptions in types + setup (keep-id tuples, quadrant maps,
       blight seams) — generalize node collections without changing game rules (still 4 seats / 4 quadrants).
 - [ ] **T-224** — Blight seams + spoke paths redefined coherently for 8 rays (dated spec amendment +
@@ -185,8 +199,9 @@ voided by the change and replaced with a fresh baseline (T-227), not re-tuned.**
       assessment; band misses recorded, nothing tuned.
 
 **Exit metrics:**
-- `data/board.json` is a symmetric 21-node 8-fold board; the Keystone still has **exactly 4** approach
-  doors; graph connected; all new links bidirectional (validator test); `board.gen.ts` byte-consistent.
+- `data/board-v3.json` (the new v3 board source; `data/board.json` stays the frozen 17-node v2 board) is a
+  symmetric 21-node 8-fold board; the Keystone still has **exactly 4** approach doors; graph connected; all
+  new links bidirectional (validator test); `src/v3/board.gen.ts` byte-consistent.
 - Board renders all 21 nodes with tier-appropriate silhouettes; the T-217 edge-parity test passes
   against the NEW data (render == data, 8 real rays).
 - `npm run verify` 0 (full v2+v3 suite green on the 21-node board); `npm run sim:v3` completes both

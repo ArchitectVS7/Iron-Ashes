@@ -1,16 +1,10 @@
-// GENERATED — DO NOT EDIT. Source: data/board-v3.json. Run: npm run gen:data
-export const BOARD_DATA = {
+{
+  "keystoneId": "keystone",
   "approachIds": [
     "approach-nw",
     "approach-ne",
     "approach-se",
     "approach-sw"
-  ],
-  "blightEntrySeams": [
-    "holding-ne",
-    "holding-se",
-    "holding-sw",
-    "holding-nw"
   ],
   "forgeIds": [
     "forge-nw",
@@ -18,33 +12,41 @@ export const BOARD_DATA = {
     "forge-se",
     "forge-sw"
   ],
-  "holdingIds": [
-    "holding-ne",
-    "holding-se",
-    "holding-sw",
-    "holding-nw"
-  ],
   "keepIds": [
     "keep-n",
     "keep-e",
     "keep-s",
     "keep-w"
   ],
-  "keystoneId": "keystone",
+  "holdingIds": [
+    "holding-ne",
+    "holding-se",
+    "holding-sw",
+    "holding-nw"
+  ],
+  "blightEntrySeams": [
+    "holding-ne",
+    "holding-se",
+    "holding-sw",
+    "holding-nw"
+  ],
   "nodes": [
     {
+      "id": "keystone",
+      "tier": "keystone",
+      "quadrant": null,
       "connections": [
         "approach-nw",
         "approach-ne",
         "approach-se",
         "approach-sw"
       ],
-      "id": "keystone",
-      "income": 0,
-      "quadrant": null,
-      "tier": "keystone"
+      "income": 0
     },
     {
+      "id": "approach-nw",
+      "tier": "approach",
+      "quadrant": 0,
       "connections": [
         "keystone",
         "forge-nw",
@@ -53,12 +55,12 @@ export const BOARD_DATA = {
         "mid-n",
         "mid-w"
       ],
-      "id": "approach-nw",
-      "income": 0,
-      "quadrant": 0,
-      "tier": "approach"
+      "income": 0
     },
     {
+      "id": "approach-ne",
+      "tier": "approach",
+      "quadrant": 1,
       "connections": [
         "keystone",
         "forge-ne",
@@ -67,12 +69,12 @@ export const BOARD_DATA = {
         "mid-n",
         "mid-e"
       ],
-      "id": "approach-ne",
-      "income": 0,
-      "quadrant": 1,
-      "tier": "approach"
+      "income": 0
     },
     {
+      "id": "approach-se",
+      "tier": "approach",
+      "quadrant": 2,
       "connections": [
         "keystone",
         "forge-se",
@@ -81,12 +83,12 @@ export const BOARD_DATA = {
         "mid-e",
         "mid-s"
       ],
-      "id": "approach-se",
-      "income": 0,
-      "quadrant": 2,
-      "tier": "approach"
+      "income": 0
     },
     {
+      "id": "approach-sw",
+      "tier": "approach",
+      "quadrant": 3,
       "connections": [
         "keystone",
         "forge-sw",
@@ -95,190 +97,187 @@ export const BOARD_DATA = {
         "mid-s",
         "mid-w"
       ],
-      "id": "approach-sw",
-      "income": 0,
-      "quadrant": 3,
-      "tier": "approach"
+      "income": 0
     },
     {
+      "id": "forge-nw",
+      "tier": "forge",
+      "quadrant": 0,
       "connections": [
         "approach-nw",
         "keep-n",
         "forge-ne",
         "forge-sw"
       ],
-      "id": "forge-nw",
-      "income": 3,
-      "quadrant": 0,
-      "tier": "forge"
+      "income": 3
     },
     {
+      "id": "forge-ne",
+      "tier": "forge",
+      "quadrant": 1,
       "connections": [
         "approach-ne",
         "keep-e",
         "forge-nw",
         "forge-se"
       ],
-      "id": "forge-ne",
-      "income": 3,
-      "quadrant": 1,
-      "tier": "forge"
+      "income": 3
     },
     {
+      "id": "forge-se",
+      "tier": "forge",
+      "quadrant": 2,
       "connections": [
         "approach-se",
         "keep-s",
         "forge-ne",
         "forge-sw"
       ],
-      "id": "forge-se",
-      "income": 3,
-      "quadrant": 2,
-      "tier": "forge"
+      "income": 3
     },
     {
+      "id": "forge-sw",
+      "tier": "forge",
+      "quadrant": 3,
       "connections": [
         "approach-sw",
         "keep-w",
         "forge-se",
         "forge-nw"
       ],
-      "id": "forge-sw",
-      "income": 3,
-      "quadrant": 3,
-      "tier": "forge"
+      "income": 3
     },
     {
+      "id": "keep-n",
+      "tier": "keep",
+      "quadrant": 0,
       "connections": [
         "forge-nw",
         "holding-ne",
         "holding-nw",
         "mid-n"
       ],
-      "id": "keep-n",
-      "income": 1,
-      "quadrant": 0,
-      "tier": "keep"
+      "income": 1
     },
     {
+      "id": "keep-e",
+      "tier": "keep",
+      "quadrant": 1,
       "connections": [
         "forge-ne",
         "holding-ne",
         "holding-se",
         "mid-e"
       ],
-      "id": "keep-e",
-      "income": 1,
-      "quadrant": 1,
-      "tier": "keep"
+      "income": 1
     },
     {
+      "id": "keep-s",
+      "tier": "keep",
+      "quadrant": 2,
       "connections": [
         "forge-se",
         "holding-se",
         "holding-sw",
         "mid-s"
       ],
-      "id": "keep-s",
-      "income": 1,
-      "quadrant": 2,
-      "tier": "keep"
+      "income": 1
     },
     {
+      "id": "keep-w",
+      "tier": "keep",
+      "quadrant": 3,
       "connections": [
         "forge-sw",
         "holding-sw",
         "holding-nw",
         "mid-w"
       ],
-      "id": "keep-w",
-      "income": 1,
-      "quadrant": 3,
-      "tier": "keep"
+      "income": 1
     },
     {
+      "id": "holding-ne",
+      "tier": "holding",
+      "quadrant": null,
       "connections": [
         "keep-n",
         "keep-e"
       ],
-      "id": "holding-ne",
-      "income": 1,
-      "quadrant": null,
-      "tier": "holding"
+      "income": 1
     },
     {
+      "id": "holding-se",
+      "tier": "holding",
+      "quadrant": null,
       "connections": [
         "keep-e",
         "keep-s"
       ],
-      "id": "holding-se",
-      "income": 1,
-      "quadrant": null,
-      "tier": "holding"
+      "income": 1
     },
     {
+      "id": "holding-sw",
+      "tier": "holding",
+      "quadrant": null,
       "connections": [
         "keep-s",
         "keep-w"
       ],
-      "id": "holding-sw",
-      "income": 1,
-      "quadrant": null,
-      "tier": "holding"
+      "income": 1
     },
     {
+      "id": "holding-nw",
+      "tier": "holding",
+      "quadrant": null,
       "connections": [
         "keep-w",
         "keep-n"
       ],
-      "id": "holding-nw",
-      "income": 1,
-      "quadrant": null,
-      "tier": "holding"
+      "income": 1
     },
     {
+      "id": "mid-n",
+      "tier": "mid",
+      "quadrant": 0,
       "connections": [
         "approach-nw",
         "approach-ne",
         "keep-n"
       ],
-      "id": "mid-n",
-      "income": 0,
-      "quadrant": 0,
-      "tier": "mid"
+      "income": 0
     },
     {
+      "id": "mid-e",
+      "tier": "mid",
+      "quadrant": 1,
       "connections": [
         "approach-ne",
         "approach-se",
         "keep-e"
       ],
-      "id": "mid-e",
-      "income": 0,
-      "quadrant": 1,
-      "tier": "mid"
+      "income": 0
     },
     {
+      "id": "mid-s",
+      "tier": "mid",
+      "quadrant": 2,
       "connections": [
         "approach-se",
         "approach-sw",
         "keep-s"
       ],
-      "id": "mid-s",
-      "income": 0,
-      "quadrant": 2,
-      "tier": "mid"
+      "income": 0
     },
     {
+      "id": "mid-w",
+      "tier": "mid",
+      "quadrant": 3,
       "connections": [
         "approach-sw",
         "approach-nw",
         "keep-w"
       ],
-      "id": "mid-w",
-      "income": 0,
-      "quadrant": 3,
-      "tier": "mid"
+      "income": 0
     }
   ]
-} as const;
+}
