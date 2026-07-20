@@ -307,6 +307,50 @@ async function auditStarInlay(page) {
 }
 
 /**
+ * T-217 accept criterion — every house sigil must render as a LEGIBLE glyph, not an invisible or
+ * hairline path. The HUD renders all four houses' plaque crests (`houseSigilPath` for flame / spear /
+ * raven / crescent), so a live board carries every sigil in the DOM. jsdom cannot rasterize, so this
+ * rasterizes each `.plaque-crest .sigil-svg` to a canvas and counts filled (opaque) pixels; the floor
+ * catches the class of bug where an SVG arc self-cancels under the nonzero fill-rule (e.g. an inner
+ * arc radius < half its chord) and leaves ~zero fill area. Returns `{ sigils: [{ sigil, fill }] }`
+ * (fill = filled px at a fixed 96px raster) or null if the plaques are not rendered yet.
+ */
+async function auditSigils(page) {
+  return page.evaluate(async () => {
+    const crests = Array.from(document.querySelectorAll('.house-plaque .plaque-crest .sigil-svg'));
+    if (crests.length === 0) return null;
+    const SIZE = 96;
+    const results = [];
+    for (const svg of crests) {
+      // Re-render at a fixed size on an opaque-agnostic canvas and count non-transparent pixels.
+      const clone = svg.cloneNode(true);
+      clone.setAttribute('width', String(SIZE));
+      clone.setAttribute('height', String(SIZE));
+      const sigil = svg.getAttribute('data-sigil') || '(unknown)';
+      const markup = new XMLSerializer().serializeToString(clone);
+      const url = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(markup)));
+      const img = new Image();
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise((res, rej) => {
+        img.onload = res;
+        img.onerror = rej;
+        img.src = url;
+      });
+      const cv = document.createElement('canvas');
+      cv.width = SIZE;
+      cv.height = SIZE;
+      const ctx = cv.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      const data = ctx.getImageData(0, 0, SIZE, SIZE).data;
+      let fill = 0;
+      for (let i = 3; i < data.length; i += 4) if (data[i] > 16) fill++;
+      results.push({ sigil, fill });
+    }
+    return { sigils: results };
+  });
+}
+
+/**
  * T-209 accept criterion — a full 6-card hand must render fully inside the realm HUD column (no
  * clipping off the panel edge). jsdom has no layout engine, so this must run in the real Playwright
  * page. Returns `{ count, allInside }`: every `.card-slot` rect's left/right edge lies within the
@@ -442,6 +486,8 @@ async function main() {
   let controlsStart = null;
   // T-208: assert the carved chaos-star inlay is present on the live mid-game board.
   let starInlay = null;
+  // T-217: assert every house sigil rasterizes to a legible (non-empty) glyph on the live board.
+  let sigilAudit = null;
   // T-209: track the fullest hand seen on a live mid-game board — a full 6-card hand must fit the
   // realm column. Keep the max-count sample so a mid-turn spend can't hide the full-hand case.
   let handFit = null;
@@ -524,6 +570,10 @@ async function main() {
         if (starInlay === null && obs.round >= 2 && obs.sigs.board) {
           starInlay = await auditStarInlay(page);
         }
+        // T-217: audit house-sigil legibility once on the live mid-game board (all four plaques up).
+        if (sigilAudit === null && obs.round >= 2 && obs.sigs.board) {
+          sigilAudit = await auditSigils(page);
+        }
         // T-209: sample the hand fit on every live mid-game board, keeping the fullest hand seen.
         if (obs.round >= 2 && obs.sigs.board) {
           const fit = await auditHandFit(page);
@@ -602,6 +652,27 @@ async function main() {
     process.exit(1);
   }
   console.log('star inlay: decorative chaos-star rays + burned carved-wood fill present on the board');
+
+  // T-217 accept: every house sigil must rasterize to a legible glyph (not an invisible/hairline path).
+  // Floor is a fraction of the 96×96 raster — the buggy self-cancelling crescent measured ~0 filled px,
+  // while a real glyph fills hundreds. 300px (~3% of the box) sits safely above hairline noise, below
+  // every legible sigil.
+  const SIGIL_FILL_FLOOR = 300;
+  if (sigilAudit === null) {
+    console.error('\nSIGIL-LEGIBILITY assertion never ran (no live board with house plaques at round >= 2)');
+    process.exit(1);
+  }
+  if (sigilAudit.sigils.length < 4) {
+    console.error(`\nSIGIL-LEGIBILITY FAILED — only ${sigilAudit.sigils.length}/4 house sigils rendered.`);
+    process.exit(1);
+  }
+  const faintSigils = sigilAudit.sigils.filter((s) => s.fill < SIGIL_FILL_FLOOR);
+  if (faintSigils.length > 0) {
+    console.error('\nSIGIL-LEGIBILITY FAILED — a house sigil renders as an invisible/hairline glyph:');
+    for (const s of faintSigils) console.error(`  sigil "${s.sigil}": ${s.fill} filled px (floor ${SIGIL_FILL_FLOOR})`);
+    process.exit(1);
+  }
+  console.log(`sigil legibility: all ${sigilAudit.sigils.length} house sigils fill ≥ ${SIGIL_FILL_FLOOR}px [${sigilAudit.sigils.map((s) => `${s.sigil}:${s.fill}`).join(', ')}]`);
 
   // T-209 accept: a full 6-card hand must render fully inside the realm HUD column (no clipping).
   if (handFit === null) {

@@ -390,12 +390,15 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
    burn strokes so the ray/octagon/octagram read as inlaid lines, kept visually distinct from
    the lit iron `.edge` tracks below (different colour + weight). */
 .star-inlay { fill: none; pointer-events: none; stroke: #4a3116; }
-.star-inlay.ray { stroke-width: 1.5; opacity: 0.45; }
+.star-inlay.ray { stroke-width: 1.5; opacity: 0.3; }
 .star-inlay.octagon { stroke-width: 2; opacity: 0.5; }
 .star-inlay.octagram { stroke-width: 1.5; opacity: 0.4; }
 
-/* Real playable edges — lit iron tracks drawn distinctly on top of the inlay. */
-.edge { stroke: #7a6a52; stroke-width: 3; stroke-linecap: round; opacity: 0.85; }
+/* Real playable edges — lit-iron / forge-gold ROADS raised on top of the inlay. Brighter and
+   heavier than the muted decorative rays they cross (the `.edges` group carries `#edgeGlow`, a
+   raised-road halo) so the true routes — notably the four keystone → approach spokes into the
+   centre — read as roads, never as decoration. */
+.edge { stroke: #d9a441; stroke-width: 4; stroke-linecap: round; opacity: 1; }
 
 /* The node-group wraps each location; the illustration IS the node body (no enclosing disc). */
 .node-group { cursor: pointer; }
@@ -405,7 +408,10 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
 .loc-fill { fill: #d8c7a6; stroke: #1a120b; stroke-width: 1; stroke-linejoin: round; }
 .loc-line { fill: none; stroke: #1a120b; stroke-width: 1.5; }
 .loc-keystone .loc-fill { fill: #6e5a86; stroke: var(--accent); stroke-width: 1.25; }
-.loc-forge .loc-glow { fill: #e8863a; opacity: 0.35; }
+/* Forge ember: a two-stage glow (outer halo + brighter hot core) so the lit anvil separates from
+   the dark carved star it stands on — it reads as a working forge, not another dark icon. */
+.loc-forge .loc-glow { fill: #e8863a; opacity: 0.55; }
+.loc-forge .loc-glow-core { fill: #ffb457; opacity: 0.7; }
 .loc-approach .loc-fill { fill: #cdbb96; }
 /* Ashed: the former ASH-disc fill re-homed onto the silhouette (zero info loss). */
 .loc.ashed { opacity: 0.7; }
@@ -417,8 +423,10 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
 
 /* Planted house banner — the SOLE claim signal (heraldry colour + sigil, never a ring). */
 .claim-banner { pointer-events: none; }
-.banner-pole { stroke: #d8c7a6; stroke-width: 1.5; }
-.banner-flag { stroke: #1a120b; stroke-width: 0.75; }
+.banner-pole { stroke: #d8c7a6; stroke-width: 1.75; }
+/* Crisp dark outline so the muted house colours read as heraldry at gameplay size; the sigil
+   stays the dark burn hex for contrast on the coloured flag. */
+.banner-flag { stroke: #1a120b; stroke-width: 1.5; stroke-linejoin: round; }
 .banner-sigil { pointer-events: none; }
 
 .pip { stroke: #000; stroke-width: 0.5; }

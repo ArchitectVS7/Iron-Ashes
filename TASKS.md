@@ -681,7 +681,7 @@ asset file, no RNG, no engine or tunable change; `docs/CREDITS.md` records the i
 self-authored. `npm run verify` green (1250 tests); `docs/handoff/state.json` updated.
 Orchestration: graphify=chaos star board background rendering v3 UI · attempts=1/4.
 
-### T-217 · Node hierarchy, readable banners, and ALL true connectors — `status: TODO` · `coder: opus` · `after: T-215`
+### T-217 · Node hierarchy, readable banners, and ALL true connectors — `status: DONE` · `coder: opus` · `after: T-215`
 Gate 1 second review (user, 2026-07-19), three parts. (1) Mid-tier legibility: forges get ember-glow
 treatment so they separate from the dark star; approaches become distinct watchtower/gate silhouettes
 instead of small squares. (2) Claim banners grow into readable heraldry — visible house color + sigil
@@ -692,6 +692,19 @@ render == data, enforced by test.
 **Accept:** the edge-parity test exists and is green (all `data/board.json` edges rendered, no
 phantoms); approaches/forges have distinct silhouette classes; banner elements carry sigil + house
 color at legible size in shots; jsdom E2E + verify green.
+
+**Delivered (2026-07-19):** Real playable edges (including the four Keystone→approach spokes) now
+render into a single `.edges` group with a deterministic raised-road glow filter, and `nodeScreenPos`
+is exported so a new edge-parity test can map every rendered `line.edge` back to `data/board.json`
+and assert render == data with no phantoms. Forges got a two-stage ember glow (halo + hot core) to
+separate from the dark star; approaches became a fortified gatehouse silhouette (twin crenellated
+towers + arched gate, DOM-assertable via `.approach-gate`) replacing the old signpost glyph; claim
+banners grew into a wider swallowtail flag (`BANNER_FLAG_W`/`BANNER_SIGIL_SCALE` constants) carrying
+house color + sigil at legible gameplay size; the crescent sigil path was also fixed so its inner arc
+carves a visible bite instead of cancelling the disc. Scope boundary: this pass is render/asset work
+only — no board.json data changes, no new node/edge types, and the M2 gallery regen is deliberately
+left to T-219 rather than re-shot here.
+Orchestration: graphify=query "v3 board rendering connectors edges nodes banners approaches forges" · attempts=2/4.
 
 ### T-218 · Theme the threat prompt — `status: TODO` · `coder: sonnet` · `after: T-215`
 Gate 1 second review (user, 2026-07-19): the Reckoning's marquee prompt ('The dark gathers its will…'

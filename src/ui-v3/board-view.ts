@@ -105,8 +105,17 @@ function pos(nodeId: string): Point {
   return polarPoint(p.angle, p.radius);
 }
 
+/**
+ * Screen position of a node id in the board's viewBox — the same mapping the renderer uses for
+ * edge endpoints. Exported so the edge-parity test can map each rendered `line.edge` endpoint back
+ * to a node id (render == data) without duplicating the private layout.
+ */
+export function nodeScreenPos(nodeId: string): { x: number; y: number } {
+  return pos(nodeId);
+}
+
 const NODE_R: Record<string, number> = {
-  keystone: 40, approach: 24, forge: 30, keep: 32, holding: 26,
+  keystone: 40, approach: 27, forge: 30, keep: 32, holding: 26,
 };
 
 function esc(s: string): string {
@@ -130,8 +139,9 @@ export function houseSigilPath(sigil: House['sigil']): string {
       return '<path d="M12 2l3 5h-2v13h-2V7H9z" />';
     case 'raven': // Ravenholt — a bird in flight (chevron wings + body)
       return '<path d="M12 8c2-3 5-4 9-4-3 2-3 3-5 4 2 0 3 1 4 2-3 0-5 0-8 3-3-3-5-3-8-3 1-1 2-2 4-2-2-1-2-2-5-4 4 0 7 1 9 4z" />';
-    case 'crescent': // Duskmere — a crescent moon
-      return '<path d="M16 3a9 9 0 1 0 0 18 7 7 0 0 1 0-18z" />';
+    case 'crescent': // Duskmere — a crescent moon (inner arc radius > half-chord so it carves a
+      // visible bite instead of cancelling the disc under the nonzero fill-rule)
+      return '<path d="M15 3a9 9 0 1 0 0 18 11 11 0 0 1 0-18z" />';
   }
 }
 
@@ -139,7 +149,7 @@ export function houseSigilPath(sigil: House['sigil']): string {
 export function houseSigilSvg(seat: number, size: number, color: string): string {
   const house = HOUSES[seat];
   if (!house) return '';
-  return `<svg class="sigil-svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}" aria-hidden="true">${houseSigilPath(house.sigil)}</svg>`;
+  return `<svg class="sigil-svg" data-sigil="${house.sigil}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}" aria-hidden="true">${houseSigilPath(house.sigil)}</svg>`;
 }
 
 /**
@@ -155,8 +165,10 @@ function locationSvg(tier: string, r: number, extra = ''): string {
     case 'keystone': // the dark throne
       return g(`<path class="loc-fill" d="M-14 14h28l-3-8h-4l2-16h-6l-1 6h-4l-1-6h-6l2 16h-4z" />
         <path class="loc-line" d="M-11 14h22" />`);
-    case 'forge': // an anvil with an ember glow
-      return g(`<circle class="loc-glow" cx="0" cy="2" r="11" />
+    case 'forge': // an anvil over a two-stage ember glow (halo + hot core) so it separates
+      // from the dark star it sits on — the forge reads as a lit workshop, not another dark icon.
+      return g(`<circle class="loc-glow" cx="0" cy="3" r="15" />
+        <circle class="loc-glow-core" cx="0" cy="4" r="8" />
         <path class="loc-fill" d="M-11 -3h16c0 3-2 4-4 4h-3l6 8h-8l-5-8h-2z" />
         <rect class="loc-fill" x="-4" y="9" width="8" height="4" />`);
     case 'keep': // a crenellated castle
@@ -165,9 +177,20 @@ function locationSvg(tier: string, r: number, extra = ''): string {
     case 'holding': // a hamlet cottage
       return g(`<path class="loc-fill" d="M0 -12l13 10h-3v12h-20v-12h-3z" />
         <rect class="loc-line" x="-4" y="2" width="8" height="8" />`);
-    case 'approach': // a road waypoint / signpost
-      return g(`<path class="loc-line" d="M-1 -13h2v26h-2z" />
-        <path class="loc-fill" d="M1 -12h12l-3 4 3 4h-12z" />`);
+    case 'approach': // a fortified GATEHOUSE — two crenellated flanking towers + an arched gate,
+      // a distinct watchtower silhouette (NOT the pole+pennant of a claim banner, and unlike the
+      // anvil forge or castle keep). The `.approach-gate` arch is the DOM-assertable marker.
+      return g(`<rect class="loc-fill" x="-12" y="-11" width="7" height="23" />
+        <rect class="loc-fill" x="5" y="-11" width="7" height="23" />
+        <rect class="loc-fill" x="-5" y="-4" width="10" height="16" />
+        <rect class="loc-fill" x="-12" y="-13" width="2.5" height="2.5" />
+        <rect class="loc-fill" x="-7.5" y="-13" width="2.5" height="2.5" />
+        <rect class="loc-fill" x="5" y="-13" width="2.5" height="2.5" />
+        <rect class="loc-fill" x="9.5" y="-13" width="2.5" height="2.5" />
+        <rect class="loc-fill" x="-5" y="-6" width="2.5" height="2" />
+        <rect class="loc-fill" x="-1.25" y="-6" width="2.5" height="2" />
+        <rect class="loc-fill" x="2.5" y="-6" width="2.5" height="2" />
+        <path class="loc-line approach-gate" d="M-2.6 12V1.5a2.6 2.6 0 0 1 5.2 0V12" />`);
     default:
       return '';
   }
@@ -178,14 +201,23 @@ function locationSvg(tier: string, r: number, extra = ''): string {
  * non-ashed node (there is no coloured ring). The sigil `<g>` carries a `sigil-<name>` class so
  * the owner's heraldry reads at a glance (and is DOM-assertable).
  */
+/**
+ * Authored flag geometry (unscaled SVG units) — a swallowtail pennant sized for GAMEPLAY
+ * legibility: wide enough (`BANNER_FLAG_W`) to carry the house sigil at `BANNER_SIGIL_SCALE`
+ * so the heraldry reads at a glance. The banner-legibility test asserts against these constants,
+ * so a future shrink regresses the test.
+ */
+export const BANNER_FLAG_W = 26;
+export const BANNER_SIGIL_SCALE = 0.8;
+
 function claimBanner(seat: number, r: number): string {
   const color = PLAYER_COLORS[seat] ?? NEUTRAL;
   const sigil = HOUSES[seat]?.sigil ?? 'flame';
-  // Perch the banner on the node's upper-left shoulder so it clears pieces/crown at the top.
-  return `<g class="claim-banner" transform="translate(${(-r - 2).toFixed(1)},${(-r - 6).toFixed(1)})">
-    <line class="banner-pole" x1="0" y1="4" x2="0" y2="24" />
-    <path class="banner-flag" d="M0 4h15l-4 4 4 4H0z" fill="${color}" />
-    <g class="banner-sigil sigil-${sigil}" transform="translate(1.5,4) scale(0.42)" fill="#1a1206">${houseSigilPath(sigil)}</g>
+  // Perch the banner on the node's upper-left shoulder so it clears the court-piece row above.
+  return `<g class="claim-banner" transform="translate(${(-r - 6).toFixed(1)},${(-r - 4).toFixed(1)})">
+    <line class="banner-pole" x1="0" y1="2" x2="0" y2="36" />
+    <path class="banner-flag" d="M0 2L${BANNER_FLAG_W} 2L21 13L${BANNER_FLAG_W} 24L0 24Z" fill="${color}" />
+    <g class="banner-sigil sigil-${sigil}" transform="translate(3,4) scale(${BANNER_SIGIL_SCALE})" fill="#1a1206">${houseSigilPath(sigil)}</g>
   </g>`;
 }
 
@@ -234,6 +266,14 @@ export function renderBoard(state: ObservableState): string {
     '<filter id="starEmber" x="-20%" y="-20%" width="140%" height="140%">' +
     '<feGaussianBlur stdDev="2.5" />' +
     '</filter>' +
+    // Raised-road glow for the TRUE playable edges: a small fixed blur haloed behind the crisp
+    // stroke (deterministic params, no RNG) so real roads read as lit iron laid ON the wood — never
+    // mistaken for the muted decorative rays they cross. Applied once to the `.edges` group so it
+    // stays exactly one `<line.edge>` element per undirected edge (edge-parity guard).
+    '<filter id="edgeGlow" x="-20%" y="-20%" width="140%" height="140%">' +
+    '<feGaussianBlur stdDev="1.6" result="b" />' +
+    '<feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>' +
+    '</filter>' +
     '</defs>';
   // Base fill — the depth gradient (replaces the old flat dark hex).
   inlay += `<polygon points="${carvePoints}" class="star-carve" fill="url(#starCarveGrad)" />`;
@@ -261,8 +301,11 @@ export function renderBoard(state: ObservableState): string {
   inlay += `<path d="${star}" class="star-inlay octagram" />`;
 
   // ── Real playable edges (dedup undirected pairs), drawn distinctly ON TOP ──
+  // ONE `<line.edge>` per undirected edge (render == data, enforced by the edge-parity test),
+  // wrapped in a single `.edges` group carrying the raised-road glow filter so the lit-iron roads
+  // dominate the muted decorative rays they cross — notably the four keystone → approach spokes.
   const seen = new Set<string>();
-  let edges = '';
+  let edgeLines = '';
   for (const [id, ndef] of Object.entries(def.nodes)) {
     const a = pos(id);
     for (const conn of ndef.connections) {
@@ -270,9 +313,10 @@ export function renderBoard(state: ObservableState): string {
       if (seen.has(key)) continue;
       seen.add(key);
       const b = pos(conn);
-      edges += `<line x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}" class="edge" />`;
+      edgeLines += `<line x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}" class="edge" />`;
     }
   }
+  const edges = `<g class="edges" filter="url(#edgeGlow)">${edgeLines}</g>`;
 
   // ── Nodes ──
   let circles = '';

@@ -19,10 +19,20 @@
  * The layout is authored purely from the observable projection, so this mirrors the card-face
  * test: build a real deterministic state, project it, parse the SVG, assert on the DOM.
  */
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { createGame, observableState } from '../../src/v3/index.js';
 import type { GameState } from '../../src/v3/index.js';
-import { renderBoard } from '../../src/ui-v3/board-view.js';
+import {
+  renderBoard,
+  nodeScreenPos,
+  PLAYER_COLORS,
+  BANNER_FLAG_W,
+  BANNER_SIGIL_SCALE,
+  houseSigilPath,
+  HOUSES,
+} from '../../src/ui-v3/board-view.js';
 
 function parse(svg: string): SVGSVGElement {
   const doc = new DOMParser().parseFromString(svg, 'image/svg+xml');
@@ -208,3 +218,228 @@ describe('T-208 board — fog (§7 D2) regression guard', () => {
     }
   });
 });
+
+// ── T-217 · edge-parity guard, distinct silhouettes, legible heraldry ──────────────────────
+
+/** Canonical undirected edge key `a|b` with a<b, so both directions collapse to one. */
+function edgeKey(a: string, b: string): string {
+  return a < b ? `${a}|${b}` : `${b}|${a}`;
+}
+
+/** The authoritative undirected edge set straight from `data/board.json` node connections. */
+function dataEdgeSet(): Set<string> {
+  // Vitest runs from the repo root; read the data file directly (jsdom's import.meta.url is not a
+  // file: URL, so resolve from cwd instead).
+  const raw = readFileSync(resolve(process.cwd(), 'data/board.json'), 'utf8');
+  const board = JSON.parse(raw) as { nodes: { id: string; connections: string[] }[] };
+  const conn = new Map<string, Set<string>>();
+  for (const n of board.nodes) conn.set(n.id, new Set(n.connections));
+  const edges = new Set<string>();
+  for (const n of board.nodes) {
+    for (const c of n.connections) {
+      // Defensive: connections must be symmetric (undirected graph).
+      expect(conn.get(c)?.has(n.id), `edge ${n.id}→${c} is symmetric`).toBe(true);
+      edges.add(edgeKey(n.id, c));
+    }
+  }
+  return edges;
+}
+
+describe('T-217 board — accept: edge-parity (render == data, no missing / no phantom edges)', () => {
+  it('every data/board.json edge is rendered exactly once and no extra connectors exist', () => {
+    const data = dataEdgeSet();
+    expect(data.size, 'Closing-Ring topology has 28 undirected edges').toBe(28);
+
+    const svg = boardSvg();
+    const rendered = Array.from(svg.querySelectorAll('line.edge'));
+    expect(rendered.length, 'one line.edge per data edge (28)').toBe(28);
+
+    // Map each rendered endpoint back to a node id by nearest layout position (tight epsilon).
+    const ids = new Set<string>();
+    for (const e of data) for (const id of e.split('|')) ids.add(id);
+    const idPositions = Array.from(ids).map((id) => ({ id, p: nodeScreenPos(id) }));
+    const idAt = (x: number, y: number): string => {
+      for (const { id, p } of idPositions) {
+        if (Math.hypot(p.x - x, p.y - y) < 0.6) return id;
+      }
+      throw new Error(`endpoint (${x},${y}) matches no node — phantom coordinate`);
+    };
+
+    const renderedKeys: string[] = [];
+    for (const e of rendered) {
+      const a = idAt(Number(e.getAttribute('x1')), Number(e.getAttribute('y1')));
+      const b = idAt(Number(e.getAttribute('x2')), Number(e.getAttribute('y2')));
+      renderedKeys.push(edgeKey(a, b));
+    }
+
+    // No duplicate elements for any data edge.
+    const renderedSet = new Set(renderedKeys);
+    expect(renderedSet.size, 'no duplicate rendered edges').toBe(renderedKeys.length);
+
+    // Set equality: render === data (no missing, no phantom).
+    const missing = [...data].filter((k) => !renderedSet.has(k));
+    const phantom = [...renderedSet].filter((k) => !data.has(k));
+    expect(missing, `edges in data but not rendered: ${missing.join(', ')}`).toEqual([]);
+    expect(phantom, `edges rendered but not in data: ${phantom.join(', ')}`).toEqual([]);
+  });
+
+  it('the four keystone → approach spokes (the only routes into the centre) are rendered', () => {
+    const data = dataEdgeSet();
+    const svg = boardSvg();
+    const rendered = Array.from(svg.querySelectorAll('line.edge'));
+    const idPositions = ['keystone', 'approach-nw', 'approach-ne', 'approach-se', 'approach-sw'].map(
+      (id) => ({ id, p: nodeScreenPos(id) }),
+    );
+    const idAt = (x: number, y: number): string | null => {
+      for (const { id, p } of idPositions) if (Math.hypot(p.x - x, p.y - y) < 0.6) return id;
+      return null;
+    };
+    const renderedKeys = new Set<string>();
+    for (const e of rendered) {
+      const a = idAt(Number(e.getAttribute('x1')), Number(e.getAttribute('y1')));
+      const b = idAt(Number(e.getAttribute('x2')), Number(e.getAttribute('y2')));
+      if (a && b) renderedKeys.add(edgeKey(a, b));
+    }
+    for (const ap of ['approach-nw', 'approach-ne', 'approach-se', 'approach-sw']) {
+      const key = edgeKey('keystone', ap);
+      expect(data.has(key), `${key} is a real data edge`).toBe(true);
+      expect(renderedKeys.has(key), `${key} spoke is rendered into the centre`).toBe(true);
+    }
+  });
+
+  it('the edges are grouped under a raised-road glow (one element per edge preserved)', () => {
+    const svg = boardSvg();
+    const group = svg.querySelector('g.edges');
+    expect(group, 'edges wrapped in a .edges group').not.toBeNull();
+    expect((group?.getAttribute('filter') ?? '').includes('edgeGlow'), 'group carries the road glow').toBe(true);
+    expect(svg.querySelector('defs filter#edgeGlow'), 'the edge-glow filter is defined').not.toBeNull();
+    // The glow is a GROUP filter — the DOM still holds exactly one line.edge per edge.
+    expect(group?.querySelectorAll('line.edge').length, '28 edge lines live inside the group').toBe(28);
+  });
+});
+
+describe('T-217 board — accept: distinct forge / approach silhouettes', () => {
+  it('a forge carries its ember glow (halo + hot core) and an approach a watchtower gate', () => {
+    const svg = boardSvg();
+    const forge = svg.querySelector('g[data-node="forge-ne"]');
+    const approach = svg.querySelector('g[data-node="approach-ne"]');
+    expect(forge?.querySelector('.loc-forge'), 'forge has a .loc-forge silhouette').not.toBeNull();
+    expect(forge?.querySelector('.loc-glow'), 'forge has an ember halo').not.toBeNull();
+    expect(forge?.querySelector('.loc-glow-core'), 'forge has a hot ember core').not.toBeNull();
+
+    expect(approach?.querySelector('.loc-approach'), 'approach has a .loc-approach silhouette').not.toBeNull();
+    expect(approach?.querySelector('.approach-gate'), 'approach has the watchtower gate marker').not.toBeNull();
+    // The forge silhouette has NO gate marker and the approach NO ember — structurally distinct.
+    expect(forge?.querySelector('.approach-gate'), 'forge is not a gatehouse').toBeNull();
+    expect(approach?.querySelector('.loc-glow'), 'approach is not an ember forge').toBeNull();
+  });
+});
+
+describe('T-217 board — accept: readable heraldry banners (house colour + sigil at legible size)', () => {
+  it('a claimed node banner shows the exact house colour and sigil at a legible size', () => {
+    const svg = boardSvg((st) => {
+      // seat 2 = House Ravenholt (sigil "raven"). Force ownership on a forge, then project.
+      (st.board.state.nodes['forge-nw'] as { owner: number | null }).owner = 2;
+    });
+    const group = svg.querySelector('g[data-node="forge-nw"]');
+    const flag = group?.querySelector('.banner-flag');
+    expect(flag, 'claimed node has a banner flag').not.toBeNull();
+    // House colour visible: flag fill is the exact seat-2 heraldry hex.
+    expect(flag?.getAttribute('fill'), 'flag carries the exact house colour').toBe(PLAYER_COLORS[2]);
+
+    // Sigil visible: the raven sigil class is present.
+    const sigil = group?.querySelector('.banner-sigil.sigil-raven');
+    expect(sigil, 'banner carries the Ravenholt (raven) sigil').not.toBeNull();
+
+    // Legible SIZE: sigil scale ≥ 0.75 and the flag spans the authored width — a future shrink
+    // regresses this. Parse the scale out of the sigil transform and check the flag path width.
+    const transform = sigil?.getAttribute('transform') ?? '';
+    const scale = Number(/scale\(([\d.]+)\)/.exec(transform)?.[1] ?? '0');
+    expect(scale, 'sigil rendered at a legible scale').toBeGreaterThanOrEqual(0.75);
+    expect(scale, 'sigil scale matches the authored legible constant').toBe(BANNER_SIGIL_SCALE);
+    expect(BANNER_SIGIL_SCALE, 'authored sigil scale is legible').toBeGreaterThanOrEqual(0.75);
+
+    const d = flag?.getAttribute('d') ?? '';
+    const xs = Array.from(d.matchAll(/[-\d.]+/g)).map(Number);
+    const flagWidth = Math.max(...xs.filter((_, i) => i % 2 === 0));
+    expect(flagWidth, 'flag spans the authored legible width').toBeGreaterThanOrEqual(22);
+    expect(BANNER_FLAG_W, 'authored flag width is legible').toBeGreaterThanOrEqual(22);
+  });
+
+  it('every house — including Duskmere (crescent) — plants a banner carrying its own sigil class', () => {
+    // The accept criterion is house-agnostic: exercise ALL four seats, not just seat 2. The crescent
+    // (Duskmere, seat 3) is the house whose sigil regressed to invisible, so it must be covered here.
+    for (let seat = 0; seat < HOUSES.length; seat++) {
+      const sigilName = HOUSES[seat]!.sigil;
+      const svg = boardSvg((st) => {
+        (st.board.state.nodes['forge-nw'] as { owner: number | null }).owner = seat;
+      });
+      const group = svg.querySelector('g[data-node="forge-nw"]');
+      const banner = group?.querySelector('.banner-sigil');
+      expect(banner?.getAttribute('class'), `seat ${seat} banner carries the ${sigilName} sigil class`)
+        .toContain(`sigil-${sigilName}`);
+    }
+  });
+
+  it('no house sigil path self-cancels under the fill-rule (every elliptical arc radius ≥ half its chord)', () => {
+    // Root-cause guard for the crescent bug: an SVG `a`/`A` arc whose radius is smaller than half the
+    // straight-line distance between its endpoints is auto-scaled up per spec, and paired arcs can then
+    // sweep so they cancel under the default nonzero fill-rule — leaving an invisible glyph. Assert the
+    // radius-vs-chord invariant on every arc of every house sigil (deterministic; no rasterization).
+    for (const house of HOUSES) {
+      const markup = houseSigilPath(house.sigil);
+      const d = /\bd="([^"]+)"/.exec(markup)?.[1] ?? '';
+      expect(d, `${house.sigil} sigil exposes a path d`).not.toBe('');
+      for (const arc of ellipticalArcs(d)) {
+        const chord = Math.hypot(arc.ex - arc.sx, arc.ey - arc.sy);
+        expect(
+          arc.rx + 1e-6,
+          `${house.sigil}: arc radius ${arc.rx} must be ≥ half its chord ${(chord / 2).toFixed(2)} ` +
+            `(else SVG rescales it and the arcs can cancel under the fill-rule)`,
+        ).toBeGreaterThanOrEqual(chord / 2);
+      }
+    }
+  });
+});
+
+/**
+ * Minimal SVG path walker that yields every elliptical arc segment with its resolved start/end points.
+ * Tracks the current point through M/m, L/l, H/h, V/v, C/c, S/s, Q/q, T/t, A/a, Z/z so relative arcs
+ * resolve to absolute endpoints. Only the arc geometry (radius vs. chord) is used by the caller.
+ */
+function ellipticalArcs(
+  d: string,
+): { sx: number; sy: number; ex: number; ey: number; rx: number; ry: number }[] {
+  const tokens = d.match(/[a-zA-Z]|-?\d*\.?\d+(?:e[-+]?\d+)?/gi) ?? [];
+  const argc: Record<string, number> = {
+    M: 2, L: 2, H: 1, V: 1, C: 6, S: 4, Q: 4, T: 2, A: 7, Z: 0,
+  };
+  const arcs: { sx: number; sy: number; ex: number; ey: number; rx: number; ry: number }[] = [];
+  let cx = 0, cy = 0, startX = 0, startY = 0;
+  let cmd = '';
+  let i = 0;
+  while (i < tokens.length) {
+    const t = tokens[i]!;
+    if (/[a-zA-Z]/.test(t)) { cmd = t; i++; if (cmd.toUpperCase() === 'Z') { cx = startX; cy = startY; } continue; }
+    const upper = cmd.toUpperCase();
+    const rel = cmd === cmd.toLowerCase();
+    const n = argc[upper] ?? 0;
+    const a = tokens.slice(i, i + n).map(Number);
+    i += n;
+    const px = cx, py = cy;
+    switch (upper) {
+      case 'M': cx = rel ? cx + a[0]! : a[0]!; cy = rel ? cy + a[1]! : a[1]!; startX = cx; startY = cy; cmd = rel ? 'l' : 'L'; break;
+      case 'L': case 'T': cx = rel ? cx + a[0]! : a[0]!; cy = rel ? cy + a[1]! : a[1]!; break;
+      case 'H': cx = rel ? cx + a[0]! : a[0]!; break;
+      case 'V': cy = rel ? cy + a[0]! : a[0]!; break;
+      case 'C': cx = rel ? cx + a[4]! : a[4]!; cy = rel ? cy + a[5]! : a[5]!; break;
+      case 'S': case 'Q': cx = rel ? cx + a[2]! : a[2]!; cy = rel ? cy + a[3]! : a[3]!; break;
+      case 'A':
+        cx = rel ? cx + a[5]! : a[5]!; cy = rel ? cy + a[6]! : a[6]!;
+        arcs.push({ sx: px, sy: py, ex: cx, ey: cy, rx: Math.abs(a[0]!), ry: Math.abs(a[1]!) });
+        break;
+      default: break;
+    }
+  }
+  return arcs;
+}
