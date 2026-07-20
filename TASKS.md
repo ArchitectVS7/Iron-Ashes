@@ -726,12 +726,26 @@ user decision). Scope boundary: styling/markup only — no new board.json data, 
 changes, and the M2 gallery regen is deliberately left to T-219 rather than re-shot here.
 Orchestration: graphify=query "threat prompt Reckoning banner FACE THE THREAT rendering in ui-v3 view" · attempts=1/4.
 
-### T-219 · Regenerate m2 gallery for the third review — `status: TODO` · `coder: sonnet` · `after: T-216, T-217, T-218`
+### T-219 · Regenerate m2 gallery for the third review — `status: DONE` · `coder: sonnet` · `after: T-216, T-217, T-218`
 Re-run `npm run shots:v3 -- --out docs/Redesign-V3.1/m2`, refresh the README if screens changed,
 commit the gallery — then HALT: T-207 stays `BLOCKED(awaiting user visual review)` for the third
 Gate 1 review (user decision: in-person verification before the flip). Do not flip T-207 or advance
 into M3.
 **Accept:** fresh gallery committed; m2-gallery guard green; run halts with T-207 still BLOCKED.
+
+**Delivered (2026-07-19):** Re-captured the 7-screen M2 gallery via `npm run shots:v3 -- --out
+docs/Redesign-V3.1/m2` so it reflects the T-216 (chaos-star material depth), T-217 (node
+hierarchy / readable banners / true Keystone→approach connectors), and T-218 (themed threat
+plaque) render changes that had each deferred the regen here. Run exited 0 with all built-in audits
+green (board-dominance, fonts, appearance, star-inlay, sigil-legibility, hand-fit, bottom-bar,
+election-unclipped). Six PNGs changed (`02`…`07`); `01-start-select.png` is byte-identical since
+those tasks did not touch the start screen. Screen keys/filenames unchanged, so
+`docs/Redesign-V3.1/m2/README.md` needed no edit. The m2-gallery guard (`tests/v3/m2-gallery.test.ts`,
+≥7 PNGs + non-empty README) is green and the full v3 suite passes (795 tests). No engine / tunable /
+asset / UI-behavior / script change — image artifacts + this status note only. HALT: T-207 stays
+`BLOCKED(awaiting user visual review)` for the user's third Gate 1 in-person review; state.json
+`currentStage` unchanged (`V3.1-M2-CHECKPOINT`); did not flip T-207 or advance into M3.
+Orchestration: graphify=shots-v3 screenshot gallery generation m2 · attempts=1/4.
 
 ### T-207 · CHECKPOINT — user visual review of M2 — `status: BLOCKED(awaiting user visual review)` · `coder: sonnet` · `after: T-206, T-219`
 Regenerate the gallery into `docs/Redesign-V3.1/m2/` (committed), then **set this task
