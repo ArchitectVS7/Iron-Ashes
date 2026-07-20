@@ -660,13 +660,26 @@ the README's numbered list was left as-is. Guard `tests/v3/m2-gallery.test.ts` g
 user visual review) — HALT for the second Gate 1 review; M3 not started.**
 Orchestration: graphify=shots-v3 screenshot script m2 gallery guard test · attempts=1/4.
 
-### T-216 · Chaos star — keep bold, add material depth — `status: TODO` · `coder: opus` · `after: T-215`
+### T-216 · Chaos star — keep bold, add material depth — `status: DONE` · `coder: opus` · `after: T-215`
 Gate 1 second review (user, 2026-07-19): the giant solid star is KEPT as the board's defining visual —
 but it currently reads as a flat dark sticker laid on the wood. Give it material depth: burned/charred
 wood texture inside the shape (not flat fill), beveled or ember-glow edges, and a slightly lighter
 interior so dark node icons separate from the ground. Do not shrink it or revert to a subtle inlay.
 **Accept:** the star region shows non-flat texturing (distinct fill treatment asserted in DOM/SVG);
 star silhouette unchanged; regenerated shots show icons legible against the interior; verify green.
+
+**Delivered (2026-07-19):** Replaced the chaos-star's flat `STAR_CARVE_FILL` hex with a
+deterministic three-layer material treatment in `src/ui-v3/board-view.ts` — a `starCarveGrad`
+radial gradient (lighter warm-char centre → darker bevelled rim, for icon separation), a clipped
+`starChar` `feTurbulence` charred-grain overlay (fixed seed, same technique as
+`table-texture.svg`, `soft-light` blend so it modulates rather than washes the fill), and a
+blurred `starEmber` rim tracing the silhouette; the base `carvePts` polygon geometry is
+byte-identical so the star silhouette is unchanged. New DOM assertions in
+`tests/v3/board-view.test.ts` pin the gradient fill, the clipped char layer, and the ember rim as
+present and distinct from a flat fill. Scope boundary: this is SVG `<defs>`/CSS only — no new
+asset file, no RNG, no engine or tunable change; `docs/CREDITS.md` records the inline material as
+self-authored. `npm run verify` green (1250 tests); `docs/handoff/state.json` updated.
+Orchestration: graphify=chaos star board background rendering v3 UI · attempts=1/4.
 
 ### T-217 · Node hierarchy, readable banners, and ALL true connectors — `status: TODO` · `coder: opus` · `after: T-215`
 Gate 1 second review (user, 2026-07-19), three parts. (1) Mid-tier legibility: forges get ember-glow

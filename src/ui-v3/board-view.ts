@@ -18,8 +18,12 @@
  * illustration), the keystone accent, the dark's heart (danger-lit throne), a per-node
  * blightLevel pip ladder, Court pieces / Crown / dark forces, a Discovery back-sigil while
  * face-down, and the dark's heart HP are all preserved. Beneath the graph a burned {8-point}
- * chaos-star is carved into the wood (`.star-carve`, first child), with the decorative rays /
- * octagram (`.star-inlay`) over it and the true edges (`.edge`) distinct on top of both.
+ * chaos-star is carved into the wood — NOT a flat sticker (T-216): a radial-gradient interior
+ * (lighter warm-char centre → darker bevelled rim, so dark node icons separate from the ground),
+ * a clipped procedural charred-grain overlay (`.star-char`, deterministic `feTurbulence` — no RNG)
+ * for material texture, and a blurred ember rim (`.star-ember`). The base silhouette
+ * (`.star-carve`, first child) keeps byte-identical geometry. The decorative rays / octagram
+ * (`.star-inlay`) sit over it and the true edges (`.edge`) distinct on top of both.
  * Pure: same observable state ⇒ same SVG.
  */
 
@@ -49,8 +53,6 @@ export const HOUSES: readonly House[] = [
 ];
 
 const NEUTRAL = '#4b5563';
-/** Burned-wood fill for the carved chaos-star inlay — darker than the table texture. */
-const STAR_CARVE_FILL = '#1c130b';
 
 const VIEW = 720;
 const CX = VIEW / 2;
@@ -198,8 +200,10 @@ export function renderBoard(state: ObservableState): string {
   let inlay = '';
   // Carved burned-wood 8-point star beneath the graph: a filled polygon whose 8 outer points
   // sit under the decorative rays and 8 inner points cinch between them. Rendered FIRST (under
-  // rays / edges / nodes) with an explicit dark burn fill so it reads as a scorched inlay in a
-  // screenshot, not faint scratches. This is decorative wood — never a playable ray.
+  // rays / edges / nodes). Material depth (T-216): the base gets a radial-gradient fill (lighter
+  // warm-char centre → darker bevelled rim) instead of a flat hex, a clipped charred-grain
+  // overlay for scorched wood texture, and a blurred ember rim — so it reads as burned material,
+  // not a flat sticker. This is decorative wood — never a playable ray.
   const carvePts: string[] = [];
   const CARVE_INNER = RIM * 0.4;
   for (let i = 0; i < 8; i++) {
@@ -208,7 +212,35 @@ export function renderBoard(state: ObservableState): string {
     carvePts.push(`${outer.x.toFixed(1)},${outer.y.toFixed(1)}`);
     carvePts.push(`${inner.x.toFixed(1)},${inner.y.toFixed(1)}`);
   }
-  inlay += `<polygon points="${carvePts.join(' ')}" class="star-carve" fill="${STAR_CARVE_FILL}" />`;
+  const carvePoints = carvePts.join(' ');
+  // <defs> for the star material — all deterministic (fixed `feTurbulence` seed, no RNG):
+  //   • starCarveGrad — lighter warm-char interior → darker bevelled rim (depth + icon separation)
+  //   • starChar      — fractalNoise charred-grain flecks (same technique as table-texture.svg)
+  //   • starCarveClip — the exact star silhouette, so the grain overlay is confined to the shape
+  //   • starEmber     — Gaussian blur for the glowing ember rim
+  const defs =
+    '<defs>' +
+    '<radialGradient id="starCarveGrad" cx="50%" cy="50%" r="60%">' +
+    '<stop offset="0%" stop-color="#2c1e12" />' +
+    '<stop offset="70%" stop-color="#1c130b" />' +
+    '<stop offset="100%" stop-color="#120b05" />' +
+    '</radialGradient>' +
+    '<filter id="starChar" x="0" y="0" width="100%" height="100%">' +
+    '<feTurbulence type="fractalNoise" baseFrequency="0.012 0.14" numOctaves="5" ' +
+    'stitchTiles="stitch" seed="23" result="n" />' +
+    '<feColorMatrix in="n" type="matrix" values="0 0 0 0 0.12 0 0 0 0 0.08 0 0 0 0 0.05 0 0 0 0.85 0" />' +
+    '</filter>' +
+    `<clipPath id="starCarveClip"><polygon points="${carvePoints}" /></clipPath>` +
+    '<filter id="starEmber" x="-20%" y="-20%" width="140%" height="140%">' +
+    '<feGaussianBlur stdDev="2.5" />' +
+    '</filter>' +
+    '</defs>';
+  // Base fill — the depth gradient (replaces the old flat dark hex).
+  inlay += `<polygon points="${carvePoints}" class="star-carve" fill="url(#starCarveGrad)" />`;
+  // Charred-grain texture — the non-flat material treatment, clipped to the star silhouette.
+  inlay += `<g clip-path="url(#starCarveClip)"><rect x="0" y="0" width="${VIEW}" height="${VIEW}" class="star-char" filter="url(#starChar)" /></g>`;
+  // Ember/bevel edge — a warm blurred rim tracing the silhouette (colour set in CSS).
+  inlay += `<polygon points="${carvePoints}" class="star-ember" fill="none" filter="url(#starEmber)" />`;
   // 8 full-length rays from the centre to the rim.
   for (const p of rim) {
     inlay += `<line x1="${CX}" y1="${CY}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" class="star-inlay ray" />`;
@@ -308,5 +340,5 @@ export function renderBoard(state: ObservableState): string {
     circles += `</g>`;
   }
 
-  return `<svg viewBox="0 0 ${VIEW} ${VIEW}" class="board-svg" xmlns="http://www.w3.org/2000/svg">${inlay}${edges}${circles}</svg>`;
+  return `<svg viewBox="0 0 ${VIEW} ${VIEW}" class="board-svg" xmlns="http://www.w3.org/2000/svg">${defs}${inlay}${edges}${circles}</svg>`;
 }

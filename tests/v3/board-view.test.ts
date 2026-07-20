@@ -127,6 +127,60 @@ describe('T-208 board — accept #3: claims render as a planted banner, never a 
   });
 });
 
+describe('T-216 chaos star — material depth (non-flat, silhouette unchanged)', () => {
+  it('the star base uses a distinct fill treatment (gradient url), not a flat hex', () => {
+    const svg = boardSvg();
+    const fill = svg.querySelector('.star-carve')?.getAttribute('fill') ?? '';
+    expect(fill.startsWith('url(#'), 'star base fill references a gradient/pattern').toBe(true);
+  });
+
+  it('a clipped procedural charred-grain texture is present (deterministic feTurbulence)', () => {
+    const svg = boardSvg();
+    expect(svg.querySelector('defs feTurbulence'), 'a feTurbulence grain filter exists').not.toBeNull();
+    const char = svg.querySelector('.star-char');
+    expect(char, '.star-char grain overlay present').not.toBeNull();
+    expect((char?.getAttribute('filter') ?? '').includes('starChar'), 'grain references the turbulence filter').toBe(true);
+    expect(svg.querySelector('clipPath#starCarveClip'), 'grain is clipped to the star silhouette').not.toBeNull();
+  });
+
+  it('a blurred ember/bevel rim traces the silhouette', () => {
+    const svg = boardSvg();
+    const ember = svg.querySelector('.star-ember');
+    expect(ember, '.star-ember rim present').not.toBeNull();
+    expect(ember?.getAttribute('fill'), 'ember rim is stroke-only').toBe('none');
+    expect((ember?.getAttribute('filter') ?? '').includes('starEmber'), 'ember rim carries a glow filter').toBe(true);
+  });
+
+  it('the star silhouette is unchanged: 16 points, 8 outer at RIM≈338, 8 inner at ≈135.2', () => {
+    const svg = boardSvg();
+    const pts = (svg.querySelector('.star-carve')?.getAttribute('points') ?? '')
+      .trim()
+      .split(/\s+/)
+      .map((pair) => pair.split(',').map(Number) as [number, number]);
+    expect(pts.length, 'exactly 16 star points').toBe(16);
+    const CX = 360;
+    const CY = 360;
+    const radius = (p: [number, number]) => Math.hypot(p[0] - CX, p[1] - CY);
+    pts.forEach((p, i) => {
+      // Even indices are the 8 outer rim points; odd indices the 8 inner cinch points.
+      const expected = i % 2 === 0 ? 338 : 338 * 0.4;
+      expect(Math.abs(radius(p) - expected), `point ${i} at radius ≈ ${expected}`).toBeLessThan(0.5);
+    });
+  });
+
+  it('the base carve fill is still a real (non-none) fill — legacy accept #2 holds', () => {
+    const svg = boardSvg();
+    const fill = svg.querySelector('.star-carve')?.getAttribute('fill') ?? '';
+    expect(fill.length > 0 && fill !== 'none', 'carve has a real (non-none) fill').toBe(true);
+  });
+
+  it('render is deterministic (§7 D1): same observable state ⇒ identical SVG', () => {
+    const st = createGame(4, 'competitive', 42, 1);
+    const obs = observableState(st, 0);
+    expect(renderBoard(obs)).toBe(renderBoard(obs));
+  });
+});
+
 describe('T-208 board — fog (§7 D2) regression guard', () => {
   it('an unflipped Discovery token renders only its back-sigil glyph, never hidden content', () => {
     const svg = boardSvg((st) => {
