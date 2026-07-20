@@ -19,7 +19,8 @@
  * blightLevel pip ladder, Court pieces / Crown / dark forces, a Discovery back-sigil while
  * face-down, and the dark's heart HP are all preserved. Beneath the graph a burned {8-point}
  * chaos-star is carved into the wood — NOT a flat sticker (T-216): a radial-gradient interior
- * (lighter warm-char centre → darker bevelled rim, so dark node icons separate from the ground),
+ * (every stop measurably darker than the table surface — a bold burned ground with centre→rim depth,
+ * T-220: the ember forges + pale towers now carry the node contrast, so the ground stays dark),
  * a clipped procedural charred-grain overlay (`.star-char`, deterministic `feTurbulence` — no RNG)
  * for material texture, and a blurred ember rim (`.star-ember`). The base silhouette
  * (`.star-carve`, first child) keeps byte-identical geometry. The decorative rays / octagram
@@ -58,6 +59,25 @@ const VIEW = 720;
 const CX = VIEW / 2;
 const CY = VIEW / 2;
 const RIM = 338; // decorative star reaches to the rim, just inside the viewBox
+
+/**
+ * Mirror of the `.table-stage` / `.start` background-color in ui-v3.css — the wood surface the
+ * carved star must read DARKER than (T-220). Kept in sync with that CSS by a tests/v3 drift guard.
+ */
+export const TABLE_SURFACE_HEX = '#1a120c';
+/**
+ * `starCarveGrad` stops, centre → rim. Every one is measurably darker than TABLE_SURFACE_HEX
+ * (asserted in T-220) while preserving radial depth (centre lighter-but-still-dark → rim darkest)
+ * so the burned ground has body without swallowing the ember/pale nodes. The user's Gate-1 ruling
+ * was "keep bold, ADD depth" (T-220): a dark ground now, since the ember forges + pale towers carry
+ * their own contrast, so a dark star no longer needs a lighter interior to separate the icons.
+ */
+export const STAR_CARVE_STOPS = ['#140d07', '#0d0804', '#070402'] as const;
+
+/** Thin etched-gold vein weight for the TRUE playable edges (was CSS `stroke-width:4`) — T-220. */
+export const EDGE_STROKE_W = 1.6;
+/** Worn-stone road bed laid under the gold vein, wider than it, so the edge reads as material. */
+export const EDGE_BED_W = 3.4;
 
 /** angle in degrees (0 = East, clockwise in screen space), radius in px. */
 interface Polar { angle: number; radius: number; }
@@ -232,10 +252,11 @@ export function renderBoard(state: ObservableState): string {
   let inlay = '';
   // Carved burned-wood 8-point star beneath the graph: a filled polygon whose 8 outer points
   // sit under the decorative rays and 8 inner points cinch between them. Rendered FIRST (under
-  // rays / edges / nodes). Material depth (T-216): the base gets a radial-gradient fill (lighter
-  // warm-char centre → darker bevelled rim) instead of a flat hex, a clipped charred-grain
-  // overlay for scorched wood texture, and a blurred ember rim — so it reads as burned material,
-  // not a flat sticker. This is decorative wood — never a playable ray.
+  // rays / edges / nodes). Material depth (T-216): the base gets a radial-gradient fill (a dark
+  // burned ground — every stop darker than the table surface, with a centre→rim falloff; T-220
+  // restored its boldness) instead of a flat hex, a clipped charred-grain overlay for scorched wood
+  // texture, and a blurred ember rim — so it reads as burned material, not a flat sticker. This is
+  // decorative wood — never a playable ray.
   const carvePts: string[] = [];
   const CARVE_INNER = RIM * 0.4;
   for (let i = 0; i < 8; i++) {
@@ -246,16 +267,17 @@ export function renderBoard(state: ObservableState): string {
   }
   const carvePoints = carvePts.join(' ');
   // <defs> for the star material — all deterministic (fixed `feTurbulence` seed, no RNG):
-  //   • starCarveGrad — lighter warm-char interior → darker bevelled rim (depth + icon separation)
+  //   • starCarveGrad — dark burned ground (STAR_CARVE_STOPS), every stop darker than the table,
+  //                      centre→rim falloff for depth (T-220: bold ground, nodes carry the contrast)
   //   • starChar      — fractalNoise charred-grain flecks (same technique as table-texture.svg)
   //   • starCarveClip — the exact star silhouette, so the grain overlay is confined to the shape
   //   • starEmber     — Gaussian blur for the glowing ember rim
   const defs =
     '<defs>' +
     '<radialGradient id="starCarveGrad" cx="50%" cy="50%" r="60%">' +
-    '<stop offset="0%" stop-color="#2c1e12" />' +
-    '<stop offset="70%" stop-color="#1c130b" />' +
-    '<stop offset="100%" stop-color="#120b05" />' +
+    `<stop offset="0%" stop-color="${STAR_CARVE_STOPS[0]}" />` +
+    `<stop offset="70%" stop-color="${STAR_CARVE_STOPS[1]}" />` +
+    `<stop offset="100%" stop-color="${STAR_CARVE_STOPS[2]}" />` +
     '</radialGradient>' +
     '<filter id="starChar" x="0" y="0" width="100%" height="100%">' +
     '<feTurbulence type="fractalNoise" baseFrequency="0.012 0.14" numOctaves="5" ' +
@@ -266,12 +288,13 @@ export function renderBoard(state: ObservableState): string {
     '<filter id="starEmber" x="-20%" y="-20%" width="140%" height="140%">' +
     '<feGaussianBlur stdDev="2.5" />' +
     '</filter>' +
-    // Raised-road glow for the TRUE playable edges: a small fixed blur haloed behind the crisp
-    // stroke (deterministic params, no RNG) so real roads read as lit iron laid ON the wood — never
-    // mistaken for the muted decorative rays they cross. Applied once to the `.edges` group so it
-    // stays exactly one `<line.edge>` element per undirected edge (edge-parity guard).
+    // Soft lit glow for the TRUE playable edges: a small fixed blur haloed behind the thin gold
+    // vein (deterministic params, no RNG) so real roads read as an etched-gold vein warming the
+    // worn-stone bed beneath it — a lit material road, NOT a neon bar (T-220 thinned the blur from
+    // 1.6→0.7). Applied once to the `.edges` group so it stays exactly one `<line.edge>` element per
+    // undirected edge (edge-parity guard); the `.edge-bed` road bed rides in the same group.
     '<filter id="edgeGlow" x="-20%" y="-20%" width="140%" height="140%">' +
-    '<feGaussianBlur stdDev="1.6" result="b" />' +
+    '<feGaussianBlur stdDev="0.7" result="b" />' +
     '<feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>' +
     '</filter>' +
     '</defs>';
@@ -301,9 +324,10 @@ export function renderBoard(state: ObservableState): string {
   inlay += `<path d="${star}" class="star-inlay octagram" />`;
 
   // ── Real playable edges (dedup undirected pairs), drawn distinctly ON TOP ──
-  // ONE `<line.edge>` per undirected edge (render == data, enforced by the edge-parity test),
-  // wrapped in a single `.edges` group carrying the raised-road glow filter so the lit-iron roads
-  // dominate the muted decorative rays they cross — notably the four keystone → approach spokes.
+  // ONE `<line.edge>` per undirected edge (render == data, enforced by the edge-parity test) over a
+  // wider `.edge-bed` worn-stone road bed, wrapped in a single `.edges` group carrying the soft
+  // road glow so the thin etched-gold vein reads as a material road on the wood — distinct from the
+  // muted decorative rays it crosses — notably the four keystone → approach spokes into the centre.
   const seen = new Set<string>();
   let edgeLines = '';
   for (const [id, ndef] of Object.entries(def.nodes)) {
@@ -313,7 +337,13 @@ export function renderBoard(state: ObservableState): string {
       if (seen.has(key)) continue;
       seen.add(key);
       const b = pos(conn);
-      edgeLines += `<line x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}" class="edge" />`;
+      const coords = `x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}"`;
+      // Two lines per undirected edge: a worn-stone road bed, then the thin etched-gold vein on top.
+      // `.edge-bed` is a different class token, invisible to the `.edge` edge-parity queries, so the
+      // count of `line.edge` stays exactly one per edge (T-217 guard). Widths are INLINE (not CSS) so
+      // a stylesheet rule can't override the presentation attribute in a real browser (T-220 caveat).
+      edgeLines += `<line ${coords} class="edge-bed" stroke-width="${EDGE_BED_W}" />`;
+      edgeLines += `<line ${coords} class="edge" stroke-width="${EDGE_STROKE_W}" />`;
     }
   }
   const edges = `<g class="edges" filter="url(#edgeGlow)">${edgeLines}</g>`;

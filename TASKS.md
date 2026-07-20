@@ -747,7 +747,7 @@ asset / UI-behavior / script change — image artifacts + this status note only.
 `currentStage` unchanged (`V3.1-M2-CHECKPOINT`); did not flip T-207 or advance into M3.
 Orchestration: graphify=shots-v3 screenshot gallery generation m2 · attempts=1/4.
 
-### T-220 · Star boldness restored + connectors thinned/materialized — `status: TODO` · `coder: opus` · `after: T-219`
+### T-220 · Star boldness restored + connectors thinned/materialized — `status: DONE` · `coder: opus` · `after: T-219`
 Gate 1 third review (user, 2026-07-20). Two corrections to T-216/T-217. (1) **The star lost its
 boldness** — T-216 replaced the solid dark star with charred fill so close to the table's value that
 the star reads as faint background line-work. The user's ruling was "keep bold, ADD depth", not
@@ -759,6 +759,20 @@ not solid bars. The edge-parity guard from T-217 stays green throughout.
 **Accept:** star fill is measurably darker than the table surface (asserted, e.g. token/computed
 value) while retaining texture + ember edge; connector stroke weight reduced with a material
 treatment; edge-parity test still green; verify green.
+**Delivered (2026-07-20):** `board-view.ts` restored the `starCarveGrad` fill to a bold, dark burned
+ground — `STAR_CARVE_STOPS` (`#140d07`/`#0d0804`/`#070402`), every stop asserted darker than the new
+`TABLE_SURFACE_HEX` (`#1a120c`) constant with a CSS drift guard tying it back to `.table-stage`,
+keeping the centre→rim falloff plus the T-216 charred-grain overlay and ember rim (nudged
+0.5→0.6 opacity so it stays bold against the darker ground). Playable edges now render as two lines
+per undirected pair — a `.edge-bed` worn-stone road bed (`EDGE_BED_W` 3.4) under a thinned `.edge`
+etched-gold vein (`EDGE_STROKE_W` 1.6, down from the old flat 4) — with widths set inline in
+board-view.ts (not CSS) so a stylesheet rule can't re-widen them, the `edgeGlow` blur softened
+1.6→0.7, and the T-217 edge-parity guard (exactly one `line.edge` per undirected edge, `.edge-bed`
+a distinct class invisible to those queries) still green. New T-220 test suite in
+`tests/v3/board-view.test.ts` asserts both effects plus texture/ember retention; scope boundary is
+visual-only — no topology, tunable, or engine change, deferred to M2.5 (T-221+). Full v3 suite green
+(1267 tests), typecheck/lint clean.
+Orchestration: graphify=query "chaos star fill charred texture ember edge and board edge connector rendering in ui-v3 board-view" · attempts=1/4.
 
 ---
 

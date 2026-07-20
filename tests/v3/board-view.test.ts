@@ -32,6 +32,10 @@ import {
   BANNER_SIGIL_SCALE,
   houseSigilPath,
   HOUSES,
+  TABLE_SURFACE_HEX,
+  STAR_CARVE_STOPS,
+  EDGE_STROKE_W,
+  EDGE_BED_W,
 } from '../../src/ui-v3/board-view.js';
 
 function parse(svg: string): SVGSVGElement {
@@ -399,6 +403,86 @@ describe('T-217 board — accept: readable heraldry banners (house colour + sigi
         ).toBeGreaterThanOrEqual(chord / 2);
       }
     }
+  });
+});
+
+// ── T-220 · star boldness restored (dark ground) + connectors thinned & materialized ──────────
+
+/** sRGB relative luminance of a #rrggbb hex — plain weighted channel sum (monotonic; no gamma). */
+function luminance(hex: string): number {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.slice(0, 2), 16) / 255;
+  const g = parseInt(h.slice(2, 4), 16) / 255;
+  const b = parseInt(h.slice(4, 6), 16) / 255;
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+describe('T-220 board — accept #1: star ground is measurably darker than the table (keep bold, add depth)', () => {
+  it('every starCarveGrad stop is darker than the table surface, and the DOM uses the STAR_CARVE_STOPS tokens', () => {
+    const svg = boardSvg();
+    const stops = Array.from(svg.querySelectorAll('radialGradient#starCarveGrad stop')).map(
+      (s) => s.getAttribute('stop-color') ?? '',
+    );
+    // Render uses the tokens (single source shared with the assertion).
+    expect(stops, 'gradient stops equal STAR_CARVE_STOPS in order').toEqual([...STAR_CARVE_STOPS]);
+    const tableL = luminance(TABLE_SURFACE_HEX);
+    for (const stop of stops) {
+      expect(
+        luminance(stop),
+        `star stop ${stop} (L=${luminance(stop).toFixed(4)}) darker than table ${TABLE_SURFACE_HEX} (L=${tableL.toFixed(4)})`,
+      ).toBeLessThan(tableL);
+    }
+    // Depth retained: centre stop lighter than the rim stop (a visible centre→rim falloff).
+    expect(luminance(stops[0]!), 'centre stop lighter than rim (radial depth)').toBeGreaterThan(
+      luminance(stops[stops.length - 1]!),
+    );
+  });
+
+  it('texture + ember edge are RETAINED (the ruling was keep-and-add, not trade)', () => {
+    const svg = boardSvg();
+    const char = svg.querySelector('.star-char');
+    expect(char, '.star-char grain overlay still present').not.toBeNull();
+    expect((char?.getAttribute('filter') ?? '').includes('starChar'), 'grain references the turbulence filter').toBe(true);
+    const ember = svg.querySelector('.star-ember');
+    expect(ember, '.star-ember rim still present').not.toBeNull();
+    expect(ember?.getAttribute('fill'), 'ember rim is stroke-only').toBe('none');
+    expect((ember?.getAttribute('filter') ?? '').includes('starEmber'), 'ember rim carries its glow filter').toBe(true);
+  });
+
+  it('the table-surface constant has not drifted from the real .table-stage background (drift guard)', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/ui-v3/ui-v3.css'), 'utf8');
+    const rule = /\.table-stage\s*\{[^}]*\}/s.exec(css)?.[0] ?? '';
+    expect(rule, '.table-stage rule found in ui-v3.css').not.toBe('');
+    expect(
+      rule.includes(`background-color: ${TABLE_SURFACE_HEX}`),
+      `TABLE_SURFACE_HEX (${TABLE_SURFACE_HEX}) still mirrors the .table-stage background-color`,
+    ).toBe(true);
+  });
+});
+
+describe('T-220 board — accept #2: connectors thinned & materialized (worn-stone road / etched gold vein)', () => {
+  it('every playable edge is thinned below the T-217 weight (4) and carries the inline EDGE_STROKE_W', () => {
+    expect(EDGE_STROKE_W, 'vein weight reduced from the old 4').toBeLessThan(4);
+    const svg = boardSvg();
+    const edges = Array.from(svg.querySelectorAll('line.edge'));
+    expect(edges.length, 'still 28 playable edges').toBe(28);
+    for (const e of edges) {
+      expect(e.getAttribute('stroke-width'), 'edge carries the inline thinned width').toBe(String(EDGE_STROKE_W));
+    }
+  });
+
+  it('each edge rides a wider worn-stone road bed — a material treatment, not a bare bright bar', () => {
+    expect(EDGE_BED_W, 'road bed is wider than the gold vein').toBeGreaterThan(EDGE_STROKE_W);
+    const svg = boardSvg();
+    const beds = Array.from(svg.querySelectorAll('line.edge-bed'));
+    const edges = Array.from(svg.querySelectorAll('line.edge'));
+    expect(beds.length, 'one road bed per edge (28)').toBe(28);
+    expect(beds.length, 'bed count matches edge count').toBe(edges.length);
+    for (const b of beds) {
+      expect(b.getAttribute('stroke-width'), 'bed carries the inline wider width').toBe(String(EDGE_BED_W));
+    }
+    // `.edge-bed` is a distinct class token — invisible to the `.edge` edge-parity queries.
+    expect(svg.querySelectorAll('.edge-bed.edge, .edge.edge-bed').length, 'bed and vein are separate classes').toBe(0);
   });
 });
 
