@@ -988,10 +988,17 @@ blight seams, not a clean single-knob band-recenter, and defers the actual re-lo
 scope boundary: this task measures and records only, zero tunable-value or engine edits were made.
 Orchestration: graphify=v3 balance sim harness sim-v3 dark win rate capture doom attrition blood pact · attempts=1/4.
 
-### T-228 · M2.5 close — DoD — `status: TODO` · `coder: sonnet` · `after: T-225, T-227`
+### T-228 · M2.5 close — DoD — `status: DONE` · `coder: sonnet` · `after: T-225, T-227`
 Milestone DoD: verify green → tick M2.5 boxes in both roadmaps → `currentStage` → `V3.1-M2-CHECKPOINT`
 (the Gate 1 re-review) → dated §8 entry → commit → `handoff:check` exits 0.
 **Accept:** both commands exit 0; boxes ticked; §8 entry present.
+**Delivered (2026-07-20):** `npm run verify` exits 0 (105 files / 1283 tests, typecheck + lint clean)
+and `npm run handoff:check` exits 0. M2.5 box ticked in ROADMAP-V3 §4; the six T-222…T-227 deliverable
+boxes ticked in ROADMAP-V3.1-UI §M2.5; `currentStage` repointed **V3.1-M2.5 → V3.1-M2-CHECKPOINT**
+(now the first-unchecked §4 box) with `currentStageTitle`/`nextAction` rewritten for the checkpoint;
+dated T-228 entry added atop ROADMAP-V3 §8. T-207 left BLOCKED (user-only flip) — not touched. Zero
+engine/tunable/asset edits (docs + `state.json` only; no `.ts` changed → sourceHash unchanged).
+Orchestration: graphify=query "M2.5 milestone DoD handoff:check currentStage V3.1-M2-CHECKPOINT ROADMAP boxes" · attempts=1/4.
 
 ### T-229 · Regenerate gallery for the fourth review — `status: TODO` · `coder: sonnet` · `after: T-228`
 Re-run `npm run shots:v3 -- --out docs/Redesign-V3.1/m2`; commit; then HALT with T-207 still

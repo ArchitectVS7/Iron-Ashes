@@ -183,14 +183,14 @@ command; baseline gallery in-repo.
 a real 8-direction board; it was mis-scoped as visual-only. Under the §3 dated exception (T-221), the
 board grows to a true 8-spoke topology. **Topology only — zero tunable-value edits; the balance LOCK is
 voided by the change and replaced with a fresh baseline (T-227), not re-tuned.***
-- [ ] **T-222** — `data/board-v3.json` (new v3 board source; see the 2026-07-20 §3 split decision — kept
+- [x] **T-222** — `data/board-v3.json` (new v3 board source; see the 2026-07-20 §3 split decision — kept
       off the frozen-v2 `data/board.json`) 17 → 21 nodes: +4 cardinal mid-belt nodes so all 8 compass rays
       are real routes inward; Keystone keeps exactly 4 approaches; regenerate `src/v3/board.gen.ts`.
-- [ ] **T-223** — Untangle the 4-fold assumptions in types + setup (keep-id tuples, quadrant maps,
+- [x] **T-223** — Untangle the 4-fold assumptions in types + setup (keep-id tuples, quadrant maps,
       blight seams) — generalize node collections without changing game rules (still 4 seats / 4 quadrants).
-- [ ] **T-224** — Blight seams + spoke paths redefined coherently for 8 rays (dated spec amendment +
+- [x] **T-224** — Blight seams + spoke paths redefined coherently for 8 rays (dated spec amendment +
       rewritten spoke-path tests; blight still reaches the Keystone from every seam).
-- [ ] **T-225** — Render the 21-node board in `src/ui-v3`: the 4 new cardinal nodes get their own
+- [x] **T-225** — Render the 21-node board in `src/ui-v3`: the 4 new cardinal nodes get their own
       illustrated silhouettes; T-220 star/connector treatment carries over; edge-parity test passes.
 - [x] **T-226** — Sim / UGT harness / AI + Shadowking policy run correctly on the 21-node board
       (generalize hard-coded node ids / quadrant maps / distances); correctness only, no tuning.

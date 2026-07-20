@@ -198,7 +198,7 @@ Workflow (same as v2): **① idea → ② textual algorithm → ③ code → ④
   - [x] **V3.1-M0 — Foundations & the screenshot feedback loop** → `docs/ROADMAP-V3.1-UI.md` §M0
   - [x] **V3.1-M1 — The semantic move stream (transition layer)** → `docs/ROADMAP-V3.1-UI.md` §M1
   - [x] **V3.1-M2 — Theme foundation (stop looking like a spreadsheet)** → `docs/ROADMAP-V3.1-UI.md` §M2
-  - [ ] **V3.1-M2.5 — True 8-spoke board (engine topology change; user-authorized 2026-07-20)** → `docs/ROADMAP-V3.1-UI.md` §M2.5
+  - [x] **V3.1-M2.5 — True 8-spoke board (engine topology change; user-authorized 2026-07-20)** → `docs/ROADMAP-V3.1-UI.md` §M2.5
   - [ ] **V3.1-M2-CHECKPOINT — user visual review of M2 (T-207)** → `docs/ROADMAP-V3.1-UI.md` §M2
   - [ ] **V3.1-M3 — Cards & hand live** → `docs/ROADMAP-V3.1-UI.md` §M3
   - [ ] **V3.1-M4 — Board life & sound** → `docs/ROADMAP-V3.1-UI.md` §M4
@@ -263,6 +263,17 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 ---
 
 ## 8. Changelog / decision log (v3)
+
+- **2026-07-20** — **T-228 — V3.1-M2.5 CLOSED (milestone DoD).** `npm run verify` green (105 files /
+  1283 tests, typecheck + lint clean); the M2.5 boxes are ticked in both roadmaps (§4 here + §M2.5 in
+  `docs/ROADMAP-V3.1-UI.md` T-222…T-227); `currentStage` repointed **V3.1-M2.5 → V3.1-M2-CHECKPOINT** —
+  the Gate-1 re-review is now the first-unchecked stage. M2.5 delivered the true 8-spoke 21-node board
+  (T-222…T-225: new `data/board-v3.json`, untangled 4-fold assumptions, 8-ray blight seams/spoke paths,
+  21-node render), a regression-clean sim/UGT/AI/Shadowking pass (T-226), and the fresh T-227 baseline
+  that **REPLACES the voided §9 lock** — band misses recorded, **zero tunable-value edits** (numbers live
+  in `sim-results/v3-21node-baseline-n40/`, not restated here). Zero engine/tunable/asset edits this step
+  — docs + `state.json` only. **Next:** T-229 regenerates the m2 gallery, then the run HALTS with T-207
+  `BLOCKED(awaiting user visual review)` for the Gate-1 re-review (user-only flip; do not self-approve).
 
 - **2026-07-20** — **T-227 — 21-node baseline READING (fresh 2-seed sweep; measurement, NOT tuning).**
   The M2.5 true-8-spoke topology change (17 → 21 nodes) **voids the old §9 balance lock** (it measured a
