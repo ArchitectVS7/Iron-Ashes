@@ -706,13 +706,25 @@ only — no board.json data changes, no new node/edge types, and the M2 gallery 
 left to T-219 rather than re-shot here.
 Orchestration: graphify=query "v3 board rendering connectors edges nodes banners approaches forges" · attempts=2/4.
 
-### T-218 · Theme the threat prompt — `status: TODO` · `coder: sonnet` · `after: T-215`
+### T-218 · Theme the threat prompt — `status: DONE` · `coder: sonnet` · `after: T-215`
 Gate 1 second review (user, 2026-07-19): the Reckoning's marquee prompt ('The dark gathers its will…'
 + FACE THE THREAT) is the last unthemed web element — a plain rectangle with a yellow web button.
 Retheme as an ember-bordered plaque with a themed button consistent with the wax-seal End Turn
 language. (The endgame 'Game over' frame stays untouched — deferred to T-402b by user decision.)
 **Accept:** the threat prompt renders as the themed plaque with no default-styled button (DOM
 assertion + shots); endgame frame untouched; verify green.
+
+**Delivered (2026-07-19):** Retheme the Reckoning's marquee threat prompt (`renderThreatPanel` in
+`src/ui-v3/view.ts`) from a bare `.panel.threat` div with a default-styled yellow `.primary` button
+into an ember-bordered plaque (`.threat-plaque`, carved-wood gradient + ember rim glow) driving a
+wax-seal advance button (`.threat-advance.wax-seal`, round ember stud + serif label) — the same
+diegetic idiom as End Turn, applied to both the normal and WRAITH-window variants, with a new
+`tests/v3/threat-prompt.test.ts` DOM-assertion suite covering the marker class, the absent
+`class="primary"` on the advance control, the WRAITH variant, and a regression guard that
+`.end-turn.wax-seal` and the endgame `Game over` frame stay byte-identical (deferred to T-402b by
+user decision). Scope boundary: styling/markup only — no new board.json data, no data-model
+changes, and the M2 gallery regen is deliberately left to T-219 rather than re-shot here.
+Orchestration: graphify=query "threat prompt Reckoning banner FACE THE THREAT rendering in ui-v3 view" · attempts=1/4.
 
 ### T-219 · Regenerate m2 gallery for the third review — `status: TODO` · `coder: sonnet` · `after: T-216, T-217, T-218`
 Re-run `npm run shots:v3 -- --out docs/Redesign-V3.1/m2`, refresh the README if screens changed,

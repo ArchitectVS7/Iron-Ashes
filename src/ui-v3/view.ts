@@ -382,11 +382,14 @@ function renderThreatPanel(session: GameSession, s: ObservableState): string {
   const wraith = session.isWraithWindow ? renderWraithPanel(session, s) : '';
   const label = session.isHumanAlive ? 'Face the threat →' : 'Let the round begin →';
   return `
-    <div class="panel threat">
+    <div class="panel threat threat-plaque">
       <div class="panel-title">The dark gathers its will…</div>
       <div class="hint">The Shadowking's telegraph is revealed at the Pledge, where you can still hold it back.</div>
       ${wraith}
-      <button class="primary" data-action="advance-threat">${label}</button>
+      <button class="threat-advance wax-seal" data-action="advance-threat">
+        <span class="seal-glyph" aria-hidden="true">🔥</span>
+        <span class="seal-label">${esc(label)}</span>
+      </button>
     </div>`;
 }
 

@@ -622,6 +622,36 @@ button.primary { background: linear-gradient(180deg, #e2b23c, #c9a227); color: #
 .end-turn.wax-seal .seal-label { padding-right: 6px; letter-spacing: 0.04em; }
 
 /* ── Threat / Pledge ── */
+/* Reckoning's marquee prompt (T-218) — an ember-bordered plaque, not a bare div. Beats the
+   box-stripping `.command-plaque .panel` reset with higher specificity so the threat prompt carries
+   its own carved-wood frame + ember rim glow (the house plaque material). */
+.command-plaque .panel.threat-plaque {
+  background: linear-gradient(180deg, rgba(43, 36, 32, 0.97), rgba(23, 20, 26, 0.97));
+  border: 1px solid var(--house-emberfall);
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: inset 0 1px 0 rgba(232, 220, 195, 0.08), 0 0 14px rgba(232, 134, 58, 0.28),
+    0 6px 18px rgba(0, 0, 0, 0.55);
+}
+/* The "Face the threat" button — the same diegetic wax-seal idiom as End Turn, in an ember-warm
+   variant (fresh ruleset, so `.end-turn.wax-seal` stays byte-identical). Round ember stud + serif
+   label; no default-styled `.primary` web button. */
+.threat-advance.wax-seal {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 12px;
+  padding: 6px 14px 6px 6px; border-radius: 24px;
+  background: linear-gradient(180deg, #c15f2c, #7a2a1e);
+  border: 1px solid #3a1610; color: #f7e9d6; font-family: var(--font-display); font-size: 14px;
+  box-shadow: inset 0 1px 0 rgba(255, 210, 170, 0.18), 0 3px 6px rgba(0, 0, 0, 0.5);
+}
+.threat-advance.wax-seal:hover { border-color: var(--ember, #e8863a); box-shadow: inset 0 1px 0 rgba(255, 210, 170, 0.24), 0 0 14px rgba(232, 134, 58, 0.55); }
+.threat-advance.wax-seal .seal-glyph {
+  display: grid; place-items: center; width: 30px; height: 30px; flex: 0 0 auto;
+  border-radius: 50%; background: radial-gradient(circle at 35% 30%, #e8863a, #7a2a1e);
+  border: 1px solid #2a0f0a; color: #f7e4cf; font-size: 15px;
+  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.5), inset 0 2px 3px rgba(255, 210, 170, 0.28);
+}
+.threat-advance.wax-seal .seal-label { padding-right: 6px; letter-spacing: 0.04em; }
+
 .villain-line { font-style: italic; color: #d8b4fe; font-size: 16px; margin-bottom: 8px; }
 .threat-detail { font-size: 14px; color: var(--muted); margin-bottom: 12px; }
 .pledge-threshold { font-size: 14px; margin-bottom: 10px; }
