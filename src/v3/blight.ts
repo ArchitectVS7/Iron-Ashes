@@ -22,6 +22,11 @@ import {
   getTunables,
 } from './tunables.js';
 import { isKeystoneGarrisoned } from './gambit.js';
+import {
+  getApproachForQuadrant,
+  getForgeForQuadrant,
+  getKeepForQuadrant,
+} from './board.js';
 
 // ─── Core Blight Operations ──────────────────────────────────────
 
@@ -181,28 +186,29 @@ export function applyPushback(
  * Where holdingA and holdingB are the two holdings adjacent to keepQ.
  */
 export function getSpokePath(definition: V2BoardDef, quadrant: number): string[] {
-  const keepId = definition.keepIds[quadrant];
-  const keepNode = definition.nodes[keepId];
+  // Quadrant → node ids are DERIVED from the board data (the node whose tier+quadrant match),
+  // never assumed from array position — so the path is correct regardless of node count or the
+  // ordering of the keep/forge/approach id lists.
+  const keepId = getKeepForQuadrant(definition, quadrant);
+  const forgeId = getForgeForQuadrant(definition, quadrant);
+  const approachId = getApproachForQuadrant(definition, quadrant);
+
+  const keepNode = keepId ? definition.nodes[keepId] : undefined;
 
   // Find the two holdings adjacent to this keep
-  const adjacentHoldings = keepNode.connections.filter(
-    connId => definition.nodes[connId]?.tier === 'holding'
-  );
+  const adjacentHoldings = keepNode
+    ? keepNode.connections.filter(connId => definition.nodes[connId]?.tier === 'holding')
+    : [];
 
-  // Find the forge in this quadrant
-  const forgeId = definition.forgeIds[quadrant];
-
-  // Find the approach in this quadrant
-  const approachId = definition.approachIds[quadrant];
-
-  // Build path from outer to inner
+  // Build path from outer to inner (drop any tier with no member in this quadrant — impossible
+  // for the fixed 4-quadrant board, but keeps the builder total).
   return [
     ...adjacentHoldings,
     keepId,
     forgeId,
     approachId,
     definition.keystoneId,
-  ];
+  ].filter((id): id is string => id !== undefined);
 }
 
 /**

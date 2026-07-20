@@ -858,7 +858,7 @@ guarding the source split. Deliberate scope boundary: this task touches only the
 no other v3 engine module, no v2 file, and no balance tunable was touched.
 Orchestration: graphify=none — graph.json is present but the task is a tightly-scoped topology/data change; I grounded the plan directly in the real source files (board.json, board.ts, · attempts=2/4.
 
-### T-223 · Untangle the 4-fold assumptions in types + setup — `status: TODO` · `coder: opus` · `after: T-222`
+### T-223 · Untangle the 4-fold assumptions in types + setup — `status: DONE` · `coder: opus` · `after: T-222`
 The engine hard-codes four-ness in places the new board breaks: `keepIds: readonly [string,string,
 string,string]` (4-tuple), `Quadrant = 0|1|2|3`, seat/quadrant assignment in `setup.ts`, and the
 blight entry seams. Generalize where the board defines it (keep ids from board data; quadrant mapping
@@ -868,6 +868,23 @@ only the node count per quadrant changes. Update `blight.ts`, `heart.ts`, `shado
 **Accept:** no `[string,string,string,string]` board-tuple assumption remains for node collections;
 typecheck clean; all existing v3 tests updated to the 21-node board and green; no tunable VALUE
 changed (diff shows zero edits to tunables.ts / tunables.gen.ts).
+
+**Delivered (2026-07-20):** Widened `V2BoardDef.keepIds` from a fixed `[string,string,string,string]`
+tuple to `readonly string[]`, and added a `getNodeInQuadrant`/`getKeepForQuadrant`/
+`getForgeForQuadrant`/`getApproachForQuadrant` family in `board.ts` that derives a quadrant's home
+node by scanning for the node whose `tier`+`quadrant` fields match, rather than indexing
+`keepIds[quadrant]` and assuming array position equals quadrant. Rewired every positional-indexing
+call site onto the new helpers: `setup.ts` seat assignment, `blight.ts` `getSpokePath`,
+`shadowking-policy.ts` `getSpokePathSimple`/`chooseTargetNode`/`chooseShadowkingIntent` steering, and
+`heart.ts` Keystone-displacement fallback. `Quadrant` (`0|1|2|3|null`) was deliberately left as-is and
+documented as a fixed game-shape constant, not a node-count-derived value — 4 seats and 4 quadrants
+are the game's shape per the task's own framing; only per-quadrant node population varies. Scope
+boundary: no tunable value touched, no `shadowking-effects.ts` call site needed a change (grep found
+none referencing `keepIds` positionally), and blight entry-seam topology itself is out of scope here
+(explicitly deferred to T-224, which owns the 8-ray seam/spoke redesign). All 8 touched files
+typecheck clean and the full suite is green (1275 passed, up from 1272, reflecting the new board.ts
+quadrant-helper coverage added to `tests/v3/board.test.ts`).
+Orchestration: graphify=query "keepIds 4-tuple Quadrant seat quadrant assignment in setup blight heart" · attempts=2/4.
 
 ### T-224 · Blight seams + spoke paths for 8 rays — `status: TODO` · `coder: opus` · `after: T-223`
 Blight enters at symmetric outer seams and converges inward along spokes; with 8 real rays the seam

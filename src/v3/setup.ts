@@ -16,7 +16,7 @@
  */
 
 import { SeededRandom } from '../utils/seeded-random.js';
-import { buildClosingRing, createInitialBoardState } from './board.js';
+import { buildClosingRing, createInitialBoardState, getKeepForQuadrant } from './board.js';
 import { bindHiddenTokens, deriveStartingRetainer } from './discovery.js';
 import { archetypePower, identityFor } from './court.js';
 import { computeCrownHolder, generateBannersForPlayer } from './sequencer.js';
@@ -173,7 +173,10 @@ export function createGame(
   // 2. Create players, each assigned a Keep
   const players: PlayerState[] = [];
   for (let i = 0; i < playerCount; i++) {
-    const keepId = boardDef.keepIds[i];
+    // Seat i homes quadrant i — derive its Keep from the board data (tier+quadrant match)
+    // rather than assuming keepIds is ordered so that array-index == quadrant.
+    const keepId = getKeepForQuadrant(boardDef, i);
+    if (!keepId) throw new Error(`No home Keep for seat ${i} (quadrant ${i})`);
     const type: PlayerType = i < humanCount ? 'human' : 'ai';
     const hand = drawCards(rng, STARTING_HAND);
     const player = createPlayerState(i, type, keepId, hand);

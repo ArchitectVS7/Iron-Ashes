@@ -26,6 +26,7 @@ import { getPlayerPowerAtNode } from './combat.js';
 import { nearestStronghold, freeCaptiveToOwner } from './capture.js';
 import { addGrudge } from './shadowking-policy.js';
 import { computeTerritoryWinner } from './gambit.js';
+import { getKeepForQuadrant } from './board.js';
 
 // ─── Heart spawn (§5.6) ───────────────────────────────────────────
 
@@ -197,7 +198,9 @@ function displaceFromKeystone(state: GameState, keyId: string): GameEvent[] {
   const def = state.board.definition;
   for (const piece of [...keyNs.pieces]) {
     const owner = piece.owner;
-    const fallback = owner < def.keepIds.length ? def.keepIds[owner] : null;
+    // Home-Keep fallback: seat `owner` homes quadrant `owner`, derived from node data
+    // (tier+quadrant match) rather than positional indexing into keepIds.
+    const fallback = getKeepForQuadrant(def, owner) ?? null;
     const dest = nearestStronghold(state, owner) ?? fallback;
     keyNs.pieces = keyNs.pieces.filter(p => p.id !== piece.id);
     if (dest !== null) {

@@ -16,9 +16,13 @@ import { describe, expect, it } from 'vitest';
 import {
   buildClosingRing,
   createInitialBoardState,
+  getApproachForQuadrant,
+  getForgeForQuadrant,
+  getKeepForQuadrant,
+  getNodeInQuadrant,
   validateClosingRing,
 } from '../../src/v3/board.js';
-import type { V2BoardDef, V2NodeDef } from '../../src/v3/types.js';
+import type { V2BoardDef } from '../../src/v3/types.js';
 
 describe('Closing Ring Board', () => {
   const board = buildClosingRing();
@@ -375,6 +379,45 @@ describe('Closing Ring Board', () => {
       for (const seam of board.blightEntrySeams) {
         expect(board.nodes[seam].tier).toBe('holding');
       }
+    });
+  });
+
+  describe('quadrant derivation (T-223 — 4-fold assumptions untangled)', () => {
+    it('keepIds is a plain array of length 4; every id is a keep with a distinct quadrant', () => {
+      expect(Array.isArray(board.keepIds)).toBe(true);
+      expect(board.keepIds.length).toBe(4);
+      for (const id of board.keepIds) {
+        expect(board.nodes[id].tier).toBe('keep');
+      }
+      const quads = new Set(board.keepIds.map(id => board.nodes[id].quadrant));
+      expect(quads).toEqual(new Set([0, 1, 2, 3]));
+    });
+
+    it('derived per-quadrant lookups equal the old positional index (behavior parity)', () => {
+      // The load-bearing assertion: replacing `def.xxxIds[q]` with a tier+quadrant scan returns
+      // byte-identical ids today, and stays correct even if the id lists are reordered.
+      for (let q = 0; q < 4; q++) {
+        expect(getNodeInQuadrant(board, 'keep', q)).toBe(board.keepIds[q]);
+        expect(getNodeInQuadrant(board, 'forge', q)).toBe(board.forgeIds[q]);
+        expect(getNodeInQuadrant(board, 'approach', q)).toBe(board.approachIds[q]);
+        expect(getKeepForQuadrant(board, q)).toBe(board.keepIds[q]);
+        expect(getForgeForQuadrant(board, q)).toBe(board.forgeIds[q]);
+        expect(getApproachForQuadrant(board, q)).toBe(board.approachIds[q]);
+      }
+    });
+
+    it('getNodeInQuadrant returns a node actually in that quadrant, or undefined when none', () => {
+      for (const tier of ['keep', 'forge', 'approach'] as const) {
+        for (let q = 0; q < 4; q++) {
+          const id = getNodeInQuadrant(board, tier, q);
+          expect(id).toBeDefined();
+          expect(board.nodes[id!].tier).toBe(tier);
+          expect(board.nodes[id!].quadrant).toBe(q);
+        }
+      }
+      // Holdings carry quadrant:null, so no holding matches a numeric quadrant.
+      expect(getNodeInQuadrant(board, 'holding', 0)).toBeUndefined();
+      expect(getNodeInQuadrant(board, 'keystone', 0)).toBeUndefined();
     });
   });
 

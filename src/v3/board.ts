@@ -109,7 +109,7 @@ export function buildClosingRing(): V2BoardDef {
     keystoneId: BOARD_DATA.keystoneId,
     approachIds: Object.freeze([...BOARD_DATA.approachIds]),
     forgeIds: Object.freeze([...BOARD_DATA.forgeIds]),
-    keepIds: [...BOARD_DATA.keepIds] as [string, string, string, string],
+    keepIds: Object.freeze([...BOARD_DATA.keepIds]),
     holdingIds: Object.freeze([...BOARD_DATA.holdingIds]),
     blightEntrySeams: Object.freeze([...BOARD_DATA.blightEntrySeams]),
   });
@@ -313,4 +313,41 @@ export function getNodeQuadrant(definition: V2BoardDef, nodeId: string): Quadran
   const node = definition.nodes[nodeId];
   if (!node) throw new Error(`Node ${nodeId} not found`);
   return node.quadrant;
+}
+
+/**
+ * Derive the id of the (single) node of a given tier in a given quadrant — the inverse of
+ * `getNodeQuadrant`. This is the "quadrant mapping derived, not assumed" primitive: instead of
+ * indexing `def.keepIds[q]` (which only works while the board data happens to be ordered so that
+ * array-index == quadrant), we scan for the node whose `tier` and `quadrant` fields match. There is
+ * exactly one keep / forge / approach per quadrant, so the lookup is unambiguous; returns
+ * `undefined` when no node matches (e.g. tiers with `quadrant: null` such as `holding`/`keystone`).
+ */
+export function getNodeInQuadrant(
+  definition: V2BoardDef,
+  tier: V2NodeDef['tier'],
+  quadrant: number,
+): string | undefined {
+  for (const n of Object.values(definition.nodes)) {
+    if (n.tier === tier && n.quadrant === quadrant) return n.id;
+  }
+  return undefined;
+}
+
+/** The keep that homes the given quadrant (derived from node data, not array position). */
+export function getKeepForQuadrant(definition: V2BoardDef, quadrant: number): string | undefined {
+  return getNodeInQuadrant(definition, 'keep', quadrant);
+}
+
+/** The forge in the given quadrant (derived from node data, not array position). */
+export function getForgeForQuadrant(definition: V2BoardDef, quadrant: number): string | undefined {
+  return getNodeInQuadrant(definition, 'forge', quadrant);
+}
+
+/** The approach in the given quadrant (derived from node data, not array position). */
+export function getApproachForQuadrant(
+  definition: V2BoardDef,
+  quadrant: number,
+): string | undefined {
+  return getNodeInQuadrant(definition, 'approach', quadrant);
 }

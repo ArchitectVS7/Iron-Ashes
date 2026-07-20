@@ -35,6 +35,11 @@ import {
   getTunables,
   doomCost,
 } from './tunables.js';
+import {
+  getApproachForQuadrant,
+  getForgeForQuadrant,
+  getKeepForQuadrant,
+} from './board.js';
 
 // ─── Grudge Tracking ──────────────────────────────────────────────
 
@@ -207,7 +212,7 @@ function chooseTargetNode(
     case 'SURGE':
     case 'REAP': {
       // Target the steered spoke frontier
-      const keepId = definition.keepIds[steerQuadrant];
+      const keepId = getKeepForQuadrant(definition, steerQuadrant);
       if (!keepId) return definition.approachIds[0];
 
       // Find first non-ashed node on the spoke from the outer edge
@@ -226,8 +231,8 @@ function chooseTargetNode(
         const ns = state.board.state.nodes[holdId];
         if (ns && !ns.ashed && ns.owner === null) return holdId;
       }
-      // Fall back to SPREAD target
-      return definition.approachIds[steerQuadrant];
+      // Fall back to SPREAD target — the steered quadrant's approach (derived from node data).
+      return getApproachForQuadrant(definition, steerQuadrant) ?? definition.approachIds[0];
     }
 
     case 'MARCH_DK':
@@ -240,15 +245,18 @@ function chooseTargetNode(
   }
 }
 
-/** Simple spoke path from outer to inner. */
+/** Simple spoke path from outer to inner. Quadrant → node ids are DERIVED from the board data
+ *  (tier+quadrant match), never assumed from array position — kept behavior-identical to
+ *  blight.ts `getSpokePath` (both route through the shared board.ts quadrant helpers). */
 function getSpokePathSimple(definition: V2BoardDef, quadrant: number): string[] {
-  const keepId = definition.keepIds[quadrant];
-  const keepNode = definition.nodes[keepId];
-  const adjacentHoldings = keepNode.connections.filter(
-    connId => definition.nodes[connId]?.tier === 'holding'
-  );
-  const forgeId = definition.forgeIds[quadrant];
-  const approachId = definition.approachIds[quadrant];
+  const keepId = getKeepForQuadrant(definition, quadrant);
+  const forgeId = getForgeForQuadrant(definition, quadrant);
+  const approachId = getApproachForQuadrant(definition, quadrant);
+
+  const keepNode = keepId ? definition.nodes[keepId] : undefined;
+  const adjacentHoldings = keepNode
+    ? keepNode.connections.filter(connId => definition.nodes[connId]?.tier === 'holding')
+    : [];
 
   return [
     ...adjacentHoldings,
@@ -256,7 +264,7 @@ function getSpokePathSimple(definition: V2BoardDef, quadrant: number): string[] 
     forgeId,
     approachId,
     definition.keystoneId,
-  ];
+  ].filter((id): id is string => id !== undefined);
 }
 
 
@@ -400,8 +408,12 @@ export function chooseShadowkingIntent(state: GameState): ShadowkingTelegraph {
   //    rotates toward whoever leads, even when the named strike targets someone
   //    else via grudge/Gambit). Falls back to the target's quadrant if no Crown.
   const steerOwner = state.crownHolder ?? targetIndex;
-  const steerKeepId = state.board.definition.keepIds[steerOwner];
-  const steerQuadrant = state.board.definition.nodes[steerKeepId]?.quadrant ?? 0;
+  // Seat `steerOwner` homes quadrant `steerOwner` — derive its Keep from node data
+  // (tier+quadrant match) rather than positional indexing into keepIds.
+  const steerKeepId = getKeepForQuadrant(state.board.definition, steerOwner);
+  const steerQuadrant = steerKeepId
+    ? state.board.definition.nodes[steerKeepId]?.quadrant ?? 0
+    : 0;
 
   // 4. Choose target node
   const targetNodeId = chooseTargetNode(state, effect, targetIndex, steerQuadrant);

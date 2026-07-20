@@ -36,7 +36,11 @@ export type Act = 'WHISPER' | 'MARCH' | 'RECKONING';
  */
 export type NodeTier = 'keystone' | 'approach' | 'forge' | 'keep' | 'holding' | 'mid';
 
-/** Which quadrant a node belongs to (0 = N, 1 = E, 2 = S, 3 = W). null = center (Keystone). */
+/**
+ * Which quadrant a node belongs to (0 = N, 1 = E, 2 = S, 3 = W). null = center (Keystone).
+ * The fixed four quadrants of the game (N/E/S/W) — a game-shape constant, NOT derived from the
+ * node count. The board's node count per quadrant may vary; the number of quadrants does not.
+ */
 export type Quadrant = 0 | 1 | 2 | 3 | null;
 
 /** A node in the fixed board definition (immutable during play). */
@@ -63,8 +67,10 @@ export interface V2BoardDef {
   readonly approachIds: readonly string[];
   /** The 4 mid-belt high-value IDs. */
   readonly forgeIds: readonly string[];
-  /** The 4 outer-corner home IDs, indexed by quadrant (0-3 = N/E/S/W). */
-  readonly keepIds: readonly [string, string, string, string];
+  /** The outer-corner home IDs, one per quadrant (from board data, ordered by quadrant 0..N-1).
+   *  Four today (N/E/S/W); not asserted as a fixed-arity tuple at the type level — the quadrant a
+   *  keep belongs to is read from its node's `quadrant` field, never assumed from array position. */
+  readonly keepIds: readonly string[];
   /** The 4 outer-edge claimable IDs. */
   readonly holdingIds: readonly string[];
   /** The 4 symmetric outer seams where Blight enters the map. */
