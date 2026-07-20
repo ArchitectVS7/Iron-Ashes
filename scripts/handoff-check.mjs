@@ -61,16 +61,17 @@ function sourceHash() {
 
 /** First unchecked stage box in ROADMAP-V3 §4: lines like
  *  "- [ ] **Stage V3-6 — …", a "  - [ ] **3i. …" sub-box, a
- *  "  - [ ] **V3.1-M0 …" V3.1 presentation-sprint sub-box, or a
+ *  "  - [ ] **V3.1-M0 …" V3.1 presentation-sprint sub-box, a
+ *  "  - [ ] **V3.1-M2.5 …" decimal-milestone sub-box (M2.5 topology change), or a
  *  "  - [ ] **V3.1-M2-CHECKPOINT …" per-milestone user-review checkpoint box. */
 function firstUncheckedStage() {
   if (!existsSync(ROADMAP_PATH)) return null;
   const text = readFileSync(ROADMAP_PATH, 'utf8');
   for (const line of text.split('\n')) {
     const m = line.match(
-      /^\s*-\s*\[ \]\s*\*\*(?:Stage\s+)?(V3\.1-M\d+(?:-CHECKPOINT)?|V3-[\d.]+|\d+[a-z])/,
+      /^\s*-\s*\[ \]\s*\*\*(?:Stage\s+)?(V3\.1-M\d+(?:\.\d+)?(?:-CHECKPOINT)?|V3-[\d.]+|\d+[a-z])/,
     );
-    if (m) return m[1]; // e.g. "V3.1-M2-CHECKPOINT" (or "V3.1-M0" / "V3-6" / a "3i" sub-box)
+    if (m) return m[1]; // e.g. "V3.1-M2.5" / "V3.1-M2-CHECKPOINT" (or "V3.1-M0" / "V3-6" / a "3i" sub-box)
   }
   return null;
 }

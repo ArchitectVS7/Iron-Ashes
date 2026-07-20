@@ -198,6 +198,7 @@ Workflow (same as v2): **① idea → ② textual algorithm → ③ code → ④
   - [x] **V3.1-M0 — Foundations & the screenshot feedback loop** → `docs/ROADMAP-V3.1-UI.md` §M0
   - [x] **V3.1-M1 — The semantic move stream (transition layer)** → `docs/ROADMAP-V3.1-UI.md` §M1
   - [x] **V3.1-M2 — Theme foundation (stop looking like a spreadsheet)** → `docs/ROADMAP-V3.1-UI.md` §M2
+  - [ ] **V3.1-M2.5 — True 8-spoke board (engine topology change; user-authorized 2026-07-20)** → `docs/ROADMAP-V3.1-UI.md` §M2.5
   - [ ] **V3.1-M2-CHECKPOINT — user visual review of M2 (T-207)** → `docs/ROADMAP-V3.1-UI.md` §M2
   - [ ] **V3.1-M3 — Cards & hand live** → `docs/ROADMAP-V3.1-UI.md` §M3
   - [ ] **V3.1-M4 — Board life & sound** → `docs/ROADMAP-V3.1-UI.md` §M4
@@ -263,6 +264,19 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-20** — **M2.5 AUTHORIZED (T-221).** The user authorized a real engine-topology change — the
+  **true 8-spoke board** (`data/board.json` 17 → 21 nodes, +4 cardinal mid-belt nodes; Keystone keeps
+  exactly 4 approaches). This is the one milestone in the V3.1 sprint that legitimately touches the engine,
+  so a **dated exception** was recorded in `docs/ROADMAP-V3.1-UI.md` §3 lifting the "engine untouched /
+  balance LOCKED" guardrails for M2.5 — **topology only, no tunable-VALUE edits**; the balance LOCK is
+  *voided by the topology change itself* (a 21-node board is a different game than the 17-node one the lock
+  measured) and *replaced* by a fresh 2-seed baseline (T-227), band misses recorded not tuned; re-establishing
+  the §9 bands is post-playtest/V4 work. §4 gained a `V3.1-M2.5` sub-box **above** the M2-CHECKPOINT box (so
+  M2.5 executes before the checkpoint and is now the first-unchecked stage); `state.json` `currentStage`
+  repointed **V3.1-M2-CHECKPOINT → V3.1-M2.5**, with the LOCK-void scoping added to `invariants` and a
+  "post-topology balance UNMEASURED until T-227" `openRisk`. `handoff-check.mjs`'s stage regex was widened to
+  parse the `V3.1-M2.5` decimal-milestone form (scripts/, not engine). T-221 authorizes + records only — it
+  changes zero engine/tunable code; T-222…T-227 do the build.
 - **2026-07-19** — **T-208 (Gate-1 board fix) DONE.** The M2 Gate-1 review (5/10) flagged the board on
   three counts; all fixed on the LOCKED engine (read-only imports of types + `observableState` only —
   no `src/v2`/`src/v3`/`src/utils`/tunable edits). (1) Nodes are now **circle-free illustrated locations**:

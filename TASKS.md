@@ -791,7 +791,7 @@ record the dated, user-authorized exception. The balance LOCK is **voided, not s
 the measured post-change numbers are recorded as a NEW baseline, and the §9 bands are re-established
 by a later stage (V4-scale), not tuned during this milestone.
 
-### T-221 · Authorize + record the topology exception — `status: TODO` · `coder: sonnet` · `after: T-220`
+### T-221 · Authorize + record the topology exception — `status: DONE` · `coder: sonnet` · `after: T-220`
 Amend `docs/ROADMAP-V3.1-UI.md` §3: the "engine untouched / balance LOCKED" guardrails gain a dated
 user-authorized exception scoped to M2.5 (topology only — no tunable VALUE edits; the lock is voided
 by the topology change itself and a fresh baseline replaces it). Record the same in `state.json`
@@ -799,6 +799,20 @@ by the topology change itself and a fresh baseline replaces it). Record the same
 M2.5 sub-box to ROADMAP-V3 §4 + this sprint's §4 milestone list.
 **Accept:** roadmap §3 exception present and dated; `state.json` invariants/openRisks updated;
 `npm run handoff:check` exits 0.
+**Delivered (2026-07-20):** Added a dated 2026-07-20 exception to `docs/ROADMAP-V3.1-UI.md` §3
+scoping the "engine untouched / balance LOCKED" guardrail to permit the M2.5 board-topology change
+only (`data/board.json` 17 → 21 nodes plus the 4-fold type/setup/blight/sim/AI generalization),
+explicitly forbidding any tunable-VALUE edit and stating the balance §9 lock is voided by the
+topology change itself and replaced by the T-227 fresh baseline, band misses recorded not tuned. Added
+the §M2.5 milestone block (T-222…T-227 + exit metrics) to `ROADMAP-V3.1-UI.md` between M2 and M3, a
+`V3.1-M2.5` sub-box to `ROADMAP-V3.md` §4 above the M2-CHECKPOINT box (making it the first-unchecked
+stage), and repointed `docs/handoff/state.json` `currentStage` `V3.1-M2-CHECKPOINT` → `V3.1-M2.5` with
+the LOCK-void scoping recorded in `invariants` and the "post-topology balance UNMEASURED until T-227"
+`openRisk` added. `scripts/handoff-check.mjs`'s stage-parsing regex was widened to recognize the
+`V3.1-M2.5` decimal-milestone box form (script only — no engine/tunable code touched). Scope boundary:
+this task authorizes and records the exception only; no `src/` or `data/` file changed, and
+`git diff --stat -- src/ data/` is empty. `npm run handoff:check` exits 0.
+Orchestration: graphify=query "ROADMAP-V3.1-UI §3 guardrails engine untouched balance LOCKED topology exception M2.5" · attempts=1/4.
 
 ### T-222 · Board topology: +4 cardinal mid-belt nodes — `status: TODO` · `coder: opus` · `after: T-221`
 Extend `data/board.json` from 17 to 21 nodes: add four CARDINAL mid-belt nodes (`mid-n`, `mid-e`,

@@ -43,6 +43,20 @@ When this sprint opens:
 
 - **Engine untouched.** No edits under `src/v2/`, `src/v3/` (except *read-only* imports of types /
   `observableState`). Balance stays LOCKED — no tunable edits, ever, in this sprint.
+  - **2026-07-20 (T-221) — USER-AUTHORIZED TOPOLOGY EXCEPTION, scoped to M2.5 only.** The user has
+    authorized the **true 8-spoke board** engine change (see §M2.5 + `TASKS.md` M2.5, T-221…T-229). For
+    that milestone *only*, the "engine untouched" guardrail is lifted for the **board-topology change**:
+    `data/board.json` grows 17 → 21 nodes (+4 cardinal mid-belt nodes), and the four-fold
+    type/setup/blight/sim/AI assumptions may be generalized under `src/v2/` / `src/v3/`. The Keystone
+    still keeps **exactly 4 approach doors**; 4 seats / 4 quadrants remain the game's shape.
+    - **Topology-only — no tunable VALUE edits.** `src/v3/tunables.ts` and `tunables.gen.ts` stay
+      untouched; the exception permits *structural* changes, never a tunable-value change. Any diff
+      touching a tunable value is out of scope and forbidden.
+    - **The balance LOCK is VOIDED by the topology change itself, not silently ignored.** The old lock
+      measured a 17-node board; a 21-node board is a different game, so the §9 numbers no longer apply.
+      A fresh 2-seed baseline reading (T-227) is recorded as the NEW baseline that *replaces* the old
+      lock; every band miss is **recorded, not tuned**. Re-establishing the §9 bands on the new board is
+      deferred to post-playtest / V4-scale work — it is explicitly out of scope for M2.5.
 - **Fog (D2) extends to presentation.** Animations must not leak: nothing hidden from `viewerSeat`'s
   `observableState` projection may ever reach the DOM, a texture, or the move stream — including
   *mid-animation* (a flip may not show face content before the reveal frame). Enforced by leak tests (M1).
@@ -151,6 +165,36 @@ command; baseline gallery in-repo.
 - `vite build` bundle + assets ≤ 3 MB (keeps the prototype snappy; assets licensed CC0/CC-BY, credited
   in `docs/CREDITS.md`).
 
+### M2.5 — True 8-spoke board (engine topology change; user-authorized 2026-07-20)
+*The one milestone in this sprint that legitimately touches the engine — the user asked three times for
+a real 8-direction board; it was mis-scoped as visual-only. Under the §3 dated exception (T-221), the
+board grows to a true 8-spoke topology. **Topology only — zero tunable-value edits; the balance LOCK is
+voided by the change and replaced with a fresh baseline (T-227), not re-tuned.***
+- [ ] **T-222** — `data/board.json` 17 → 21 nodes: +4 cardinal mid-belt nodes so all 8 compass rays are
+      real routes inward; Keystone keeps exactly 4 approaches; regenerate `board.gen.ts`.
+- [ ] **T-223** — Untangle the 4-fold assumptions in types + setup (keep-id tuples, quadrant maps,
+      blight seams) — generalize node collections without changing game rules (still 4 seats / 4 quadrants).
+- [ ] **T-224** — Blight seams + spoke paths redefined coherently for 8 rays (dated spec amendment +
+      rewritten spoke-path tests; blight still reaches the Keystone from every seam).
+- [ ] **T-225** — Render the 21-node board in `src/ui-v3`: the 4 new cardinal nodes get their own
+      illustrated silhouettes; T-220 star/connector treatment carries over; edge-parity test passes.
+- [ ] **T-226** — Sim / UGT harness / AI + Shadowking policy run correctly on the 21-node board
+      (generalize hard-coded node ids / quadrant maps / distances); correctness only, no tuning.
+- [ ] **T-227** — Fresh balance READING (2-seed sweep) on the new topology, recorded as the NEW baseline
+      (dark win %, doom-vs-attrition, capture rate, rounds, BP triple) with a tunable-vs-structural
+      assessment; band misses recorded, nothing tuned.
+
+**Exit metrics:**
+- `data/board.json` is a symmetric 21-node 8-fold board; the Keystone still has **exactly 4** approach
+  doors; graph connected; all new links bidirectional (validator test); `board.gen.ts` byte-consistent.
+- Board renders all 21 nodes with tier-appropriate silhouettes; the T-217 edge-parity test passes
+  against the NEW data (render == data, 8 real rays).
+- `npm run verify` 0 (full v2+v3 suite green on the 21-node board); `npm run sim:v3` completes both
+  modes at 2/3/4p with sane termination.
+- A fresh 2-seed sim baseline is committed (new `sim-results/` run dir + REPORT) and recorded in
+  ROADMAP-V3 §8 + `state.json`, with an explicit tunable-vs-structural read on every band miss.
+- **Zero tunable-VALUE edits** — the diff shows no change to `src/v3/tunables.ts` / `tunables.gen.ts`.
+
 ### M3 — Cards & hand live
 - [ ] Hand rendered as a **fanned card row** (CSS 3D; hover-raise, selected-lift).
 - [ ] Deal / draw / play / discard animated via the M1 queue; **3D flip** on any reveal.
@@ -230,6 +274,17 @@ screenshot loop. M5's playtest is the whole point; M6 amortizes the sprint acros
 - **2026-07-18 (T-002)** — Added the repo's first runtime dependencies, pinned exact: `gsap@3.15.0` +
   `howler@2.2.4` (plus dev `@types/howler@2.2.13`), with the GSAP license check recorded in §3. No usage
   yet beyond a type-level import smoke test (`tests/v3/deps-smoke.test.ts`). Engine/tunables untouched.
+- **2026-07-20 (T-221)** — **M2.5 authorized.** Recorded the user's dated topology exception in §3: the
+  "engine untouched / balance LOCKED" guardrails gain a M2.5-scoped, user-authorized exception permitting
+  the true 8-spoke board engine change (`data/board.json` 17 → 21 nodes; generalize the 4-fold
+  type/setup/blight/sim/AI assumptions) — **topology only, no tunable-VALUE edits**; the balance LOCK is
+  voided by the topology change itself and replaced by a fresh baseline (T-227), band misses recorded not
+  tuned. Added the §M2.5 milestone block (deliverables T-222…T-227 + exit metrics) between M2 and M3, a
+  `V3.1-M2.5` sub-box in `ROADMAP-V3.md` §4 (above the M2-CHECKPOINT box → it is now the first-unchecked
+  stage), and repointed `state.json` `currentStage` **V3.1-M2-CHECKPOINT → V3.1-M2.5** with the LOCK-void
+  scoping in `invariants` + the "post-topology balance UNMEASURED until T-227" `openRisk`. `handoff-check.mjs`'s
+  stage regex widened to parse the `V3.1-M2.5` decimal-milestone form (scripts/, not engine). No engine or
+  tunable code changed by this task — T-221 only authorizes and records.
 - **2026-07-19 (T-215)** — Regenerated the M2 gallery after the T-208…T-214 fix round:
   `npm run shots:v3 -- --out docs/Redesign-V3.1/m2` rewrote all 7 screens (exit 0 — every machine gate
   passed on the post-fix UI: board-dominance, Cinzel/Alegreya font audit, start-control appearance:none,
