@@ -61,3 +61,9 @@ decisions (see ROADMAP-V3.1-UI §4 M2 "Gate 0.5 aesthetic decisions"):
   screens-consistent (start screen untouched), board-vs-spec (glyph circles / no star inlay / no
   banners), no-default-font (Inter, per the tightened serif definition). Motion not scored from
   stills. Verdict: fix round T-208…T-215; T-207 stays BLOCKED for a second review.
+- **2026-07-19 (Gate 1, second review)** — regenerated m2 gallery: **9/10 provisional** (motion
+  provisional pending the T-306 live gate; all other items pass). Blind read test: **7/7 "digital
+  board game"** (fresh agent, neutral filenames). Bar met, but the user opted for a third in-person
+  review before flipping T-207. Micro-fixes filed: T-216 star material depth (bold star KEPT as the
+  board's identity), T-217 node hierarchy + readable banners + user-caught missing true connectors
+  (Keystone→approach spokes; render==data edge-parity guard added), T-218 threat-prompt theming.

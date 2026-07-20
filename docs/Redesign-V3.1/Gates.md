@@ -84,3 +84,21 @@ frame waits for T-402b · hostage hold-rail plaque validated · body font FULL s
 
 Fix tasks T-208…T-215 filed; T-207 stays BLOCKED. Second Gate 1 review follows T-215's regenerated
 gallery.
+
+---
+
+## Gate 1 (T-207) — SECOND REVIEW 2026-07-19: 9/10 provisional, third look requested
+
+All eight fix tasks (T-208…T-215) verified landed: start screen transformed, rich card faces with
+corner values restored (matching the original hand), full-width bottom bar dissolved into a floating
+turn plaque + wax-seal End Turn, chronicle themed, testament parchment, full serif, election overlap
+fixed, board rebuilt as a giant 8-point chaos star with circle-free illustrated locations.
+
+Blind read test: 7/7 "digital board game" (fresh agent, neutral filenames) — first full pass.
+Motion: scored provisionally, verified live at the T-306 gate.
+
+User rulings: the giant star is KEPT as the board's defining visual → gains material depth (T-216);
+forges/approaches/banners get legibility fixes AND the user caught missing true connectors — the
+Keystone→approach spokes were absent from the render → edge-parity guard render==data (T-217);
+threat prompt themed (T-218); T-219 regenerates the gallery. T-207 stays BLOCKED — the user chose an
+in-person third review over conditional approval before any flip.

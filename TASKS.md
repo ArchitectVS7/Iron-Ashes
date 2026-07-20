@@ -660,7 +660,42 @@ the README's numbered list was left as-is. Guard `tests/v3/m2-gallery.test.ts` g
 user visual review) — HALT for the second Gate 1 review; M3 not started.**
 Orchestration: graphify=shots-v3 screenshot script m2 gallery guard test · attempts=1/4.
 
-### T-207 · CHECKPOINT — user visual review of M2 — `status: BLOCKED(awaiting user visual review)` · `coder: sonnet` · `after: T-206, T-215`
+### T-216 · Chaos star — keep bold, add material depth — `status: TODO` · `coder: opus` · `after: T-215`
+Gate 1 second review (user, 2026-07-19): the giant solid star is KEPT as the board's defining visual —
+but it currently reads as a flat dark sticker laid on the wood. Give it material depth: burned/charred
+wood texture inside the shape (not flat fill), beveled or ember-glow edges, and a slightly lighter
+interior so dark node icons separate from the ground. Do not shrink it or revert to a subtle inlay.
+**Accept:** the star region shows non-flat texturing (distinct fill treatment asserted in DOM/SVG);
+star silhouette unchanged; regenerated shots show icons legible against the interior; verify green.
+
+### T-217 · Node hierarchy, readable banners, and ALL true connectors — `status: TODO` · `coder: opus` · `after: T-215`
+Gate 1 second review (user, 2026-07-19), three parts. (1) Mid-tier legibility: forges get ember-glow
+treatment so they separate from the dark star; approaches become distinct watchtower/gate silhouettes
+instead of small squares. (2) Claim banners grow into readable heraldry — visible house color + sigil
+at gameplay size. (3) **USER-CAUGHT BUG: true edges are missing from the render** — notably the
+Keystone→approach spokes (the only routes into the center!). Add an edge-parity guard: every edge in
+`data/board.json` has exactly one rendered connector element and no extra connectors exist —
+render == data, enforced by test.
+**Accept:** the edge-parity test exists and is green (all `data/board.json` edges rendered, no
+phantoms); approaches/forges have distinct silhouette classes; banner elements carry sigil + house
+color at legible size in shots; jsdom E2E + verify green.
+
+### T-218 · Theme the threat prompt — `status: TODO` · `coder: sonnet` · `after: T-215`
+Gate 1 second review (user, 2026-07-19): the Reckoning's marquee prompt ('The dark gathers its will…'
++ FACE THE THREAT) is the last unthemed web element — a plain rectangle with a yellow web button.
+Retheme as an ember-bordered plaque with a themed button consistent with the wax-seal End Turn
+language. (The endgame 'Game over' frame stays untouched — deferred to T-402b by user decision.)
+**Accept:** the threat prompt renders as the themed plaque with no default-styled button (DOM
+assertion + shots); endgame frame untouched; verify green.
+
+### T-219 · Regenerate m2 gallery for the third review — `status: TODO` · `coder: sonnet` · `after: T-216, T-217, T-218`
+Re-run `npm run shots:v3 -- --out docs/Redesign-V3.1/m2`, refresh the README if screens changed,
+commit the gallery — then HALT: T-207 stays `BLOCKED(awaiting user visual review)` for the third
+Gate 1 review (user decision: in-person verification before the flip). Do not flip T-207 or advance
+into M3.
+**Accept:** fresh gallery committed; m2-gallery guard green; run halts with T-207 still BLOCKED.
+
+### T-207 · CHECKPOINT — user visual review of M2 — `status: BLOCKED(awaiting user visual review)` · `coder: sonnet` · `after: T-206, T-219`
 Regenerate the gallery into `docs/Redesign-V3.1/m2/` (committed), then **set this task
 `BLOCKED(awaiting user visual review)` and halt the run** — do not proceed into M3. The user scores
 `docs/Redesign-V3.1/RUBRIC.md` (target ≥8/10) and runs the blind read test ("web app or board game?" on
@@ -686,6 +721,14 @@ table texture, act/turn track, palette cohesive, board largest, resources-as-chi
 bug), screens-consistent (start screen untouched), board-vs-spec (glyph circles, no star inlay, no
 banners), no-default-font per the tightened serif definition (Inter). Fix tasks T-208…T-215 filed
 above; this checkpoint stays BLOCKED until the user re-scores the regenerated gallery.
+
+**Gate 1 second review (user, 2026-07-19): 9/10 provisional — bar met, but user holds for a third
+look.** All eight T-208…T-215 fixes verified landed; blind read test passed **7/7 "digital board
+game"** (fresh agent, neutral filenames); motion scored provisionally (verified live at T-306). User
+decisions: the giant chaos star is KEPT as the board's identity but gains material depth (T-216);
+node hierarchy/banners fixed + **user-caught missing true connectors** — Keystone→approach spokes
+absent from the render (T-217, with a render==data edge-parity guard); threat prompt themed (T-218).
+T-207 remains BLOCKED pending the third review of T-219's regenerated gallery.
 
 ---
 
