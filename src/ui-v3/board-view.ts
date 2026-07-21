@@ -80,6 +80,18 @@ export const EDGE_STROKE_W = 1.6;
 /** Worn-stone road bed laid under the gold vein, wider than it, so the edge reads as material. */
 export const EDGE_BED_W = 3.4;
 
+/**
+ * Ley-line density split (T-232, fourth-review density note): the PRIMARY rays — the radial spokes
+ * (keystone↔approach, approach↔forge, keep↔mid) — read brighter than the SECONDARY lattice weave
+ * (the two woven octagons + the cardinal-mid cross-ties). Classification is PURELY geometric
+ * (collinear-with-centre, see `renderBoard`), so NO node-id/edge literal enters the renderer.
+ * Emitted as an inline `stroke-opacity` (load-bearing, browser-truthful — a stylesheet rule can't
+ * override the presentation attribute; T-220 caveat), asserted against this single source.
+ * PRIMARY must stay strictly brighter than SECONDARY.
+ */
+export const PRIMARY_EDGE_OPACITY = 1;
+export const SECONDARY_EDGE_OPACITY = 0.5;
+
 /** angle in degrees (0 = East, clockwise in screen space), radius in px. */
 interface Polar { angle: number; radius: number; }
 
@@ -349,6 +361,13 @@ export function renderBoard(state: ObservableState): string {
   // wider `.edge-bed` worn-stone road bed, wrapped in a single `.edges` group carrying the soft
   // road glow so the thin etched-gold vein reads as a material road on the wood — distinct from the
   // muted decorative rays it crosses — notably the four keystone → approach spokes into the centre.
+  // The rewired lattice (T-231: −4 forge ring, +16 woven lattice → 52 edges) is drawn straight from
+  // each node's real `connections` with ZERO hard-coded edges, so the +16/−4 delta needs no code
+  // change. DENSITY (T-232, fourth-review): the PRIMARY radial spokes read brighter than the
+  // SECONDARY lattice weave. An edge is PRIMARY iff its two endpoints are collinear with the board
+  // centre (CX,CY) — i.e. the 2D cross-product of the two centre-relative vectors is ≈ 0 (the
+  // keystone sits AT the centre so its vector is (0,0) → its 4 spokes count radial). This is pure
+  // geometry over the layout positions the renderer already computes — no node-id/edge literal.
   const seen = new Set<string>();
   let edgeLines = '';
   for (const [id, ndef] of Object.entries(def.nodes)) {
@@ -359,12 +378,20 @@ export function renderBoard(state: ObservableState): string {
       seen.add(key);
       const b = pos(conn);
       const coords = `x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}"`;
+      // Radial (primary) iff the two endpoints are collinear with the centre (cross-product ≈ 0).
+      const cross = (a.x - CX) * (b.y - CY) - (a.y - CY) * (b.x - CX);
+      const primary = Math.abs(cross) < 0.5;
+      const veinCls = primary ? 'edge edge-primary' : 'edge edge-secondary';
+      const veinOp = primary ? PRIMARY_EDGE_OPACITY : SECONDARY_EDGE_OPACITY;
       // Two lines per undirected edge: a worn-stone road bed, then the thin etched-gold vein on top.
       // `.edge-bed` is a different class token, invisible to the `.edge` edge-parity queries, so the
       // count of `line.edge` stays exactly one per edge (T-217 guard). Widths are INLINE (not CSS) so
-      // a stylesheet rule can't override the presentation attribute in a real browser (T-220 caveat).
+      // a stylesheet rule can't override the presentation attribute in a real browser (T-220 caveat);
+      // the primary/secondary brightness rides the same inline route via `stroke-opacity`. The base
+      // `edge` token stays on every vein so the parity queries (`line.edge` == 52) hold — the
+      // `edge-primary`/`edge-secondary` classes are additive modifiers only.
       edgeLines += `<line ${coords} class="edge-bed" stroke-width="${EDGE_BED_W}" />`;
-      edgeLines += `<line ${coords} class="edge" stroke-width="${EDGE_STROKE_W}" />`;
+      edgeLines += `<line ${coords} class="${veinCls}" stroke-width="${EDGE_STROKE_W}" stroke-opacity="${veinOp}" />`;
     }
   }
   const edges = `<g class="edges" filter="url(#edgeGlow)">${edgeLines}</g>`;

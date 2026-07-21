@@ -1125,7 +1125,7 @@ no new symmetry test was needed. Scope boundary: only `data/board-v3.json` (+ it
 no engine logic, tunables, `data/board.json` (v2), or rendering code (T-232's scope) touched.
 Orchestration: graphify=board-v3.json connections adjacency symmetry test board.gen.ts · attempts=1/4.
 
-### T-232 · Re-render + edge-parity assert on the rewired lattice — `status: TODO` · `coder: opus` · `after: T-231`
+### T-232 · Re-render + edge-parity assert on the rewired lattice — `status: DONE` · `coder: opus` · `after: T-231`
 The renderer already draws edges from data with a render==data parity guard (T-225); confirm it covers
 the +16/−4 delta with **zero** hard-coded edges. Extend the parity test to assert the exact new edge
 count and that the removed forge ring no longer renders. Visual: the middle forge box is gone; the two
@@ -1138,6 +1138,23 @@ that states the balance is being re-established for the new topology (no fabrica
 T-233's reading once measured, or keep it qualitative).
 **Accept:** edge-parity test green over all rendered edges; forge-ring absence asserted; `npx vite
 build` clean; no node-id/edge literal introduced in the renderer; no stale "~21% locked" copy remains.
+
+**Delivered (2026-07-20):** `renderBoard` now draws the rewired 52-edge lattice straight from each
+node's `connections` (zero hard-coded edges), classifying every edge as primary/secondary purely by
+geometry — collinear-with-centre cross-product ≈ 0 marks the 12 radial spokes (keystone↔approach,
+approach↔forge, keep↔mid) as primary, the 40 woven-lattice/cross-tie veins as secondary — and emits
+the T-220-style inline `stroke-opacity` (`PRIMARY_EDGE_OPACITY` 1 > `SECONDARY_EDGE_OPACITY` 0.5) so
+the brightness split survives a real browser's stylesheet-vs-presentation-attribute precedence, with
+matching `.edge-primary`/`.edge-secondary` CSS color accents layered on top. Four new tests assert
+the exact 52-edge parity, the forge ring's absence from both data and DOM, the primary/secondary
+opacity split, and that the 12 primary edges are exactly the radial-spoke set (not an arbitrary 12).
+The stale start-screen "~21% dark win locked" claim is replaced with qualitative copy stating balance
+is being re-established for the rewired topology, with no fabricated number substituted. Scope
+boundary: only `src/ui-v3/board-view.ts` (edge classification + opacity), `src/ui-v3/main.ts`
+(start-screen copy), `src/ui-v3/ui-v3.css` (primary/secondary color accents), and
+`tests/v3/board-view.test.ts` changed — no board data, engine logic, or tunables touched; T-233's
+fresh balance reading is left to that task.
+Orchestration: graphify=none — `npx graphify query` produced no output (the CLI returned nothing on this repo's graphify-out); oriented directly from ROADMAP-V3.1-UI.md §M2.6, the rend · attempts=1/4.
 
 ### T-233 · Fresh balance READING on the rewired board — `status: TODO` · `coder: opus` · `after: T-231`
 Re-run the canonical 2-seed sweep (seeds 20260622+20260628, n=40, 2/3/4p, both modes) into a new run

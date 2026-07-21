@@ -36,6 +36,8 @@ import {
   STAR_CARVE_STOPS,
   EDGE_STROKE_W,
   EDGE_BED_W,
+  PRIMARY_EDGE_OPACITY,
+  SECONDARY_EDGE_OPACITY,
 } from '../../src/ui-v3/board-view.js';
 
 function parse(svg: string): SVGSVGElement {
@@ -321,6 +323,85 @@ describe('T-217 board — accept: edge-parity (render == data, no missing / no p
     expect(svg.querySelector('defs filter#edgeGlow'), 'the edge-glow filter is defined').not.toBeNull();
     // The glow is a GROUP filter — the DOM still holds exactly one line.edge per edge.
     expect(group?.querySelectorAll('line.edge').length, '52 edge lines live inside the group').toBe(52);
+  });
+});
+
+// ── T-232 · re-render + edge-parity assert on the rewired lattice ──────────────────────────────
+
+describe('T-232 board — accept: rewired lattice renders, forge ring gone, primary > secondary', () => {
+  /** Map every rendered `line.edge` back to its two node ids (nearest layout position). */
+  function renderedEdgeKeys(svg: SVGSVGElement, sel = 'line.edge'): string[] {
+    const data = dataEdgeSet();
+    const ids = new Set<string>();
+    for (const e of data) for (const id of e.split('|')) ids.add(id);
+    const idPositions = Array.from(ids).map((id) => ({ id, p: nodeScreenPos(id) }));
+    const idAt = (x: number, y: number): string => {
+      for (const { id, p } of idPositions) if (Math.hypot(p.x - x, p.y - y) < 0.6) return id;
+      throw new Error(`endpoint (${x},${y}) matches no node — phantom coordinate`);
+    };
+    return Array.from(svg.querySelectorAll(sel)).map((e) => {
+      const a = idAt(Number(e.getAttribute('x1')), Number(e.getAttribute('y1')));
+      const b = idAt(Number(e.getAttribute('x2')), Number(e.getAttribute('y2')));
+      return edgeKey(a, b);
+    });
+  }
+
+  it('the rewired lattice renders exactly 52 edges (T-231 +16/−4 delta), data and render agree', () => {
+    // The exact NEW edge count (the +16 woven lattice − 4 removed forge ring against the old 40).
+    expect(dataEdgeSet().size, 'data has the 52-edge rewired topology').toBe(52);
+    const svg = boardSvg();
+    expect(svg.querySelectorAll('line.edge').length, 'render draws all 52 from data').toBe(52);
+  });
+
+  it('the removed forge ring no longer renders (no edge joins two forge nodes)', () => {
+    // Belt-and-suspenders: the data carries no forge–forge edge…
+    const dataForgeRing = [...dataEdgeSet()].filter((k) =>
+      k.split('|').every((id) => id.startsWith('forge-')),
+    );
+    expect(dataForgeRing, 'data has no forge-ring edge').toEqual([]);
+    // …and neither does the DOM.
+    const svg = boardSvg();
+    const renderedForgeRing = renderedEdgeKeys(svg).filter((k) =>
+      k.split('|').every((id) => id.startsWith('forge-')),
+    );
+    expect(renderedForgeRing, 'the removed forge ring no longer renders').toEqual([]);
+  });
+
+  it('primary rays are brighter than the secondary lattice (12 spokes vs 40 weave)', () => {
+    expect(PRIMARY_EDGE_OPACITY, 'primary ley-lines brighter than secondary').toBeGreaterThan(
+      SECONDARY_EDGE_OPACITY,
+    );
+    const svg = boardSvg();
+    const primary = Array.from(svg.querySelectorAll('line.edge.edge-primary'));
+    const secondary = Array.from(svg.querySelectorAll('line.edge.edge-secondary'));
+    expect(primary.length, '12 primary radial spokes').toBe(12);
+    expect(secondary.length, '40 secondary lattice veins').toBe(40);
+    expect(primary.length + secondary.length, 'every edge is classified exactly once').toBe(52);
+    for (const e of primary) {
+      expect(e.getAttribute('stroke-opacity'), 'primary carries the brighter inline opacity').toBe(
+        String(PRIMARY_EDGE_OPACITY),
+      );
+    }
+    for (const e of secondary) {
+      expect(e.getAttribute('stroke-opacity'), 'secondary carries the dimmer inline opacity').toBe(
+        String(SECONDARY_EDGE_OPACITY),
+      );
+    }
+  });
+
+  it('the 12 primary edges are exactly the radial spoke set (not an arbitrary 12)', () => {
+    const svg = boardSvg();
+    const primaryKeys = new Set(renderedEdgeKeys(svg, 'line.edge.edge-primary'));
+    const expected = new Set<string>();
+    for (const d of ['nw', 'ne', 'se', 'sw']) {
+      expected.add(edgeKey('keystone', `approach-${d}`)); // keystone ↔ approach
+      expected.add(edgeKey(`approach-${d}`, `forge-${d}`)); // approach ↔ forge
+    }
+    for (const d of ['n', 'e', 's', 'w']) {
+      expected.add(edgeKey(`keep-${d}`, `mid-${d}`)); // keep ↔ mid
+    }
+    expect(primaryKeys.size, '12 distinct primary edges').toBe(12);
+    expect([...primaryKeys].sort(), 'primary set == the radial spokes').toEqual([...expected].sort());
   });
 });
 

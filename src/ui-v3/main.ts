@@ -17,9 +17,9 @@ import { DEFAULT_DIFFICULTY, type Difficulty, type GameMode } from '../v3/index.
 
 /** The three tiers, in descending dark-strength order, with a one-line "how hard is the dark" hint. */
 const DIFFICULTY_OPTIONS: readonly { readonly value: Difficulty; readonly label: string; readonly hint: string }[] = [
-  { value: 'warlord', label: 'Warlord (Hard)', hint: 'The dark at full, locked strength — the reference balance (~21% dark win under flawless play).' },
-  { value: 'knight', label: 'Knight (Normal)', hint: 'A gentler dark — a lower pledge threshold to block a strike (~17%).' },
-  { value: 'squire', label: 'Squire (Easy)', hint: 'The dark goes easy on a squire — the weakest pledge threshold (~13%).' },
+  { value: 'warlord', label: 'Warlord (Hard)', hint: 'The dark at full, unshackled strength — balance is being re-established for the rewired lattice board (no locked reference number yet).' },
+  { value: 'knight', label: 'Knight (Normal)', hint: 'A gentler dark — a lower pledge threshold to block a strike.' },
+  { value: 'squire', label: 'Squire (Easy)', hint: 'The dark goes easy on a squire — the weakest pledge threshold.' },
 ];
 
 /**

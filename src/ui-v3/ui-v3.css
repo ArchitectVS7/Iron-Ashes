@@ -404,6 +404,12 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
    because a stylesheet rule would override the presentation attribute and undo the thinning. */
 .edge-bed { stroke: #241a10; stroke-linecap: round; opacity: 0.9; }
 .edge { stroke: #c79a45; stroke-linecap: round; opacity: 0.92; }
+/* Ley-line density split (T-232): the PRIMARY radial spokes materialize brighter (warmer, lighter
+   gold) than the SECONDARY lattice weave, per the fourth-review density note. The load-bearing
+   brightness signal is the inline `stroke-opacity` set in board-view.ts (PRIMARY_EDGE_OPACITY >
+   SECONDARY_EDGE_OPACITY); these colour tweaks add in-browser warmth on top of that. */
+.edge-primary { stroke: #e6bb5c; }
+.edge-secondary { stroke: #b0863a; }
 
 /* The node-group wraps each location; the illustration IS the node body (no enclosing disc). */
 .node-group { cursor: pointer; }
