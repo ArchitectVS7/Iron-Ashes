@@ -199,6 +199,7 @@ Workflow (same as v2): **① idea → ② textual algorithm → ③ code → ④
   - [x] **V3.1-M1 — The semantic move stream (transition layer)** → `docs/ROADMAP-V3.1-UI.md` §M1
   - [x] **V3.1-M2 — Theme foundation (stop looking like a spreadsheet)** → `docs/ROADMAP-V3.1-UI.md` §M2
   - [x] **V3.1-M2.5 — True 8-spoke board (engine topology change; user-authorized 2026-07-20)** → `docs/ROADMAP-V3.1-UI.md` §M2.5
+  - [ ] **V3.1-M2.6 — Ring rewire (the star lattice; user-authorized 2026-07-20, same M2.5 topology exception)** → `docs/ROADMAP-V3.1-UI.md` §M2.6
   - [ ] **V3.1-M2-CHECKPOINT — user visual review of M2 (T-207)** → `docs/ROADMAP-V3.1-UI.md` §M2
   - [ ] **V3.1-M3 — Cards & hand live** → `docs/ROADMAP-V3.1-UI.md` §M3
   - [ ] **V3.1-M4 — Board life & sound** → `docs/ROADMAP-V3.1-UI.md` §M4

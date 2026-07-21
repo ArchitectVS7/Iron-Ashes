@@ -1048,7 +1048,7 @@ reading. `data/board.json` (the v2 17-node board) stays untouched; only `data/bo
 inner square = approaches (r95, diagonal); **mid ring** (r190) = `mid-n/e/s/w` (cardinal) + `forge-*`
 (diagonal); **outer points** (r268/288) = `keep-n/e/s/w` (cardinal) + `holding-*` (diagonal).
 
-### T-230 · Reopen M2.6 — record the ring-rewire exception — `status: TODO` · `coder: sonnet` · `after: T-229`
+### T-230 · Reopen M2.6 — record the ring-rewire exception — `status: DONE` · `coder: sonnet` · `after: T-229`
 Docs/state only (no code). Record the M2.6 continuation of the M2.5 topology exception (dated
 2026-07-20, fourth Gate-1 review) in `docs/handoff/state.json` `invariants` (extend the existing
 LOCK-void note to cover the ring rewire) + `openRisks` (openRisk: "ring-rewire balance UNMEASURED
@@ -1057,6 +1057,19 @@ until T-233"); repoint `currentStage` **V3.1-M2-CHECKPOINT → V3.1-M2.6**; add 
 milestone block (T-231…T-233 deliverables + exit metric) to `ROADMAP-V3.1-UI.md` between §M2.5 and M3.
 **Accept:** `npm run handoff:check` exits 0 with `currentStage` = `V3.1-M2.6`; no engine/tunable/data/
 asset edit.
+
+**Delivered (2026-07-20):** Docs/state only, no code. `docs/handoff/state.json` was repointed
+`currentStage` **V3.1-M2-CHECKPOINT → V3.1-M2.6** (with matching `currentStageTitle`/`nextAction`),
+its `invariants` LOCK-void note was extended to cover the ring rewire, and a matching `openRisks` entry
+("RING-REWIRE BALANCE UNMEASURED …" — the M2.6 topology change reopened under the same M2.5 exception,
+fresh reading RECORDED not tuned) was added. `docs/ROADMAP-V3.md` §4 gained a new unchecked
+`- [ ] **V3.1-M2.6 …**` sub-box above the M2-CHECKPOINT box, making it the first-unchecked stage so
+`handoff:check`'s stage match resolves to `V3.1-M2.6`. `docs/ROADMAP-V3.1-UI.md` gained a full §M2.6
+milestone block (T-231/T-232/T-233 deliverables + exit metrics) between §M2.5 and M3, plus a dated
+§3 exception-continuation note. Standing constraints held: no edits under `src/v2/`, `src/v3/`,
+`src/utils/`, no tunable value change, no `data/board-v3.json` / asset / `package.json` edit, and
+T-207 stays `BLOCKED(awaiting user visual review)`.
+Orchestration: graphify=openRisks currentStage invariants (BFS over docs/handoff/state.schema.json — confirmed the schema shape of the three arrays I'm editing; grounded the rest in th · attempts=3/4.
 
 ### T-231 · Ring rewire — edge surgery in board-v3.json — `status: TODO` · `coder: opus` · `after: T-230`
 Edit **only** `data/board-v3.json` (then regen `src/v3/board.gen.ts` via `npm run gen:data`); the

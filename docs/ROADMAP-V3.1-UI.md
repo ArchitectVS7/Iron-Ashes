@@ -70,6 +70,12 @@ When this sprint opens:
       "`data/board.json`" for the M2.5 build now reads **`data/board-v3.json`**. This is a file-path/source
       split only — the topology, node count (21), Keystone-4-doors invariant, and "no tunable-VALUE edits"
       constraint are all unchanged.
+    - **2026-07-20 (T-230) — the topology exception is CONTINUED into M2.6** (the **ring rewire** / star
+      lattice; fourth Gate-1 review). Under identical terms — topology-only, no tunable-VALUE edits, the
+      §9 lock stays voided, the fresh lattice reading (T-233) recorded not tuned — the user authorized a
+      further edge change to `data/board-v3.json`: REMOVE the 4 forge-ring edges, ADD 16 lattice edges
+      (−4 / +16). The 21-node set, the Keystone-4-doors invariant, and `data/board.json` (frozen v2) are
+      all unchanged. See §M2.6.
 - **Fog (D2) extends to presentation.** Animations must not leak: nothing hidden from `viewerSeat`'s
   `observableState` projection may ever reach the DOM, a texture, or the move stream — including
   *mid-animation* (a flip may not show face content before the reveal frame). Enforced by leak tests (M1).
@@ -208,6 +214,46 @@ voided by the change and replaced with a fresh baseline (T-227), not re-tuned.**
   modes at 2/3/4p with sane termination.
 - A fresh 2-seed sim baseline is committed (new `sim-results/` run dir + REPORT) and recorded in
   ROADMAP-V3 §8 + `state.json`, with an explicit tunable-vs-structural read on every band miss.
+- **Zero tunable-VALUE edits** — the diff shows no change to `src/v3/tunables.ts` / `tunables.gen.ts`.
+
+### M2.6 — Ring rewire (the star lattice; engine topology change; user-authorized 2026-07-20)
+*Fourth Gate-1 review (2026-07-20): the true 8-ray 21-node board was delivered and verified, but the
+user marked up `07-endgame.png` — erase the middle (forge) ring and draw the yellow lattice edges
+weaving the mid + outer rings into a **star lattice** (−4 forge-ring edges / +16 lattice edges).
+Reopened under the **same M2.5 §3 topology exception** — topology-only, zero tunable-VALUE edits, the
+§9 balance LOCK stays voided, and a fresh reading is recorded, not tuned. The sim / UGT harness / AI /
+Shadowking policy are already board-derived (the T-226 audit: BFS navigation, board-derived quadrant
+maps, no node-id literals), so no engine untangle is needed — only `data/board-v3.json` edges, render
+parity, and a fresh reading. `data/board.json` (the frozen 17-node v2 board) stays untouched.*
+- [ ] **T-231** — Ring rewire: edit **only** `data/board-v3.json` (then `npm run gen:data` to regen
+      `src/v3/board.gen.ts`) — REMOVE the 4 forge-ring edges (forge-nw↔ne↔se↔sw↔nw); ADD 16 lattice
+      edges: set (1) outer-cardinal↔diagonal-mid (keep-n↔forge-ne, keep-e↔forge-se, keep-s↔forge-sw,
+      keep-w↔forge-nw), set (2) the outer-diagonal↔cardinal-mid octagon (8: holding↔mid weave), set (3)
+      the cardinal-mid square (mid-n↔mid-e↔mid-s↔mid-w). Symmetric on both endpoints; keystone still
+      exactly `[approach-nw,ne,se,sw]`; no forge–forge edge remains; `data/board.json` untouched.
+- [ ] **T-232** — Re-render + edge-parity assert on the rewired lattice (forge ring gone; the two
+      octagons + cardinal-mid square render as materialized ley-lines, T-220 style, primary rays brighter
+      than the secondary lattice per the fourth-review density note); no hard-coded edges. Also fix the
+      **stale start-screen copy** — the "~21% locked balance (flawless play)" claim is voided (the
+      21-node board reads ~53%, T-227; the lattice will differ again) → replace with copy stating the
+      balance is being re-established for the new topology (no fabricated number).
+- [ ] **T-233** — Fresh balance READING (canonical 2-seed sweep, seeds 20260622+20260628, n=40, 2/3/4p,
+      both modes) into `sim-results/v3-21node-lattice-n40/` with a combined REPORT (delta vs the T-227
+      pre-lattice baseline + a tunable-vs-structural assessment); re-audit board-derivation greps; band
+      misses recorded, **nothing tuned**; dated ROADMAP-V3 §8 entry.
+
+**Exit metrics:**
+- Every edge symmetric (`∀ a∈conn(b) ⇔ b∈conn(a)`, validator test); Keystone still has **exactly 4**
+  approach doors; **no forge–forge edge remains**; graph connected; `src/v3/board.gen.ts` byte-consistent
+  with `data/board-v3.json` after `npm run gen:data`; `data/board.json` untouched.
+- The T-217 edge-parity test passes over the +16/−4 delta (render == data): the forge ring no longer
+  renders; the two octagons + the cardinal-mid square render as ley-lines; the exact new edge count is
+  asserted; no stale "~21% locked" start-screen copy remains.
+- `npm run verify` 0 (full v2+v3 suite green on the rewired board); `npm run sim:v3` completes both
+  modes at 2/3/4p with sane termination (no guard hit).
+- A fresh 2-seed lattice reading is committed (new `sim-results/v3-21node-lattice-n40/` run dir + REPORT)
+  and recorded in ROADMAP-V3 §8 + `state.json`, with an explicit tunable-vs-structural read on every
+  band miss.
 - **Zero tunable-VALUE edits** — the diff shows no change to `src/v3/tunables.ts` / `tunables.gen.ts`.
 
 ### M3 — Cards & hand live
