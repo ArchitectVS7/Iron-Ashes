@@ -1071,7 +1071,7 @@ milestone block (T-231/T-232/T-233 deliverables + exit metrics) between §M2.5 a
 T-207 stays `BLOCKED(awaiting user visual review)`.
 Orchestration: graphify=openRisks currentStage invariants (BFS over docs/handoff/state.schema.json — confirmed the schema shape of the three arrays I'm editing; grounded the rest in th · attempts=3/4.
 
-### T-231 · Ring rewire — edge surgery in board-v3.json — `status: TODO` · `coder: opus` · `after: T-230`
+### T-231 · Ring rewire — edge surgery in board-v3.json — `status: DONE` · `coder: opus` · `after: T-230`
 Edit **only** `data/board-v3.json` (then regen `src/v3/board.gen.ts` via `npm run gen:data`); the
 21-node set is unchanged — only `connections` change, symmetrically on both endpoints. Apply exactly:
 
@@ -1111,6 +1111,19 @@ holding-nw: keep-w, keep-n, mid-w, mid-n
 **Accept:** every edge symmetric (a test asserts `∀ a∈conn(b) ⇔ b∈conn(a)`); keystone still exactly
 `[approach-nw,ne,se,sw]`; no `forge–forge` edge remains; `npm run gen:data` clean; typecheck/lint green;
 `data/board.json` untouched.
+
+**Delivered (2026-07-20):** `data/board-v3.json` edges rewired exactly per spec — the 4-edge
+forge↔forge ring removed, and 16 new edges added (4 keep↔forge octagon completions, 8 holding↔mid
+octagon, 4 mid↔mid cardinal square), taking the board from 40 to 52 undirected edges while the
+21-node set and the 4-door keystone stayed untouched; `src/v3/board.gen.ts` was regenerated from the
+new data and `src/v3/board.ts`'s validator + doc comments were updated for the new degree profile
+(Forge 3, Keep 5, Holding 4, Mid 7). `tests/v3/board.test.ts` and `tests/v3/board-view.test.ts` were
+updated to assert the new 52-edge topology, the removed forge ring, and the new mid connection
+pattern; the pre-existing bidirectional-connections test already covers full adjacency symmetry, so
+no new symmetry test was needed. Scope boundary: only `data/board-v3.json` (+ its generated
+`board.gen.ts`), `src/v3/board.ts` validator/doc comments, and the two board test files changed —
+no engine logic, tunables, `data/board.json` (v2), or rendering code (T-232's scope) touched.
+Orchestration: graphify=board-v3.json connections adjacency symmetry test board.gen.ts · attempts=1/4.
 
 ### T-232 · Re-render + edge-parity assert on the rewired lattice — `status: TODO` · `coder: opus` · `after: T-231`
 The renderer already draws edges from data with a render==data parity guard (T-225); confirm it covers

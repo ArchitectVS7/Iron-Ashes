@@ -104,8 +104,7 @@ export const BOARD_DATA = {
       "connections": [
         "approach-nw",
         "keep-n",
-        "forge-ne",
-        "forge-sw"
+        "keep-w"
       ],
       "id": "forge-nw",
       "income": 3,
@@ -116,8 +115,7 @@ export const BOARD_DATA = {
       "connections": [
         "approach-ne",
         "keep-e",
-        "forge-nw",
-        "forge-se"
+        "keep-n"
       ],
       "id": "forge-ne",
       "income": 3,
@@ -128,8 +126,7 @@ export const BOARD_DATA = {
       "connections": [
         "approach-se",
         "keep-s",
-        "forge-ne",
-        "forge-sw"
+        "keep-e"
       ],
       "id": "forge-se",
       "income": 3,
@@ -140,8 +137,7 @@ export const BOARD_DATA = {
       "connections": [
         "approach-sw",
         "keep-w",
-        "forge-se",
-        "forge-nw"
+        "keep-s"
       ],
       "id": "forge-sw",
       "income": 3,
@@ -151,6 +147,7 @@ export const BOARD_DATA = {
     {
       "connections": [
         "forge-nw",
+        "forge-ne",
         "holding-ne",
         "holding-nw",
         "mid-n"
@@ -163,6 +160,7 @@ export const BOARD_DATA = {
     {
       "connections": [
         "forge-ne",
+        "forge-se",
         "holding-ne",
         "holding-se",
         "mid-e"
@@ -175,6 +173,7 @@ export const BOARD_DATA = {
     {
       "connections": [
         "forge-se",
+        "forge-sw",
         "holding-se",
         "holding-sw",
         "mid-s"
@@ -187,6 +186,7 @@ export const BOARD_DATA = {
     {
       "connections": [
         "forge-sw",
+        "forge-nw",
         "holding-sw",
         "holding-nw",
         "mid-w"
@@ -199,7 +199,9 @@ export const BOARD_DATA = {
     {
       "connections": [
         "keep-n",
-        "keep-e"
+        "keep-e",
+        "mid-n",
+        "mid-e"
       ],
       "id": "holding-ne",
       "income": 1,
@@ -209,7 +211,9 @@ export const BOARD_DATA = {
     {
       "connections": [
         "keep-e",
-        "keep-s"
+        "keep-s",
+        "mid-e",
+        "mid-s"
       ],
       "id": "holding-se",
       "income": 1,
@@ -219,7 +223,9 @@ export const BOARD_DATA = {
     {
       "connections": [
         "keep-s",
-        "keep-w"
+        "keep-w",
+        "mid-s",
+        "mid-w"
       ],
       "id": "holding-sw",
       "income": 1,
@@ -229,7 +235,9 @@ export const BOARD_DATA = {
     {
       "connections": [
         "keep-w",
-        "keep-n"
+        "keep-n",
+        "mid-w",
+        "mid-n"
       ],
       "id": "holding-nw",
       "income": 1,
@@ -240,7 +248,11 @@ export const BOARD_DATA = {
       "connections": [
         "approach-nw",
         "approach-ne",
-        "keep-n"
+        "keep-n",
+        "holding-ne",
+        "holding-nw",
+        "mid-e",
+        "mid-w"
       ],
       "id": "mid-n",
       "income": 0,
@@ -251,7 +263,11 @@ export const BOARD_DATA = {
       "connections": [
         "approach-ne",
         "approach-se",
-        "keep-e"
+        "keep-e",
+        "holding-ne",
+        "holding-se",
+        "mid-n",
+        "mid-s"
       ],
       "id": "mid-e",
       "income": 0,
@@ -262,7 +278,11 @@ export const BOARD_DATA = {
       "connections": [
         "approach-se",
         "approach-sw",
-        "keep-s"
+        "keep-s",
+        "holding-se",
+        "holding-sw",
+        "mid-e",
+        "mid-w"
       ],
       "id": "mid-s",
       "income": 0,
@@ -273,7 +293,11 @@ export const BOARD_DATA = {
       "connections": [
         "approach-sw",
         "approach-nw",
-        "keep-w"
+        "keep-w",
+        "holding-sw",
+        "holding-nw",
+        "mid-n",
+        "mid-s"
       ],
       "id": "mid-w",
       "income": 0,

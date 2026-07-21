@@ -1,15 +1,15 @@
 /**
- * Board topology tests — validate the 21-node Closing Ring (T-222 8-spoke ring).
+ * Board topology tests — validate the 21-node Closing Ring (T-231 ring-rewire lattice).
  *
- * Checks from the spec (ALGORITHM §2; T-222 adds the 4 cardinal `mid` transit nodes):
+ * Checks from the spec (ALGORITHM §2; T-231 rewires the edges into the interlocking lattice):
  *   - 21 nodes, correct tier counts
  *   - Bidirectional connections
  *   - Full connectivity
  *   - Keystone reachable only via Approaches (still exactly 4 doors)
- *   - Lateral rings (Approach 4-cycle, Forge 4-cycle)
+ *   - Lateral rings (Approach 4-cycle; NO Forge↔Forge edge — the forge ring is removed)
  *   - Four-fold rotational symmetry (incl. the 4 mids)
  *   - Each Keep distance 3 from Keystone
- *   - Each Mid bridges 2 Approaches + 1 Keep (degree 3, income 0)
+ *   - Each Mid bridges 2 Approaches + 1 Keep + 2 Holdings + 2 Mids (degree 7, income 0)
  */
 
 import { describe, expect, it } from 'vitest';
@@ -138,29 +138,14 @@ describe('Closing Ring Board', () => {
       expect(visited.size).toBe(4);
     });
 
-    it('each forge connects to exactly 2 other forges', () => {
+    it('no forge–forge edge remains (T-231 removed the forge ring)', () => {
       for (const forgeId of board.forgeIds) {
         const forge = board.nodes[forgeId];
-        const lateralCount = forge.connections.filter(
+        const forgeLinks = forge.connections.filter(
           c => board.nodes[c].tier === 'forge',
-        ).length;
-        expect(lateralCount, `Forge ${forgeId} lateral count`).toBe(2);
-      }
-    });
-
-    it('forge lateral connections form a 4-cycle', () => {
-      const start = board.forgeIds[0];
-      const visited = new Set<string>();
-      let current = start;
-      for (let step = 0; step < 4; step++) {
-        visited.add(current);
-        const laterals = board.nodes[current].connections.filter(
-          c => board.nodes[c].tier === 'forge' && !visited.has(c),
         );
-        if (laterals.length === 0) break;
-        current = laterals[0];
+        expect(forgeLinks, `Forge ${forgeId} has no forge-to-forge edge`).toEqual([]);
       }
-      expect(visited.size).toBe(4);
     });
   });
 
@@ -175,29 +160,29 @@ describe('Closing Ring Board', () => {
       }
     });
 
-    it('each forge has degree 4 (Approach + Keep + 2 lateral)', () => {
+    it('each forge has degree 3 (Approach + 2 Keeps)', () => {
       for (const forgeId of board.forgeIds) {
-        expect(board.nodes[forgeId].connections.length).toBe(4);
+        expect(board.nodes[forgeId].connections.length).toBe(3);
       }
     });
 
-    it('each keep has degree 4 (Forge + 2 Holdings + Mid)', () => {
+    it('each keep has degree 5 (2 Forges + 2 Holdings + Mid)', () => {
       for (const keepId of board.keepIds) {
-        expect(board.nodes[keepId].connections.length).toBe(4);
+        expect(board.nodes[keepId].connections.length).toBe(5);
       }
     });
 
-    it('each holding has degree 2 (2 Keeps)', () => {
+    it('each holding has degree 4 (2 Keeps + 2 Mids)', () => {
       for (const holdId of board.holdingIds) {
-        expect(board.nodes[holdId].connections.length).toBe(2);
+        expect(board.nodes[holdId].connections.length).toBe(4);
       }
     });
 
-    it('each mid has degree 3 (2 Approaches + 1 Keep)', () => {
+    it('each mid has degree 7 (2 Approaches + 1 Keep + 2 Holdings + 2 Mids)', () => {
       const midIds = Object.values(board.nodes).filter(n => n.tier === 'mid').map(n => n.id);
       expect(midIds.length).toBe(4);
       for (const midId of midIds) {
-        expect(board.nodes[midId].connections.length).toBe(3);
+        expect(board.nodes[midId].connections.length).toBe(7);
       }
     });
   });
@@ -286,7 +271,7 @@ describe('Closing Ring Board', () => {
       expect(new Set(patterns).size).toBe(1);
     });
 
-    it('all mids have the same connection pattern by tier (2 approaches + 1 keep)', () => {
+    it('all mids have the same connection pattern by tier (2 approaches + 1 keep + 2 holdings + 2 mids)', () => {
       const midIds = Object.values(board.nodes).filter(n => n.tier === 'mid').map(n => n.id);
       const patterns = midIds.map(id => {
         const node = board.nodes[id];
@@ -296,7 +281,7 @@ describe('Closing Ring Board', () => {
           .join(',');
       });
       expect(new Set(patterns).size).toBe(1);
-      expect(patterns[0]).toBe('approach,approach,keep');
+      expect(patterns[0]).toBe('approach,approach,holding,holding,keep,mid,mid');
     });
   });
 
@@ -422,13 +407,14 @@ describe('Closing Ring Board', () => {
   });
 
   describe('edge count', () => {
-    it('has exactly 40 undirected edges', () => {
-      // Sum of all degrees / 2. T-222 adds 4 mids × 3 links = +12 undirected edges (28 → 40).
+    it('has exactly 52 undirected edges', () => {
+      // Sum of all degrees / 2. T-231 rewire: 40 − 4 (removed forge ring) + 16 (4 keep↔forge +
+      // 8 holding↔mid + 4 mid square) = 52.
       let totalDegree = 0;
       for (const node of Object.values(board.nodes)) {
         totalDegree += node.connections.length;
       }
-      expect(totalDegree / 2).toBe(40);
+      expect(totalDegree / 2).toBe(52);
     });
   });
 });

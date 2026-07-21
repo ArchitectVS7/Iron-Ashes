@@ -1,39 +1,25 @@
 /**
- * The Closing Ring — the 21-node v3 board topology (T-222 true 8-spoke ring).
+ * The Closing Ring — the 21-node v3 board topology (T-231 ring-rewire lattice).
  *
  * Built from ALGORITHM §2 (panel R2 consensus), extended in T-222 with 4 cardinal `mid`
- * transit nodes so every one of the 8 compass directions is a real route inward: the 4
- * diagonal rays run through the Forges, the 4 cardinal rays now run through the Mids.
- * Concentric, four-fold symmetric, with lateral mid-belt and inner-ring links.
- *
- * Layout (from spec):
- *
- *                  [Keep N]──[Hold NE]──[Keep E]
- *                    │  ╲      [Mid N]     ╱  │
- *                 [Forge NW]      │     [Forge NE]
- *                    │    ╲       │       ╱    │
- *               [Approach NW]───[Approach NE]
- *          [Mid W]──   │       KEYSTONE     │   ──[Mid E]
- *               [Approach SW]───[Approach SE]
- *                    │    ╱       │       ╲    │
- *                 [Forge SW]      │     [Forge SE]
- *                    │  ╱      [Mid S]     ╲  │
- *                  [Keep S]──[Hold SW]──[Keep W]
- *
- *   (Holdings also connect: Hold NW between Keep W and Keep N,
- *    Hold SE between Keep E and Keep S — completing the outer ring.
- *    Each Mid connects OUTWARD to its cardinal Keep and LATERALLY to the
- *    two diagonal Approaches flanking its cardinal ray.)
+ * transit nodes and rewired in T-231 (M2.6 topology exception) into an interlocking lattice.
+ * The 21-node set is unchanged — only the edges changed:
+ *   - the old Forge↔Forge ring (a 4-cycle) is REMOVED — no Forge touches another Forge;
+ *   - each Keep now bridges BOTH flanking Forges (its own diagonal Forge + the adjacent one);
+ *   - two octagons are added: Keep↔Forge (outer-cardinal ↔ diagonal-mid) and Holding↔Mid
+ *     (outer-diagonal ↔ cardinal-mid);
+ *   - the 4 cardinal Mids form a square (Mid N↔E↔S↔W).
+ * Concentric, four-fold symmetric. Blight still enters only at the 4 Holding seams and
+ * converges inward along the (diagonal) spokes.
  *
  * Tiers:
  *   center     : 1 Keystone
  *   inner ring : 4 Approaches (chokepoints; only routes to Keystone)
- *   mid-belt   : 4 Forges (high-value; lateral ring connects them)
- *              + 4 Mids (cardinal transit; non-claimable, income 0 — T-222)
+ *   mid-belt   : 4 Forges (high-value; each links its Approach + its two flanking Keeps)
+ *              + 4 Mids (cardinal transit; non-claimable, income 0 — the mid square)
  *   outer ring : 4 Keeps + 4 Holdings (homes / claimable land)
  *
- * Blight enters at 4 symmetric outer seams (between Keeps) and
- * converges inward along the (diagonal) spokes.
+ * Degrees: Forge 3, Keep 5, Holding 4, Mid 7, Approach 6, Keystone 4 → 52 undirected edges.
  */
 
 import type {
@@ -156,9 +142,9 @@ export interface BoardValidationResult {
  *   4. All connection targets exist
  *   5. Fully connected graph
  *   6. Keystone reachable only via Approaches
- *   7. Lateral rings: Approach 4-cycle, Forge 4-cycle
+ *   7. Lateral rings: Approach 4-cycle; NO Forge↔Forge edge (T-231 removed the forge ring)
  *   8. Each Keep is distance 3 from Keystone (Keep → Forge → Approach → Keystone)
- *   9. Each Mid connects to exactly 2 Approaches + 1 Keep (T-222 8-spoke ring)
+ *   9. Each Mid connects to 2 Approaches + 1 Keep + 2 Holdings + 2 Mids (degree 7 — T-231)
  */
 export function validateClosingRing(definition: V2BoardDef): BoardValidationResult {
   const errors: string[] = [];
@@ -241,14 +227,14 @@ export function validateClosingRing(definition: V2BoardDef): BoardValidationResu
     }
   }
 
-  // Each Forge should connect to exactly 2 other Forges
+  // No Forge↔Forge edge (T-231 removed the forge ring — Forges only reach Approach + 2 Keeps)
   const forgeNodes = allNodes.filter(n => n.tier === 'forge');
   for (const forge of forgeNodes) {
     const lateralCount = forge.connections.filter(
       c => definition.nodes[c]?.tier === 'forge'
     ).length;
-    if (lateralCount !== 2) {
-      errors.push(`Forge ${forge.id} has ${lateralCount} lateral forge connections (expected 2)`);
+    if (lateralCount !== 0) {
+      errors.push(`Forge ${forge.id} has ${lateralCount} forge-to-forge connections (expected 0)`);
     }
   }
 
@@ -260,20 +246,29 @@ export function validateClosingRing(definition: V2BoardDef): BoardValidationResu
     }
   }
 
-  // 9. Mid-belt (T-222 8-spoke ring): each Mid bridges its cardinal ray — exactly 2 Approaches
-  //    (the flanking diagonals) + 1 Keep (its cardinal home), degree 3, income 0.
+  // 9. Mid-belt (T-231 lattice): each Mid bridges its cardinal ray — 2 Approaches (flanking
+  //    diagonals) + 1 Keep (cardinal home) + 2 Holdings (the Holding↔Mid octagon) + 2 Mids
+  //    (the cardinal-mid square), degree 7, income 0.
   const midNodes = allNodes.filter(n => n.tier === 'mid');
   for (const mid of midNodes) {
     const approachLinks = mid.connections.filter(c => definition.nodes[c]?.tier === 'approach').length;
     const keepLinks = mid.connections.filter(c => definition.nodes[c]?.tier === 'keep').length;
+    const holdingLinks = mid.connections.filter(c => definition.nodes[c]?.tier === 'holding').length;
+    const midLinks = mid.connections.filter(c => definition.nodes[c]?.tier === 'mid').length;
     if (approachLinks !== 2) {
       errors.push(`Mid ${mid.id} connects to ${approachLinks} approaches (expected 2)`);
     }
     if (keepLinks !== 1) {
       errors.push(`Mid ${mid.id} connects to ${keepLinks} keeps (expected 1)`);
     }
-    if (mid.connections.length !== 3) {
-      errors.push(`Mid ${mid.id} has degree ${mid.connections.length} (expected 3)`);
+    if (holdingLinks !== 2) {
+      errors.push(`Mid ${mid.id} connects to ${holdingLinks} holdings (expected 2)`);
+    }
+    if (midLinks !== 2) {
+      errors.push(`Mid ${mid.id} connects to ${midLinks} mids (expected 2)`);
+    }
+    if (mid.connections.length !== 7) {
+      errors.push(`Mid ${mid.id} has degree ${mid.connections.length} (expected 7)`);
     }
   }
 

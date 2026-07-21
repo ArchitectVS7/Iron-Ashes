@@ -106,8 +106,7 @@
       "connections": [
         "approach-nw",
         "keep-n",
-        "forge-ne",
-        "forge-sw"
+        "keep-w"
       ],
       "income": 3
     },
@@ -118,8 +117,7 @@
       "connections": [
         "approach-ne",
         "keep-e",
-        "forge-nw",
-        "forge-se"
+        "keep-n"
       ],
       "income": 3
     },
@@ -130,8 +128,7 @@
       "connections": [
         "approach-se",
         "keep-s",
-        "forge-ne",
-        "forge-sw"
+        "keep-e"
       ],
       "income": 3
     },
@@ -142,8 +139,7 @@
       "connections": [
         "approach-sw",
         "keep-w",
-        "forge-se",
-        "forge-nw"
+        "keep-s"
       ],
       "income": 3
     },
@@ -153,6 +149,7 @@
       "quadrant": 0,
       "connections": [
         "forge-nw",
+        "forge-ne",
         "holding-ne",
         "holding-nw",
         "mid-n"
@@ -165,6 +162,7 @@
       "quadrant": 1,
       "connections": [
         "forge-ne",
+        "forge-se",
         "holding-ne",
         "holding-se",
         "mid-e"
@@ -177,6 +175,7 @@
       "quadrant": 2,
       "connections": [
         "forge-se",
+        "forge-sw",
         "holding-se",
         "holding-sw",
         "mid-s"
@@ -189,6 +188,7 @@
       "quadrant": 3,
       "connections": [
         "forge-sw",
+        "forge-nw",
         "holding-sw",
         "holding-nw",
         "mid-w"
@@ -201,7 +201,9 @@
       "quadrant": null,
       "connections": [
         "keep-n",
-        "keep-e"
+        "keep-e",
+        "mid-n",
+        "mid-e"
       ],
       "income": 1
     },
@@ -211,7 +213,9 @@
       "quadrant": null,
       "connections": [
         "keep-e",
-        "keep-s"
+        "keep-s",
+        "mid-e",
+        "mid-s"
       ],
       "income": 1
     },
@@ -221,7 +225,9 @@
       "quadrant": null,
       "connections": [
         "keep-s",
-        "keep-w"
+        "keep-w",
+        "mid-s",
+        "mid-w"
       ],
       "income": 1
     },
@@ -231,7 +237,9 @@
       "quadrant": null,
       "connections": [
         "keep-w",
-        "keep-n"
+        "keep-n",
+        "mid-w",
+        "mid-n"
       ],
       "income": 1
     },
@@ -242,7 +250,11 @@
       "connections": [
         "approach-nw",
         "approach-ne",
-        "keep-n"
+        "keep-n",
+        "holding-ne",
+        "holding-nw",
+        "mid-e",
+        "mid-w"
       ],
       "income": 0
     },
@@ -253,7 +265,11 @@
       "connections": [
         "approach-ne",
         "approach-se",
-        "keep-e"
+        "keep-e",
+        "holding-ne",
+        "holding-se",
+        "mid-n",
+        "mid-s"
       ],
       "income": 0
     },
@@ -264,7 +280,11 @@
       "connections": [
         "approach-se",
         "approach-sw",
-        "keep-s"
+        "keep-s",
+        "holding-se",
+        "holding-sw",
+        "mid-e",
+        "mid-w"
       ],
       "income": 0
     },
@@ -275,7 +295,11 @@
       "connections": [
         "approach-sw",
         "approach-nw",
-        "keep-w"
+        "keep-w",
+        "holding-sw",
+        "holding-nw",
+        "mid-n",
+        "mid-s"
       ],
       "income": 0
     }
