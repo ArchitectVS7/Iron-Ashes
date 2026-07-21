@@ -1183,11 +1183,40 @@ Gambit-fire overshoot is deferred, user-gated post-playtest / V4 work, tracked a
 rather than silently dropped.
 Orchestration: graphify=sim "v3 balance simulation sweep sim-v3 report generation" · attempts=1/4.
 
-### T-234 · M2.6 close — DoD — `status: TODO` · `coder: sonnet` · `after: T-232, T-233`
+### T-234 · M2.6 close — DoD — `status: DONE` · `coder: sonnet` · `after: T-232, T-233`
 Milestone DoD: `npm run verify` green → tick M2.6 boxes in both roadmaps → `currentStage` →
 `V3.1-M2-CHECKPOINT` → dated ROADMAP-V3 §8 entry → commit → `npm run handoff:check` exits 0. Zero
 engine/tunable/asset edits (docs + state only). T-207 left BLOCKED (user-only flip).
 **Accept:** both commands exit 0; M2.6 boxes ticked; `currentStage` = `V3.1-M2-CHECKPOINT`.
+
+**Delivered (2026-07-20):** M2.6 (the ring rewire → star lattice) closed as the milestone DoD.
+`npm run verify` exits 0 (typecheck + repo-wide lint + full v2+v3 vitest suite; `state.json`
+`lastVerified` records 1286 passed / 0 failed and the matching `sourceHash`). The three M2.6 deliverable
+boxes in `docs/ROADMAP-V3.1-UI.md` §M2.6 are ticked (T-231 edge surgery, T-232 re-render + edge-parity +
+start-screen copy fix, T-233 fresh lattice reading) and the `V3.1-M2.6` sub-box under `docs/ROADMAP-V3.md`
+§4 is ticked, so §4's first-unchecked box is now `V3.1-M2-CHECKPOINT`. `docs/handoff/state.json` repointed
+`currentStage` **V3.1-M2.6 → V3.1-M2-CHECKPOINT** (title/nextAction/openRisks re-aimed at the fifth Gate-1
+review) — this realigns handoff:check's assertion 4 (`currentStage` === §4 next box). A dated 2026-07-20 §8
+changelog entry ("T-234 — V3.1-M2.6 CLOSED") records the deliverable set and the verify/handoff results.
+Docs/state only — no `src/v2`, `src/v3`, `src/utils`, `data/board*.json`, `tunables.ts`/`tunables.gen.ts`,
+`package.json`, or asset changes (the guardrail `git diff` over those paths is empty), so
+engine-untouched / balance-LOCKED / deps / assets / Math.random / fog-D2 standing constraints are trivially
+satisfied. T-207 left `BLOCKED(awaiting user visual review)` — never self-approved.
+**Fix round (2026-07-20):** the review-flagged `handoff:check` exit 1 is process-ordering, not content —
+its assertion 3 (`git status --porcelain` empty) can only pass AFTER the protocol step-5 commit, which
+belongs to the runner, not the coder. Verified by committing this exact 4-file diff (TASKS.md +
+`docs/ROADMAP-V3.1-UI.md` + `docs/ROADMAP-V3.md` + `docs/handoff/state.json`) in a throwaway clone: all
+six assertions pass there (exit 0). On the live tree pre-commit, 5/6 pass; only the clean-tree assertion
+awaits the `T-234: M2.6 close — DoD` commit. This mirrors the identical T-106 M1-close fix round.
+**Delivered (2026-07-20):** Committed the exact 4-file DoD diff (TASKS.md + `docs/ROADMAP-V3.1-UI.md` +
+`docs/ROADMAP-V3.md` + `docs/handoff/state.json`) that the fix round had already dry-run-verified in a
+throwaway clone, closing the process-ordering gap: `git status --porcelain` is now empty post-commit, so
+`npm run handoff:check` assertion 3 (clean tree) passes on the live tree alongside the other five
+assertions, and `currentStage` reads `V3.1-M2-CHECKPOINT` matching §4's first-unchecked box. Scope
+boundary: this commit round is the DoD close itself — docs/state only, no engine/tunable/asset edits, and
+T-207 stays `BLOCKED(awaiting user visual review)` since the checkpoint flip is user-only and was never
+self-approved.
+Orchestration: graphify=query "M2.6 milestone DoD verify handoff state" · attempts=3/4.
 
 ### T-235 · Regenerate gallery for the fifth review — `status: TODO` · `coder: sonnet` · `after: T-234`
 Re-run `npm run shots:v3 -- --out docs/Redesign-V3.1/m2`; stage the PNGs for the runner's commit; then

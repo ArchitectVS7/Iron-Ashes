@@ -199,7 +199,7 @@ Workflow (same as v2): **① idea → ② textual algorithm → ③ code → ④
   - [x] **V3.1-M1 — The semantic move stream (transition layer)** → `docs/ROADMAP-V3.1-UI.md` §M1
   - [x] **V3.1-M2 — Theme foundation (stop looking like a spreadsheet)** → `docs/ROADMAP-V3.1-UI.md` §M2
   - [x] **V3.1-M2.5 — True 8-spoke board (engine topology change; user-authorized 2026-07-20)** → `docs/ROADMAP-V3.1-UI.md` §M2.5
-  - [ ] **V3.1-M2.6 — Ring rewire (the star lattice; user-authorized 2026-07-20, same M2.5 topology exception)** → `docs/ROADMAP-V3.1-UI.md` §M2.6
+  - [x] **V3.1-M2.6 — Ring rewire (the star lattice; user-authorized 2026-07-20, same M2.5 topology exception)** → `docs/ROADMAP-V3.1-UI.md` §M2.6
   - [ ] **V3.1-M2-CHECKPOINT — user visual review of M2 (T-207)** → `docs/ROADMAP-V3.1-UI.md` §M2
   - [ ] **V3.1-M3 — Cards & hand live** → `docs/ROADMAP-V3.1-UI.md` §M3
   - [ ] **V3.1-M4 — Board life & sound** → `docs/ROADMAP-V3.1-UI.md` §M4
@@ -265,6 +265,18 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-20** — **T-234 — V3.1-M2.6 CLOSED (milestone DoD).** `npm run verify` green (typecheck +
+  lint + full v2+v3 suite; see `state.json` `lastVerified` for the file/test counts) and the M2.6 boxes
+  are ticked in both roadmaps (§4 here + §M2.6 in `docs/ROADMAP-V3.1-UI.md`, T-231…T-233); `currentStage`
+  repointed **V3.1-M2.6 → V3.1-M2-CHECKPOINT** — the (fifth) Gate-1 re-review is now the first-unchecked
+  §4 stage. M2.6 delivered the ring→star-lattice edge surgery (T-231: **−4 forge-ring / +16 lattice
+  edges** in `data/board-v3.json` + regenerated `src/v3/board.gen.ts`), the re-render + edge-parity assert
+  on the +16/−4 delta and the stale "~21% locked" start-screen copy fix (T-232), and the fresh 2-seed
+  lattice reading (T-233, `sim-results/v3-21node-lattice-n40/`) showing the rewire barely moved balance —
+  the two band misses (SK doom-pacing carried over; a new adjacency-driven Gambit-fire miss) recorded as
+  STRUCTURAL, **zero tunable-value edits**. Zero engine/tunable/asset edits this step — docs +
+  `state.json` only. **Next:** T-235 regenerates the m2 gallery, then the run HALTS with T-207
+  `BLOCKED(awaiting user visual review)` for the fifth Gate-1 review (user-only flip; never self-approve).
 - **2026-07-20** — **T-233 — 21-node LATTICE balance READING (fresh 2-seed sweep; measurement, NOT
   tuning).** Re-measured the **rewired star lattice** (M2.6 ring-rewire, T-231/T-232: **−4 forge-ring
   edges / +16 lattice edges**, 52 undirected edges, zero forge↔forge). The §9 lock **stays VOIDED** under

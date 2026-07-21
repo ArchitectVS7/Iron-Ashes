@@ -225,19 +225,19 @@ Reopened under the **same M2.5 §3 topology exception** — topology-only, zero 
 Shadowking policy are already board-derived (the T-226 audit: BFS navigation, board-derived quadrant
 maps, no node-id literals), so no engine untangle is needed — only `data/board-v3.json` edges, render
 parity, and a fresh reading. `data/board.json` (the frozen 17-node v2 board) stays untouched.*
-- [ ] **T-231** — Ring rewire: edit **only** `data/board-v3.json` (then `npm run gen:data` to regen
+- [x] **T-231** — Ring rewire: edit **only** `data/board-v3.json` (then `npm run gen:data` to regen
       `src/v3/board.gen.ts`) — REMOVE the 4 forge-ring edges (forge-nw↔ne↔se↔sw↔nw); ADD 16 lattice
       edges: set (1) outer-cardinal↔diagonal-mid (keep-n↔forge-ne, keep-e↔forge-se, keep-s↔forge-sw,
       keep-w↔forge-nw), set (2) the outer-diagonal↔cardinal-mid octagon (8: holding↔mid weave), set (3)
       the cardinal-mid square (mid-n↔mid-e↔mid-s↔mid-w). Symmetric on both endpoints; keystone still
       exactly `[approach-nw,ne,se,sw]`; no forge–forge edge remains; `data/board.json` untouched.
-- [ ] **T-232** — Re-render + edge-parity assert on the rewired lattice (forge ring gone; the two
+- [x] **T-232** — Re-render + edge-parity assert on the rewired lattice (forge ring gone; the two
       octagons + cardinal-mid square render as materialized ley-lines, T-220 style, primary rays brighter
       than the secondary lattice per the fourth-review density note); no hard-coded edges. Also fix the
       **stale start-screen copy** — the "~21% locked balance (flawless play)" claim is voided (the
       21-node board reads ~53%, T-227; the lattice will differ again) → replace with copy stating the
       balance is being re-established for the new topology (no fabricated number).
-- [ ] **T-233** — Fresh balance READING (canonical 2-seed sweep, seeds 20260622+20260628, n=40, 2/3/4p,
+- [x] **T-233** — Fresh balance READING (canonical 2-seed sweep, seeds 20260622+20260628, n=40, 2/3/4p,
       both modes) into `sim-results/v3-21node-lattice-n40/` with a combined REPORT (delta vs the T-227
       pre-lattice baseline + a tunable-vs-structural assessment); re-audit board-derivation greps; band
       misses recorded, **nothing tuned**; dated ROADMAP-V3 §8 entry.
