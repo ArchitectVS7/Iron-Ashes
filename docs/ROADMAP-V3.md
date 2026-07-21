@@ -265,6 +265,39 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-20** — **T-233 — 21-node LATTICE balance READING (fresh 2-seed sweep; measurement, NOT
+  tuning).** Re-measured the **rewired star lattice** (M2.6 ring-rewire, T-231/T-232: **−4 forge-ring
+  edges / +16 lattice edges**, 52 undirected edges, zero forge↔forge). The §9 lock **stays VOIDED** under
+  the M2.6 topology exception (ROADMAP-V3.1-UI §3 / T-230); every band miss recorded, **zero tunable
+  values changed** (`git diff` on `src/`, `data/`, `tunables.ts`/`tunables.gen.ts` empty). Protocol = the
+  canonical 2-seed sweep (seeds **20260622** + **20260628**, n=40, 2/3/4p, both modes) with identical
+  seeds/AI to the **T-227 21-node RING** baseline, so all deltas are attributable to the ring → lattice
+  edge surgery alone. All four sub-runs exited **0** with **hitGuardCount = 0** (no termination-guard
+  hit). Run dir: **`sim-results/v3-21node-lattice-n40/`** (4 sub-runs + combined REPORT). The 17-node lock
+  dirs (`sim-results/v3-s20260622-n40{,-bp}`, `…-s20260628-n40{,-bp}`) were restored via `git checkout`
+  after the run overwrote them — they still hold the 17-node regression-gate numbers.
+  - **Headline: the rewire barely moved balance.** Pooled dark win **52.2% (s622) / 54.4% (s628)** ❌ vs
+    18–22% — a **+0.5 pp** non-move from the T-227 ring (53.4 / 52.3%). doom/attrition split ~52/0.2
+    (unchanged), mean rounds **10.50 / 10.47** (−0.17), captures **1.32 / 1.36** (−0.03), capture→ransom
+    **33.1% / 34.2%**, last_standing endings roughly halved (2.2% → 1.0%). **Blood-Pact triple** = s622
+    **33.1 / 62.8 / 78.7**, s628 **35.3 / 59.4 / 81.4** — statistically identical to the ring (Δ traitor
+    win −0.4 pp, exposure −0.2 pp, accuracy −0.1 pp).
+  - **One NEW band miss:** deliberate gambler-free **Gambit fire crossed the 20% guard — 14.6/15.5% (ring
+    ✅) → 20.6/21.9% (lattice ❌), +6.2 pp**. Mechanism: the +16 lattice edges give central / Keystone-
+    adjacent nodes more neighbors → more pieces transit/sit the Keystone → more deliberate Gambit-path
+    claims; conversion unchanged and the top-archetype dominance guard still passes (26–27%), so it is
+    honest positional claiming, not a broken payoff.
+  - **Tunable-vs-structural verdict:** both misses are **STRUCTURAL, recorded not tuned.** (1) Shadowking
+    win ~53% is the same seam-density/doom-pacing miss T-227 diagnosed (8 seams vs 4), carried over
+    UNCHANGED because the rewire touched forge-ring lateral edges, not the seam/doom economy. (2) The new
+    Gambit-fire overshoot is an adjacency/contact-economy effect of the denser lattice — a fire-rate band
+    the edge count directly sets, not a scalar a single knob cleanly re-centers. No tune performed; a
+    re-lock is deferred, user-gated post-playtest / V4 work.
+  - **Board-derivation audit re-run clean (T-226 phrasing):** zero node-id literals, zero
+    `===3|4`/distance/`.quadrant`/`%4` assumptions (all `.quadrant`/`%4` hits are legitimate board-derived
+    4-quadrant routing via adjacency, an invariant the rewire didn't change), no real `Math.random`.
+  - **Zero engine/tunable/data edits** — docs + `sim-results/` + `state.json` only.
+
 - **2026-07-20** — **T-228 — V3.1-M2.5 CLOSED (milestone DoD).** `npm run verify` green (105 files /
   1283 tests, typecheck + lint clean); the M2.5 boxes are ticked in both roadmaps (§4 here + §M2.5 in
   `docs/ROADMAP-V3.1-UI.md` T-222…T-227); `currentStage` repointed **V3.1-M2.5 → V3.1-M2-CHECKPOINT** —

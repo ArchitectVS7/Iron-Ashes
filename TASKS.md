@@ -1156,7 +1156,7 @@ boundary: only `src/ui-v3/board-view.ts` (edge classification + opacity), `src/u
 fresh balance reading is left to that task.
 Orchestration: graphify=none — `npx graphify query` produced no output (the CLI returned nothing on this repo's graphify-out); oriented directly from ROADMAP-V3.1-UI.md §M2.6, the rend · attempts=1/4.
 
-### T-233 · Fresh balance READING on the rewired board — `status: TODO` · `coder: opus` · `after: T-231`
+### T-233 · Fresh balance READING on the rewired board — `status: DONE` · `coder: opus` · `after: T-231`
 Re-run the canonical 2-seed sweep (seeds 20260622+20260628, n=40, 2/3/4p, both modes) into a new run
 dir `sim-results/v3-21node-lattice-n40/` with a combined REPORT (delta vs the T-227 pre-lattice
 baseline + a tunable-vs-structural assessment). Re-audit board-derivation (grep: zero node-id literals,
@@ -1165,6 +1165,23 @@ every band miss, tune **nothing** (`src/v3/tunables.ts` / `tunables.gen.ts` byte
 ROADMAP-V3 §8 entry with the numbers.
 **Accept:** run dir + REPORT committed; audit greps clean; zero engine/tunable-value edits; band misses
 recorded not tuned; sim exits 0 (no termination-guard hit).
+
+**Delivered (2026-07-20):** Re-ran the canonical 2-seed sweep (seeds 20260622+20260628, n=40, 2/3/4p,
+both competitive and `--bloodpact` modes) against the M2.6 rewired star lattice into a new run dir
+`sim-results/v3-21node-lattice-n40/` (4 sub-runs + a combined REPORT with a delta-vs-T-227-ring table
+and a tunable-vs-structural assessment); all four sub-runs exited 0 with `hitGuardCount = 0`. Headline:
+the ring → lattice edge surgery barely moved balance — pooled dark win 52.2%/54.4% (+0.5pp vs the
+T-227 ring's 53.4/52.3%, still far above the voided 18–22% band), doom/attrition, rounds, captures,
+ransom-back, and the full Blood-Pact triple all landed within noise of the ring baseline. One new band
+miss surfaced: deliberate gambler-free Gambit fire crossed the 20% guard (14.6/15.5% ring → 20.6/21.9%
+lattice), traced to the +16 lattice edges giving central/Keystone-adjacent nodes more neighbors — both
+misses were judged STRUCTURAL and recorded, not tuned (`src/v3/tunables.ts` / `tunables.gen.ts`
+byte-identical to HEAD). The board-derivation audit greps re-ran clean. A dated ROADMAP-V3 §8 entry and
+a `state.json` `openRisks` resolution were added. Scope boundary: this task is measurement-only — no
+re-lock to the 18–22% band was attempted; re-centering the topology-driven doom pacing and the new
+Gambit-fire overshoot is deferred, user-gated post-playtest / V4 work, tracked as an open decision
+rather than silently dropped.
+Orchestration: graphify=sim "v3 balance simulation sweep sim-v3 report generation" · attempts=1/4.
 
 ### T-234 · M2.6 close — DoD — `status: TODO` · `coder: sonnet` · `after: T-232, T-233`
 Milestone DoD: `npm run verify` green → tick M2.6 boxes in both roadmaps → `currentStage` →
