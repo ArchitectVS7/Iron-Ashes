@@ -126,3 +126,33 @@ board. The balance LOCK is deliberately VOIDED and replaced by a fresh measured 
 measurement only, no tuning); re-establishing the §9 bands stays post-playtest V4 work.
 
 T-207 remains BLOCKED for a fourth review covering both the art corrections and the new board.
+
+---
+
+## Gate 1 (T-207) — FOURTH REVIEW 2026-07-20: topology delivered; user redesigns the ring routing (M2.6)
+
+The true 8-ray topology landed and was **verified in the data, not just the render**: `board-v3.json`
+is 21 nodes; the keystone's `connections` are exactly `[approach-nw, ne, se, sw]` (the 4 agreed
+doors); the four `mid-n/e/s/w` cardinal nodes each bridge two diagonal approaches + their cardinal
+keep → 8 real rays (4 diagonal + 4 cardinal). Connectors thinned/materialized (gold-bar over-correction
+gone); start screen now themed. Rubric **9/10** (motion still provisional pending T-306). Blind-read
+still "board game."
+
+Star ground: pixel-checked (interior lum ~28 vs table ~51 — measurably darker than the third-review
+near-table faintness, but short of the code's near-black intent, lifted by the grain overlay). The
+user **accepted it as subtle-dark** — no further boldening.
+
+Then the user redesigned the interior routing on `07-endgame.png`: **erase the middle (forge) ring**
+and weave a **star lattice** across the middle and outer rings. Two miscommunications first (my ring
+vocabulary ≠ the user's) — resolved by building a shared position→id node key against the renderer's
+actual polar layout (mid ring r190 = forges + cardinal mids; outer points r268/288 = keeps + holdings).
+Final confirmed spec: **−4 edges (forge ring), +16 edges** — set (1) outer-cardinal↔diagonal-mid
+octagon (4 new), set (2) outer-diagonal↔cardinal-mid octagon (8 new), set (3) cardinal-mid square
+(4 new); inner approach square + outer star silhouette + the 4 keystone doors all untouched. A big
+connectivity jump, user-authorized under the M2.5 exception (fresh reading recorded, not tuned). Filed
+as milestone **M2.6 (T-230…T-235)**. Two bugs folded in: stale start-screen "~21% locked" copy (now
+~53% per T-227) and connector-density hierarchy. **Lesson:** never implement a hand-drawn topology
+markup from the trace — first establish a shared coordinate key and read the edits back as explicit
+edges for confirmation.
+
+T-207 remains BLOCKED for a **fifth** review of T-235's regenerated gallery.

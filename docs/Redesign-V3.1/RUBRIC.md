@@ -67,3 +67,13 @@ decisions (see ROADMAP-V3.1-UI §4 M2 "Gate 0.5 aesthetic decisions"):
   review before flipping T-207. Micro-fixes filed: T-216 star material depth (bold star KEPT as the
   board's identity), T-217 node hierarchy + readable banners + user-caught missing true connectors
   (Keystone→approach spokes; render==data edge-parity guard added), T-218 threat-prompt theming.
+- **2026-07-20 (Gate 1, third review)** — the 8-ray board was still only a *visual* star (spec error,
+  owned). Opened M2.5 for the true 8-spoke 21-node topology; T-207 stayed BLOCKED. Not re-scored (the
+  board being reviewed was about to change).
+- **2026-07-20 (Gate 1, fourth review)** — regenerated m2 gallery after M2.5: **9/10** (motion still
+  provisional). True 8-ray 21-node topology **verified in data** (keystone exactly 4 doors; 4 diagonal
+  + 4 cardinal rays); connectors thinned/materialized; start screen themed. Star ground accepted as
+  subtle-dark (pixel-checked: interior lum ~28 vs table ~51). Bar met, but the user redesigned the ring
+  routing on `07-endgame.png` (erase forge ring, weave a +16/−4 star lattice) → filed as milestone
+  **M2.6** (T-230…T-235). Two bugs folded in: stale start-screen "~21% locked" copy (now ~53%) and
+  connector-density hierarchy. T-207 stays BLOCKED for a **fifth** review.

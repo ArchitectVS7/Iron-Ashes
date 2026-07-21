@@ -1032,7 +1032,114 @@ Orchestration: graphify=shots-v3 screenshot script m2 gallery regeneration guard
 
 ---
 
-### T-207 · CHECKPOINT — user visual review of M2 — `status: BLOCKED(awaiting user visual review)` · `coder: sonnet` · `after: T-206, T-229`
+## M2.6 — Ring rewire (the star lattice)
+
+**User-authorized 2026-07-20 (Gate-1 fourth review).** The user marked up `07-endgame.png`: erased the
+**middle (forge) ring** and drew new **yellow edges** weaving the middle and outer rings into a star
+lattice. This reopens topology under the **same M2.5 exception** (topology-only — `src/v3/tunables.ts`
+/ `tunables.gen.ts` VALUES stay frozen; the §9 balance lock stays voided; the fresh reading is
+RECORDED, never tuned). It is a **big** connectivity change (−4 edges, +16 edges), and the user
+explicitly accepts the further rebalance. The sim/harness/AI are already board-derived (T-226 audit:
+BFS navigation, board-derived getKeep/getForge/getApproach helpers, `claimValue` keyed off tier, zero
+node-id literals), so **no engine untangle is needed** — only data edges, render parity, and a fresh
+reading. `data/board.json` (the v2 17-node board) stays untouched; only `data/board-v3.json` changes.
+
+**Shared node key** (position → id; the vocabulary that resolved the fourth-review miscommunication):
+inner square = approaches (r95, diagonal); **mid ring** (r190) = `mid-n/e/s/w` (cardinal) + `forge-*`
+(diagonal); **outer points** (r268/288) = `keep-n/e/s/w` (cardinal) + `holding-*` (diagonal).
+
+### T-230 · Reopen M2.6 — record the ring-rewire exception — `status: TODO` · `coder: sonnet` · `after: T-229`
+Docs/state only (no code). Record the M2.6 continuation of the M2.5 topology exception (dated
+2026-07-20, fourth Gate-1 review) in `docs/handoff/state.json` `invariants` (extend the existing
+LOCK-void note to cover the ring rewire) + `openRisks` (openRisk: "ring-rewire balance UNMEASURED
+until T-233"); repoint `currentStage` **V3.1-M2-CHECKPOINT → V3.1-M2.6**; add a `V3.1-M2.6` sub-box to
+`ROADMAP-V3.md` §4 above the M2-CHECKPOINT box (making it the first-unchecked stage) and a `§M2.6`
+milestone block (T-231…T-233 deliverables + exit metric) to `ROADMAP-V3.1-UI.md` between §M2.5 and M3.
+**Accept:** `npm run handoff:check` exits 0 with `currentStage` = `V3.1-M2.6`; no engine/tunable/data/
+asset edit.
+
+### T-231 · Ring rewire — edge surgery in board-v3.json — `status: TODO` · `coder: opus` · `after: T-230`
+Edit **only** `data/board-v3.json` (then regen `src/v3/board.gen.ts` via `npm run gen:data`); the
+21-node set is unchanged — only `connections` change, symmetrically on both endpoints. Apply exactly:
+
+**REMOVE — the forge ring (4 edges):** `forge-nw–forge-ne`, `forge-ne–forge-se`, `forge-se–forge-sw`,
+`forge-sw–forge-nw`.
+
+**ADD — set (1), outer-cardinal ↔ diagonal-mid octagon (4 NEW; the 4 forge→own-keep spokes already
+exist):** `keep-n–forge-ne`, `keep-e–forge-se`, `keep-s–forge-sw`, `keep-w–forge-nw`.
+
+**ADD — set (2), outer-diagonal ↔ cardinal-mid octagon (8 NEW):** `holding-ne–mid-e`, `mid-e–holding-se`,
+`holding-se–mid-s`, `mid-s–holding-sw`, `holding-sw–mid-w`, `mid-w–holding-nw`, `holding-nw–mid-n`,
+`mid-n–holding-ne`.
+
+**ADD — set (3), cardinal-mid square (4 NEW):** `mid-n–mid-e`, `mid-e–mid-s`, `mid-s–mid-w`, `mid-w–mid-n`.
+
+**Authoritative resulting adjacency** (replace each node's `connections` with exactly this; approaches +
+keystone unchanged — inner square and the 4 keystone doors stay intact):
+```
+forge-nw : approach-nw, keep-n, keep-w
+forge-ne : approach-ne, keep-e, keep-n
+forge-se : approach-se, keep-s, keep-e
+forge-sw : approach-sw, keep-w, keep-s
+keep-n   : forge-nw, forge-ne, holding-ne, holding-nw, mid-n
+keep-e   : forge-ne, forge-se, holding-ne, holding-se, mid-e
+keep-s   : forge-se, forge-sw, holding-se, holding-sw, mid-s
+keep-w   : forge-sw, forge-nw, holding-sw, holding-nw, mid-w
+mid-n    : approach-nw, approach-ne, keep-n, holding-ne, holding-nw, mid-e, mid-w
+mid-e    : approach-ne, approach-se, keep-e, holding-ne, holding-se, mid-n, mid-s
+mid-s    : approach-se, approach-sw, keep-s, holding-se, holding-sw, mid-e, mid-w
+mid-w    : approach-sw, approach-nw, keep-w, holding-sw, holding-nw, mid-n, mid-s
+holding-ne: keep-n, keep-e, mid-n, mid-e
+holding-se: keep-e, keep-s, mid-e, mid-s
+holding-sw: keep-s, keep-w, mid-s, mid-w
+holding-nw: keep-w, keep-n, mid-w, mid-n
+```
+`blightEntrySeams` stays the 4 holdings (unchanged); blight SPREAD auto-follows the new adjacency.
+**Accept:** every edge symmetric (a test asserts `∀ a∈conn(b) ⇔ b∈conn(a)`); keystone still exactly
+`[approach-nw,ne,se,sw]`; no `forge–forge` edge remains; `npm run gen:data` clean; typecheck/lint green;
+`data/board.json` untouched.
+
+### T-232 · Re-render + edge-parity assert on the rewired lattice — `status: TODO` · `coder: opus` · `after: T-231`
+The renderer already draws edges from data with a render==data parity guard (T-225); confirm it covers
+the +16/−4 delta with **zero** hard-coded edges. Extend the parity test to assert the exact new edge
+count and that the removed forge ring no longer renders. Visual: the middle forge box is gone; the two
+new octagons + the cardinal-mid square render as materialized ley-lines (T-220 thin/materialize style,
+with the primary rays brighter than the secondary lattice per the fourth-review density note).
+Also fix the **stale start-screen copy** (fourth-review bug): the difficulty/dark-strength line still
+claims "the reference balance (~21% dark win under flawless play)" — that lock is voided; the 21-node
+board reads ~53% (T-227) and the lattice will differ again. Replace the "~21% locked" claim with copy
+that states the balance is being re-established for the new topology (no fabricated number — reference
+T-233's reading once measured, or keep it qualitative).
+**Accept:** edge-parity test green over all rendered edges; forge-ring absence asserted; `npx vite
+build` clean; no node-id/edge literal introduced in the renderer; no stale "~21% locked" copy remains.
+
+### T-233 · Fresh balance READING on the rewired board — `status: TODO` · `coder: opus` · `after: T-231`
+Re-run the canonical 2-seed sweep (seeds 20260622+20260628, n=40, 2/3/4p, both modes) into a new run
+dir `sim-results/v3-21node-lattice-n40/` with a combined REPORT (delta vs the T-227 pre-lattice
+baseline + a tunable-vs-structural assessment). Re-audit board-derivation (grep: zero node-id literals,
+zero `===3|4`/`.quadrant`/`%4` assumptions, no real `Math.random`). This is a **measurement** — record
+every band miss, tune **nothing** (`src/v3/tunables.ts` / `tunables.gen.ts` byte-identical). Add a dated
+ROADMAP-V3 §8 entry with the numbers.
+**Accept:** run dir + REPORT committed; audit greps clean; zero engine/tunable-value edits; band misses
+recorded not tuned; sim exits 0 (no termination-guard hit).
+
+### T-234 · M2.6 close — DoD — `status: TODO` · `coder: sonnet` · `after: T-232, T-233`
+Milestone DoD: `npm run verify` green → tick M2.6 boxes in both roadmaps → `currentStage` →
+`V3.1-M2-CHECKPOINT` → dated ROADMAP-V3 §8 entry → commit → `npm run handoff:check` exits 0. Zero
+engine/tunable/asset edits (docs + state only). T-207 left BLOCKED (user-only flip).
+**Accept:** both commands exit 0; M2.6 boxes ticked; `currentStage` = `V3.1-M2-CHECKPOINT`.
+
+### T-235 · Regenerate gallery for the fifth review — `status: TODO` · `coder: sonnet` · `after: T-234`
+Re-run `npm run shots:v3 -- --out docs/Redesign-V3.1/m2`; stage the PNGs for the runner's commit; then
+HALT with T-207 still `BLOCKED(awaiting user visual review)`. The user reviews the rewired star lattice
+(forge ring gone; the two octagons + cardinal-mid square as ley-lines) together with the standing M2
+items.
+**Accept:** fresh gallery staged/committed; `tests/v3/m2-gallery.test.ts` green; run halts with T-207
+BLOCKED.
+
+---
+
+### T-207 · CHECKPOINT — user visual review of M2 — `status: BLOCKED(awaiting user visual review)` · `coder: sonnet` · `after: T-206, T-235`
 Regenerate the gallery into `docs/Redesign-V3.1/m2/` (committed), then **set this task
 `BLOCKED(awaiting user visual review)` and halt the run** — do not proceed into M3. The user scores
 `docs/Redesign-V3.1/RUBRIC.md` (target ≥8/10) and runs the blind read test ("web app or board game?" on
@@ -1066,6 +1173,21 @@ decisions: the giant chaos star is KEPT as the board's identity but gains materi
 node hierarchy/banners fixed + **user-caught missing true connectors** — Keystone→approach spokes
 absent from the render (T-217, with a render==data edge-parity guard); threat prompt themed (T-218).
 T-207 remains BLOCKED pending the third review of T-219's regenerated gallery.
+
+**Gate 1 third review (user, 2026-07-20): the 8-ray board was still not the true topology — MY spec
+error, owned.** The 8-direction board had been filed as a *visual* star to protect the balance lock;
+the user's "I accept re-balancing" was authorization, not deferral. Opened milestone **M2.5** (T-221…
+T-229): true 8-spoke 21-node board, balance lock voided + fresh reading (recorded, not tuned). Also
+T-220 (star boldness + connector materialize). T-207 stays BLOCKED for a fourth review.
+
+**Gate 1 fourth review (user, 2026-07-20): topology delivered & verified; rubric 9/10 (motion
+provisional). User then redesigned the ring routing on `07-endgame.png`.** Confirmed good: the true
+8-ray 21-node board (keystone still exactly 4 doors), connectors thinned/materialized, start screen
+themed. Two bug fixes folded into M2.6 (stale start-screen "~21% locked balance" copy — now ~53% per
+T-227; connector-density hierarchy). Star ground accepted as-is (subtle-dark). The user then marked up
+the board — erase the forge ring, weave a star lattice (+16/−4 edges) — filed as milestone **M2.6**
+(T-230…T-235), user-authorized under the M2.5 exception. T-207 stays BLOCKED for a **fifth** review of
+T-235's regenerated gallery.
 
 ---
 
