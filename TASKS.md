@@ -1218,13 +1218,24 @@ T-207 stays `BLOCKED(awaiting user visual review)` since the checkpoint flip is 
 self-approved.
 Orchestration: graphify=query "M2.6 milestone DoD verify handoff state" · attempts=3/4.
 
-### T-235 · Regenerate gallery for the fifth review — `status: TODO` · `coder: sonnet` · `after: T-234`
+### T-235 · Regenerate gallery for the fifth review — `status: DONE` · `coder: sonnet` · `after: T-234`
 Re-run `npm run shots:v3 -- --out docs/Redesign-V3.1/m2`; stage the PNGs for the runner's commit; then
 HALT with T-207 still `BLOCKED(awaiting user visual review)`. The user reviews the rewired star lattice
 (forge ring gone; the two octagons + cardinal-mid square as ley-lines) together with the standing M2
 items.
 **Accept:** fresh gallery staged/committed; `tests/v3/m2-gallery.test.ts` green; run halts with T-207
 BLOCKED.
+
+**Delivered (2026-07-20):** Regenerated all 7 M2 gallery PNGs (`docs/Redesign-V3.1/m2/01-start-select.png`
+through `07-endgame.png`) via `npm run shots:v3 -- --out docs/Redesign-V3.1/m2`, capturing the rewired
+star lattice (forge ring removed; two octagons + cardinal-mid square rendered as ley-lines) for the
+fifth review, and bumped `docs/handoff/state.json`'s `lastVerified` (timestamp + commit) to match the
+gate-verified tree. Scope boundary: docs/gallery-artifact only — no `src/v2`, `src/v3`, `src/utils`,
+`data/board*.json`, `tunables.ts`/`tunables.gen.ts`, or `package.json` changes, so engine-untouched /
+balance-LOCKED / deps standing constraints are trivially satisfied; T-207 stays
+`BLOCKED(awaiting user visual review)` — never self-approved, and the run halts here rather than
+advancing into M3.
+Orchestration: graphify=shots-v3 gallery screenshot generation and m2 gallery test · attempts=1/4.
 
 ---
 
