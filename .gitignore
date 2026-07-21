@@ -7,3 +7,4 @@ coverage/
 sim-results/*
 !sim-results/sample/
 shots/
+.DS_Store
