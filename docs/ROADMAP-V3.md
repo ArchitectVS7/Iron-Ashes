@@ -266,6 +266,39 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-21** — **T-239 — THE RE-LOCK: balance RE-ESTABLISHED on the shipped board (the first
+  authorized tunable-VALUE edit since the lock voided).** **User-authorized** this session ("a re-lock
+  is a 'rebalance and lock' so we can be closer to spec than before? … that is an explicit go from
+  me"). Method: 4 search rounds on n=16 cells (`scripts/tune-v3-relock.mjs`, both canonical seeds from
+  round 3 on) with **every** candidate confirmed at the full canonical n=40 sweep before adoption, plus
+  a Blood-Pact re-pair grid (`scripts/tune-v3-bp-repair.mjs`); both scripts committed and reproducible.
+  **THE LOCK — 4 values, all in the herald-OFF overlay:** `SPREAD_AMOUNT_BASE` 2.6 → **2.2**,
+  `DOOM_COST_MARCH` 14 → **11**, `DOOM_COST_PLAYER_DIVISOR` 4.5 → **5.0**, `SABOTEUR_COVER` 0.735 →
+  **0.755**. Nothing else moved — no engine, board, topology, or `tunables.gen.ts` edit.
+  **MEASURED (canonical 2-seed, n=40, 2/3/4p, 9,120 games, hitGuardCount 0): dark 20.24 / 21.76% ✅,
+  rounds 12.45 / 12.48 ✅, deliberate gambit fire 18.83 / 18.95% ✅ — ALL THREE BANDS PASS ON BOTH
+  SEEDS**, a first on any 21-node board; dominance / free-rider / archetype guards all green; per-count
+  [13.1/24.2/23.4] & [12.6/25.4/27.3]; captures 1.67/1.72, ransoms 0.60/0.62, Kill-the-Dark 29.7/29.4%;
+  **BP traitor 19.4/19.7% · exposure 61.9/65.6% · accuracy 76.6/79.5%.** **Rejected with numbers
+  (recorded so the next round doesn't re-walk them):** `BLIGHT_TO_ASH` 4 (8.5%) and
+  `DAWN_BLIGHT_ADVANCE` 0 (1.5%) — far too coarse; `DOOM_COST_MARCH` 12 — *heats* the dark to
+  21.2/23.4% ❌ (the threshold is NON-MONOTONE: fewer blocks ⇒ less patience ⇒ later Reckoning);
+  `SPREAD` 2.0 + `SURGE` 1.0 — overcools to 16.5/18.0% and crushes 2p to ~4.5%; `DOOM_COST_PIVOT` 3.5 —
+  gambit fire 21.5% ❌; `DOOM_COST_PER_PLAYER` 5.0 — 2p to 45.9%. **Recorded frontiers/risks:** the BP
+  **win↔exposure frontier** is steep and cannot satisfy both (adopted the win-first point; `SABOTEUR_COVER`
+  0.750 → 17.4/68.0 is the documented exposure-first alternative); **`BLOOD_PACT_SPREAD_BONUS` is a DEAD
+  LEVER** on this board (1.2→1.7 byte-identical — its step function saturated; recorded rather than kept
+  as a tunable that tunes nothing); two **thin margins** (gambit ~19% vs a 20% ceiling — the cost of
+  MARCH 11; s628 dark 21.76% vs 22%) to re-check first after any future change; the **2p cell runs cold**
+  (12.6–13.1%) — in-spec since only pooled is banded, but the weakest-shaped count. Also folded in:
+  **the top-archetype guard was re-specified as RELATIVE** (`ARCHETYPE_WINRATE_GUARD_RATIO` = 1.8× even
+  share, matching the already-relative dominance check) — the old absolute 30% was calibrated when the
+  dark took ~half of all games and fired a false ❌ in T-238 on a table whose relative dominance had
+  IMPROVED; the raw absolute rate is still reported, and a new `sim-report` test pins the exact
+  regime-shift failure mode. Evidence: `sim-results/v3-relock-n40/REPORT.md`; spec: ALGORITHM §9 gains
+  an authoritative `[T-239]` entry superseding `[T2-1]`. **THE M2.5/M2.6 TOPOLOGY EXCEPTION IS CLOSED —
+  tunables are FROZEN again and band misses are recorded, never tuned, unless the user opens another
+  re-lock.** `npm run verify` green.
 - **2026-07-21** — **T-238 — SERPENTINE-SPOKE balance READING (measurement, NOT tuning) — the dark
   fell 25 pp and TWO of three band misses cleared themselves.** Canonical 2-seed sweep (seeds 20260622 +
   20260628, n=40, 2/3/4p, both modes) on the **shipped** board = the sixth-review **48-edge** lattice

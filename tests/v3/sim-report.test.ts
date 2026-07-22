@@ -250,13 +250,36 @@ describe('summarize — V3-4b diagnostics', () => {
     expect(d.comebackRate).toBeCloseTo(1 / 3);
   });
 
-  it('flags a dominant archetype against the ~30% per-seat win-rate guard', () => {
-    // aggressor (seat 0) wins every game → its per-seat win rate is 100% > 30%.
+  it('flags a dominant archetype against the 1.8×-even-share per-seat win-rate guard', () => {
+    // aggressor (seat 0) wins every game → its per-seat win rate is 100%, far above 1.8× even.
     const dom: SweepRow[] = Array.from({ length: 40 }, () => mkRow(SEATS, mkMetrics({ winner: 0 })));
     expect(summarize(dom).diagnostics.archetypeWinRateGuardPass).toBe(false);
     expect(summarize(dom).diagnostics.topArchetypeWinRate).toBeCloseTo(1);
     // a balanced field stays under the guard.
     const bal: SweepRow[] = Array.from({ length: 40 }, (_, i) => mkRow(SEATS, mkMetrics({ winner: i % 4 })));
     expect(summarize(bal).diagnostics.archetypeWinRateGuardPass).toBe(true);
+  });
+
+  it('T-239: the guard tracks the even share, so a table-wide win-share shift cannot fake dominance', () => {
+    // The T-238 regime shift in miniature: HOW OFTEN the field wins at all changes (here: half the
+    // games have no winner — the dark took them — vs none), while the RELATIVE standing of the
+    // archetypes is identical. The old absolute 30% guard flipped to ❌ on exactly this move; the
+    // relative guard must not, because nothing about dominance changed.
+    const skew = (i: number): number => [0, 0, 1, 2, 3][i % 5] as number; // seat 0 wins a double share
+    const darkHeavy: SweepRow[] = Array.from({ length: 80 }, (_, i) =>
+      mkRow(SEATS, mkMetrics({ winner: i % 2 === 0 ? skew(i) : null })));
+    const darkLight: SweepRow[] = Array.from({ length: 80 }, (_, i) =>
+      mkRow(SEATS, mkMetrics({ winner: skew(i) })));
+
+    const heavy = summarize(darkHeavy);
+    const light = summarize(darkLight);
+    // The absolute rates move apart …
+    expect(light.diagnostics.topArchetypeWinRate).toBeGreaterThan(heavy.diagnostics.topArchetypeWinRate);
+    // … the even share moves with them, so the dominance RATIO is unchanged …
+    expect(light.diagnostics.topArchetypeEvenShareRatio)
+      .toBeCloseTo(heavy.diagnostics.topArchetypeEvenShareRatio);
+    // … and both verdicts agree.
+    expect(heavy.diagnostics.archetypeWinRateGuardPass)
+      .toBe(light.diagnostics.archetypeWinRateGuardPass);
   });
 });

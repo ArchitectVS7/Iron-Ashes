@@ -14,8 +14,26 @@ import type { SweepRow } from './sweep.js';
  *  fraction of ROUND_CAP is flagged as too-early "dead time" for a human in that seat (§13). */
 export const DEAD_TIME_FLOOR = 0.5;
 
-/** No-archetype-dominates guard threshold: a per-seat win rate above this flags a dominant strategy. */
-export const ARCHETYPE_WINRATE_GUARD = 0.30;
+/**
+ * No-archetype-dominates guard, expressed as a MULTIPLE OF THE EVEN PER-SEAT SHARE (T-239).
+ *
+ * This was an absolute `0.30` until the serpentine-spoke reading (T-238), and that number was
+ * only ever meaningful because it was calibrated when the dark took ~half of all games (even
+ * share ≈ 15.9%, so 30% ≈ 1.9× even). Re-locking the doom clock moved the field's total win
+ * share from ~47% to ~72% — every archetype's absolute win rate rose together, with no change
+ * in how dominant any of them is relative to the others — and the absolute guard fired a FALSE
+ * ❌ on a table whose relative dominance had actually IMPROVED (1.69× even → 1.40× even).
+ *
+ * The guard is therefore relative, and uses the SAME 1.8× ratio as the `dominancePass` check
+ * (which was already relative and never mis-fired). The raw absolute rate is still reported
+ * beside it, so nothing is hidden by the change.
+ */
+export const ARCHETYPE_WINRATE_GUARD_RATIO = 1.8;
+
+/** The guard threshold for a given even per-seat share (see `ARCHETYPE_WINRATE_GUARD_RATIO`). */
+export function archetypeWinRateGuard(evenShare: number): number {
+  return evenShare * ARCHETYPE_WINRATE_GUARD_RATIO;
+}
 
 // ─── §9 target bands ──────────────────────────────────────────────
 export const TARGETS = {
@@ -184,7 +202,10 @@ export interface SweepDiagnostics {
   readonly fieldMeanEngagement: number;
   /** The single highest per-seat archetype win rate among archetypes with enough appearances. */
   readonly topArchetypeWinRate: number;
-  /** Whether NO archetype exceeds the ARCHETYPE_WINRATE_GUARD (~30%) — the no-dominant-strategy guard. */
+  /** That rate as a MULTIPLE of the even per-seat share — the dominance signal that survives a
+   *  change in how often the dark wins (T-239). */
+  readonly topArchetypeEvenShareRatio: number;
+  /** Whether NO archetype exceeds `archetypeWinRateGuard(evenShare)` — the no-dominant-strategy guard. */
   readonly archetypeWinRateGuardPass: boolean;
 }
 
@@ -365,7 +386,8 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
   const midGameLeaderWinRate = snowballRows.length
     ? snowballRows.filter(r => r.metrics.winner === r.midGameLeader).length / snowballRows.length : 0;
 
-  // No-dominant-strategy guard (~30% per-seat win rate, among archetypes with enough appearances).
+  // No-dominant-strategy guard (T-239: a MULTIPLE of the even per-seat share — see
+  // ARCHETYPE_WINRATE_GUARD_RATIO — among archetypes with enough appearances).
   const minAppear = Math.max(20, total * 0.05);
   const eligible = winRateByArchetype.filter(a => a.seatAppearances >= minAppear);
   const topArchetypeWinRate = eligible.reduce((m, a) => Math.max(m, a.winRate), 0);
@@ -477,7 +499,8 @@ export function summarize(rows: readonly SweepRow[]): SweepSummary {
     winnerMeanEngagement: mean(winnerEngagement),
     fieldMeanEngagement: mean(fieldEngagement),
     topArchetypeWinRate,
-    archetypeWinRateGuardPass: topArchetypeWinRate <= ARCHETYPE_WINRATE_GUARD,
+    topArchetypeEvenShareRatio: evenShare ? topArchetypeWinRate / evenShare : 0,
+    archetypeWinRateGuardPass: topArchetypeWinRate <= archetypeWinRateGuard(evenShare),
   };
 
   return {
@@ -671,7 +694,7 @@ ${countRows}
 | Discovery flips (recruit/blight/DK) | ${pct(d.discoveryFlipMix.recruit)} / ${pct(d.discoveryFlipMix.blight_seed)} / ${pct(d.discoveryFlipMix.death_knight)} | §5.1 flip outcome mix |
 | Court at March (median · mean pieces/seat) | ${d.medianCourtAtMarch} · ${d.meanCourtAtMarch.toFixed(2)} | T2-1 "feed the court" — the pitch's courts-of-3–4-by-March check |
 | Passive-seat win rate (min engagement) | ${pct(d.passiveSeatWinRate)} | T2-2 "hiding is dangerous" — must sit BELOW the even share ${pct(summary.evenShare)}; winner engagement ${d.winnerMeanEngagement.toFixed(1)} vs field ${d.fieldMeanEngagement.toFixed(1)} |
-| Top archetype win rate (≤ ${pct(ARCHETYPE_WINRATE_GUARD)} guard) | ${pct(d.topArchetypeWinRate)} | ${verdict(d.archetypeWinRateGuardPass)} — no single strategy should dominate |
+| Top archetype win rate (≤ ${ARCHETYPE_WINRATE_GUARD_RATIO}× even share = ${pct(archetypeWinRateGuard(summary.evenShare))}) | ${pct(d.topArchetypeWinRate)} (${d.topArchetypeEvenShareRatio.toFixed(2)}× even) | ${verdict(d.archetypeWinRateGuardPass)} — no single strategy should dominate |
 
 ## Gambit investigation (Stage 5f — deliberate vs incidental)
 | Diagnostic | Value | Reading |
@@ -683,7 +706,7 @@ ${countRows}
 | Deliberate conversion (win / deliberate-fire) | ${pct(d.gambitDeliberateConversionNoGambler)} | Q3 — deliberate fire that actually converts to a Gambit win |
 | Top archetype win rate — gambler-free | ${pct(d.topArchetypeWinRateNoGambler)} | Q2 — is the dominance FAIL gambler-driven? (vs ${pct(d.topArchetypeWinRate)} with gambler) |
 | 5i: baseline (default/field-filler) win rate — gambler-free | ${pct(d.baselineWinRateNoGambler)} | the gambler-free breach is the NEUTRAL DEFAULT, structurally over-weighted as the oneVsField filler — not a chosen strategy |
-| 5i: top CHOSEN strategy — gambler-free | ${d.topStrategyArchetypeNoGambler ?? 'n/a'} @ ${pct(d.topStrategyWinRateNoGambler)} | best deliberately-picked strategy (excl. baseline+gambler); under the ${pct(ARCHETYPE_WINRATE_GUARD)} guard ⇒ cooperator dominance is a pairwise artifact |
+| 5i: top CHOSEN strategy — gambler-free | ${d.topStrategyArchetypeNoGambler ?? 'n/a'} @ ${pct(d.topStrategyWinRateNoGambler)} | best deliberately-picked strategy (excl. baseline+gambler); under the ${ARCHETYPE_WINRATE_GUARD_RATIO}× even-share guard ⇒ cooperator dominance is a pairwise artifact |
 
 ## End Act
 | Act | Count | Share |

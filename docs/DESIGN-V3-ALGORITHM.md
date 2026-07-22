@@ -434,6 +434,23 @@ locked 2) and re-locked the supply wave: `DISCOVERY_BLIGHT_DELTA` 1 → 0, `SPRE
 recorded debt). 2-seed re-lock: dark 19.4/19.5% pooled, per-count [18.4/22.3/17.6] & [17.6/23.2/17.6],
 doom-of-games 17.9/17.8%, attrition share 8.0/8.8%, captures 1.39/1.46/game, court-at-March median 3;
 BP 18.1/18.9 · 56.1/53.6 · 70.6/71.2. See `sim-results/sample-v3/REPORT.md`.
+**`[T-239 2026-07-21]` THE RE-LOCK — AUTHORITATIVE for balance; supersedes the `[T2-1]` numbers above.**
+The 17-node `[T2-1]` lock was VOIDED by the M2.5/M2.6/sixth-review topology work (21 nodes, then the
+48-edge lattice + the `[T-236]` serpentine spoke), and the T-238 reading left the dark at 26.6/29.2%.
+**User-authorized rebalance-and-lock.** Four values changed in the herald-OFF overlay
+(`HERALD_OFF_REBALANCE`, `src/v3/tunables.ts`) — `SPREAD_AMOUNT_BASE` 2.6 → **2.2** (the dark-strength
+level), `DOOM_COST_MARCH` 14 → **11** (the 3p/4p shape; 12 *heats* — the threshold is non-monotone via
+the patience ratchet), `DOOM_COST_PLAYER_DIVISOR` 4.5 → **5.0** (per-count spread), `SABOTEUR_COVER`
+0.735 → **0.755** (the Blood-Pact re-pair — the traitor rides the same doom clock). Nothing else moved;
+no engine/board/`tunables.gen.ts` edit. **2-seed lock (n=40, 2/3/4p, 35 matchups, 9,120 games,
+zero non-terminating): dark 20.24/21.76% pooled ✅, rounds 12.45/12.48 ✅, deliberate gambit fire
+18.83/18.95% ✅ — all three bands PASS on BOTH seeds** (a first on any 21-node board), every guard
+green; per-count [13.1/24.2/23.4] & [12.6/25.4/27.3]; doom-of-games 19.4/21.1%; captures 1.67/1.72;
+BP 19.4/19.7 · 61.9/65.6 · 76.6/79.5. Recorded frontiers: the BP **win↔exposure trade-off** is steep
+(0.750 → 17.4/68.0 is the documented exposure-first alternative), **`BLOOD_PACT_SPREAD_BONUS` is now a
+DEAD lever** (1.2→1.7 byte-identical — saturated), and two margins are thin (gambit fire ~19% vs a 20%
+ceiling; s628 dark 21.76% vs a 22% ceiling). Full evidence + the rejected-candidate log:
+`sim-results/v3-relock-n40/REPORT.md`. **The topology exception is CLOSED — tunables are frozen again.**
 **Kept from v2:** `STARTING_HAND, HAND_LIMIT, ACTIONS_NORMAL, DK_*, BLIGHT_*, PUSHBACK, doomCost C, CROWN_*,
 FULL_BLOCK_THRESHOLD, PATIENCE_*, FORGE_*, ROUND_CAP, GAMBIT_*, OATH_*, HERALD_*, SEALED_CORE_PLEDGE`.
 **Removed:** the 7 Broken/Rescue tunables (§8).

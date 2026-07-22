@@ -21,9 +21,11 @@
  * state (the reducer clones its input, so stored snapshots never mutate underfoot).
  *
  * Seeds: `314159` and `161803` — both large and digit-distinctive (so the fog seed-string check is
- * collision-proof against a move stream of only small integers + digit-free node ids), and both
- * proven to drive the AI into opening an accusation under the Blood-Pact archetype table, so the
- * `INITIATE_ACCUSATION` / `ACCUSATION_VOTE` command paths (and their Moves) are genuinely exercised.
+ * collision-proof against a move stream of only small integers + digit-free node ids). The coverage
+ * property pools a FAMILY of Blood-Pact sub-seeds per base seed so the accusation command paths
+ * (`INITIATE_ACCUSATION` / `ACCUSATION_VOTE`) are genuinely exercised: a single BP game per seed made
+ * the property hostage to one trajectory, and the T-239 balance re-lock moved seed 314159's game off
+ * the accusation path entirely.
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -198,8 +200,15 @@ const HUMAN_ONLY: readonly Command['type'][] = [
 describe('T-102 · coverage', () => {
   for (const seed of SEEDS) {
     it(`seed ${seed} · coverage — every observed command type yields a valid non-crashing Move[]`, () => {
-      // Pool a competitive AND a Blood-Pact game so the accusation commands are observed too.
-      const games = [captureGame(competitive(seed)), captureGame(bloodPact(seed))];
+      // Pool a competitive game AND SEVERAL Blood-Pact games so the accusation commands are observed.
+      // T-239 (the balance re-lock) shifted every trajectory and left seed 314159's single BP game
+      // with no accusation at all — the assertion below was really testing one seed's luck, not
+      // coverage. Pooling a small family of BP sub-seeds keeps the property (every AI-reachable
+      // command is exercised) without pinning it to a trajectory that any balance change can move.
+      const games = [
+        captureGame(competitive(seed)),
+        ...[0, 1, 2, 3].map(i => captureGame(bloodPact(seed + i))),
+      ];
       const observed = new Set<string>();
 
       for (const { steps, finalState } of games) {

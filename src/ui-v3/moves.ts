@@ -295,6 +295,10 @@ export const MOVE_EXPECTATIONS: Record<CommandType, readonly MoveType[]> = {
     'act_advance',
     'telegraph',
     'pledge',
+    // Dawn resolution relocates court pieces (a rout sends a piece home), so a phase advance can
+    // legitimately emit piece moves. Added T-239: the T-102 coverage pool was widened and caught
+    // this trajectory, which the original two fixed-seed games never reached.
+    'piece_move',
     'banners_delta',
     'hand_delta',
     'crown_change',
@@ -339,7 +343,10 @@ export const MOVE_EXPECTATIONS: Record<CommandType, readonly MoveType[]> = {
   ],
   LAST_STAND_COMMIT: ['hand_delta', 'capture', 'rout', 'node_claimed', 'elimination', 'game_end'],
   INITIATE_ACCUSATION: ['accusation_opened'],
-  ACCUSATION_VOTE: ['accusation_resolved', 'bloodpact_exposed'],
+  // Exposing the traitor applies ACCUSATION_PUSHBACK to the worst frontier node (blood-pact.ts),
+  // which changes that node's blight level — so a resolved vote can emit `node_blighted` too.
+  // Added T-239 (same widened-coverage catch as ADVANCE_PHASE's `piece_move` above).
+  ACCUSATION_VOTE: ['accusation_resolved', 'bloodpact_exposed', 'node_blighted'],
   SET_BEQUEST: [],
   SET_WRAITH_INPUT: [],
 };
