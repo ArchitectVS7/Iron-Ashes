@@ -855,6 +855,10 @@ button.primary { background: linear-gradient(180deg, #e2b23c, #c9a227); color: #
 /* MOTION only — a reduced-motion viewer keeps the full static fan with zero transitions. */
 @media (prefers-reduced-motion: no-preference) {
   .card-slot { transition: transform 0.18s ease, filter 0.18s ease; }
+  /* T-302 hand-delta presets tween transform/opacity on these slots — hint the compositor. The
+     hint lives inside the no-preference block because reduced motion runs the instant path, where
+     no hand tween is ever built. GSAP writes inline transforms, which win over the rules above. */
+  .hand-dock .card-slot { will-change: transform, opacity; }
 }
 /* The last-stand fan lives inside a scrollable panel, so its hover-zoom stays modest (the rules text
    there is not the decision-relevant read — the projected total is). */

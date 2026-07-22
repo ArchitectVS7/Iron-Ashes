@@ -13,16 +13,26 @@
  * drive (they click a control and re-query the DOM in the same synchronous frame), and it is the
  * path taken whenever `prefers-reduced-motion: reduce` matches or `window.matchMedia` is absent.
  *
- * Determinism / guardrails: this module imports ONLY `gsap`, the `Move`/`MoveType` TYPES from
- * `moves.js`, and the `SoundManager` TYPE from `sound.js` (type-only — no runtime coupling). It
- * never imports the reducer / session / observable, never touches full state or `seed`, and
- * introduces NO randomness (no `Math.random`, no `Date.now`) — placeholder tweens use fixed preset
- * durations. The queue only ever receives a `Move[]` already derived from two fogged (§7 D2)
- * projections, and settlement re-renders from the fogged view, so it adds no leak surface.
+ * HAND DELTAS (T-302) run REAL element tweens: an optional `HandAnimator` classifies each
+ * `hand_delta` into deal / draw / play / discard and dispatches the matching GSAP preset. Outgoing
+ * kinds (`play` / `discard`) are `'pre-settle'` and go on the batch timeline; incoming kinds
+ * (`deal` / `draw`) are `'post-settle'` and run fire-and-forget on the freshly settled DOM (the
+ * settle replaces the whole `innerHTML`, so an entrance can only exist after it). Every other move
+ * type still burns a placeholder time-tween hold.
+ *
+ * Determinism / guardrails: this module imports ONLY `gsap`, `hand-anim.js` (presets, no state),
+ * the `Move`/`MoveType` TYPES from `moves.js`, and the `SoundManager` TYPE from `sound.js`
+ * (type-only — no runtime coupling). It never imports the reducer / session / observable, never
+ * touches full state or `seed`, and introduces NO randomness (no `Math.random`, no `Date.now`) —
+ * every tween uses fixed preset durations. The queue only ever receives a `Move[]` already derived
+ * from two fogged (§7 D2) projections, and settlement re-renders from the fogged view, so it adds
+ * no leak surface; hand presets read only already-rendered fogged DOM.
  */
 
 import { gsap } from 'gsap';
-import type { Move, MoveType } from './moves.js';
+import { HandAnimator, handTickContext, isHandDeltaMove, handPresetFor } from './hand-anim.js';
+import type { HandTickContext } from './hand-anim.js';
+import type { HandDeltaMove, Move, MoveType } from './moves.js';
 import type { SoundManager } from './sound.js';
 
 export type QueueMode = 'instant' | 'animated';
@@ -47,6 +57,10 @@ export function resolveMode(): QueueMode {
  * annotation is the compile-time gate: adding a new `MoveType` (or renaming one) without a preset
  * here is a `tsc` error. Real per-element card/piece/token tweens land in later M-tasks; this
  * milestone only sequences the holds and then commits.
+ *
+ * NOTE (T-302): `hand_delta` now resolves its hold PER KIND through `HAND_DELTA_PRESETS`
+ * (`hand-anim.ts`) whenever a `HandAnimator` is wired in; the entry below stays as the no-animator
+ * fallback and keeps this table's `Record<MoveType, number>` gate exhaustive.
  */
 const PRESET_SECONDS: Record<MoveType, number> = {
   piece_move: 0.3,
@@ -104,6 +118,7 @@ export class AnimationQueue {
   readonly #settle: () => void;
   readonly #requestedMode: QueueMode | 'auto';
   readonly #sound: SoundManager | undefined;
+  readonly #hand: HandAnimator | undefined;
   readonly #pending: Move[][] = [];
   #timeline: gsap.core.Timeline | null = null;
 
@@ -113,15 +128,19 @@ export class AnimationQueue {
    *                      reduced-motion change is honored; `'instant'` / `'animated'` force a mode.
    * @param sound        Optional `SoundManager`; when present, `enqueue` fires `play(move.type)`
    *                      once per move (silent no-op under jsdom / with an empty registry).
+   * @param hand         Optional `HandAnimator` (T-302); when present every `hand_delta` fires its
+   *                      classified GSAP preset. Omitting it keeps the pre-T-302 hold behavior.
    */
   constructor(
     settle: () => void,
     requestedMode: QueueMode | 'auto' = 'auto',
     sound?: SoundManager,
+    hand?: HandAnimator,
   ) {
     this.#settle = settle;
     this.#requestedMode = requestedMode;
     this.#sound = sound;
+    this.#hand = hand;
   }
 
   /** True when nothing is playing or waiting to play. */
@@ -146,6 +165,14 @@ export class AnimationQueue {
       for (const move of moves) this.#sound.play(move.type);
     }
     if (this.#mode() === 'instant') {
+      // Hand presets still DISPATCH in instant mode (with a null timeline → no tweens are built),
+      // so the deal/draw/play/discard path is exercised on the synchronous jsdom drive.
+      if (this.#hand !== undefined) {
+        const ctx = handTickContext(moves);
+        for (const move of moves) {
+          if (isHandDeltaMove(move)) this.#hand.fire(move, ctx, null);
+        }
+      }
       // Synchronous settlement — no timeline built, queue stays idle on return.
       this.#settle();
       return;
@@ -159,15 +186,39 @@ export class AnimationQueue {
     const moves = this.#pending.shift();
     if (moves === undefined) return;
 
+    const ctx: HandTickContext = handTickContext(moves);
+    const hand = this.#hand;
+    // Entrances (`deal` / `draw`) can only run AFTER the settle replaces the DOM.
+    const postSettle: HandDeltaMove[] = [];
+
     const proxy: TweenProxy = { _t: 0 };
     const tl = gsap.timeline({
       onComplete: () => {
         this.#timeline = null;
         this.#settle();
+        if (hand !== undefined) {
+          // Fire-and-forget entrances on the freshly rendered DOM — they must not gate `isIdle`.
+          for (const move of postSettle) hand.fire(move, ctx, HandAnimator.entranceTimeline());
+        }
         this.#play();
       },
     });
     for (const move of moves) {
+      if (hand !== undefined && isHandDeltaMove(move)) {
+        const preset = handPresetFor(move, ctx);
+        // The hold is the preset's own duration; a pre-settle preset's tweens ride a child
+        // timeline pinned to the SAME start, so the motion and the hold are one beat.
+        const at = tl.duration();
+        tl.to(proxy, { _t: 1, duration: preset.seconds }, at);
+        if (preset.stage === 'pre-settle') {
+          const child = gsap.timeline();
+          hand.fire(move, ctx, child);
+          tl.add(child, at);
+        } else {
+          postSettle.push(move);
+        }
+        continue;
+      }
       tl.to(proxy, { _t: 1, duration: PRESET_SECONDS[move.type] ?? 0.3 });
     }
     // Empty diffs (idle ticks / the initial paint) still need a settle: hold a zero-duration

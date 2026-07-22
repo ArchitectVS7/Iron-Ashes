@@ -16,6 +16,7 @@
 import type { GameSession, Exposure } from './session.js';
 import { renderBoard, renderMapKey, PLAYER_COLORS, HOUSES, houseSigilSvg } from './board-view.js';
 import { AnimationQueue } from './queue.js';
+import { HandAnimator } from './hand-anim.js';
 import { SoundManager } from './sound.js';
 import { diffObservable } from './moves.js';
 import { tokenChip, gauge } from './token-chip.js';
@@ -82,7 +83,10 @@ export function mountView(root: HTMLElement, session: GameSession): void {
   const settle = (): void => { root.innerHTML = renderApp(session); };
   // Silent under jsdom (no Web Audio) — the E2E / parity suites are unaffected.
   const sound = new SoundManager();
-  const queue = new AnimationQueue(settle, 'auto', sound);
+  // Hand-delta presets (T-302). The animator is fog-scoped to the human's seat: only that seat's
+  // `.card-slot`s may be tweened; every other seat animates its hand COUNT CHIP only.
+  const handAnim = new HandAnimator(() => root, session.humanIndex);
+  const queue = new AnimationQueue(settle, 'auto', sound, handAnim);
 
   let prev = session.observable();
   session.onChange = (): void => {

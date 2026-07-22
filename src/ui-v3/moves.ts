@@ -276,6 +276,13 @@ export type Move =
 /** The discriminant of `Move`. */
 export type MoveType = Move['type'];
 
+/**
+ * The Move types that carry a HAND delta (T-302). This is the single registration point for
+ * hand-carrying move types: `hand-anim.ts` keys its preset registry on it with an explicit
+ * `Record<HandDeltaMoveType, …>`, so adding a type here without a preset is a `tsc` error.
+ */
+export type HandDeltaMoveType = Extract<MoveType, 'hand_delta'>;
+
 // ─── Exhaustive per-command expectation table (compile-time gate) ──
 
 /** The set of command discriminants — derived (no `CommandType` alias is exported by `src/v3`). */

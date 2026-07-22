@@ -1337,11 +1337,55 @@ reduced-motion users get the full static fan with zero animation. No dependency,
 change, so no ROADMAP-V3.1-UI §3 decision is required.
 Orchestration: graphify=query "hand fan card face ui-v3" (CLI unavailable — `npx graphify` cannot resolve an executable; ran the documented NetworkX/JSON fallback over `graphify-out/gr · attempts=2/4.
 
-### T-302 · Hand-delta animations (deal/draw/play/discard) — `status: TODO` · `coder: sonnet` · `after: T-301`
+### T-302 · Hand-delta animations (deal/draw/play/discard) — `status: DONE` · `coder: sonnet` · `after: T-301`
 Give every hand-delta Move type a real GSAP preset through the M1 queue; extend the preset registry so
 a hand Move type without a preset is a compile error.
 **Accept:** the preset record covers all hand-delta Move types (compile-enforced); spy tests in
 instant mode confirm each fires; jsdom E2E green.
+
+**Delivered (2026-07-22):** new `src/ui-v3/hand-anim.ts` turns the single `hand_delta` Move into four
+real GSAP presets. `classifyHandDelta()` is a documented *presentational* heuristic over the same
+tick's already-fogged moves (`handTickContext` reads `phase_advance.to` / `round_advance` from the
+batch itself — no engine call): grew at a round boundary or into DAWN/THREAT → **deal** (round
+refill), grew otherwise → **draw**; shrank at a round boundary or into DAWN → **discard** (Dawn
+hand-limit trim), shrank otherwise → **play** (PLEDGE/ACTION spend). It is total (an equal-count
+delta, which the diff never emits, falls through to `play`).
+
+*Two compile gates:* `HAND_DELTA_PRESETS: Record<HandDeltaKind, HandDeltaPreset>` and
+`HAND_MOVE_PRESETS: Record<HandDeltaMoveType, …>`, both **explicitly annotated** (not `satisfies`),
+so a missing key is a `tsc` error. `HandDeltaMoveType = Extract<MoveType,'hand_delta'>` in `moves.ts`
+is the single registration point for a future hand-carrying Move type.
+
+*Pre-settle vs post-settle:* `settle()` replaces the whole app `innerHTML`, so outgoing cards can
+only be tweened before it (`play` 0.28s / `discard` 0.22s → `'pre-settle'`, on the batch timeline as
+a child pinned to the same start as their hold) and incoming cards only after it (`deal` 0.32s with a
+0.06 stagger / `draw` 0.24s → `'post-settle'`, fired fire-and-forget inside `onComplete` after the
+settle so they never gate `isIdle`). Instant mode still dispatches every preset — with a **null**
+timeline, so no tween is built and the synchronous jsdom drive is untouched. `AnimationQueue` gained
+an optional 4th ctor arg; every existing 3-arg call site and test is unchanged, and
+`PRESET_SECONDS['hand_delta']` stays as the no-animator fallback (keeping the `Record<MoveType,…>`
+gate exhaustive).
+
+*Fog (§7 D2 extended to presentation):* `HandAnimator` reads only DOM `renderApp` already produced
+from the viewer's fogged projection. The viewer's own seat animates the trailing |to − from|
+`.hand-dock .card-slot`s (which slot is "new" is an explicit presentational approximation); **any
+other seat animates that house plaque's `[data-stat="hand"]` count chip only — never a `.card-slot`,
+never a card value**. No `seed`, no unflipped-token content, no new markup, no RNG (fixed constants
++ gsap `stagger`; no `Math.random`/`Date.now`, no `SeededRandom` needed).
+
+*Sound:* unchanged — the existing per-`MoveType` `SoundManager.play(move.type)` call already covers
+hand deltas; clips/registry entries remain deferred to M4 (assets + `docs/CREDITS.md`).
+
+New `tests/v3/hand-anim.test.ts` (29 cases): classification table (all four kinds, both boundary
+signals), registry coverage + the type-level cover line, empty-target/null-timeline no-op safety,
+fog target resolution (own seat trailing slots, clamping, rival = chip only, missing DOM), the
+instant-mode **spy** proving each kind fires exactly once with a null timeline and a single
+synchronous settle at `isIdle`, non-hand moves never reaching the animator, 3-arg back-compat, the
+animated-mode pre/post-settle split, and a real `mountView` fog check. CSS adds only
+`will-change: transform, opacity` on `.hand-dock .card-slot` inside the existing
+`prefers-reduced-motion: no-preference` block. `npm run verify` green — 1341/1341 tests, lint and
+typecheck clean; no engine file, tunable, dependency or asset touched.
+Orchestration: graphify=query "how does the v3 UI move stream and animation queue turn Move objects into GSAP animations for hand cards" · attempts=1/4.
 
 ### T-303 · 3D flip reveal + frame-level fog test — `status: TODO` · `coder: opus` · `after: T-301`
 Implement the card/token flip (perspective + rotateY) for every reveal Move. Face content must enter
