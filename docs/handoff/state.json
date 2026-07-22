@@ -11,14 +11,14 @@
     "docs/human-playtest-checklist-v3.md + docs/v3-teach-script.md (the V3-6 playtest walkthrough + teaching script); index-v3.html + src/ui-v3 (the fog-respecting render-from-state UI)"
   ],
   "lastVerified": {
-    "timestamp": "2026-07-22T03:52:01.233Z",
-    "commit": "7ccc23c",
-    "sourceHash": "041d2c42da8ebfeb36807501f7c9c9f543bbccf49a22082dce991c6a44714cc8",
+    "timestamp": "2026-07-22T22:04:34.619Z",
+    "commit": "ca406a0",
+    "sourceHash": "6b6ba2eec192f6006afbe25e210d0aa3a4b95b0310247a5a387a7bad94ea89b3",
     "typecheck": "pass",
     "lint": "pass",
     "tests": {
-      "files": 105,
-      "passed": 1295,
+      "files": 106,
+      "passed": 1312,
       "failed": 0,
       "status": "pass"
     }
@@ -43,6 +43,7 @@
     "BYTE-IDENTICAL SCOPE: the competitive (flag-off) sim is byte-identical to sim-results/sample-v3; the difficulty `warlord` tier = the DEFAULT = the locked balance (byte-identical, re-verified). The two sim-neutral human-only commands SET_WRAITH_INPUT / SET_BEQUEST are UI-only and do NOT perturb the sim. Herald default-OFF (3-archetype); enabling Herald+PARLEY is the advanced path."
   ],
   "openRisks": [
+    "RE-BROKEN THEN RESOLVED 2026-07-22 (T-301 fix round 1) — SHOTS:V3 WRAITH SCENE AFTER THE T-239 RE-LOCK: `npm run shots:v3` was again exiting 1 ('MISSING 1 screen(s): wraith'). The earlier T-225 fix (below) and the T-237 re-cover (seed 13) were both invalidated by later board/tunable work and the re-break was never recorded. ROOT CAUSE (measured, not guessed): a mid-game Warlord elimination — the Wraith scene's precondition — is close to non-existent at the shots configuration (4p / competitive / warlord) under the T-239 re-lock's cheaper doom path (DOOM_COST_MARCH 14->11, SPREAD_AMOUNT_BASE 2.6->2.2): the dark completes doom before anyone is deposed. Evidence: the T-239 sweep itself records 0.07 eliminations/game pooled (~0.04 in the 4p cell), elimination Act mix 0/3/288 (Whisper/March/Reckoning) and mean earliest deposal round 12.8 of a 14-round cap (i.e. usually simultaneous with the ending, which the shots signature excludes because the Wraiths block must render PRE-endgame); a fresh engine probe (playHeadlessGame, 60 seeds/cell) found 0/60 games with any wraith at 4p-warlord vs 10/60 at 3p; and a full browser sweep of the real shots driver over seeds 1-200 found ZERO covering seeds in 1-40 (the old list's whole range) and 10 covering seeds above it. FIX: SEED_LIST in scripts/shots-v3.mjs is now [42, 11, 44, 96, 124] — 42/11 still yield the other six screens, 44 yields the Wraith scene at round ~8 (game still live), 96/124 are verified backups; the stale hunt tail (13, 7, 99, 3, 17, 5, 23, 24) is dropped. Driver policy untouched; zero engine/tunable/data changes (scripts/shots-v3.mjs only). shots:v3 now captures 7/7 and exits 0 on repeat runs. STANDING NOTE: this seed is tunable- and topology-specific and has now been retired three times (T-222/T-224, T-231/T-236, T-239) — ANY future board or doom-pacing change must re-run `npm run shots:v3` and re-sweep the Wraith seed as part of that change, and record it here.",
     "DATA/*.JSON DRIFT (v3 data split owed) — data/tunables.json + data/archetypes.json still list removed Broken/Rescue levers (e.g. rescueWillingness); these are INERT (the v3 engine reads src/v3/tunables.gen.ts, not data/). A `npm run gen:data` resync is owed once v3 gets its own data/ dir. The 4 court tunables (MARSHAL_POWER / STEWARD_POWER / HERALD_PIECE_POWER / STEWARD_INCOME) + the T2 literals are plain literals in src/v3/tunables.ts pending that split. (ROADMAP-V3 §0 recorded debt.)",
     "DIFFICULTY-TIER MAGNITUDES STALE POST-T2-1 — the knight/squire tier magnitudes are stale after T2-1 (feed-the-court); tier monotonicity is test-verified, but recalibrate at the next difficulty-touching stage (the V3-6 playtest picks the shipped default). (ROADMAP-V3 §8 T2-1.)",
     "T2-4 WRAITH IS PLAYTEST-GATED — the Wraith re-tune awaits the human playtest signal; not scheduled as sim work. (ROADMAP-V3 §8 T2-3.)",

@@ -64,6 +64,20 @@ describe('fifth-review FULL dissolution — both side rails become board-edge ov
     expect(html).toContain('class="hand-dock"');
   });
 
+  it("the dock's hand IS the T-301 fan component, one slot per card the human holds", () => {
+    const s = humanTurn();
+    const host = document.createElement('div');
+    host.innerHTML = renderApp(s);
+    const fan = host.querySelector('.hand-dock .hand-fan') as HTMLElement;
+    expect(fan).not.toBeNull();
+    expect(fan.dataset.component).toBe('hand-fan');
+    // jsdom has no layout engine, so the fan degrades to a flat row (T-301 instant-mode contract).
+    expect(fan.dataset.layout).toBe('flat');
+    expect(fan.querySelectorAll('.card-slot')).toHaveLength(
+      s.observable().players[s.humanIndex].hand.length,
+    );
+  });
+
   it('keeps zero information loss — every dissolved block still renders exactly once', () => {
     // A 4p Blood-Pact game exercises the reference blocks (suspicion/audits) too.
     const s = new GameSession(4, 'blood_pact', 7, 'warlord', false);

@@ -202,12 +202,16 @@ describe('T-204 card-face generator — determinism (no RNG / no Date)', () => {
 describe('T-204 — accept #2: card DOM built ONLY via the generator', () => {
   const VIEW = readFileSync(resolve(ROOT, 'src/ui-v3/view.ts'), 'utf8');
   const BOARD = readFileSync(resolve(ROOT, 'src/ui-v3/board-view.ts'), 'utf8');
+  // T-301 moved the hand's card DOM into the fan component — it is now a layout file too, and it is
+  // the single place `powerCardFace` is called from for the hand + last-stand toggles.
+  const FAN = readFileSync(resolve(ROOT, 'src/ui-v3/hand-fan.ts'), 'utf8');
 
   it('no bespoke card markup survives in the layout files', () => {
     // The old bare-card renders — `class="card"` and `class="card-btn"` — must be gone.
     for (const [name, src] of [
       ['view.ts', VIEW],
       ['board-view.ts', BOARD],
+      ['hand-fan.ts', FAN],
     ] as const) {
       expect(src.includes('class="card"'), `${name} has no raw card span`).toBe(false);
       expect(src.includes('class="card-btn"'), `${name} has no raw card-btn`).toBe(false);
@@ -218,9 +222,14 @@ describe('T-204 — accept #2: card DOM built ONLY via the generator', () => {
     }
   });
 
-  it('view.ts renders cards through the generator import', () => {
-    expect(VIEW).toMatch(/from '\.\/card-face\.js'/);
-    expect(VIEW).toMatch(/powerCardFace\(/);
+  it('the hand renders cards through the generator (view.ts -> hand-fan.ts -> card-face.ts)', () => {
+    expect(VIEW).toMatch(/from '\.\/hand-fan\.js'/);
+    expect(VIEW).toMatch(/handFan\(/);
+    // view.ts must not build card DOM itself any more — the component owns it.
+    expect(VIEW).not.toMatch(/powerCardFace\(/);
+    expect(VIEW).not.toContain('class="card-slot"');
+    expect(FAN).toMatch(/from '\.\/card-face\.js'/);
+    expect(FAN).toMatch(/powerCardFace\(/);
   });
 
   it('the removed CSS classes are gone from ui-v3.css', () => {

@@ -1303,13 +1303,39 @@ M3 (T-301+) is unblocked.
 
 ## M3 — Cards & hand live
 
-### T-301 · Fanned hand — `status: TODO` · `coder: opus` · `after: T-207`
+### T-301 · Fanned hand — `status: DONE` · `coder: opus` · `after: T-207`
 Render the human player's hand as a CSS-3D fanned card row (arc + rotation math), with hover-raise
 and selected-lift states, using the T-204 card faces. Degrades to a flat row under instant mode/jsdom.
 Because faces are rich (Gate 0.5), the fan relies on T-204's corner index for at-a-glance value/suit
 reads; **hover-raise zooms the card enough to read its rules text**.
 **Accept:** hand DOM is the fan component; hover/selected states are class-driven (unit-testable);
 jsdom E2E + shots green.
+
+**Delivered (2026-07-22):** New `src/ui-v3/hand-fan.ts` is the single owner of hand card DOM — pure,
+string-returning, no randomness — emitting per-slot arc geometry as CSS custom properties
+(`--fan-rot`/`--fan-x`/`--fan-y`/`--fan-z`) from `fanGeometry()` (symmetric ±14° spread, parabolic
+10px arc drop, z-stack). Both hand surfaces now delegate to it: `renderHand()` and
+`renderLastStandPanel()` (button mode, preserving `data-action="laststand-toggle:<i>"` exactly).
+`ui-v3.css` replaced the `nth-child` fan hack with data-driven transforms plus a class-driven
+selected-lift (`.is-selected`, ring + shadow, never colour alone) and a hover/focus-visible raise at
+`scale(2.7)` (62px × 2.7 ≈ 167px ⇒ `.cf-rules` ≈ 7.7 CSS px — readable rules text). New
+`tests/v3/hand-fan.test.ts` (23 cases) covers the geometry math, flat degradation, layout resolution,
+markup/corner-index contract, class-driven states, escaping and byte-stability; `card-face.test.ts`,
+`hud-dissolution.test.ts` and `last-stand-pause.test.ts` were extended (never weakened) to assert the
+hand DOM *is* the component and that selection is class-driven end to end. `.hand-fan` gained 40px
+side padding and `.hand-dock` went 44% → 52% max-width so every rotated `.card-slot` rect still sits
+inside the dock — the T-209 shots hand-fit audit passes unmodified.
+
+*Deviation note (layout vs motion, 2026-07-22):* the task says "degrades to a flat row under instant
+mode/jsdom". Taken literally against `queue.ts resolveMode()` that would also flatten the hand for
+`prefers-reduced-motion`, and `npm run shots:v3` launches Chromium with `reducedMotion: 'reduce'` —
+so the T-306 gallery would show a flat row and the fan would never be reviewed. Split instead:
+LAYOUT is chosen by `resolveHandLayout()` (flat only where there is no layout engine at all — jsdom /
+SSR / no `matchMedia`), while MOTION (the hover/lift transitions) is confined to
+`@media (prefers-reduced-motion: no-preference)`. Net: jsdom gets a flat, transform-free row;
+reduced-motion users get the full static fan with zero animation. No dependency, asset or tunable
+change, so no ROADMAP-V3.1-UI §3 decision is required.
+Orchestration: graphify=query "hand fan card face ui-v3" (CLI unavailable — `npx graphify` cannot resolve an executable; ran the documented NetworkX/JSON fallback over `graphify-out/gr · attempts=2/4.
 
 ### T-302 · Hand-delta animations (deal/draw/play/discard) — `status: TODO` · `coder: sonnet` · `after: T-301`
 Give every hand-delta Move type a real GSAP preset through the M1 queue; extend the preset registry so

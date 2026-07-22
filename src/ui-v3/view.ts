@@ -20,7 +20,7 @@ import { SoundManager } from './sound.js';
 import { diffObservable } from './moves.js';
 import { tokenChip, gauge } from './token-chip.js';
 import { turnTrack } from './turn-track.js';
-import { powerCardFace } from './card-face.js';
+import { handFan } from './hand-fan.js';
 import {
   TUNABLES,
   HERALD_RECRUIT_COST,
@@ -297,9 +297,10 @@ function renderHand(s: ObservableState, human: number): string {
   const hand = s.players[human].hand;
   const limit = s.players[human].handLimit;
   if (hand.length === 0) return `<div class="hand"><span class="hand-label">Your hand (0/${limit}):</span> <i>empty</i></div>`;
-  // Every card renders through the data-driven generator (T-204) — no bespoke card markup here.
-  const cards = hand.map(v => `<span class="card-slot">${powerCardFace(v)}</span>`).join('');
-  return `<div class="hand"><span class="hand-label">Your hand (${hand.length}/${limit}):</span> <span class="hand-fan">${cards}</span></div>`;
+  // The hand DOM IS the fan component (T-301) — which renders every card through the T-204
+  // generator. No bespoke card markup lives in this layout file.
+  const fan = handFan({ values: hand, ariaLabel: `Your hand, ${hand.length} cards` });
+  return `<div class="hand"><span class="hand-label">Your hand (${hand.length}/${limit}):</span> ${fan}</div>`;
 }
 
 function renderOaths(s: ObservableState): string {
@@ -642,11 +643,16 @@ function renderLastStandPanel(session: GameSession, s: ObservableState): string 
   const projected = p.defensePower + committed;
   const holds = projected >= p.attackPower; // ties go to the defender in a Last Stand
 
-  const cards = remaining.map((v, i) => {
-    const sel = session.lastStandSelection.includes(i) ? ' selected' : '';
-    // The interactive last-stand card is the generator face inside the toggle button (T-204).
-    return `<button class="card-face-btn${sel}" data-action="laststand-toggle:${i}">${powerCardFace(v)}</button>`;
-  }).join('');
+  // The interactive last-stand cards are the SAME fan component in button mode (T-301): selection is
+  // class-driven (`is-selected`/`selected` + `aria-pressed`), and the `laststand-toggle:<i>` indices
+  // are indices into `remaining`, exactly as before.
+  const cards = handFan({
+    values: remaining,
+    selected: session.lastStandSelection,
+    action: 'laststand-toggle',
+    cls: 'hand-fan--laststand',
+    ariaLabel: 'Cards you may pour into the Last Stand',
+  });
 
   const verdict = holds
     ? `<b class="hold">you HOLD ${esc(p.nodeId)}</b> (${projected} vs ${p.attackPower} — ties go to the defender)`
@@ -658,7 +664,7 @@ function renderLastStandPanel(session: GameSession, s: ObservableState): string 
   return `<div class="panel laststand blocking">
     <div class="panel-title">🛡 LAST STAND — Player ${p.attackerIndex + 1} is taking ${esc(p.nodeId)}</div>
     <div class="raid-head">Their ${p.attackPower} vs your ${p.defensePower} — pour in extra cards to reverse it.</div>
-    <div class="ls-cards">${cards.length > 0 ? cards : '<i>no cards left</i>'}</div>
+    <div class="ls-cards">${remaining.length > 0 ? cards : '<i>no cards left</i>'}</div>
     <div class="ls-projection">Projected: ${verdict}</div>
     <div class="hint warning">⚠ Committed cards are DESTROYED — these are next round's Pledge cards. Spend them here and the dark's strike gets harder to hold.</div>
     <button class="primary" data-action="laststand-commit">${commitLabel}</button>

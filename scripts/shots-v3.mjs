@@ -28,17 +28,25 @@ import { chromium } from 'playwright';
  * Seeds tried in order until every screen is captured (the loop stops early once covered, so trailing
  * seeds are pure insurance and cost nothing). Fully reproducible: seeds 42/11 yield the first six
  * screens (start, board, election, ransom, endgame, and the human's Death-Bequest testament), and
- * seed 13 the mid-game Wraith scene — a rival Warlord falls while the game is still live, so the
- * sidebar Wraiths block renders pre-endgame. NOTE: this seed set is topology-specific. The 21-node
- * true-8-spoke board (T-222/T-224) shifted every seed's trajectory — the game now typically doom-
- * completes in MARCH before RECKONING, so a mid-game Warlord elimination (the Wraith scene's
- * precondition) is rare and only some seeds produce it. The T-231 ring rewire + T-236 serpentine
- * spoke moved them again and retired the previous Wraith seed (24); a 1–80 sweep re-covered it at
- * seed 13 (T-237). If a future re-tune moves the trajectories once more, re-cover the missing screen
- * by sweeping seeds here (the loop's failure message points here); the driver policy below is
- * deliberately left untouched.
+ * seed 44 the mid-game Wraith scene (a Warlord falls at round ~8 while the game is still live, so
+ * the sidebar Wraiths block renders pre-endgame); 96 and 124 are verified backups.
+ *
+ * NOTE: this seed set is topology- AND tunable-specific, and the Wraith seed is the fragile one. A
+ * mid-game Warlord elimination is a genuinely rare state on the shipped board: measured at the shots
+ * configuration (4p · competitive · warlord) the T-239 re-lock's cheaper doom path (DOOM_COST_MARCH
+ * 14→11, SPREAD_AMOUNT_BASE 2.6→2.2) makes the dark complete doom BEFORE anyone is deposed — the
+ * T-239 sweep records 0.07 eliminations/game pooled, ~0.04 in the 4p cell, with the elimination Act
+ * mix 0/3/288 (Whisper/March/Reckoning) and a mean earliest deposal at round 12.8 of a 14-round cap,
+ * i.e. usually simultaneous with the ending. So every board/tunable change since T-225 has retired
+ * the then-current Wraith seed: T-222/T-224 (21 nodes) retired the original, T-231/T-236 retired 24
+ * → 13 (T-237), and T-239 retired 13 → 44 (T-301 fix round 1, re-covered by a 1–200 browser sweep;
+ * seeds 1–40 are ALL barren under the re-lock, which is why the previous list missed).
+ *
+ * If a future re-tune moves the trajectories once more, re-cover the missing screen by sweeping
+ * seeds here (the loop's failure message points here); the driver policy below is deliberately left
+ * untouched.
  */
-const SEED_LIST = [42, 11, 13, 7, 99, 3, 17, 5, 23, 24];
+const SEED_LIST = [42, 11, 44, 96, 124];
 
 /** Per-seed hard step cap (each step is one observe+click evaluate) — mirrors the E2E 8000 guard. */
 const STEP_CAP = 4000;

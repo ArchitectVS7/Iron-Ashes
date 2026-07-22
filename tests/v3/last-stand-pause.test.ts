@@ -301,6 +301,13 @@ describe('T1-4 — jsdom E2E: the blocking Last Stand prompt', () => {
     // Select the 5 and the 4 (indices 0 and 1 of the remaining hand [5,4,1]).
     click(root.querySelector('[data-action="laststand-toggle:0"]')!);
     click(root.querySelector('[data-action="laststand-toggle:1"]')!);
+    // T-301: the selected-lift is class-driven end-to-end — exactly the toggled slots are marked.
+    const sel = Array.from(root.querySelectorAll('.ls-cards .card-slot')).map(el =>
+      el.classList.contains('is-selected'),
+    );
+    expect(sel).toEqual([true, true, false]);
+    expect(root.querySelector('[data-action="laststand-toggle:0"]')!.getAttribute('aria-pressed')).toBe('true');
+    expect(root.querySelector('[data-action="laststand-toggle:2"]')!.getAttribute('aria-pressed')).toBe('false');
     expect(root.querySelector('.ls-projection')!.textContent).toContain('HOLD');
     expect(root.querySelector('[data-action="laststand-commit"]')!.textContent).toContain('Commit 2 cards');
 
