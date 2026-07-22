@@ -31,10 +31,13 @@ onward, `npm run shots:v3` exits 0.
   devDependency only. Nothing else without a dated decision in `docs/ROADMAP-V3.1-UI.md` §3.
 - **Assets:** CC0/CC-BY only, committed to the repo (no CDN/network fetches at runtime), with source
   + license recorded in `docs/CREDITS.md`.
-- **CHECKPOINT tasks (T-207, T-306, T-407) must never be self-approved:** the runner sets them
-  `BLOCKED(awaiting user visual review)` and **halts the run**. Only the user flips them to DONE.
+- **CHECKPOINT tasks (T-207, T-306, T-407) must never be self-approved:** they carry the
+  `[BLOCKED BY = Human Gate]` heading tag, so the runner prepares the artifact, commits it
+  `BLOCKED(...)`, and **halts the run** — never DONE, never a fabricated approval. Only the user
+  flips them to DONE.
 
-Statuses: `TODO` | `IN-PROGRESS` | `DONE` | `BLOCKED(reason)`
+Statuses: `TODO` | `IN-PROGRESS` | `DONE` | `BLOCKED(reason)` — a `[BLOCKED BY = <reason>]` heading
+tag makes a task a hard human gate that force-stops the run.
 
 ---
 
@@ -1508,7 +1511,7 @@ corrected to reflect the post-commit reality.
 
 Orchestration: graphify=graphify query "M3 milestone close DoD handoff state roadmap tick boxes" (ran, returned no output — no matching nodes; the query CLI also left stale artifacts i · attempts=2/4.
 
-### T-306 · CHECKPOINT — user visual review of M3 — `status: BLOCKED(awaiting user visual review)` · `coder: sonnet` · `after: T-305`
+### T-306 · CHECKPOINT — user visual review of M3 — `status: BLOCKED(awaiting user visual review)` · `coder: sonnet` · `after: T-305` · `[BLOCKED BY = Human Gate]`
 Regenerate the gallery into `docs/Redesign-V3.1/m3/` (committed), then **set this task
 `BLOCKED(awaiting user visual review)` and halt the run**. User reviews hand feel (fan, flips,
 affordances) against the rubric and approves or files fix tasks.
@@ -1588,7 +1591,7 @@ Milestone DoD: verify green → tick M4 boxes, `currentStage` → `V3.1-M4-CHECK
 commit, handoff:check green.
 **Accept:** both commands exit 0; boxes ticked; §8 entry present.
 
-### T-407 · CHECKPOINT — final pre-playtest review — `status: TODO` · `coder: sonnet` · `after: T-406`
+### T-407 · CHECKPOINT — final pre-playtest review — `status: TODO` · `coder: sonnet` · `after: T-406` · `[BLOCKED BY = Human Gate]`
 Regenerate the gallery into `docs/Redesign-V3.1/m4/` (committed), then **set this task
 `BLOCKED(awaiting user visual review)` and halt the run**. This is the gate into M5: the user reviews
 the full animated experience (rubric + blind read test + a played game), then either approves —
