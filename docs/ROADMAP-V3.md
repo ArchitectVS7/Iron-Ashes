@@ -266,6 +266,32 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-21** — **T-238 — SERPENTINE-SPOKE balance READING (measurement, NOT tuning) — the dark
+  fell 25 pp and TWO of three band misses cleared themselves.** Canonical 2-seed sweep (seeds 20260622 +
+  20260628, n=40, 2/3/4p, both modes) on the **shipped** board = the sixth-review **48-edge** lattice
+  (52 → 48 edges) + the **T-236 serpentine 6-node spoke**, which landed together and are measured
+  together → new run dir `sim-results/v3-serpentine-spoke-n40/` (4 sub-runs + combined REPORT with a
+  delta-vs-T-233 table). All four sub-runs exited 0, `hitGuardCount = 0` across 9,120 games; the 17-node
+  lock dirs (`v3-s2026062{2,8}-n40{,-bp}`) were overwritten during simulation then `git checkout`-restored
+  intact as the regression gate (the T-227/T-233 handling). **RESULT — the doom clock was the whole
+  story.** Pooled dark win **52.2/54.4% → 26.6/29.2%** (**−25.4 pp**; the miss vs the 18–22% band shrank
+  from ~31 pp to **+5.9 pp**, and **2p is now INSIDE the band: 18.9/19.7%** — the residual is a 3p/4p
+  effect). Mean rounds 10.48 → **12.26** ✅; doom_complete 53.1% → **26.3%** with territory_victory
+  34.8% → **58.7%**; mean ashed 4.66 → 6.30. **Gambit-fire miss RESOLVED** — the T-233 lattice miss
+  (20.6/21.9% ❌) is back in band at **15.0/15.3% ✅** with zero edits. **The capture economy woke up:**
+  captures/game 1.34 → **1.63**, ransoms 0.45 → **0.55**, Kill-the-Dark 18.6% → **23.6%**,
+  eliminations/game 0.023 → **0.12** (5×) — the healthiest reading of the marquee mechanics v3 has
+  produced (V3-5 had flagged them near-dead). **Blood Pact effectively ON TARGET for the first time on a
+  21-node board:** traitor win 33.1/35.3% → **18.3/20.8%**, exposure 62.8/59.4% → **73.3/68.3%**,
+  accuracy ~80% (the historical ~20/~70 design target). **ONE NEW MISS, assessed as guard-calibration:**
+  the top-archetype guard (absolute ≤30%) reads 34.3/31.5% ❌ — but it was calibrated when the dark took
+  ~half of all games; with the field now winning ~72%, even per-seat share rose 15.9% → 24.5%, so the top
+  archetype is **1.40× even share vs 1.69× on the lattice** (relative dominance IMPROVED) and the sim's
+  own no-dominant-strategy check still PASSES. Recorded for the eventual re-lock (express the threshold
+  relative to even share), not tuned. **VERDICT:** the §9 lock stays VOIDED, but a single-knob doom-pacing
+  re-lock (`DOOM_COST_*` / `DAWN_BLIGHT_ADVANCE` / `SPREAD_AMOUNT_BASE`, the §13 `[T-236]` sanctioned
+  levers) is now a **plausible** path where it was not before — deliberately NOT attempted here. Zero
+  engine/tunable/data/board edits (sim-results + docs + state.json only).
 - **2026-07-21** — **T-207 — GATE 1 PASSED (user approval); V3.1-M2-CHECKPOINT CLOSED.** After the
   sixth-review board rework (user-authored, on top of the M2.6 lattice) plus **T-236** (edge-real
   serpentine spokes) and **T-237** (map key off-board + collapsible, gallery re-covered), the user

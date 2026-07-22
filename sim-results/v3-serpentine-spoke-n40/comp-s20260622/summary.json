@@ -1,0 +1,180 @@
+{
+  "totalGames": 4200,
+  "hitGuardCount": 0,
+  "checks": [
+    {
+      "name": "Shadowking win rate",
+      "measured": 0.2664285714285714,
+      "lo": 0.18,
+      "hi": 0.22,
+      "pass": false
+    },
+    {
+      "name": "Mean game length (rounds)",
+      "measured": 12.283095238095239,
+      "lo": 10,
+      "hi": 16,
+      "pass": true
+    },
+    {
+      "name": "Deliberate gambit fire (gambler-free, ~1-in-6-to-8)",
+      "measured": 0.14969135802469136,
+      "lo": 0.1,
+      "hi": 0.2,
+      "pass": true
+    }
+  ],
+  "winRateByArchetype": [
+    {
+      "id": "aggressor",
+      "seatAppearances": 1760,
+      "seatWins": 200,
+      "winRate": 0.11363636363636363
+    },
+    {
+      "id": "baseline",
+      "seatAppearances": 3000,
+      "seatWins": 841,
+      "winRate": 0.2803333333333333
+    },
+    {
+      "id": "cooperator",
+      "seatAppearances": 1560,
+      "seatWins": 547,
+      "winRate": 0.3506410256410256
+    },
+    {
+      "id": "gambler",
+      "seatAppearances": 1480,
+      "seatWins": 417,
+      "winRate": 0.28175675675675677
+    },
+    {
+      "id": "opportunist",
+      "seatAppearances": 1640,
+      "seatWins": 360,
+      "winRate": 0.21951219512195122
+    },
+    {
+      "id": "saboteur",
+      "seatAppearances": 1440,
+      "seatWins": 392,
+      "winRate": 0.2722222222222222
+    },
+    {
+      "id": "turtle",
+      "seatAppearances": 1720,
+      "seatWins": 324,
+      "winRate": 0.1883720930232558
+    }
+  ],
+  "evenShare": 0.24452380952380953,
+  "dominancePass": true,
+  "dominantArchetype": null,
+  "freeRider": {
+    "winnerMeanPledge": 2.6960433837503004,
+    "fieldMeanPledge": 3.0268657489773028,
+    "freeRidingRewarded": false
+  },
+  "endReasonCounts": {
+    "last_standing": 212,
+    "doom_complete": 1039,
+    "territory_victory": 2526,
+    "attrition": 80,
+    "gambit_victory": 343
+  },
+  "diagnostics": {
+    "eliminationsPerGame": 0.1219047619047619,
+    "lastStandingWinRate": 0.05047619047619047,
+    "dkKillRate": 3.8345238095238097,
+    "oathsSwornPerGame": 6.49,
+    "oathsBrokenPerGame": 3.8066666666666666,
+    "oathBreakShare": 0.6634850811304311,
+    "tollsPerGame": 1.8885714285714286,
+    "heraldsPerGame": 0,
+    "heraldCapturesPerGame": 0,
+    "politicalSeatShare": 0,
+    "politicalWinRate": 0,
+    "martialWinRate": 0.24452380952380953,
+    "meanAshedNodes": 6.320952380952381,
+    "meanPlayerActions": 87.65333333333334,
+    "meanActionsPerRound": 7.120645383056093,
+    "attritionWinShare": 0.07149240393208221,
+    "pledgeFullBlockRate": 0.3139816627575646,
+    "gambitSeizeRate": 0.4919047619047619,
+    "gambitWinRate": 0.08166666666666667,
+    "gambitFireRateNoGambler": 0.3552469135802469,
+    "gambitFireDeliberateNoGambler": 0.14969135802469136,
+    "gambitFireIncidentalNoGambler": 0.20555555555555555,
+    "gambitDeliberateShareNoGambler": 0.421372719374457,
+    "gambitFireDeliberateAll": 0.3304761904761905,
+    "gambitFireIncidentalAll": 0.16142857142857142,
+    "gambitWinRateNoGambler": 0.006790123456790123,
+    "gambitWinDeliberateNoGambler": 0.006790123456790123,
+    "gambitDeliberateConversionNoGambler": 0.04536082474226804,
+    "topArchetypeWinRateNoGambler": 0.3426470588235294,
+    "baselineWinRateNoGambler": 0.2984375,
+    "topStrategyArchetypeNoGambler": "cooperator",
+    "topStrategyWinRateNoGambler": 0.3426470588235294,
+    "perActEnd": {
+      "RECKONING": 2331,
+      "MARCH": 1732,
+      "WHISPER": 137
+    },
+    "perCount": {
+      "2": {
+        "games": 1400,
+        "shadowkingWinRate": 0.18928571428571428,
+        "meanRounds": 11.472857142857142,
+        "meanEliminations": 0.19428571428571428,
+        "gambitFireRate": 0.7321428571428571
+      },
+      "3": {
+        "games": 1400,
+        "shadowkingWinRate": 0.3221428571428571,
+        "meanRounds": 12.343571428571428,
+        "meanEliminations": 0.125,
+        "gambitFireRate": 0.49714285714285716
+      },
+      "4": {
+        "games": 1400,
+        "shadowkingWinRate": 0.28785714285714287,
+        "meanRounds": 13.032857142857143,
+        "meanEliminations": 0.04642857142857143,
+        "gambitFireRate": 0.24642857142857144
+      }
+    },
+    "capturesPerGame": 1.5916666666666666,
+    "ransomsPerGame": 0.5376190476190477,
+    "captureToRansomRate": 0.33777112939416604,
+    "heartAssaultsPerGame": 0.3047619047619048,
+    "killTheDarkRate": 0.2357142857142857,
+    "darkWinByPath": {
+      "doom_complete": 0.24738095238095237,
+      "attrition": 0.01904761904761905,
+      "last_standing": 0.05047619047619047
+    },
+    "meanEarliestEliminationRound": 12.339080459770114,
+    "deadTimeProxy": 0.88136288998358,
+    "earlyDeathFlagRate": 0.0007142857142857143,
+    "eliminationActMix": {
+      "WHISPER": 0,
+      "MARCH": 7,
+      "RECKONING": 505
+    },
+    "midGameLeaderWinRate": 0.45241379310344826,
+    "comebackRate": 0.5475862068965518,
+    "discoveryFlipMix": {
+      "recruit": 0.5835423106082697,
+      "blight_seed": 0.2521723916720126,
+      "death_knight": 0.16428529771971773
+    },
+    "medianCourtAtMarch": 2,
+    "meanCourtAtMarch": 2.578921244209133,
+    "passiveSeatWinRate": 0.3489126906848426,
+    "winnerMeanEngagement": 37.01460564751704,
+    "fieldMeanEngagement": 41.812084993359896,
+    "topArchetypeWinRate": 0.3506410256410256,
+    "archetypeWinRateGuardPass": false
+  }
+}
