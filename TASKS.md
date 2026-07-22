@@ -1478,10 +1478,35 @@ dated `docs/ROADMAP-V3.1-UI.md` §3 decision was required. **T-306 remains
 
 Orchestration: graphify=query "how does the v3 UI determine legal actions and targets, and where are illegality errors surfaced?" · attempts=1/4.
 
-### T-305 · M3 close — DoD — `status: TODO` · `coder: sonnet` · `after: T-303, T-304`
+### T-305 · M3 close — DoD — `status: DONE` · `coder: sonnet` · `after: T-303, T-304`
 Milestone DoD: verify green → tick M3 boxes, `currentStage` → `V3.1-M3-CHECKPOINT`, dated §8 entry,
 commit, handoff:check green.
 **Accept:** both commands exit 0; boxes ticked; §8 entry present.
+
+**Delivered (2026-07-22):** V3.1-M3 CLOSED. Docs + `state.json` only — zero engine/tunable/asset edits
+(no `src/v2`, `src/v3`, `src/utils`, no tunable value; "engine untouched" standing constraint held).
+The three §M3 deliverable boxes ticked in `docs/ROADMAP-V3.1-UI.md`; §4 `V3.1-M3` ticked and a new
+`V3.1-M3-CHECKPOINT` box inserted directly below it (now the first-unchecked §4 stage); `currentStage`
+repointed **V3.1-M3 → V3.1-M3-CHECKPOINT**; dated ROADMAP-V3 §8 T-305 entry added. `npm run verify`
+exits 0 (109 files / 1407 tests, 0 failed); `npm run handoff:check` exits 0 **on the committed tree**
+(its clean-tree assertion awaits the runner's `T-305: M3 close` commit — see the Fix round below).
+Motion/hand-feel items stay provisional, verified live at the USER-ONLY T-306 checkpoint. Next: T-306
+(runner regenerates the m3 gallery, then sets T-306 BLOCKED and halts — never self-approved).
+
+**Fix round (2026-07-22):** the review-flagged `handoff:check` exit 1 is **process-ordering, not
+content** — identical to the T-106 M1-close fix round. `handoff-check.mjs` assertion 5
+(`git status --porcelain` empty) can only pass AFTER the protocol step-5 commit, which under the
+orchestrate loop belongs to the **runner** (it commits `T-305: M3 close` only after review+gate pass),
+not the coder — and the coder is explicitly instructed not to commit. Verified empirically by applying
+this exact 4-file diff (TASKS.md + `docs/ROADMAP-V3.1-UI.md` + `docs/ROADMAP-V3.md` +
+`docs/handoff/state.json`) and committing it in a throwaway clone: all six assertions pass there
+(exit 0). On the live tree pre-commit, 5/6 pass — typecheck/lint/tests recorded pass, sourceHash
+matches (docs-only diff, no `src/`/`tests/` change), and `currentStage` (V3.1-M3-CHECKPOINT) matches
+ROADMAP §4's first-unchecked box — and only the clean-tree assertion awaits the `T-305: M3 close`
+commit. No content change was needed; the misleading "both exit 0" phrasing in the Delivered note was
+corrected to reflect the post-commit reality.
+
+Orchestration: graphify=graphify query "M3 milestone close DoD handoff state roadmap tick boxes" (ran, returned no output — no matching nodes; the query CLI also left stale artifacts i · attempts=2/4.
 
 ### T-306 · CHECKPOINT — user visual review of M3 — `status: TODO` · `coder: sonnet` · `after: T-305`
 Regenerate the gallery into `docs/Redesign-V3.1/m3/` (committed), then **set this task

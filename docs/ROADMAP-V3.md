@@ -202,7 +202,8 @@ Workflow (same as v2): **① idea → ② textual algorithm → ③ code → ④
   - [x] **V3.1-M2.6 — Ring rewire (the star lattice; user-authorized 2026-07-20, same M2.5 topology exception)** → `docs/ROADMAP-V3.1-UI.md` §M2.6
   - [x] **V3.1-M2-CHECKPOINT — user visual review of M2 (T-207)** → `docs/ROADMAP-V3.1-UI.md` §M2
         — APPROVED by the user 2026-07-21 after the sixth-review rework + T-236/T-237 (see §8)
-  - [ ] **V3.1-M3 — Cards & hand live** → `docs/ROADMAP-V3.1-UI.md` §M3
+  - [x] **V3.1-M3 — Cards & hand live** → `docs/ROADMAP-V3.1-UI.md` §M3
+  - [ ] **V3.1-M3-CHECKPOINT — user visual review of M3 (T-306)** → `docs/ROADMAP-V3.1-UI.md` §M3
   - [ ] **V3.1-M4 — Board life & sound** → `docs/ROADMAP-V3.1-UI.md` §M4
   - [ ] **V3.1-M5 — Playtest readiness → run the V3-6 human playtest** → `docs/ROADMAP-V3.1-UI.md` §M5
 
@@ -266,6 +267,19 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-22** — **T-305 — V3.1-M3 CLOSED (milestone DoD).** The M3 "cards & hand live" milestone
+  (T-301 fanned hand · T-302 hand-delta animations · T-303 3D flip reveal + frame-level fog test ·
+  T-304 affordances — all DONE) is ratified: docs + `state.json` only, **zero engine/tunable/asset
+  edits** (no `src/v2`, `src/v3`, `src/utils`, no tunable value — the "engine untouched" standing
+  constraint held in full). `npm run verify` green (typecheck + lint over the whole repo + full v2+v3
+  suite — 109 files / 1407 tests, 0 failed). The three M3 deliverable boxes are ticked in
+  `docs/ROADMAP-V3.1-UI.md` §M3 (fanned card row · deal/draw/play/discard + 3D flip · legal-glow /
+  illegal-shake affordances); `V3.1-M3` is ticked in §4 and a new **`V3.1-M3-CHECKPOINT`** box was
+  inserted directly below it (now the first-unchecked §4 stage), so `currentStage` repointed
+  **V3.1-M3 → V3.1-M3-CHECKPOINT**. Motion / hand-feel items (fan, flips, affordances) stay
+  **provisional, verified live at the T-306 user checkpoint** (same rule as T-207 — the checkpoint flip
+  is USER-ONLY, never self-approved). Immediate next: **T-306** — regenerate the m3 gallery into
+  `docs/Redesign-V3.1/m3/`, commit, then set T-306 `BLOCKED(awaiting user visual review)` and HALT.
 - **2026-07-21** — **T-239 — THE RE-LOCK: balance RE-ESTABLISHED on the shipped board (the first
   authorized tunable-VALUE edit since the lock voided).** **User-authorized** this session ("a re-lock
   is a 'rebalance and lock' so we can be closer to spec than before? … that is an explicit go from

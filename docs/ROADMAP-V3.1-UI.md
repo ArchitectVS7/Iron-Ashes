@@ -257,9 +257,9 @@ parity, and a fresh reading. `data/board.json` (the frozen 17-node v2 board) sta
 - **Zero tunable-VALUE edits** — the diff shows no change to `src/v3/tunables.ts` / `tunables.gen.ts`.
 
 ### M3 — Cards & hand live
-- [ ] Hand rendered as a **fanned card row** (CSS 3D; hover-raise, selected-lift).
-- [ ] Deal / draw / play / discard animated via the M1 queue; **3D flip** on any reveal.
-- [ ] Legal actions glow on hover/selection; illegal interactions shake (juice, not alerts).
+- [x] Hand rendered as a **fanned card row** (CSS 3D; hover-raise, selected-lift).
+- [x] Deal / draw / play / discard animated via the M1 queue; **3D flip** on any reveal.
+- [x] Legal actions glow on hover/selection; illegal interactions shake (juice, not alerts).
 
 **Exit metrics:**
 - Coverage: every hand-delta `Move` type has an animation preset + sound (the M1 compile-time record
