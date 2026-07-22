@@ -15,8 +15,8 @@
     "semantic_hash": "d5761a1390c7de9de43a266f26e41793"
   },
   "docs/handoff/state.json": {
-    "mtime": 1784598387.531907,
-    "ast_hash": "bf8cce89b82eae29de7227e9ef8e96d9",
+    "mtime": 1784686555.7887506,
+    "ast_hash": "4d730fea548d60d5d0f542ce9f2ab574",
     "semantic_hash": ""
   },
   "docs/handoff/state.schema.json": {
@@ -615,13 +615,13 @@
     "semantic_hash": ""
   },
   "docs/DESIGN-V3-ALGORITHM.md": {
-    "mtime": 1784583639.8588233,
-    "ast_hash": "eef1dcb265f368a0e6479c57b3836d5c",
+    "mtime": 1784683718.4595852,
+    "ast_hash": "1ba6ce55da00a785e689d4e916d4b1a5",
     "semantic_hash": ""
   },
   "docs/ROADMAP-V3.md": {
-    "mtime": 1784597313.280503,
-    "ast_hash": "f67a01f76bd9246a6141b4bf4c2ebe51",
+    "mtime": 1784686514.1555874,
+    "ast_hash": "dbddd3020e2346fc32d869a3d6ec8c9c",
     "semantic_hash": ""
   },
   "docs/Shadowlord.md": {
@@ -655,8 +655,8 @@
     "semantic_hash": ""
   },
   "src/v3/blight.ts": {
-    "mtime": 1784583583.246637,
-    "ast_hash": "1522b73dd49f1e53970a5f94bca26491",
+    "mtime": 1784683677.2407894,
+    "ast_hash": "669bdbaaba344ee0142971e2b7f700f4",
     "semantic_hash": ""
   },
   "src/v3/blood-pact.ts": {
@@ -665,13 +665,13 @@
     "semantic_hash": ""
   },
   "src/v3/board.gen.ts": {
-    "mtime": 1784595021.3258395,
-    "ast_hash": "4e4748c574f2409f3b6c93fb4d2eda1d",
+    "mtime": 1784680074.9402163,
+    "ast_hash": "9b614befe30bae3ac23cd851f1b770ed",
     "semantic_hash": ""
   },
   "src/v3/board.ts": {
-    "mtime": 1784595064.2870789,
-    "ast_hash": "4421566a536ad3c00a8f6df077f369e3",
+    "mtime": 1784683657.313584,
+    "ast_hash": "4cf2dcbaf727f79c627d1decc48122a7",
     "semantic_hash": ""
   },
   "src/v3/combat.ts": {
@@ -720,8 +720,8 @@
     "semantic_hash": ""
   },
   "src/v3/shadowking-policy.ts": {
-    "mtime": 1784583609.0865762,
-    "ast_hash": "884f5439f2df7391e810427ec76eddec",
+    "mtime": 1784683679.2824833,
+    "ast_hash": "bc142f48c346d94a151dab364bfda4ed",
     "semantic_hash": ""
   },
   "src/v3/sim/archetypes.gen.ts": {
@@ -780,8 +780,8 @@
     "semantic_hash": ""
   },
   "tests/v3/actions.test.ts": {
-    "mtime": 1782964562.018654,
-    "ast_hash": "67d5407ef7511168f28847849d72bbe5",
+    "mtime": 1784680480.6541631,
+    "ast_hash": "1710ae3e3b0434c39e147600f3356e72",
     "semantic_hash": ""
   },
   "tests/v3/ai-player.test.ts": {
@@ -795,8 +795,8 @@
     "semantic_hash": ""
   },
   "tests/v3/blight.test.ts": {
-    "mtime": 1784583699.77375,
-    "ast_hash": "16a7c72a6b60d7d40af433f5389f7895",
+    "mtime": 1784683752.2194211,
+    "ast_hash": "b4dcd2143712a4c4e61213c88e99e813",
     "semantic_hash": ""
   },
   "tests/v3/blood-pact-5e.test.ts": {
@@ -810,8 +810,8 @@
     "semantic_hash": ""
   },
   "tests/v3/board.test.ts": {
-    "mtime": 1784595101.0321176,
-    "ast_hash": "099225a2c92abe8ef735eb08df8d5fbe",
+    "mtime": 1784680174.7944968,
+    "ast_hash": "f57e5ef5557b746d9f8eb908badd4b02",
     "semantic_hash": ""
   },
   "tests/v3/combat.test.ts": {
@@ -1005,8 +1005,8 @@
     "semantic_hash": ""
   },
   "src/ui-v3/board-view.ts": {
-    "mtime": 1784595731.012472,
-    "ast_hash": "21eb3d4db3c1ac64bbef5b3a3a88175a",
+    "mtime": 1784684765.5637543,
+    "ast_hash": "bc3edfe08ac130a26306bf82c2eae7dd",
     "semantic_hash": ""
   },
   "src/ui-v3/main.ts": {
@@ -1020,8 +1020,8 @@
     "semantic_hash": ""
   },
   "src/ui-v3/view.ts": {
-    "mtime": 1784514304.0924191,
-    "ast_hash": "b819b8acf867ad366a19a38b54f3771f",
+    "mtime": 1784684765.5643032,
+    "ast_hash": "64c71c6cdb0b873ec441e3114f9b0c18",
     "semantic_hash": ""
   },
   "src/ui-v3/vite-env.d.ts": {
@@ -1115,8 +1115,8 @@
     "semantic_hash": ""
   },
   "TASKS.md": {
-    "mtime": 1784598501.8647444,
-    "ast_hash": "f9456fd0d50f8b64ad790ce227ddedbe",
+    "mtime": 1784686497.4008982,
+    "ast_hash": "9c2be928bdcd96cc38210e553ea92884",
     "semantic_hash": ""
   },
   "src/v3/harness/harness-core.ts": {
@@ -1215,8 +1215,8 @@
     "semantic_hash": ""
   },
   "scripts/shots-v3.mjs": {
-    "mtime": 1784585667.556679,
-    "ast_hash": "7abaff0e7c37331e114fd7f0f578d395",
+    "mtime": 1784685089.8951776,
+    "ast_hash": "263e4a44aba56a3e9346dc7c7636648a",
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/Gates.md": {
@@ -1230,8 +1230,8 @@
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/RUBRIC.md": {
-    "mtime": 1784593607.3899329,
-    "ast_hash": "02b52eb777da149c4f2f8642a75d03a3",
+    "mtime": 1784601119.411767,
+    "ast_hash": "eda61902a57397546ec6fc84d42bcb01",
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/baseline/README.md": {
@@ -1385,8 +1385,8 @@
     "semantic_hash": ""
   },
   "data/board-v3.json": {
-    "mtime": 1784595018.649264,
-    "ast_hash": "7a3d9a3ea1eadfb83cda532114ab559e",
+    "mtime": 1784680067.9009714,
+    "ast_hash": "02f9b2993bfc6e8a110fe8464c613d38",
     "semantic_hash": ""
   },
   "scripts/check-budget.mjs": {
@@ -1405,8 +1405,8 @@
     "semantic_hash": ""
   },
   "tests/v3/board-view.test.ts": {
-    "mtime": 1784595768.5352635,
-    "ast_hash": "f1d7e559c2a652bdce0f4bebd073818e",
+    "mtime": 1784680369.036953,
+    "ast_hash": "8fa7231ce17426b7afe90617ab8bd57f",
     "semantic_hash": ""
   },
   "tests/v3/card-face.test.ts": {
@@ -1425,8 +1425,8 @@
     "semantic_hash": ""
   },
   "tests/v3/hud-dissolution.test.ts": {
-    "mtime": 1784482216.472593,
-    "ast_hash": "bd9e1de571c6c901c63790b792073021",
+    "mtime": 1784684930.777625,
+    "ast_hash": "b58a5e0c73f79a6ef0bd8050d08a9d05",
     "semantic_hash": ""
   },
   "tests/v3/m2-gallery.test.ts": {
@@ -1450,8 +1450,8 @@
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/m2/README.md": {
-    "mtime": 1784485401.8471696,
-    "ast_hash": "150ae5e2a29cd3777700618a26534faa",
+    "mtime": 1784685116.815547,
+    "ast_hash": "25e3e8a3d3ab2bcff9a1aea7132ec5de",
     "semantic_hash": ""
   },
   "src/ui-v3/assets/fonts/Alegreya-OFL.txt": {
@@ -1465,43 +1465,53 @@
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/m2/01-start-select.png": {
-    "mtime": 1784598256.52963,
+    "mtime": 1784685108.0395613,
     "ast_hash": "25a619469334feef379dd73edfe8a23d",
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/m2/02-board-midgame.png": {
-    "mtime": 1784598257.1686714,
-    "ast_hash": "f598ea45c4cae88508d0fcd209b86d9b",
+    "mtime": 1784685108.7482858,
+    "ast_hash": "2c40184f47ebb231f39f52f99d1aa20c",
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/m2/03-capture-election.png": {
-    "mtime": 1784598256.8705342,
-    "ast_hash": "02d636c6880cbac46641af89779b118b",
+    "mtime": 1784685108.4144466,
+    "ast_hash": "df3d9e7dab076b8b87e62763d8b20dec",
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/m2/04-ransom.png": {
-    "mtime": 1784598257.554684,
-    "ast_hash": "b8ca677884d49d6b60d31f0fa97eafeb",
+    "mtime": 1784685109.3841872,
+    "ast_hash": "1bc2b5058ba0b6f13658e821e6de72bd",
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/m2/05-wraith.png": {
-    "mtime": 1784598259.1822608,
-    "ast_hash": "0da982d6f763a537dbbdd00ce956b85d",
+    "mtime": 1784685111.584598,
+    "ast_hash": "0bea58da0b092aef0e45401908c282ea",
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/m2/06-bequest.png": {
-    "mtime": 1784598257.9463658,
-    "ast_hash": "0565345ad32b869d6ccd9ac7a17675aa",
+    "mtime": 1784685109.7618604,
+    "ast_hash": "0b1ff13b19ea2dbcbba54689b90166e3",
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/m2/07-endgame.png": {
-    "mtime": 1784598258.267369,
-    "ast_hash": "a094b99f1393d3a5695ccf76cc88635b",
+    "mtime": 1784685110.2552154,
+    "ast_hash": "9f8a879480f032202e34e5cf5b42b336",
     "semantic_hash": ""
   },
   "src/ui-v3/assets/frames/card-frame.svg": {
     "mtime": 1784440150.6207137,
     "ast_hash": "b65a281b4ee38a7a90f1bd13810d3b0e",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/card-art-spec.md": {
+    "mtime": 1784600374.9981308,
+    "ast_hash": "8075f77f2199e5afa832fe2d9a504f70",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/m2/board-clean.png": {
+    "mtime": 1784685108.9534626,
+    "ast_hash": "4d5aeeed7edb8db7926c38f551e7af5f",
     "semantic_hash": ""
   }
 }
