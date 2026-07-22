@@ -1387,13 +1387,34 @@ animated-mode pre/post-settle split, and a real `mountView` fog check. CSS adds 
 typecheck clean; no engine file, tunable, dependency or asset touched.
 Orchestration: graphify=query "how does the v3 UI move stream and animation queue turn Move objects into GSAP animations for hand cards" · attempts=1/4.
 
-### T-303 · 3D flip reveal + frame-level fog test — `status: TODO` · `coder: opus` · `after: T-301`
+### T-303 · 3D flip reveal + frame-level fog test — `status: DONE` · `coder: opus` · `after: T-301`
 Implement the card/token flip (perspective + rotateY) for every reveal Move. Face content must enter
 the DOM only at the flip midpoint — never before. Add the enforcing test: in instant mode, assertion
 ordering (pre-flip DOM snapshot vs post-midpoint) proves the pre-flip DOM contains no face data for a
 revealed hidden token.
 **Accept:** the frame-level fog test is green; all reveal Move types route through the flip preset;
 jsdom E2E green.
+
+**Delivered (2026-07-22):** new `src/ui-v3/flip-anim.ts` implements the two-half flip (perspective +
+rotateY) straddling the queue's `settle()` — the back rotates 0°→90° pre-settle, `settle()` replaces
+the DOM from the freshly fogged projection (the flip midpoint), then the face rotates −90°→0°
+post-settle. `REVEAL_PRESETS: Record<RevealMoveType, FlipPreset>` is an explicit annotation covering
+all three reveal Move types (`token_reveal`, `telegraph`, `bloodpact_exposed`), so a new reveal type
+without a preset is a `tsc` error. Fog is held by construction, not discipline: the pre-midpoint overlay
+is built only from `tokenFace({ flipped: false, sigil })`, whose union makes carrying `kind` /
+`archetype` / name on a face-down token a compile error, so no face data can exist in the DOM before
+the midpoint. Instant mode dispatches presets with a `null` timeline and builds no overlay DOM at all,
+so jsdom/E2E/`scripts/shots-v3.mjs` (`reducedMotion: 'reduce'`) see byte-identical DOM to the pre-T-303
+build. `tests/v3/flip-anim.test.ts` (370 lines) is the enforcing suite: the frame-level fog test takes a
+pre-flip DOM snapshot then asserts no face data exists until after the settle midpoint, per-reveal-type
+routing tests confirm each fires exactly one back half and one face half, a registry test asserts
+`REVEAL_PRESETS` keys match `REVEAL_MOVE_TYPES` exactly, and a fog-scoping block asserts flip targets
+never escape the node group into a card slot or rival plaque. Scope boundary: T-303 only wires the
+reveal-flip *preset* into the existing Move/queue pipeline (`moves.ts`, `queue.ts`, `board-view.ts`,
+`view.ts`) — the scene-moment telegraphs (WHISPER/MARCH/RECKONING distinct treatments) that reuse this
+flip are explicitly T-402b, not this task.
+
+Orchestration: graphify=query "card flip reveal animation preset queue fog ui-v3" · attempts=1/4.
 
 ### T-304 · Affordances — legal glow, illegal shake — `status: TODO` · `coder: sonnet` · `after: T-302`
 Legal actions/targets glow on hover/selection; illegal interactions get a shake tween (no alert/text

@@ -20,8 +20,16 @@
  * settle replaces the whole `innerHTML`, so an entrance can only exist after it). Every other move
  * type still burns a placeholder time-tween hold.
  *
- * Determinism / guardrails: this module imports ONLY `gsap`, `hand-anim.js` (presets, no state),
- * the `Move`/`MoveType` TYPES from `moves.js`, and the `SoundManager` TYPE from `sound.js`
+ * REVEAL FLIPS (T-303) straddle the settle in TWO halves. `settle()` replaces the whole app DOM, so
+ * it IS the flip midpoint: `flip.firstHalf` (the BACK rotating to edge-on) runs strictly BEFORE it,
+ * `flip.secondHalf` (the FACE rotating back to square) strictly AFTER. That ordering is what makes
+ * "face content enters the DOM only at the midpoint" a structural property rather than a timing
+ * hope — and it holds in instant mode too, where both halves still dispatch with a null timeline
+ * (no tweens, no overlay DOM), which is exactly what the frame-level fog test asserts.
+ *
+ * Determinism / guardrails: this module imports ONLY `gsap`, `hand-anim.js` / `flip-anim.js`
+ * (presets, no state), the `Move`/`MoveType` TYPES from `moves.js` plus the `isRevealMove`
+ * narrowing helper, and the `SoundManager` TYPE from `sound.js`
  * (type-only — no runtime coupling). It never imports the reducer / session / observable, never
  * touches full state or `seed`, and introduces NO randomness (no `Math.random`, no `Date.now`) —
  * every tween uses fixed preset durations. The queue only ever receives a `Move[]` already derived
@@ -32,7 +40,9 @@
 import { gsap } from 'gsap';
 import { HandAnimator, handTickContext, isHandDeltaMove, handPresetFor } from './hand-anim.js';
 import type { HandTickContext } from './hand-anim.js';
-import type { HandDeltaMove, Move, MoveType } from './moves.js';
+import { FlipAnimator, flipPresetFor } from './flip-anim.js';
+import { isRevealMove } from './moves.js';
+import type { HandDeltaMove, Move, MoveType, RevealMove } from './moves.js';
 import type { SoundManager } from './sound.js';
 
 export type QueueMode = 'instant' | 'animated';
@@ -61,6 +71,10 @@ export function resolveMode(): QueueMode {
  * NOTE (T-302): `hand_delta` now resolves its hold PER KIND through `HAND_DELTA_PRESETS`
  * (`hand-anim.ts`) whenever a `HandAnimator` is wired in; the entry below stays as the no-animator
  * fallback and keeps this table's `Record<MoveType, number>` gate exhaustive.
+ *
+ * NOTE (T-303): likewise, the reveal types (`token_reveal` / `telegraph` / `bloodpact_exposed`)
+ * resolve their hold through `REVEAL_PRESETS` (`flip-anim.ts`) whenever a `FlipAnimator` is wired
+ * in; their entries below stay as the no-animator fallback and keep this gate exhaustive.
  */
 const PRESET_SECONDS: Record<MoveType, number> = {
   piece_move: 0.3,
@@ -119,6 +133,7 @@ export class AnimationQueue {
   readonly #requestedMode: QueueMode | 'auto';
   readonly #sound: SoundManager | undefined;
   readonly #hand: HandAnimator | undefined;
+  readonly #flip: FlipAnimator | undefined;
   readonly #pending: Move[][] = [];
   #timeline: gsap.core.Timeline | null = null;
 
@@ -130,17 +145,21 @@ export class AnimationQueue {
    *                      once per move (silent no-op under jsdom / with an empty registry).
    * @param hand         Optional `HandAnimator` (T-302); when present every `hand_delta` fires its
    *                      classified GSAP preset. Omitting it keeps the pre-T-302 hold behavior.
+   * @param flip         Optional `FlipAnimator` (T-303); when present every reveal move flips in
+   *                      two halves around the settle. Omitting it keeps the pre-T-303 hold.
    */
   constructor(
     settle: () => void,
     requestedMode: QueueMode | 'auto' = 'auto',
     sound?: SoundManager,
     hand?: HandAnimator,
+    flip?: FlipAnimator,
   ) {
     this.#settle = settle;
     this.#requestedMode = requestedMode;
     this.#sound = sound;
     this.#hand = hand;
+    this.#flip = flip;
   }
 
   /** True when nothing is playing or waiting to play. */
@@ -173,8 +192,18 @@ export class AnimationQueue {
           if (isHandDeltaMove(move)) this.#hand.fire(move, ctx, null);
         }
       }
-      // Synchronous settlement — no timeline built, queue stays idle on return.
+      // Reveal flips dispatch BOTH halves around the settle, with a null timeline (no tweens, no
+      // overlay DOM). The ordering below is the acceptance property: nothing dispatched before the
+      // settle can see face content, because the face only enters the DOM when `settle()` runs.
+      const flip = this.#flip;
+      if (flip !== undefined) {
+        for (const move of moves) if (isRevealMove(move)) flip.firstHalf(move, null);
+      }
+      // Synchronous settlement — no timeline built, queue stays idle on return. THE MIDPOINT.
       this.#settle();
+      if (flip !== undefined) {
+        for (const move of moves) if (isRevealMove(move)) flip.secondHalf(move, null);
+      }
       return;
     }
     this.#pending.push(moves);
@@ -188,8 +217,11 @@ export class AnimationQueue {
 
     const ctx: HandTickContext = handTickContext(moves);
     const hand = this.#hand;
+    const flip = this.#flip;
     // Entrances (`deal` / `draw`) can only run AFTER the settle replaces the DOM.
     const postSettle: HandDeltaMove[] = [];
+    // Face halves can only run AFTER the settle — the face does not exist in the DOM before it.
+    const postSettleReveals: RevealMove[] = [];
 
     const proxy: TweenProxy = { _t: 0 };
     const tl = gsap.timeline({
@@ -200,10 +232,28 @@ export class AnimationQueue {
           // Fire-and-forget entrances on the freshly rendered DOM — they must not gate `isIdle`.
           for (const move of postSettle) hand.fire(move, ctx, HandAnimator.entranceTimeline());
         }
+        if (flip !== undefined) {
+          // Same discipline for the face halves: fire-and-forget, never gating `isIdle`.
+          for (const move of postSettleReveals) {
+            flip.secondHalf(move, FlipAnimator.revealTimeline());
+          }
+        }
         this.#play();
       },
     });
     for (const move of moves) {
+      if (flip !== undefined && isRevealMove(move)) {
+        const preset = flipPresetFor(move);
+        // Only the BACK half rides the batch timeline; the hold is that half's duration so the
+        // settle lands exactly on the edge-on frame — the midpoint.
+        const at = tl.duration();
+        tl.to(proxy, { _t: 1, duration: preset.seconds / 2 }, at);
+        const child = gsap.timeline();
+        flip.firstHalf(move, child);
+        tl.add(child, at);
+        postSettleReveals.push(move);
+        continue;
+      }
       if (hand !== undefined && isHandDeltaMove(move)) {
         const preset = handPresetFor(move, ctx);
         // The hold is the preset's own duration; a pre-settle preset's tweens ride a child

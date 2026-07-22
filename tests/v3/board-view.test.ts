@@ -227,6 +227,45 @@ describe('T-208 board — fog (§7 D2) regression guard', () => {
   });
 });
 
+describe('T-303 board — revealed Discovery token', () => {
+  /** The same fixture as the T-208 guard, with `flipped` under the caller's control. */
+  const plant = (flipped: boolean) => (st: GameState) => {
+    (st.board.state.nodes['holding-ne'] as { hiddenToken: unknown }).hiddenToken = {
+      kind: 'recruit',
+      sigil: 'bright',
+      archetype: 'marshal',
+      retainerName: 'The Sworn',
+      bonusArchetype: null,
+      bonusName: null,
+      flipped,
+      bonusClaimed: false,
+    };
+  };
+
+  it('a FLIPPED token renders a g.token-face[data-token-kind] inside its node group', () => {
+    const group = boardSvg(plant(true)).querySelector('g[data-node="holding-ne"]');
+    const face = group?.querySelector('g.token-face');
+    expect(face, 'the revealed token has a face').not.toBeNull();
+    expect(face?.getAttribute('data-token-kind')).toBe('recruit');
+    expect(face?.getAttribute('data-token-archetype')).toBe('marshal');
+    // The face replaces the back — the two branches are mutually exclusive.
+    expect(group?.querySelector('.sigil'), 'no back-sigil once flipped').toBeNull();
+  });
+
+  it('an UNFLIPPED token renders NO .token-face anywhere on the board', () => {
+    const svg = boardSvg(plant(false));
+    expect(svg.querySelectorAll('.token-face').length, 'no face for a face-down token').toBe(0);
+    expect(svg.querySelectorAll('[data-token-kind]').length, 'no face data at all').toBe(0);
+  });
+
+  it('render stays deterministic (§7 D1) with a flipped token present', () => {
+    const st = createGame(4, 'competitive', 42, 1);
+    plant(true)(st);
+    const obs = observableState(st, 0);
+    expect(renderBoard(obs)).toBe(renderBoard(obs));
+  });
+});
+
 // ── T-217 · edge-parity guard, distinct silhouettes, legible heraldry ──────────────────────
 
 /** Canonical undirected edge key `a|b` with a<b, so both directions collapse to one. */

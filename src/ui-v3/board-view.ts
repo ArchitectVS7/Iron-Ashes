@@ -18,7 +18,8 @@
  * planted on it (heraldry colour + sigil) — never a coloured ring. Ash state (ashed
  * illustration), the keystone accent, the dark's heart (danger-lit throne), a per-node
  * blightLevel pip ladder, Court pieces / Crown / dark forces, a Discovery back-sigil while
- * face-down, and the dark's heart HP are all preserved. Beneath the graph a burned {8-point}
+ * face-down (and, once flipped, the revealed `.token-face` — public content, the landing surface
+ * of the T-303 flip reveal), and the dark's heart HP are all preserved. Beneath the graph a burned {8-point}
  * chaos-star is carved into the wood — NOT a flat sticker (T-216): a radial-gradient interior
  * (every stop measurably darker than the table surface — a bold burned ground with centre→rim depth,
  * T-220: the ember forges + pale towers now carry the node contrast, so the ground stays dark),
@@ -159,6 +160,16 @@ export function nodeScreenPos(nodeId: string): { x: number; y: number } {
   return pos(nodeId);
 }
 
+/**
+ * A node's position as PERCENTAGES of the square board viewBox (T-303). The flip overlay lives in
+ * an HTML layer above the board (3D transforms flatten inside SVG), so it needs the node's spot in
+ * percentage space rather than viewBox units. Pure, deterministic, touches no DOM.
+ */
+export function nodeScreenPct(nodeId: string): { readonly left: number; readonly top: number } {
+  const p = pos(nodeId);
+  return { left: (p.x / VIEW) * 100, top: (p.y / VIEW) * 100 };
+}
+
 const NODE_R: Record<string, number> = {
   keystone: 40, approach: 27, forge: 30, keep: 32, holding: 26, mid: 28,
 };
@@ -170,6 +181,15 @@ function esc(s: string): string {
 /** Short archetype glyphs for on-node court markers. */
 const ARCH_GLYPH: Record<string, string> = {
   warlord: '♟', marshal: '⚔', steward: '⚖', herald: '✉',
+};
+
+/**
+ * Glyphs for a REVEALED Discovery token's face (T-303). Only reachable once `flipped === true`,
+ * at which point the kind is fully public (§7 D2) — an unflipped token never renders any of this.
+ * `?? '✦'` keeps an unregistered kind renderable.
+ */
+const TOKEN_GLYPH: Record<string, string> = {
+  recruit: '⚔', blight_seed: '❉', death_knight: '☠',
 };
 
 /**
@@ -506,9 +526,23 @@ export function renderBoard(state: ObservableState): string {
     }
 
     // Discovery back-sigil while face-down (fog-respecting: sigil only, §7 D2).
+    // Discovery token. FACE-DOWN → the back-sigil ONLY (fog-respecting, §7 D2 — this branch has no
+    // access to content, the projection already redacted it). FACE-UP → the revealed face, which is
+    // public content once flipped and is the landing surface of the T-303 flip reveal. The two
+    // branches are mutually exclusive: no `.token-face` can ever exist for an unflipped token.
     const tok = ns.hiddenToken;
     if (tok !== null && !tok.flipped) {
       circles += `<text x="0" y="${-2}" class="sigil sigil-${tok.sigil}">${tok.sigil === 'bright' ? '✦' : '✧'}</text>`;
+    } else if (tok !== null && tok.flipped) {
+      const glyph = TOKEN_GLYPH[tok.kind] ?? '✦';
+      const revealed = tok.retainerName !== null ? ` — ${tok.retainerName}` : '';
+      const arch = tok.archetype !== null ? ` data-token-archetype="${esc(tok.archetype)}"` : '';
+      circles +=
+        `<g class="token-face" data-node-token="${esc(id)}" data-token-kind="${esc(tok.kind)}"${arch}>` +
+        `<title>${esc(tok.kind)}${esc(revealed)}</title>` +
+        `<circle class="token-face-disc" cx="0" cy="-6" r="9" />` +
+        `<text class="token-face-glyph" x="0" y="-2">${glyph}</text>` +
+        `</g>`;
     }
 
     // Blight pips (doom-as-map) — a ladder toward ash.

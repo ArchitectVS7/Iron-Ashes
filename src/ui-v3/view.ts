@@ -17,6 +17,7 @@ import type { GameSession, Exposure } from './session.js';
 import { renderBoard, renderMapKey, PLAYER_COLORS, HOUSES, houseSigilSvg } from './board-view.js';
 import { AnimationQueue } from './queue.js';
 import { HandAnimator } from './hand-anim.js';
+import { FlipAnimator } from './flip-anim.js';
 import { SoundManager } from './sound.js';
 import { diffObservable } from './moves.js';
 import { tokenChip, gauge } from './token-chip.js';
@@ -86,7 +87,10 @@ export function mountView(root: HTMLElement, session: GameSession): void {
   // Hand-delta presets (T-302). The animator is fog-scoped to the human's seat: only that seat's
   // `.card-slot`s may be tweened; every other seat animates its hand COUNT CHIP only.
   const handAnim = new HandAnimator(() => root, session.humanIndex);
-  const queue = new AnimationQueue(settle, 'auto', sound, handAnim);
+  // Reveal flips (T-303) — the two halves straddle `settle`, which IS the flip midpoint, so face
+  // content can only enter the DOM at the midpoint. Fog-scoped to the human's seat.
+  const flipAnim = new FlipAnimator(() => root, session.humanIndex);
+  const queue = new AnimationQueue(settle, 'auto', sound, handAnim, flipAnim);
 
   let prev = session.observable();
   session.onChange = (): void => {

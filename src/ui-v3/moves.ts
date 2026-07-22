@@ -283,6 +283,46 @@ export type MoveType = Move['type'];
  */
 export type HandDeltaMoveType = Extract<MoveType, 'hand_delta'>;
 
+/**
+ * The Move types that REVEAL previously hidden content (T-303) — the single registration point for
+ * the 3D flip preset. `flip-anim.ts` keys its preset registry on it with an explicit
+ * `Record<RevealMoveType, FlipPreset>`, so adding a type here without a preset is a `tsc` error.
+ *
+ * WHAT COUNTS AS A REVEAL (the audit trail for "all reveal Move types route through the flip"):
+ *   - `token_reveal`      — a face-down Discovery token turned face-up. The archetypal flip.
+ *   - `telegraph`         — the Shadowking's intent turned face-up (a hidden intent becoming public).
+ *   - `bloodpact_exposed` — the traitor's sealed identity turned face-up.
+ *
+ * DELIBERATE EXCLUSIONS (recorded here so the omission is a decision, not an oversight):
+ *   - `pledge` — in competitive mode pledges were never hidden; in Blood-Pact SEALED mode only the
+ *     aggregate total is ever revealed, so there is no per-seat face to turn.
+ *   - `accusation_resolved` / `elimination` / `game_end` — outcome moves, not hidden-content
+ *     reveals; they are M4 scene moments with their own treatment.
+ */
+export type RevealMoveType = Extract<MoveType, 'token_reveal' | 'telegraph' | 'bloodpact_exposed'>;
+
+/** The reveal types as a runtime tuple (kept in sync with `RevealMoveType` by `satisfies`). */
+export const REVEAL_MOVE_TYPES = [
+  'token_reveal',
+  'telegraph',
+  'bloodpact_exposed',
+] as const satisfies readonly RevealMoveType[];
+
+/**
+ * Compile-time proof the tuple above is EXHAUSTIVE over `RevealMoveType`: `satisfies` catches an
+ * extra/typo'd entry, and this resolves to `never` (breaking every use site) if one is missing.
+ */
+export type RevealTupleCoversEveryRevealType =
+  Exclude<RevealMoveType, (typeof REVEAL_MOVE_TYPES)[number]> extends never ? true : never;
+
+/** The Move sub-union that reveals hidden content. */
+export type RevealMove = Extract<Move, { type: RevealMoveType }>;
+
+/** True when the move reveals previously hidden content (narrowing helper for the queue). */
+export function isRevealMove(move: Move): move is RevealMove {
+  return (REVEAL_MOVE_TYPES as readonly MoveType[]).includes(move.type);
+}
+
 // ─── Exhaustive per-command expectation table (compile-time gate) ──
 
 /** The set of command discriminants — derived (no `CommandType` alias is exported by `src/v3`). */

@@ -795,6 +795,24 @@ button.primary { background: linear-gradient(180deg, #e2b23c, #c9a227); color: #
   100% { opacity: 1; transform: translateY(0); text-shadow: 0 0 6px rgba(232, 134, 58, 0.35); }
 }
 
+/* ── Revealed Discovery token face (T-303) — static board content, NOT motion, so it lives outside
+   the reduced-motion gate. Only ever rendered for a token whose `flipped === true` (public). ── */
+.token-face .token-face-disc { fill: #17121b; stroke: #a8874f; stroke-width: 1.2; opacity: 0.95; }
+.token-face .token-face-glyph { font-family: var(--font-display); font-size: 12px; fill: #f1e7cf;
+  text-anchor: middle; }
+
+/* ── Flip overlay layer (T-303) — MOTION ONLY. `FlipAnimator` builds `.flip-card` here for the two
+   halves of a token reveal and removes it when the face half completes; it is never created in
+   instant mode (jsdom / reduced motion / shots:v3), so those DOM snapshots are unaffected. ── */
+@media (prefers-reduced-motion: no-preference) {
+  .fx-layer { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+  /* The perspective wrapper — HTML, because 3D transforms flatten inside an `<svg>`. */
+  .flip-card { position: absolute; transform: translate(-50%, -50%); perspective: 900px;
+    width: 76px; will-change: transform; }
+  .flip-card > * { transform-style: preserve-3d; backface-visibility: hidden;
+    will-change: transform, opacity; display: block; }
+}
+
 /* ── Accuse / game over ── */
 .accuse { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; }
 .accuse-btn { background: rgba(239,68,68,0.12); }
