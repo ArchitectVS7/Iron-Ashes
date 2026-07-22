@@ -77,3 +77,19 @@ decisions (see ROADMAP-V3.1-UI §4 M2 "Gate 0.5 aesthetic decisions"):
   routing on `07-endgame.png` (erase forge ring, weave a +16/−4 star lattice) → filed as milestone
   **M2.6** (T-230…T-235). Two bugs folded in: stale start-screen "~21% locked" copy (now ~53%) and
   connector-density hierarchy. T-207 stays BLOCKED for a **fifth** review.
+- **2026-07-20 (Gate 1, fifth review — rework applied, awaiting user re-score)** — walking the gate
+  with the user, item **#8 (HUD reads diegetic) was called a FAIL**: the left Court/Hold-rail column
+  and right Warlords column were still persistent rectangular status panels, short of Gate 0.5's FULL
+  dissolution. Reworked (fifth-review fix): **(a) edge legibility** — the secondary lattice weave read
+  as dark-brown mud, so `SECONDARY_EDGE_OPACITY` 0.5→0.8 and `.edge-secondary` `#b0863a`→`#d4a94e`
+  (primary spokes still strictly brighter); the whole lattice now reads in the lighter central-"X"
+  gold. **(b) FULL dissolution (user: "Full overlay, both rails" + "Mix by importance")** — both 264px
+  side columns retired; the board fills the stage; house plaques float in the right gutter, the realm
+  plaques in the left gutter, the hand in a bottom-centre dock — all board-EDGE overlays on bare wood.
+  Load-bearing blocks stay open (Hold Rail — §13 P0-11); reference blocks (Court, Oaths, Ledger,
+  Wraiths, Suspicion, Audits) collapse to a hover/focus-expand tab (zero info loss). **(c) card faces
+  (item #2)** — accepted as-is for M2; a Shadowlord-lineage `card-art-spec.md` records the deferred
+  parameterized image-gen plan rather than forcing rich faces through UI assets. Gallery regenerated;
+  all `shots:v3` machine audits pass (board-dominance now 1.02M vs 85k px²; font; hand-fit-in-dock;
+  no-bottom-bar; election-unclipped). **T-207 stays BLOCKED** — the user does the in-person re-score
+  and the flip; this entry is the rework record, not a self-awarded pass.

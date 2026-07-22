@@ -90,7 +90,10 @@ export const EDGE_BED_W = 3.4;
  * PRIMARY must stay strictly brighter than SECONDARY.
  */
 export const PRIMARY_EDGE_OPACITY = 1;
-export const SECONDARY_EDGE_OPACITY = 0.5;
+// Fifth-review edge legibility (user, 2026-07-20): the secondary weave read as dark-brown mud —
+// pulled up from 0.5 toward the primary so the whole lattice reads in the lighter gold of the
+// central "X". Still strictly below PRIMARY so the radial spokes keep their density lead.
+export const SECONDARY_EDGE_OPACITY = 0.8;
 
 /** angle in degrees (0 = East, clockwise in screen space), radius in px. */
 interface Polar { angle: number; radius: number; }
@@ -195,23 +198,43 @@ export function houseSigilSvg(seat: number, size: number, color: string): string
 }
 
 /**
- * Illustrated map location per tier, centred at the node origin, scaled to radius `r`. The
- * silhouette IS the node body (no enclosing disc). `extra` carries state classes (`ashed`,
- * `heart`) that re-home the disc's former visual states onto the illustration itself.
+ * Per-tier icon geometry (authored 24px-box units), sixth-review pass:
+ *  • `disc` — the black space-disc radius. approach/keep/keystone get a slightly larger disc so the
+ *    silhouette isn't cramped (their shapes are bigger than the old uniform r=17 and poked out).
+ *  • `tx`/`ty` — the translate that RE-CENTRES the silhouette on the node origin. Several source
+ *    shapes are authored off-centre (the keep spans x[-16,7], the forge/keystone/mid are also
+ *    offset), so without this the icon sits skewed inside its disc. Each value is −(bbox centre).
+ */
+const TIER_ICON: Record<string, { disc: number; tx: number; ty: number }> = {
+  keystone: { disc: 21, tx: 0, ty: -2 },
+  keep: { disc: 19, tx: 4.5, ty: -3 },
+  approach: { disc: 20, tx: 0, ty: 0.5 },
+  forge: { disc: 16, tx: 2, ty: -5 },
+  holding: { disc: 18, tx: 0, ty: 1 },
+  mid: { disc: 17, tx: 0, ty: -2.5 },
+};
+
+/**
+ * Illustrated map location per tier, centred on the node origin, scaled to radius `r`. The
+ * tier-coloured silhouette sits on a black space-disc (sixth-review). `extra` carries state classes
+ * (`ashed`, `heart`) that re-home the former disc states onto the illustration itself.
  */
 function locationSvg(tier: string, r: number, extra = ''): string {
   const s = r / 24; // the primitives below are authored in a ~24px box
   const cls = `loc loc-${tier}${extra ? ` ${extra}` : ''}`;
-  const g = (inner: string): string => `<g class="${cls}" transform="scale(${s.toFixed(3)})">${inner}</g>`;
+  const ic = TIER_ICON[tier] ?? { disc: 17, tx: 0, ty: 0 };
+  // Sixth-review (user): every game space sits on a solid black disc with a white outline so it
+  // reads as a board space (following the old forge-circle idea, now uniform + black). The disc is
+  // the FIRST child; the silhouette is wrapped in a centring translate so it sits dead-centre on it.
+  const g = (inner: string): string =>
+    `<g class="${cls}" transform="scale(${s.toFixed(3)})"><circle class="space-disc" cx="0" cy="0" r="${ic.disc}" /><g transform="translate(${ic.tx},${ic.ty})">${inner}</g></g>`;
   switch (tier) {
     case 'keystone': // the dark throne
       return g(`<path class="loc-fill" d="M-14 14h28l-3-8h-4l2-16h-6l-1 6h-4l-1-6h-6l2 16h-4z" />
         <path class="loc-line" d="M-11 14h22" />`);
-    case 'forge': // an anvil over a two-stage ember glow (halo + hot core) so it separates
-      // from the dark star it sits on — the forge reads as a lit workshop, not another dark icon.
-      return g(`<circle class="loc-glow" cx="0" cy="3" r="15" />
-        <circle class="loc-glow-core" cx="0" cy="4" r="8" />
-        <path class="loc-fill" d="M-11 -3h16c0 3-2 4-4 4h-3l6 8h-8l-5-8h-2z" />
+    case 'forge': // an anvil — its ember identity is now carried by the orange silhouette fill on
+      // the uniform black space-disc (the old two-stage ember glow was retired in the sixth review).
+      return g(`<path class="loc-fill" d="M-11 -3h16c0 3-2 4-4 4h-3l6 8h-8l-5-8h-2z" />
         <rect class="loc-fill" x="-4" y="9" width="8" height="4" />`);
     case 'keep': // a crenellated castle
       return g(`<path class="loc-fill" d="M-13 -4h3v-4h3v4h2v-4h3v4h3v-4h3v4h3v18h-23z" />
@@ -272,6 +295,67 @@ function claimBanner(seat: number, r: number): string {
     <path class="banner-flag" d="M0 2L${BANNER_FLAG_W} 2L21 13L${BANNER_FLAG_W} 24L0 24Z" fill="${color}" />
     <g class="banner-sigil sigil-${sigil}" transform="translate(3,4) scale(${BANNER_SIGIL_SCALE})" fill="#1a1206">${houseSigilPath(sigil)}</g>
   </g>`;
+}
+
+/** The place types, in ring order (centre → rim), paired with their board silhouette for the KEY. */
+const LEGEND_TIERS: ReadonlyArray<readonly [string, string]> = [
+  ['keystone', 'Keystone'],
+  ['keep', 'Keep'],
+  ['mid', 'Mid-belt'],
+  ['forge', 'Forge'],
+  ['holding', 'Holding'],
+  ['approach', 'Approach'],
+];
+
+/**
+ * The MAP KEY — correlates each node silhouette to its place type. Sixth-review (user): it is NO
+ * LONGER drawn inside the board viewBox; it is an HTML plaque that lives OFF the board in the left
+ * edge cluster (see `renderApp`), and it is COLLAPSIBLE (a native `<details>`, closed by default) so
+ * it costs nothing until asked for. The rows are a self-contained inline `<svg>` that reuses the real
+ * `locationSvg` icons and the real board classes, so the key can never drift from the board it
+ * explains — and the clean board-only export is now pure board.
+ */
+export function renderMapKey(): string {
+  const boxW = 132;
+  const iconX = 18; // icon centre column
+  const labelX = 38;
+  const rowH = 20;
+  const iconR = 11; // enlarged (fifth review) so the key silhouettes read clearly
+  let body = '';
+  let y = 0;
+
+  const section = (title: string): void => {
+    y += 16;
+    body += `<text x="4" y="${y}" class="legend-section">${title}</text>`;
+  };
+  const row = (icon: string, label: string): void => {
+    y += rowH;
+    body += `<g transform="translate(${iconX},${y - 6})">${icon}</g>`;
+    body += `<text x="${labelX}" y="${y}" class="legend-label">${esc(label)}</text>`;
+  };
+
+  // PLACES — the six node silhouettes, straight from `locationSvg` so they can't drift.
+  section('PLACES');
+  for (const [tier, label] of LEGEND_TIERS) row(locationSvg(tier, iconR), label);
+
+  // MARKERS — the small on-board tokens (fifth review: enlarged + keyed). Each sample reuses the
+  // exact board classes so the key matches what's drawn on a node.
+  section('MARKERS');
+  const sample = PLAYER_COLORS[0] ?? NEUTRAL;
+  row(
+    `<circle cx="0" cy="-4" r="8.5" class="piece piece-warlord" fill="${sample}" stroke="#000" /><text x="0" y="0" class="piece-glyph">${ARCH_GLYPH.warlord}</text>`,
+    'Court piece',
+  );
+  row('<text x="0" y="4" class="crown-glyph">♛</text>', 'Crown');
+  row('<text x="0" y="6" class="dk-glyph">☠</text>', 'Dark forces');
+  row('<text x="0" y="7" class="sigil sigil-bright">✦</text>', 'Hidden site');
+  row('<circle cx="-6" cy="-2" r="3.5" class="pip pip-on" /><circle cx="4" cy="-2" r="3.5" class="pip pip-off" />', 'Blight');
+
+  const boxH = y + 8;
+  return `<details class="map-key">
+    <summary>Map Key</summary>
+    <svg class="map-key-svg" viewBox="0 0 ${boxW} ${boxH}" width="${boxW}" height="${boxH}" xmlns="http://www.w3.org/2000/svg" aria-label="Map key">${body}</svg>
+  </details>`;
 }
 
 /** Build the full board SVG markup from the observable projection. */
@@ -431,8 +515,8 @@ export function renderBoard(state: ObservableState): string {
     if (!ns.ashed && ns.blightLevel > 0) {
       for (let i = 0; i < BLIGHT_TO_ASH; i++) {
         const filled = i < ns.blightLevel;
-        const px = -((BLIGHT_TO_ASH - 1) * 6) / 2 + i * 6;
-        circles += `<circle cx="${px}" cy="${r + 8}" r="2.5" class="pip ${filled ? 'pip-on' : 'pip-off'}" />`;
+        const px = -((BLIGHT_TO_ASH - 1) * 8) / 2 + i * 8;
+        circles += `<circle cx="${px}" cy="${r + 11}" r="3.5" class="pip ${filled ? 'pip-on' : 'pip-off'}" />`;
       }
     }
 
@@ -441,12 +525,12 @@ export function renderBoard(state: ObservableState): string {
     const pieces = ns.pieces;
     const n = pieces.length;
     pieces.forEach((pc, i) => {
-      const spread = 13;
+      const spread = 18;
       const px = (i - (n - 1) / 2) * spread;
       const crown = state.crownHolder === pc.owner && pc.type === 'warlord';
-      circles += `<circle cx="${px.toFixed(1)}" cy="${-r - 8}" r="6" class="piece piece-${pc.type}" fill="${PLAYER_COLORS[pc.owner]}" stroke="#000" />`;
-      circles += `<text x="${px.toFixed(1)}" y="${-r - 5}" class="piece-glyph">${ARCH_GLYPH[pc.type] ?? '?'}</text>`;
-      if (crown) circles += `<text x="${px.toFixed(1)}" y="${-r - 17}" class="crown-glyph">♛</text>`;
+      circles += `<circle cx="${px.toFixed(1)}" cy="${-r - 11}" r="8.5" class="piece piece-${pc.type}" fill="${PLAYER_COLORS[pc.owner]}" stroke="#000" />`;
+      circles += `<text x="${px.toFixed(1)}" y="${-r - 7}" class="piece-glyph">${ARCH_GLYPH[pc.type] ?? '?'}</text>`;
+      if (crown) circles += `<text x="${px.toFixed(1)}" y="${-r - 24}" class="crown-glyph">♛</text>`;
     });
 
     // Planted house banner for an owned node.
@@ -456,7 +540,7 @@ export function renderBoard(state: ObservableState): string {
 
     // Dark forces present?
     if (ns.shadowkingForces.length > 0) {
-      circles += `<text x="${r - 4}" y="${-r + 6}" class="dk-glyph">☠</text>`;
+      circles += `<text x="${r - 2}" y="${-r + 8}" class="dk-glyph">☠</text>`;
     }
 
     circles += `</g>`;

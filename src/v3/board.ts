@@ -9,17 +9,20 @@
  *   - two octagons are added: Keep↔Forge (outer-cardinal ↔ diagonal-mid) and Holding↔Mid
  *     (outer-diagonal ↔ cardinal-mid);
  *   - the 4 cardinal Mids form a square (Mid N↔E↔S↔W).
- * Concentric, four-fold symmetric. Blight still enters only at the 4 Holding seams and
- * converges inward along the (diagonal) spokes.
+ * Concentric, four-fold symmetric. Blight still enters only at the 4 Holding seams; since the
+ * sixth-review lattice made the Mids the mandatory cut, the spoke is the edge-real SERPENTINE
+ * `seam → Mid → Forge → Mid → Approach → Keystone` (§13 [T-236] — every hop a real edge).
  *
  * Tiers:
  *   center     : 1 Keystone
  *   inner ring : 4 Approaches (chokepoints; only routes to Keystone)
- *   mid-belt   : 4 Forges (high-value; each links its Approach + its two flanking Keeps)
- *              + 4 Mids (cardinal transit; non-claimable, income 0 — the mid square)
+ *   mid-belt   : 4 Forges (high-value; each links its 2 flanking Keeps + its 2 flanking Mids)
+ *              + 4 Mids (cardinal transit; non-claimable, income 0)
  *   outer ring : 4 Keeps + 4 Holdings (homes / claimable land)
  *
- * Degrees: Forge 3, Keep 5, Holding 4, Mid 7, Approach 6, Keystone 4 → 52 undirected edges.
+ * Degrees: Forge 4, Keep 4, Holding 4, Mid 6, Approach 5, Keystone 4 → 48 undirected edges.
+ * (T-231 lattice was 52; a later pass removed the 4 mid↔keep spokes → 48; the sixth-review pass
+ * removed the 4 approach↔forge spokes and swapped the 4 mid↔mid square for 8 mid↔forge edges → 48.)
  */
 
 import type {
@@ -143,8 +146,13 @@ export interface BoardValidationResult {
  *   5. Fully connected graph
  *   6. Keystone reachable only via Approaches
  *   7. Lateral rings: Approach 4-cycle; NO Forge↔Forge edge (T-231 removed the forge ring)
- *   8. Each Keep is distance 3 from Keystone (Keep → Forge → Approach → Keystone)
- *   9. Each Mid connects to 2 Approaches + 1 Keep + 2 Holdings + 2 Mids (degree 7 — T-231)
+ *   8. Each Keep is distance 4 from Keystone (Keep → Forge → Mid → Approach → Keystone — the
+ *      sixth-review pass removed the approach↔forge spokes, lengthening the path from 3 to 4)
+ *   9. Each Mid connects to 2 Approaches + 2 Holdings + 2 Forges (degree 6 — the sixth-review pass
+ *      swapped the mid↔mid square for mid↔forge edges; a Mid no longer touches another Mid or its Keep)
+ *  10. Each quadrant's blight spoke is EDGE-REAL (§13 [T-236]): every consecutive hop in
+ *      getSpokePath is a real board edge, the spoke starts at a declared blight-entry seam,
+ *      ends at the Keystone, and never contains a Keep
  */
 export function validateClosingRing(definition: V2BoardDef): BoardValidationResult {
   const errors: string[] = [];
@@ -227,7 +235,7 @@ export function validateClosingRing(definition: V2BoardDef): BoardValidationResu
     }
   }
 
-  // No Forge↔Forge edge (T-231 removed the forge ring — Forges only reach Approach + 2 Keeps)
+  // No Forge↔Forge edge (T-231 removed the forge ring — a Forge reaches 2 Keeps + 2 Mids)
   const forgeNodes = allNodes.filter(n => n.tier === 'forge');
   for (const forge of forgeNodes) {
     const lateralCount = forge.connections.filter(
@@ -238,37 +246,68 @@ export function validateClosingRing(definition: V2BoardDef): BoardValidationResu
     }
   }
 
-  // 8. Each Keep is distance 3 from Keystone (Keep → Forge → Approach → Keystone)
+  // 8. Each Keep is distance 4 from Keystone (Keep → Forge → Mid → Approach → Keystone — the
+  //    sixth-review pass removed the approach↔forge spokes, lengthening the path from 3 to 4).
   for (const keepId of definition.keepIds) {
     const dist = bfsDistance(definition, keepId, definition.keystoneId);
-    if (dist !== 3) {
-      errors.push(`Keep ${keepId} is distance ${dist} from Keystone (expected 3)`);
+    if (dist !== 4) {
+      errors.push(`Keep ${keepId} is distance ${dist} from Keystone (expected 4)`);
     }
   }
 
-  // 9. Mid-belt (T-231 lattice): each Mid bridges its cardinal ray — 2 Approaches (flanking
-  //    diagonals) + 1 Keep (cardinal home) + 2 Holdings (the Holding↔Mid octagon) + 2 Mids
-  //    (the cardinal-mid square), degree 7, income 0.
+  // 9. Mid-belt (sixth-review pass): each Mid bridges its cardinal ray — 2 Approaches (flanking
+  //    diagonals) + 2 Holdings (the Holding↔Mid octagon) + 2 Forges (its two flanking forges),
+  //    degree 6, income 0. It no longer touches another Mid or its Keep.
   const midNodes = allNodes.filter(n => n.tier === 'mid');
   for (const mid of midNodes) {
     const approachLinks = mid.connections.filter(c => definition.nodes[c]?.tier === 'approach').length;
     const keepLinks = mid.connections.filter(c => definition.nodes[c]?.tier === 'keep').length;
     const holdingLinks = mid.connections.filter(c => definition.nodes[c]?.tier === 'holding').length;
     const midLinks = mid.connections.filter(c => definition.nodes[c]?.tier === 'mid').length;
+    const forgeLinks = mid.connections.filter(c => definition.nodes[c]?.tier === 'forge').length;
     if (approachLinks !== 2) {
       errors.push(`Mid ${mid.id} connects to ${approachLinks} approaches (expected 2)`);
     }
-    if (keepLinks !== 1) {
-      errors.push(`Mid ${mid.id} connects to ${keepLinks} keeps (expected 1)`);
+    if (keepLinks !== 0) {
+      errors.push(`Mid ${mid.id} connects to ${keepLinks} keeps (expected 0)`);
     }
     if (holdingLinks !== 2) {
       errors.push(`Mid ${mid.id} connects to ${holdingLinks} holdings (expected 2)`);
     }
-    if (midLinks !== 2) {
-      errors.push(`Mid ${mid.id} connects to ${midLinks} mids (expected 2)`);
+    if (midLinks !== 0) {
+      errors.push(`Mid ${mid.id} connects to ${midLinks} mids (expected 0)`);
     }
-    if (mid.connections.length !== 7) {
-      errors.push(`Mid ${mid.id} has degree ${mid.connections.length} (expected 7)`);
+    if (forgeLinks !== 2) {
+      errors.push(`Mid ${mid.id} connects to ${forgeLinks} forges (expected 2)`);
+    }
+    if (mid.connections.length !== 6) {
+      errors.push(`Mid ${mid.id} has degree ${mid.connections.length} (expected 6)`);
+    }
+  }
+
+  // 10. Edge-real blight spokes (§13 [T-236]): the front must march along drawn edges only.
+  for (let q = 0; q < 4; q++) {
+    const spoke = getSpokePath(definition, q);
+    if (spoke.length !== 6) {
+      errors.push(`Spoke ${q} has ${spoke.length} nodes (expected 6: seam, mid, forge, mid, approach, keystone)`);
+    }
+    for (let i = 0; i + 1 < spoke.length; i++) {
+      if (!definition.nodes[spoke[i]]?.connections.includes(spoke[i + 1])) {
+        errors.push(`Spoke ${q} hop ${spoke[i]} → ${spoke[i + 1]} is not a real board edge`);
+      }
+    }
+    if (spoke.length > 0) {
+      if (!definition.blightEntrySeams.includes(spoke[0])) {
+        errors.push(`Spoke ${q} starts at ${spoke[0]}, which is not a declared blight-entry seam`);
+      }
+      if (spoke[spoke.length - 1] !== definition.keystoneId) {
+        errors.push(`Spoke ${q} ends at ${spoke[spoke.length - 1]}, not the Keystone`);
+      }
+    }
+    for (const id of spoke) {
+      if (definition.nodes[id]?.tier === 'keep') {
+        errors.push(`Spoke ${q} contains Keep ${id} — Keeps are never on a blight spoke`);
+      }
     }
   }
 
@@ -347,14 +386,20 @@ export function getApproachForQuadrant(
   return getNodeInQuadrant(definition, 'approach', quadrant);
 }
 
+/** The cardinal mid in the given quadrant (derived from node data, not array position). */
+export function getMidForQuadrant(definition: V2BoardDef, quadrant: number): string | undefined {
+  return getNodeInQuadrant(definition, 'mid', quadrant);
+}
+
 // ─── Blight Spokes (8-ray board) ──────────────────────────────────
 
 /**
  * The outer blight seam (Holding) for a quadrant's spoke.
  *
- * 8-ray rule (DESIGN-V3-ALGORITHM.md §13 `[T-224 2026-07-20]`): on the 21-node board the 8 compass
- * rays split into 4 DIAGONAL blight rays (NW/NE/SE/SW — each `Holding → Forge → Approach → Keystone`)
- * and 4 CARDINAL home rays (N/E/S/W — `Keep → Mid → Approach`, never a blight path). Quadrant `q`
+ * 8-ray rule (DESIGN-V3-ALGORITHM.md §13 `[T-224 2026-07-20]`, path shape amended by `[T-236]`):
+ * on the 21-node board the 8 compass rays split into 4 DIAGONAL blight rays (NW/NE/SE/SW — seam
+ * Holdings, Forges, Approaches) and 4 CARDINAL home rays (N/E/S/W — the protected Keeps behind
+ * their flanking Forges; a Keep is never a blight path). Quadrant `q`
  * owns the diagonal forge(q)/approach(q); its seam is the single **Holding colinear with them** — the
  * one Holding adjacent to BOTH keep(q) and keep((q+3) mod 4) (the two Keeps flanking that diagonal
  * corner). Derived from node data (adjacency), never from an id string. Returns `undefined` when no
@@ -373,19 +418,26 @@ export function getSpokeSeam(definition: V2BoardDef, quadrant: number): string |
 }
 
 /**
- * The steered blight spoke for a quadrant, outer → inner: `[seam, forge, approach, keystone]`.
+ * The steered blight spoke for a quadrant, outer → inner — the edge-real SERPENTINE:
+ * `[seam, mid((q+3)%4), forge(q), mid(q), approach(q), keystone]`.
  *
- * 8-ray rule (DESIGN-V3-ALGORITHM.md §13 `[T-224 2026-07-20]`): the spoke is the quadrant's DIAGONAL
- * ray. It runs the seam Holding, then the Forge, then the Approach, then the Keystone — **the Keep
- * (protected home) and the cardinal Mid (transit) are never on a blight spoke**. Every spoke
- * terminates at the Keystone, so doom is reachable from any seam. Any tier with no member in the
- * quadrant is dropped so the builder stays total. Supersedes the v2 §2 4-spoke (keep-bearing)
- * phrasing on the 21-node board.
+ * Edge-real rule (DESIGN-V3-ALGORITHM.md §13 `[T-236 2026-07-21]`, superseding the `[T-224]` path
+ * shape): **every consecutive spoke hop is a real board edge** (validateClosingRing check 10), so
+ * the front never jumps between unconnected nodes on screen. On the sixth-review 48-edge lattice
+ * the 4 cardinal Mids are the mandatory cut between the outer board and the Approach ring, so the
+ * Mid JOINS the spoke: the front enters at the seam Holding, crosses the counter-clockwise flank
+ * Mid, burns the quadrant's Forge, crosses the quadrant's own Mid, and closes through the Approach
+ * onto the Keystone. **The Keep (protected home) is still never on a blight spoke.** Each Mid
+ * serves exactly two spokes (exit of q, entry of q+1) — adjacent fronts converge on shared passes.
+ * Every spoke terminates at the Keystone, so doom is reachable from any seam. Any tier with no
+ * member in the quadrant is dropped so the builder stays total.
  */
 export function getSpokePath(definition: V2BoardDef, quadrant: number): string[] {
   return [
     getSpokeSeam(definition, quadrant),
+    getMidForQuadrant(definition, (quadrant + 3) % 4),
     getForgeForQuadrant(definition, quadrant),
+    getMidForQuadrant(definition, quadrant),
     getApproachForQuadrant(definition, quadrant),
     definition.keystoneId,
   ].filter((id): id is string => id !== undefined);

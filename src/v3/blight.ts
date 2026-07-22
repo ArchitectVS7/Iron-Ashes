@@ -2,11 +2,11 @@
  * Blight System — the ash-map mechanic (§5.1).
  *
  * The Shadowking's primary weapon. Blight enters at the 4 outer-ring seams
- * (one Holding per diagonal ray) and converges inward along the diagonal spokes
- * (seam Holding → Forge → Approach → Keystone) — never through the protected
- * Keeps or the cardinal Mids (§13 [T-224 2026-07-20]; spoke geometry lives in
- * board.ts `getSpokePath`). The steered front accelerates down the Crown
- * holder's quadrant each round.
+ * (one Holding per diagonal ray) and converges inward along the edge-real
+ * SERPENTINE spokes (seam Holding → Mid → Forge → Mid → Approach → Keystone;
+ * every hop a real board edge) — never through the protected Keeps
+ * (§13 [T-236 2026-07-21]; spoke geometry lives in board.ts `getSpokePath`).
+ * The steered front accelerates down the Crown holder's quadrant each round.
  *
  * When a node's blightLevel reaches BLIGHT_TO_ASH, it permanently ashes:
  * owner cleared, produces nothing, remains traversable at extra cost (P0-3).
@@ -124,9 +124,9 @@ export function ashNode(state: GameState, nodeId: string): GameEvent[] {
  * outermost non-ashed nodes along the spoke. Each frontier node gets
  * `amount` blight levels added.
  *
- * Spoke path per quadrant — the diagonal ray, outer → inner (§13 [T-224 2026-07-20]):
- *   Holding(seam) → Forge → Approach → Keystone
- * (the Keep and cardinal Mid are protected/transit, never on the spoke).
+ * Spoke path per quadrant — the edge-real serpentine, outer → inner (§13 [T-236 2026-07-21]):
+ *   Holding(seam) → Mid → Forge → Mid → Approach → Keystone
+ * (the Keep is protected, never on the spoke; the Mids are the passes the front burns through).
  *
  * @param amount — total blight levels to distribute across frontier
  */

@@ -8,8 +8,9 @@
  *   - Keystone reachable only via Approaches (still exactly 4 doors)
  *   - Lateral rings (Approach 4-cycle; NO Forge↔Forge edge — the forge ring is removed)
  *   - Four-fold rotational symmetry (incl. the 4 mids)
- *   - Each Keep distance 3 from Keystone
- *   - Each Mid bridges 2 Approaches + 1 Keep + 2 Holdings + 2 Mids (degree 7, income 0)
+ *   - Each Keep distance 4 from Keystone (approach↔forge spokes removed)
+ *   - Each Mid bridges 2 Approaches + 2 Holdings + 2 Forges (degree 6, income 0 — the mid↔keep
+ *     spokes were removed in the fifth-review pass, so a Mid no longer touches its Keep)
  */
 
 import { describe, expect, it } from 'vitest';
@@ -154,21 +155,21 @@ describe('Closing Ring Board', () => {
       expect(board.nodes[board.keystoneId].connections.length).toBe(4);
     });
 
-    it('each approach has degree 6 (Keystone + Forge + 2 lateral + 2 mids)', () => {
+    it('each approach has degree 5 (Keystone + 2 lateral + 2 mids)', () => {
       for (const appId of board.approachIds) {
-        expect(board.nodes[appId].connections.length).toBe(6);
+        expect(board.nodes[appId].connections.length).toBe(5);
       }
     });
 
-    it('each forge has degree 3 (Approach + 2 Keeps)', () => {
+    it('each forge has degree 4 (2 Keeps + 2 Mids)', () => {
       for (const forgeId of board.forgeIds) {
-        expect(board.nodes[forgeId].connections.length).toBe(3);
+        expect(board.nodes[forgeId].connections.length).toBe(4);
       }
     });
 
-    it('each keep has degree 5 (2 Forges + 2 Holdings + Mid)', () => {
+    it('each keep has degree 4 (2 Forges + 2 Holdings)', () => {
       for (const keepId of board.keepIds) {
-        expect(board.nodes[keepId].connections.length).toBe(5);
+        expect(board.nodes[keepId].connections.length).toBe(4);
       }
     });
 
@@ -178,11 +179,11 @@ describe('Closing Ring Board', () => {
       }
     });
 
-    it('each mid has degree 7 (2 Approaches + 1 Keep + 2 Holdings + 2 Mids)', () => {
+    it('each mid has degree 6 (2 Approaches + 2 Holdings + 2 Forges)', () => {
       const midIds = Object.values(board.nodes).filter(n => n.tier === 'mid').map(n => n.id);
       expect(midIds.length).toBe(4);
       for (const midId of midIds) {
-        expect(board.nodes[midId].connections.length).toBe(7);
+        expect(board.nodes[midId].connections.length).toBe(6);
       }
     });
   });
@@ -204,10 +205,10 @@ describe('Closing Ring Board', () => {
       return -1;
     }
 
-    it('each keep is distance 3 from keystone', () => {
+    it('each keep is distance 4 from keystone', () => {
       for (const keepId of board.keepIds) {
         const dist = bfsDistance(board, keepId, board.keystoneId);
-        expect(dist, `${keepId} → keystone`).toBe(3);
+        expect(dist, `${keepId} → keystone`).toBe(4);
       }
     });
 
@@ -271,7 +272,7 @@ describe('Closing Ring Board', () => {
       expect(new Set(patterns).size).toBe(1);
     });
 
-    it('all mids have the same connection pattern by tier (2 approaches + 1 keep + 2 holdings + 2 mids)', () => {
+    it('all mids have the same connection pattern by tier (2 approaches + 2 holdings + 2 forges)', () => {
       const midIds = Object.values(board.nodes).filter(n => n.tier === 'mid').map(n => n.id);
       const patterns = midIds.map(id => {
         const node = board.nodes[id];
@@ -281,7 +282,7 @@ describe('Closing Ring Board', () => {
           .join(',');
       });
       expect(new Set(patterns).size).toBe(1);
-      expect(patterns[0]).toBe('approach,approach,holding,holding,keep,mid,mid');
+      expect(patterns[0]).toBe('approach,approach,forge,forge,holding,holding');
     });
   });
 
@@ -407,14 +408,14 @@ describe('Closing Ring Board', () => {
   });
 
   describe('edge count', () => {
-    it('has exactly 52 undirected edges', () => {
-      // Sum of all degrees / 2. T-231 rewire: 40 − 4 (removed forge ring) + 16 (4 keep↔forge +
-      // 8 holding↔mid + 4 mid square) = 52.
+    it('has exactly 48 undirected edges', () => {
+      // Sum of all degrees / 2. T-231 rewire gave 52; the fifth-review pass removed the 4 mid↔keep
+      // spokes (keep-n↔mid-n, keep-e↔mid-e, keep-s↔mid-s, keep-w↔mid-w) → 48.
       let totalDegree = 0;
       for (const node of Object.values(board.nodes)) {
         totalDegree += node.connections.length;
       }
-      expect(totalDegree / 2).toBe(52);
+      expect(totalDegree / 2).toBe(48);
     });
   });
 });

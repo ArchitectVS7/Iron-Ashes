@@ -49,7 +49,6 @@
       "quadrant": 0,
       "connections": [
         "keystone",
-        "forge-nw",
         "approach-ne",
         "approach-sw",
         "mid-n",
@@ -63,7 +62,6 @@
       "quadrant": 1,
       "connections": [
         "keystone",
-        "forge-ne",
         "approach-nw",
         "approach-se",
         "mid-n",
@@ -77,7 +75,6 @@
       "quadrant": 2,
       "connections": [
         "keystone",
-        "forge-se",
         "approach-ne",
         "approach-sw",
         "mid-e",
@@ -91,7 +88,6 @@
       "quadrant": 3,
       "connections": [
         "keystone",
-        "forge-sw",
         "approach-nw",
         "approach-se",
         "mid-s",
@@ -104,9 +100,10 @@
       "tier": "forge",
       "quadrant": 0,
       "connections": [
-        "approach-nw",
         "keep-n",
-        "keep-w"
+        "keep-w",
+        "mid-n",
+        "mid-w"
       ],
       "income": 3
     },
@@ -115,9 +112,10 @@
       "tier": "forge",
       "quadrant": 1,
       "connections": [
-        "approach-ne",
         "keep-e",
-        "keep-n"
+        "keep-n",
+        "mid-n",
+        "mid-e"
       ],
       "income": 3
     },
@@ -126,9 +124,10 @@
       "tier": "forge",
       "quadrant": 2,
       "connections": [
-        "approach-se",
         "keep-s",
-        "keep-e"
+        "keep-e",
+        "mid-e",
+        "mid-s"
       ],
       "income": 3
     },
@@ -137,9 +136,10 @@
       "tier": "forge",
       "quadrant": 3,
       "connections": [
-        "approach-sw",
         "keep-w",
-        "keep-s"
+        "keep-s",
+        "mid-s",
+        "mid-w"
       ],
       "income": 3
     },
@@ -151,8 +151,7 @@
         "forge-nw",
         "forge-ne",
         "holding-ne",
-        "holding-nw",
-        "mid-n"
+        "holding-nw"
       ],
       "income": 1
     },
@@ -164,8 +163,7 @@
         "forge-ne",
         "forge-se",
         "holding-ne",
-        "holding-se",
-        "mid-e"
+        "holding-se"
       ],
       "income": 1
     },
@@ -177,8 +175,7 @@
         "forge-se",
         "forge-sw",
         "holding-se",
-        "holding-sw",
-        "mid-s"
+        "holding-sw"
       ],
       "income": 1
     },
@@ -190,8 +187,7 @@
         "forge-sw",
         "forge-nw",
         "holding-sw",
-        "holding-nw",
-        "mid-w"
+        "holding-nw"
       ],
       "income": 1
     },
@@ -250,11 +246,10 @@
       "connections": [
         "approach-nw",
         "approach-ne",
-        "keep-n",
         "holding-ne",
         "holding-nw",
-        "mid-e",
-        "mid-w"
+        "forge-nw",
+        "forge-ne"
       ],
       "income": 0
     },
@@ -265,11 +260,10 @@
       "connections": [
         "approach-ne",
         "approach-se",
-        "keep-e",
         "holding-ne",
         "holding-se",
-        "mid-n",
-        "mid-s"
+        "forge-ne",
+        "forge-se"
       ],
       "income": 0
     },
@@ -280,11 +274,10 @@
       "connections": [
         "approach-se",
         "approach-sw",
-        "keep-s",
         "holding-se",
         "holding-sw",
-        "mid-e",
-        "mid-w"
+        "forge-se",
+        "forge-sw"
       ],
       "income": 0
     },
@@ -295,11 +288,10 @@
       "connections": [
         "approach-sw",
         "approach-nw",
-        "keep-w",
         "holding-sw",
         "holding-nw",
-        "mid-n",
-        "mid-s"
+        "forge-sw",
+        "forge-nw"
       ],
       "income": 0
     }

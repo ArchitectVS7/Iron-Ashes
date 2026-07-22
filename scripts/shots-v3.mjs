@@ -28,15 +28,17 @@ import { chromium } from 'playwright';
  * Seeds tried in order until every screen is captured (the loop stops early once covered, so trailing
  * seeds are pure insurance and cost nothing). Fully reproducible: seeds 42/11 yield the first six
  * screens (start, board, election, ransom, endgame, and the human's Death-Bequest testament), and
- * seed 24 the mid-game Wraith scene — a rival Warlord falls at round 7 (MARCH), so the sidebar Wraiths
- * block renders while the game is still live. NOTE: this seed set is topology-specific. The 21-node
+ * seed 13 the mid-game Wraith scene — a rival Warlord falls while the game is still live, so the
+ * sidebar Wraiths block renders pre-endgame. NOTE: this seed set is topology-specific. The 21-node
  * true-8-spoke board (T-222/T-224) shifted every seed's trajectory — the game now typically doom-
  * completes in MARCH before RECKONING, so a mid-game Warlord elimination (the Wraith scene's
- * precondition) is rare and only some seeds produce it. If a re-tune of the board or balance (e.g.
- * T-227) moves the trajectories again, re-cover the missing screen by sweeping seeds here (the loop's
- * failure message points here); the driver policy below is deliberately left untouched.
+ * precondition) is rare and only some seeds produce it. The T-231 ring rewire + T-236 serpentine
+ * spoke moved them again and retired the previous Wraith seed (24); a 1–80 sweep re-covered it at
+ * seed 13 (T-237). If a future re-tune moves the trajectories once more, re-cover the missing screen
+ * by sweeping seeds here (the loop's failure message points here); the driver policy below is
+ * deliberately left untouched.
  */
-const SEED_LIST = [42, 7, 99, 3, 17, 5, 23, 11, 24];
+const SEED_LIST = [42, 11, 13, 7, 99, 3, 17, 5, 23, 24];
 
 /** Per-seed hard step cap (each step is one observe+click evaluate) — mirrors the E2E 8000 guard. */
 const STEP_CAP = 4000;
@@ -358,26 +360,54 @@ async function auditSigils(page) {
 }
 
 /**
- * T-209 accept criterion — a full 6-card hand must render fully inside the realm HUD column (no
- * clipping off the panel edge). jsdom has no layout engine, so this must run in the real Playwright
- * page. Returns `{ count, allInside }`: every `.card-slot` rect's left/right edge lies within the
- * `.hud-realm` region rect (± epsilon). Returns null if the hand is not present yet (caller retries).
+ * T-209 accept criterion — a full 6-card hand must render fully inside its container (no clipping off
+ * the edge). Post fifth-review dissolution the hand lives in the bottom `.hand-dock`, not the old
+ * `.hud-realm` column. jsdom has no layout engine, so this must run in the real Playwright page.
+ * Returns `{ count, allInside }`: every `.card-slot` rect's left/right edge lies within the
+ * `.hand-dock` region rect (± epsilon). Returns null if the hand is not present yet (caller retries).
  */
 async function auditHandFit(page) {
   return page.evaluate(() => {
-    const realm = document.querySelector('.hud-realm');
-    const fan = realm && realm.querySelector('.hand-fan');
-    if (!realm || !fan) return null;
+    const dock = document.querySelector('.hand-dock');
+    const fan = dock && dock.querySelector('.hand-fan');
+    if (!dock || !fan) return null;
     const slots = Array.from(fan.querySelectorAll('.card-slot'));
     if (slots.length === 0) return null;
     const EPS = 1; // sub-pixel rounding tolerance
-    const rr = realm.getBoundingClientRect();
+    const rr = dock.getBoundingClientRect();
     const allInside = slots.every((el) => {
       const r = el.getBoundingClientRect();
       return r.left >= rr.left - EPS && r.right <= rr.right + EPS;
     });
     return { count: slots.length, allInside };
   });
+}
+
+/**
+ * Fifth-review request #3 — a clean board-only PNG (`board-clean.png`): the board SVG with NO turn
+ * marker (the header) and NO HUD overlays, for easiest study of the node/edge layout. (Sixth review:
+ * the MAP KEY left the board for a collapsible plaque in the edge cluster, so this export is now pure
+ * board.) Hides the header + edge overlays, screenshots just the `.board-svg` element, then restores.
+ */
+async function captureCleanBoard(page, outDir) {
+  const HIDE = ['.header', '.edge-cluster', '.hand-dock', '.command-plaque', '.chronicle', '.gambit-alarm'];
+  await page.evaluate((sels) => {
+    for (const s of sels)
+      document.querySelectorAll(s).forEach((el) => {
+        el.dataset.prevVis = el.style.visibility;
+        el.style.visibility = 'hidden';
+      });
+  }, HIDE);
+  const board = await page.$('.board-svg');
+  if (board) await board.screenshot({ path: join(outDir, 'board-clean.png') });
+  await page.evaluate((sels) => {
+    for (const s of sels)
+      document.querySelectorAll(s).forEach((el) => {
+        el.style.visibility = el.dataset.prevVis || '';
+        delete el.dataset.prevVis;
+      });
+  }, HIDE);
+  console.log('  captured board-clean.png (clean board — no turn marker / HUD)');
 }
 
 /**
@@ -496,7 +526,7 @@ async function main() {
   // T-217: assert every house sigil rasterizes to a legible (non-empty) glyph on the live board.
   let sigilAudit = null;
   // T-209: track the fullest hand seen on a live mid-game board — a full 6-card hand must fit the
-  // realm column. Keep the max-count sample so a mid-turn spend can't hide the full-hand case.
+  // hand dock. Keep the max-count sample so a mid-turn spend can't hide the full-hand case.
   let handFit = null;
   // T-210: accumulate any full-width bottom-bar offenders across every captured screen, and record
   // the election-unclipped verdict on the election screen. Both hard-assert at the end.
@@ -519,6 +549,10 @@ async function main() {
         }, screen.scroll);
       }
       await page.screenshot({ path: join(outDir, screen.file), fullPage: true });
+      // Fifth-review request #3: a clean board-only image (no turn marker / HUD) for easiest viewing.
+      // Captured off the early mid-game board (round ~2) so every node is PRISTINE — an endgame
+      // capture scorches nodes to ash (keystone/holdings/forges), which vanish into the dark star.
+      if (screen.key === 'board') await captureCleanBoard(page, outDir);
       // T-210: every captured shots screen must be free of a persistent full-width bottom panel.
       if (screen.key !== 'start') {
         const bar = await auditNoBottomBar(page);
@@ -681,17 +715,17 @@ async function main() {
   }
   console.log(`sigil legibility: all ${sigilAudit.sigils.length} house sigils fill ≥ ${SIGIL_FILL_FLOOR}px [${sigilAudit.sigils.map((s) => `${s.sigil}:${s.fill}`).join(', ')}]`);
 
-  // T-209 accept: a full 6-card hand must render fully inside the realm HUD column (no clipping).
+  // T-209 accept: a full 6-card hand must render fully inside the bottom hand dock (no clipping).
   if (handFit === null) {
     console.error('\nHAND-FIT assertion never ran (no hand rendered on a live board at round >= 2)');
     process.exit(1);
   }
   if (handFit.count < 6 || !handFit.allInside) {
-    console.error('\nHAND-FIT FAILED — a full hand does not fit inside the realm column.');
+    console.error('\nHAND-FIT FAILED — a full hand does not fit inside the hand dock.');
     console.error(`  fullest hand seen: ${handFit.count} card(s); allInside=${handFit.allInside}`);
     process.exit(1);
   }
-  console.log(`hand fit: a ${handFit.count}-card hand renders fully inside the realm column`);
+  console.log(`hand fit: a ${handFit.count}-card hand renders fully inside the hand dock`);
 
   // T-210 accept: no persistent full-width bottom panel on any captured screen (chronicle exempt).
   if (bottomBarViolations.length > 0) {

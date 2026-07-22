@@ -200,7 +200,8 @@ Workflow (same as v2): **① idea → ② textual algorithm → ③ code → ④
   - [x] **V3.1-M2 — Theme foundation (stop looking like a spreadsheet)** → `docs/ROADMAP-V3.1-UI.md` §M2
   - [x] **V3.1-M2.5 — True 8-spoke board (engine topology change; user-authorized 2026-07-20)** → `docs/ROADMAP-V3.1-UI.md` §M2.5
   - [x] **V3.1-M2.6 — Ring rewire (the star lattice; user-authorized 2026-07-20, same M2.5 topology exception)** → `docs/ROADMAP-V3.1-UI.md` §M2.6
-  - [ ] **V3.1-M2-CHECKPOINT — user visual review of M2 (T-207)** → `docs/ROADMAP-V3.1-UI.md` §M2
+  - [x] **V3.1-M2-CHECKPOINT — user visual review of M2 (T-207)** → `docs/ROADMAP-V3.1-UI.md` §M2
+        — APPROVED by the user 2026-07-21 after the sixth-review rework + T-236/T-237 (see §8)
   - [ ] **V3.1-M3 — Cards & hand live** → `docs/ROADMAP-V3.1-UI.md` §M3
   - [ ] **V3.1-M4 — Board life & sound** → `docs/ROADMAP-V3.1-UI.md` §M4
   - [ ] **V3.1-M5 — Playtest readiness → run the V3-6 human playtest** → `docs/ROADMAP-V3.1-UI.md` §M5
@@ -265,6 +266,55 @@ v1 was retired). Confirm this vs. branch-and-replace before 3a (§2 open row).
 
 ## 8. Changelog / decision log (v3)
 
+- **2026-07-21** — **T-207 — GATE 1 PASSED (user approval); V3.1-M2-CHECKPOINT CLOSED.** After the
+  sixth-review board rework (user-authored, on top of the M2.6 lattice) plus **T-236** (edge-real
+  serpentine spokes) and **T-237** (map key off-board + collapsible, gallery re-covered), the user
+  scored the regenerated m2 gallery and **approved**: *"ready to call the UI acceptable for further
+  playtesting and development."* T-207 flipped **BLOCKED → DONE** (user-only flip, never
+  self-approved), §4 `V3.1-M2-CHECKPOINT` ticked, `currentStage` repointed **V3.1-M2-CHECKPOINT →
+  V3.1-M3** (the first-unchecked §4 stage). Motion items stay provisional, verified live at the T-306
+  checkpoint. This commit lands the whole uncommitted sixth-review body of work as one coherent change
+  (rework + T-236 + T-237 + this flip) — the partial states were incoherent by construction. **M3
+  (T-301…T-306) is unblocked, and the M2.5/M2.6 topology exception does NOT extend into it — the
+  "engine untouched" standing constraint is back in full force.** Immediate next: a fresh balance
+  READING on the serpentine spoke (the T-233 lattice numbers predate T-236's 4→6-node doom path, so
+  they no longer describe the shipped board) — recorded, never tuned.
+- **2026-07-21** — **T-237 — MAP KEY OFF THE BOARD + COLLAPSIBLE; gallery re-covered.** Sixth-review
+  user call: the on-map KEY (a `<g>` welded into the board viewBox since the fifth review) had to leave
+  the board and become collapsible. `renderMapLegend` → exported **`renderMapKey()`** in `board-view.ts`,
+  now an HTML **`<details class="map-key">`** (closed by default, `▸/▾` summary) rendered in the LEFT
+  edge cluster by `renderApp`, its rows a self-contained inline `<svg>` that still reuses the real
+  `locationSvg` silhouettes + board classes (it cannot drift from the board it explains). `renderBoard`
+  no longer emits it, so **`board-clean.png` is now pure board**. New CSS `.map-key` carved plaque
+  matching the sibling reference blocks (icons at authored size, never stretched). **Machine
+  enforcement:** 3 new `hud-dissolution` tests — absent from `renderBoard`, exactly one `<details>` (no
+  `open`) inside `.edge-realm`, all six place tiers still keyed. **Gallery:** the T-231/T-236 lattice
+  changes had retired the Wraith seed (24) — `shots:v3` was missing `05-wraith.png` **before** this
+  change too (verified against a stashed tree). A 1–80 sweep re-covered it at **seed 13**; `SEED_LIST`
+  is now `[42, 11, 13, …insurance]` and `shots:v3` captures **7/7, exit 0**. The m2 gallery was
+  regenerated into `docs/Redesign-V3.1/m2/` (+ `board-clean.png`), README de-staled. `npm run verify`
+  green (typecheck + lint + **1294/1294**). NOT committed — rides with T-236 and the uncommitted
+  sixth-review rework awaiting the user's Gate-1 re-score (T-207).
+- **2026-07-21** — **T-236 — EDGE-REAL SERPENTINE SPOKES (blight follows drawn edges; spec de-staled).**
+  Design review of the (uncommitted) sixth-review 48-edge lattice found the T-224 spoke
+  `seam → Forge → Approach → Keystone` had become **fully edge-abstract** — the forge↔approach spokes
+  were removed for aesthetics, so the front visually jumped between unconnected nodes; the §13 T-224
+  home-ray phrasing (`Keep → Mid → Approach`) was also stale (keep↔mid edges gone). **User call:** the
+  lattice's two structural side-effects are ACCEPTED as design — (a) the 4 cardinal Mids are the
+  mandatory transit cut, (b) Keeps are the farthest tier from the throne (distance 4; Holdings 3) —
+  and "the blight can't really go across undrawn hops." Fix: `getSpokePath` (board.ts) now builds the
+  **serpentine** `seam → Mid((q+3)%4) → Forge(q) → Mid(q) → Approach(q) → Keystone` — 6 nodes, every
+  hop a real board edge; the Keep stays off every spoke; each Mid serves exactly two spokes.
+  `validateClosingRing` gained **check 10** (spoke edge-reality + seam-start + keystone-end + no-Keep,
+  machine-enforced forever); new `getMidForQuadrant` helper; blight/shadowking-policy comments and the
+  spoke tests rewritten (new: hop-adjacency, mid-membership, two-spokes-per-mid, seam→Mid→Forge
+  frontier order). Spec: **ALGORITHM §13 gains `[T-236 2026-07-21]`** (authoritative; supersedes the
+  T-224 path shape + home-ray phrasing; T-224's seam derivation / Keep exclusion / doom-from-every-seam
+  stand) + §2 pointer updated. **Balance:** the spoke lengthened 4 → 6 nodes — a structural doom-clock
+  slowing; the lock **stays VOIDED**, zero tunable-value edits; **stopped short of the balance run by
+  user instruction** (the next sweep reads the 48-edge lattice + serpentine spoke together).
+  `npm run verify` green (typecheck + lint + **1291/1291**). NOT committed — rides with the
+  uncommitted sixth-review rework awaiting the user's Gate-1 re-score (T-207).
 - **2026-07-20** — **T-234 — V3.1-M2.6 CLOSED (milestone DoD).** `npm run verify` green (typecheck +
   lint + full v2+v3 suite; see `state.json` `lastVerified` for the file/test counts) and the M2.6 boxes
   are ticked in both roadmaps (§4 here + §M2.6 in `docs/ROADMAP-V3.1-UI.md`, T-231…T-233); `currentStage`

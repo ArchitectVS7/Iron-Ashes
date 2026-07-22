@@ -14,7 +14,7 @@
  */
 
 import type { GameSession, Exposure } from './session.js';
-import { renderBoard, PLAYER_COLORS, HOUSES, houseSigilSvg } from './board-view.js';
+import { renderBoard, renderMapKey, PLAYER_COLORS, HOUSES, houseSigilSvg } from './board-view.js';
 import { AnimationQueue } from './queue.js';
 import { SoundManager } from './sound.js';
 import { diffObservable } from './moves.js';
@@ -143,35 +143,38 @@ export function mountView(root: HTMLElement, session: GameSession): void {
 
 export function renderApp(session: GameSession): string {
   const s = session.observable();
-  // FULL diegetic dissolution (Gate 0.5 + Gate 1 fix T-210): NO persistent status column AND no
-  // persistent full-width bottom bar. The board is centre-stage on the textured table; every datum
-  // the old side-pane showed lives in edge HUD regions — a top turn ribbon, four house plaques
-  // (right), the human's realm plaques (left). The phase controls now ride the board itself as a
-  // compact, board-anchored COMMAND PLAQUE overlay (never full-width), and events surface in a single
-  // diegetic CHRONICLE scroll (T-212 — one parchment ticker with scrollback, not stacked alert bars;
-  // the exempt bottom region). Zero information loss: each renderer below is still called exactly once.
+  // FULL diegetic dissolution (Gate 0.5 + Gate 1 fixes T-210 / fifth review): NO persistent status
+  // COLUMN on either side and no full-width bottom bar. The board fills the stage on the textured
+  // table; every datum the old side-panes showed now floats in a board-EDGE overlay on the bare wood
+  // — the four house plaques in the right gutter, the human's realm plaques in the left gutter, the
+  // hand fanned in a bottom-centre dock, the turn ribbon on top. Per the fifth-review "mix by
+  // importance" call the load-bearing realm blocks stay open (Hold Rail — §13 P0-11 hostages visible
+  // all game) while the reference blocks (Court, Oaths, Ledger, Wraiths, Suspicion, Audits) collapse
+  // to a hover/focus-expand tab. The phase controls ride the board as a compact, board-anchored
+  // COMMAND PLAQUE overlay (never full-width); events surface in a single diegetic CHRONICLE scroll
+  // (T-212, the exempt bottom region). Zero information loss: each renderer below is still called once.
   return `
     ${renderGambitBanner(s)}
     <div class="table-stage">
       ${renderHeader(s)}
-      <div class="hud hud-realm">
-        <div class="realm-title">Your Realm</div>
-        ${renderCourt(s, session.humanIndex)}
-        ${renderHand(s, session.humanIndex)}
-        ${renderHoldRail(s)}
-        ${renderOaths(s)}
-        ${renderLedger(s)}
-        ${renderWraiths(s)}
-        ${renderSuspicion(s, session.humanIndex)}
-        ${renderAudits(s, session.humanIndex)}
-      </div>
       <div class="board-region">
         ${renderBoard(s)}
+        <div class="edge-cluster edge-realm">
+          ${renderHoldRail(s)}
+          ${renderCourt(s, session.humanIndex)}
+          ${renderOaths(s)}
+          ${renderLedger(s)}
+          ${renderWraiths(s)}
+          ${renderSuspicion(s, session.humanIndex)}
+          ${renderAudits(s, session.humanIndex)}
+          ${renderMapKey()}
+        </div>
+        <div class="edge-cluster edge-houses">
+          ${renderHousePlaques(session, s)}
+        </div>
+        <div class="hand-dock">${renderHand(s, session.humanIndex)}</div>
         <div class="command-plaque">${renderPanel(session, s)}</div>
         <div class="chronicle">${renderNarration(session)}</div>
-      </div>
-      <div class="hud hud-houses">
-        ${renderHousePlaques(session, s)}
       </div>
     </div>`;
 }
@@ -266,7 +269,7 @@ function renderCourt(s: ObservableState, human: number): string {
   const held = me.court.filter(c => c.captiveOf !== null)
     .map(c => `<li class="held">⛓ <b>${esc(c.name)}</b> <small>held by P${(c.captiveOf ?? 0) + 1}</small></li>`)
     .join('');
-  return `<div class="info-block">
+  return `<div class="info-block" tabindex="0">
     <div class="block-title">Your Court</div>
     <ul class="court-list">${(court + held) || '<li><i>only your Warlord</i></li>'}</ul>
   </div>`;
@@ -304,7 +307,7 @@ function renderOaths(s: ObservableState): string {
   const dur = TUNABLES.OATH_DURATION;
   const items = s.oaths.map(o =>
     `<li>P${o.a + 1} ⛓ P${o.b + 1} <small>(${o.viaBequest ? 'posthumous' : `matures in ${Math.max(0, dur - o.strain)}`})</small></li>`).join('');
-  return `<div class="info-block"><div class="block-title">Oaths</div><ul class="oath-list">${items}</ul></div>`;
+  return `<div class="info-block" tabindex="0"><div class="block-title">Oaths</div><ul class="oath-list">${items}</ul></div>`;
 }
 
 function renderLedger(s: ObservableState): string {
@@ -314,14 +317,14 @@ function renderLedger(s: ObservableState): string {
   const items = marked
     .map(x => `<li>P${x.i + 1} ${tokenChip('skull', x.v, { stat: 'grudge', title: "the dark's grudge weight" })}</li>`)
     .join('');
-  return `<div class="info-block"><div class="block-title">The Ledger (the dark hunts)</div><ul class="ledger-list">${items}</ul></div>`;
+  return `<div class="info-block" tabindex="0"><div class="block-title">The Ledger (the dark hunts)</div><ul class="ledger-list">${items}</ul></div>`;
 }
 
 function renderWraiths(s: ObservableState): string {
   const w = s.shadowking.wraiths;
   if (w.length === 0) return '';
   const items = w.map(x => `<li>P${x.seat + 1} <small>(fell R${x.eliminatedRound})</small></li>`).join('');
-  return `<div class="info-block"><div class="block-title">Wraiths (serve the dark)</div><ul class="wraith-list">${items}</ul></div>`;
+  return `<div class="info-block" tabindex="0"><div class="block-title">Wraiths (serve the dark)</div><ul class="wraith-list">${items}</ul></div>`;
 }
 
 function renderSuspicion(s: ObservableState, human: number): string {
@@ -333,7 +336,7 @@ function renderSuspicion(s: ObservableState, human: number): string {
     }).join('');
     return `<tr><td>P${p.index + 1}${p.index === human ? ' (you)' : ''}</td><td class="tier-row">${hist}</td></tr>`;
   }).join('');
-  return `<div class="info-block"><div class="block-title">Suspicion Log (last ${s.suspicionLog.length} pledges)</div>
+  return `<div class="info-block" tabindex="0"><div class="block-title">Suspicion Log (last ${s.suspicionLog.length} pledges)</div>
     <table class="suspicion"><tbody>${rows}</tbody></table>
     <div class="hint">∅ none · ▁ low · ▄ medium · █ high — a pattern of low/none is the traitor's tell.</div></div>`;
 }
@@ -343,7 +346,7 @@ function renderAudits(s: ObservableState, human: number): string {
   const mine = s.auditLog.filter(a => a.auditor === human);
   if (mine.length === 0) return '';
   const items = mine.slice(-6).map(a => `<li>R${a.round}: P${a.target + 1} pledged <b>${a.amount}</b> (${a.tier})</li>`).join('');
-  return `<div class="info-block"><div class="block-title">Your audits</div><ul class="audit-list">${items}</ul></div>`;
+  return `<div class="info-block" tabindex="0"><div class="block-title">Your audits</div><ul class="audit-list">${items}</ul></div>`;
 }
 
 /**

@@ -15,8 +15,8 @@
     "semantic_hash": "d5761a1390c7de9de43a266f26e41793"
   },
   "docs/handoff/state.json": {
-    "mtime": 1784435379.4592168,
-    "ast_hash": "de889c0ca552dd89062634012aa3618c",
+    "mtime": 1784598387.531907,
+    "ast_hash": "bf8cce89b82eae29de7227e9ef8e96d9",
     "semantic_hash": ""
   },
   "docs/handoff/state.schema.json": {
@@ -30,13 +30,13 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1784400957.0441375,
-    "ast_hash": "8a6ba68107bde0d09f5e7cb6e54ee2ca",
+    "mtime": 1784442294.1269612,
+    "ast_hash": "c16cafe2e4ec319adde91516004dd534",
     "semantic_hash": ""
   },
   "scripts/handoff-check.mjs": {
-    "mtime": 1784397984.2512915,
-    "ast_hash": "3420a38ad4c28747d10ba2cf4f591a71",
+    "mtime": 1784579594.911304,
+    "ast_hash": "879d1a337f6390658f71d15a1e571102",
     "semantic_hash": ""
   },
   "scripts/sim.mjs": {
@@ -470,8 +470,8 @@
     "semantic_hash": ""
   },
   "docs/AGENT-PROTOCOL.md": {
-    "mtime": 1784393337.7275362,
-    "ast_hash": "d346d52431175062aa7c984a271f7d45",
+    "mtime": 1784476945.8798976,
+    "ast_hash": "543f5ba8fa2678c7e1ee60b00c3fbe1d",
     "semantic_hash": ""
   },
   "docs/USER-MANUAL.md": {
@@ -510,7 +510,7 @@
     "semantic_hash": "eefe60cd9f760f1634ce97e5fb2ab5a7"
   },
   ".githooks/post-commit": {
-    "mtime": 1782353077.0020514,
+    "mtime": 1784444484.9369137,
     "ast_hash": "56fb41483eeebb546846ed67eb7fae71",
     "semantic_hash": "56fb41483eeebb546846ed67eb7fae71"
   },
@@ -590,8 +590,8 @@
     "semantic_hash": ""
   },
   "scripts/gen-data.mjs": {
-    "mtime": 1782517664.190153,
-    "ast_hash": "6cff43ed0798e7060f70fbcf2fbec680",
+    "mtime": 1784580810.5120893,
+    "ast_hash": "b5485205121d8e16f6edf465126ce183",
     "semantic_hash": ""
   },
   "src/v2/board.gen.ts": {
@@ -615,13 +615,13 @@
     "semantic_hash": ""
   },
   "docs/DESIGN-V3-ALGORITHM.md": {
-    "mtime": 1782994005.4374259,
-    "ast_hash": "6a39680800728f8c0930824bc8cce32b",
+    "mtime": 1784583639.8588233,
+    "ast_hash": "eef1dcb265f368a0e6479c57b3836d5c",
     "semantic_hash": ""
   },
   "docs/ROADMAP-V3.md": {
-    "mtime": 1784426509.931001,
-    "ast_hash": "02f32f05af6cb0c8b7d4fde00827f71a",
+    "mtime": 1784597313.280503,
+    "ast_hash": "f67a01f76bd9246a6141b4bf4c2ebe51",
     "semantic_hash": ""
   },
   "docs/Shadowlord.md": {
@@ -655,8 +655,8 @@
     "semantic_hash": ""
   },
   "src/v3/blight.ts": {
-    "mtime": 1782996232.876009,
-    "ast_hash": "b95cc3c970e3356af240914bf9fb32dc",
+    "mtime": 1784583583.246637,
+    "ast_hash": "1522b73dd49f1e53970a5f94bca26491",
     "semantic_hash": ""
   },
   "src/v3/blood-pact.ts": {
@@ -665,13 +665,13 @@
     "semantic_hash": ""
   },
   "src/v3/board.gen.ts": {
-    "mtime": 1782527098.359894,
-    "ast_hash": "70983f5bfe9c6cb612fdc76fab1e77dc",
+    "mtime": 1784595021.3258395,
+    "ast_hash": "4e4748c574f2409f3b6c93fb4d2eda1d",
     "semantic_hash": ""
   },
   "src/v3/board.ts": {
-    "mtime": 1782530481.9696643,
-    "ast_hash": "3284fbc9c2193ccb7808d6815e96d178",
+    "mtime": 1784595064.2870789,
+    "ast_hash": "4421566a536ad3c00a8f6df077f369e3",
     "semantic_hash": ""
   },
   "src/v3/combat.ts": {
@@ -710,8 +710,8 @@
     "semantic_hash": ""
   },
   "src/v3/setup.ts": {
-    "mtime": 1782994660.4263346,
-    "ast_hash": "3ab492f0e23966d1dc2c24e7145ccf1e",
+    "mtime": 1784582608.3503609,
+    "ast_hash": "984b200334c755aa2caa903d30d0f7f1",
     "semantic_hash": ""
   },
   "src/v3/shadowking-effects.ts": {
@@ -720,8 +720,8 @@
     "semantic_hash": ""
   },
   "src/v3/shadowking-policy.ts": {
-    "mtime": 1782593597.0816066,
-    "ast_hash": "ce2e957752756915a455870e286292cb",
+    "mtime": 1784583609.0865762,
+    "ast_hash": "884f5439f2df7391e810427ec76eddec",
     "semantic_hash": ""
   },
   "src/v3/sim/archetypes.gen.ts": {
@@ -775,8 +775,8 @@
     "semantic_hash": ""
   },
   "src/v3/types.ts": {
-    "mtime": 1782994639.9609802,
-    "ast_hash": "bece1e0488003be399120dd4db339b70",
+    "mtime": 1784582132.5783248,
+    "ast_hash": "587d0695281ac85e98d4277a79969c8c",
     "semantic_hash": ""
   },
   "tests/v3/actions.test.ts": {
@@ -795,8 +795,8 @@
     "semantic_hash": ""
   },
   "tests/v3/blight.test.ts": {
-    "mtime": 1782654452.5587168,
-    "ast_hash": "0d5cd61198dc844c684d905d7752ba79",
+    "mtime": 1784583699.77375,
+    "ast_hash": "16a7c72a6b60d7d40af433f5389f7895",
     "semantic_hash": ""
   },
   "tests/v3/blood-pact-5e.test.ts": {
@@ -810,8 +810,8 @@
     "semantic_hash": ""
   },
   "tests/v3/board.test.ts": {
-    "mtime": 1782527108.3341722,
-    "ast_hash": "9cc2ba2a3f8aeeee32cd3dc63a483c03",
+    "mtime": 1784595101.0321176,
+    "ast_hash": "099225a2c92abe8ef735eb08df8d5fbe",
     "semantic_hash": ""
   },
   "tests/v3/combat.test.ts": {
@@ -855,8 +855,8 @@
     "semantic_hash": ""
   },
   "tests/v3/mechanics-3f.test.ts": {
-    "mtime": 1782978421.6700573,
-    "ast_hash": "416b641f54d0ed088e0e264fcabae1e8",
+    "mtime": 1784583661.802512,
+    "ast_hash": "bd6e145f98f41fef57186e62e0fa6757",
     "semantic_hash": ""
   },
   "tests/v3/oaths.test.ts": {
@@ -885,8 +885,8 @@
     "semantic_hash": ""
   },
   "tests/v3/setup.test.ts": {
-    "mtime": 1782529165.731549,
-    "ast_hash": "1a7a63f18907a831df487cbf6a4960ee",
+    "mtime": 1784581078.441741,
+    "ast_hash": "a4cad832d0350bb5552ec89654bd3b78",
     "semantic_hash": ""
   },
   "tests/v3/shadowking-policy.test.ts": {
@@ -905,8 +905,8 @@
     "semantic_hash": ""
   },
   "tests/v3/sim-driver.test.ts": {
-    "mtime": 1782982615.5787292,
-    "ast_hash": "b40af7889ab3383c5511b467667701e1",
+    "mtime": 1784586370.5831125,
+    "ast_hash": "1d05218b35f475a3453683581979e1a4",
     "semantic_hash": ""
   },
   "tests/v3/sim-metrics.test.ts": {
@@ -980,8 +980,8 @@
     "semantic_hash": ""
   },
   "src/v3/heart.ts": {
-    "mtime": 1782991091.4903865,
-    "ast_hash": "34e6a5ff175480c91e267fb2efd57561",
+    "mtime": 1784582620.648111,
+    "ast_hash": "8aaa950d1142cddb04430457c946342b",
     "semantic_hash": ""
   },
   "tests/v3/kill-the-dark-3g.test.ts": {
@@ -1005,13 +1005,13 @@
     "semantic_hash": ""
   },
   "src/ui-v3/board-view.ts": {
-    "mtime": 1784428304.7484171,
-    "ast_hash": "ca1eaaed62a3326aad629ad52f13cc5b",
+    "mtime": 1784595731.012472,
+    "ast_hash": "21eb3d4db3c1ac64bbef5b3a3a88175a",
     "semantic_hash": ""
   },
   "src/ui-v3/main.ts": {
-    "mtime": 1782994831.2258968,
-    "ast_hash": "e7c13fd649e5b1749a52c01b9da7da96",
+    "mtime": 1784595774.7925138,
+    "ast_hash": "97cc8860bdefa970820417edb009062a",
     "semantic_hash": ""
   },
   "src/ui-v3/session.ts": {
@@ -1020,8 +1020,8 @@
     "semantic_hash": ""
   },
   "src/ui-v3/view.ts": {
-    "mtime": 1784434124.735672,
-    "ast_hash": "44fb4580189668e58c3b8ebafd73bdb0",
+    "mtime": 1784514304.0924191,
+    "ast_hash": "b819b8acf867ad366a19a38b54f3771f",
     "semantic_hash": ""
   },
   "src/ui-v3/vite-env.d.ts": {
@@ -1040,13 +1040,13 @@
     "semantic_hash": ""
   },
   "tests/v3/ui-e2e.test.ts": {
-    "mtime": 1782995034.356394,
-    "ast_hash": "5e4d6455f3f9ac4d4be237dbbf8dd668",
+    "mtime": 1784484578.7459455,
+    "ast_hash": "1e59f3869c02c78047846f9ec72eebb1",
     "semantic_hash": ""
   },
   "tests/v3/ui-parity.test.ts": {
-    "mtime": 1784434389.9703798,
-    "ast_hash": "1fd9b568a9dd29ae2851ed25ce8f4a58",
+    "mtime": 1784441448.014955,
+    "ast_hash": "56d4bd0cf77f9e71757745c3a9a69b2a",
     "semantic_hash": ""
   },
   "docs/human-playtest-checklist-v3.md": {
@@ -1115,8 +1115,8 @@
     "semantic_hash": ""
   },
   "TASKS.md": {
-    "mtime": 1784435423.0906947,
-    "ast_hash": "4ee28fb2f4070badb5231033f133cfde",
+    "mtime": 1784598501.8647444,
+    "ast_hash": "f9456fd0d50f8b64ad790ce227ddedbe",
     "semantic_hash": ""
   },
   "src/v3/harness/harness-core.ts": {
@@ -1130,8 +1130,8 @@
     "semantic_hash": ""
   },
   "tests/v3/harness-core.test.ts": {
-    "mtime": 1784333859.9252276,
-    "ast_hash": "8f9ca6f5d3e6997e622d87cce07eb17c",
+    "mtime": 1784586379.8676307,
+    "ast_hash": "54d91dec22c297e4ca6a94e11cf2f5ea",
     "semantic_hash": ""
   },
   "harness/ugt-harness.mjs": {
@@ -1150,8 +1150,8 @@
     "semantic_hash": ""
   },
   "docs/ROADMAP-V3.1-UI.md": {
-    "mtime": 1784426491.7412932,
-    "ast_hash": "c9fe86af964be08b47a6b19860f2a003",
+    "mtime": 1784597294.5234892,
+    "ast_hash": "416c7b9ef7a4408cab45140878f14589",
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/Design Advice (Fable).md": {
@@ -1215,13 +1215,13 @@
     "semantic_hash": ""
   },
   "scripts/shots-v3.mjs": {
-    "mtime": 1784429764.4636092,
-    "ast_hash": "f8447a6d6a45c12ff12d8da1e5aab0ad",
+    "mtime": 1784585667.556679,
+    "ast_hash": "7abaff0e7c37331e114fd7f0f578d395",
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/Gates.md": {
-    "mtime": 1784421127.8191745,
-    "ast_hash": "040d93ff3ef00a4643f69bcd0f04140c",
+    "mtime": 1784593624.9984102,
+    "ast_hash": "456fb29745765b4b02a8ae9e1cc58e09",
     "semantic_hash": ""
   },
   "tests/v3/baseline-gallery.test.ts": {
@@ -1230,8 +1230,8 @@
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/RUBRIC.md": {
-    "mtime": 1784421094.1762533,
-    "ast_hash": "1a46ec1fa2b991ea3425a1e2b27c3c5f",
+    "mtime": 1784593607.3899329,
+    "ast_hash": "02b52eb777da149c4f2f8642a75d03a3",
     "semantic_hash": ""
   },
   "docs/Redesign-V3.1/baseline/README.md": {
@@ -1280,8 +1280,8 @@
     "semantic_hash": ""
   },
   "src/ui-v3/queue.ts": {
-    "mtime": 1784425748.980291,
-    "ast_hash": "d4c3082d86ba6fd12f94b06681d59118",
+    "mtime": 1784441276.4736981,
+    "ast_hash": "9ff9ce5db4dd6a46e8b1aa15c779b32c",
     "semantic_hash": ""
   },
   "src/ui-v3/sound.ts": {
@@ -1315,8 +1315,8 @@
     "semantic_hash": ""
   },
   "docs/CREDITS.md": {
-    "mtime": 1784434161.4590447,
-    "ast_hash": "09036858623d610393bd05e3f9db7067",
+    "mtime": 1784510881.263967,
+    "ast_hash": "6d0b00903877eee51f43aa1824f02150",
     "semantic_hash": ""
   },
   "src/ui-v3/assets/table-texture.svg": {
@@ -1325,8 +1325,8 @@
     "semantic_hash": ""
   },
   "tests/v3/typography.test.ts": {
-    "mtime": 1784429562.6520898,
-    "ast_hash": "55e62c601ee322539c921057997b28cb",
+    "mtime": 1784485380.3630688,
+    "ast_hash": "cec029c12fc4f34c51c3e2d4364df108",
     "semantic_hash": ""
   },
   "src/ui-v3/assets/fonts/Cinzel-OFL.txt": {
@@ -1334,14 +1334,9 @@
     "ast_hash": "6aa143810354691fd0bf485775301a98",
     "semantic_hash": ""
   },
-  "src/ui-v3/assets/fonts/Inter-OFL.txt": {
-    "mtime": 1784429463.8526943,
-    "ast_hash": "5e95cb23ed621124015c5d23224ba2d3",
-    "semantic_hash": ""
-  },
   "tests/v3/token-chip-audit.test.ts": {
-    "mtime": 1784435161.3728132,
-    "ast_hash": "fd958a6a0dc4e54692c6bc8f381d61e2",
+    "mtime": 1784443797.6930184,
+    "ast_hash": "57c52258ce5dc7f6df9dd90a41ac896d",
     "semantic_hash": ""
   },
   "src/ui-v3/assets/icons/action.svg": {
@@ -1387,6 +1382,126 @@
   "src/ui-v3/assets/icons/skull.svg": {
     "mtime": 1784434026.5135553,
     "ast_hash": "47bee432e6def27b97bce5c5794de1c0",
+    "semantic_hash": ""
+  },
+  "data/board-v3.json": {
+    "mtime": 1784595018.649264,
+    "ast_hash": "7a3d9a3ea1eadfb83cda532114ab559e",
+    "semantic_hash": ""
+  },
+  "scripts/check-budget.mjs": {
+    "mtime": 1784442285.723148,
+    "ast_hash": "e81b131e19e6b9a5200efa3b500b2013",
+    "semantic_hash": ""
+  },
+  "src/ui-v3/card-face.ts": {
+    "mtime": 1784480971.5498545,
+    "ast_hash": "71d136d78471914cea331cf05ab1b235",
+    "semantic_hash": ""
+  },
+  "src/ui-v3/turn-track.ts": {
+    "mtime": 1784441232.1782854,
+    "ast_hash": "372c224a8454e348c47400a3f259cb93",
+    "semantic_hash": ""
+  },
+  "tests/v3/board-view.test.ts": {
+    "mtime": 1784595768.5352635,
+    "ast_hash": "f1d7e559c2a652bdce0f4bebd073818e",
+    "semantic_hash": ""
+  },
+  "tests/v3/card-face.test.ts": {
+    "mtime": 1784481009.467807,
+    "ast_hash": "5ba470a4d8cbae4959d13aff363c22e8",
+    "semantic_hash": ""
+  },
+  "tests/v3/chronicle.test.ts": {
+    "mtime": 1784483929.4754796,
+    "ast_hash": "a971bb0304041d82c93a7dab91629543",
+    "semantic_hash": ""
+  },
+  "tests/v3/data-sync.test.ts": {
+    "mtime": 1784581023.2009666,
+    "ast_hash": "59cfd410ac524482680c70ae6ecd6449",
+    "semantic_hash": ""
+  },
+  "tests/v3/hud-dissolution.test.ts": {
+    "mtime": 1784482216.472593,
+    "ast_hash": "bd9e1de571c6c901c63790b792073021",
+    "semantic_hash": ""
+  },
+  "tests/v3/m2-gallery.test.ts": {
+    "mtime": 1784443365.2979205,
+    "ast_hash": "c67bfdce3605f0ed51eef15c80e79a42",
+    "semantic_hash": ""
+  },
+  "tests/v3/start-screen.test.ts": {
+    "mtime": 1784483126.4639034,
+    "ast_hash": "ba28aea0947375dadfaa011648dff465",
+    "semantic_hash": ""
+  },
+  "tests/v3/threat-prompt.test.ts": {
+    "mtime": 1784514351.4171162,
+    "ast_hash": "1f2478e0996f2bca2fd3be779929679c",
+    "semantic_hash": ""
+  },
+  "tests/v3/turn-track.test.ts": {
+    "mtime": 1784441316.1577349,
+    "ast_hash": "930a7a1616ccea1f2af793cdac792de1",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/m2/README.md": {
+    "mtime": 1784485401.8471696,
+    "ast_hash": "150ae5e2a29cd3777700618a26534faa",
+    "semantic_hash": ""
+  },
+  "src/ui-v3/assets/fonts/Alegreya-OFL.txt": {
+    "mtime": 1784485299.6523702,
+    "ast_hash": "a61d2277c1eee48baf41e826c4f8d7f1",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/m2.6-ring-rewire-user-markup.png": {
+    "mtime": 1784592772.0220168,
+    "ast_hash": "cec45b5e47b9a318995508ca0ffc0d2d",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/m2/01-start-select.png": {
+    "mtime": 1784598256.52963,
+    "ast_hash": "25a619469334feef379dd73edfe8a23d",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/m2/02-board-midgame.png": {
+    "mtime": 1784598257.1686714,
+    "ast_hash": "f598ea45c4cae88508d0fcd209b86d9b",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/m2/03-capture-election.png": {
+    "mtime": 1784598256.8705342,
+    "ast_hash": "02d636c6880cbac46641af89779b118b",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/m2/04-ransom.png": {
+    "mtime": 1784598257.554684,
+    "ast_hash": "b8ca677884d49d6b60d31f0fa97eafeb",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/m2/05-wraith.png": {
+    "mtime": 1784598259.1822608,
+    "ast_hash": "0da982d6f763a537dbbdd00ce956b85d",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/m2/06-bequest.png": {
+    "mtime": 1784598257.9463658,
+    "ast_hash": "0565345ad32b869d6ccd9ac7a17675aa",
+    "semantic_hash": ""
+  },
+  "docs/Redesign-V3.1/m2/07-endgame.png": {
+    "mtime": 1784598258.267369,
+    "ast_hash": "a094b99f1393d3a5695ccf76cc88635b",
+    "semantic_hash": ""
+  },
+  "src/ui-v3/assets/frames/card-frame.svg": {
+    "mtime": 1784440150.6207137,
+    "ast_hash": "b65a281b4ee38a7a90f1bd13810d3b0e",
     "semantic_hash": ""
   }
 }

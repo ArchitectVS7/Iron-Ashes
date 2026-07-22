@@ -62,7 +62,8 @@ while its owner holds **any** living stronghold; once a Warlord holds zero stron
 eliminated at Dawn (§6), at which point its Keep ashes normally.
 > **Amended for the 21-node board (T-222 8-spoke ring):** the map now has 21 nodes and 8 real rays.
 > The blight-seam & spoke geometry that the v2 §2 4-spoke phrasing implied is restated authoritatively
-> in **§13 `[T-224 2026-07-20 — 8-ray blight seams & spokes]`** — read that for the current rule.
+> in **§13 `[T-224 2026-07-20 — 8-ray blight seams & spokes]`**, whose path shape is in turn amended
+> by **§13 `[T-236 2026-07-21 — edge-real serpentine spokes]`** — read those for the current rule.
 
 ### Pieces — THE COURT (new)
 Each player commands a small court. **Start minimal: 4 archetypes max** (the v2 rule holds).
@@ -568,9 +569,10 @@ tension; the accusation tools (Audit, Suspicion Log) are unchanged. Re-tune in a
   `SeededRandom(hash(seed, nodeId))`; `tokenId ≡ nodeId`; the Blight-seed bonus-recruit pre-binds under the
   same key.
 
-- **`[T-224 2026-07-20 — 8-ray blight seams & spokes]`** (AUTHORITATIVE; supersedes the v2 §2 4-spoke
-  phrasing on the 21-node board). The T-222 Closing Ring has 21 nodes and **8 real rays**, which split
-  cleanly into two families:
+- **`[T-224 2026-07-20 — 8-ray blight seams & spokes]`** (supersedes the v2 §2 4-spoke phrasing on
+  the 21-node board; **its PATH SHAPE and ray-membership are in turn superseded by `[T-236]` below**
+  — seam derivation, Keep exclusion, and doom-from-every-seam remain authoritative). The T-222
+  Closing Ring has 21 nodes and **8 real rays**, which split cleanly into two families:
   - **4 DIAGONAL blight rays** (NW / NE / SE / SW). Each is colinear `Holding → Forge → Approach →
     Keystone`. These are the blight spokes; the outer **Holding is the seam** where blight enters.
   - **4 CARDINAL home rays** (N / E / S / W). Each runs `Keep → Mid → Approach` — the players' protected
@@ -591,6 +593,37 @@ tension; the accusation tools (Audit, Suspicion Log) are unchanged. Re-tune in a
   (previously blight could pile onto / ash a Keep via the spoke). This is a *structural* shift in the
   doom path on the new topology — to be read in the tunable-vs-structural split of the fresh baseline,
   **never tuned** (balance is VOIDED/unmeasured until T-227; zero tunable-VALUE edits were made here).
+
+- **`[T-236 2026-07-21 — edge-real serpentine spokes on the 48-edge lattice]`** (AUTHORITATIVE;
+  supersedes the `[T-224]` path shape and ray membership). The sixth-review aesthetic pass (M2.6
+  follow-on) rewired the lattice to 48 edges: the 4 approach↔forge spokes and 4 keep↔mid spokes were
+  removed and the mid↔mid square was swapped for 8 mid↔forge edges. Two consequences are adopted as
+  design, not incident:
+  - **The 4 cardinal Mids are the mandatory cut.** Every path from the outer board (Keeps, Forges,
+    Holdings) to the Approach ring crosses a Mid. The Approaches remain the *held* chokepoints (only
+    routes to the Keystone, zone-of-control); the Mids are the *terrain* chokepoints — non-claimable
+    passes that dark forces can squat (MARCH is blocked until a STRIKE clears them).
+  - **Every blight-spoke hop is a REAL board edge** (the front never jumps between unconnected
+    nodes; enforced by `validateClosingRing` check 10). The spoke for quadrant `q` is the
+    **serpentine** `seam Holding → Mid((q+3) mod 4) → Forge(q) → Mid(q) → Approach(q) → Keystone`
+    — 6 nodes, outer → inner. The front enters at the diagonal seam, crosses the counter-clockwise
+    flank pass, burns the quadrant's Forge, crosses the quadrant's own pass, and closes through the
+    Approach onto the Keystone. **The Keep is still never on a blight spoke** (protected home — the
+    T-224 rule stands). **The Mid JOINS the spoke**: it is income-0 transit, so an ashing Mid strips
+    no production — it *closes the ring*, taxing movement (`ASHED_TRAVERSE_EXTRA_COST`) through the
+    pass. Each Mid sits on exactly two spokes (exit of `q`, entry of `q+1`), so adjacent fronts
+    converge on shared passes. Seam derivation, one-seam-per-diagonal, and doom-from-every-seam are
+    unchanged from T-224.
+  - **Home-ray restatement** (the T-224 `Keep → Mid → Approach` phrasing is retired with the
+    keep↔mid edges): the cardinal home ray is now the Keep sheltered BEHIND its two flanking Forges;
+    a Keep reaches the center via `Keep → Forge → Mid → Approach → Keystone` (distance 4 — the
+    farthest tier from the throne; Holdings sit at 3, an accepted inversion of the pre-rewire
+    geometry).
+  - **Balance note:** the spoke lengthened 4 → 6 nodes, a *structural* slowing of the doom clock on
+    top of the T-231/sixth-review distance changes. Balance remains **VOIDED/unmeasured** until the
+    next balance run reads the rewired board; zero tunable-VALUE edits were made here (doom pacing
+    levers `DOOM_COST_*` / `DAWN_BLIGHT_ADVANCE` / `SPREAD_AMOUNT_BASE` are the sanctioned
+    compensators for that run, if the band misses).
 
 **Carried to the code sprint as openRisks (P1):** wraith/curse concentration, ransom-direction kingmaking,
 discovery bonus rewards the strong, unclocked negotiation dead-time, attachment-without-recourse, the

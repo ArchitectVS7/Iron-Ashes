@@ -215,7 +215,7 @@ function chooseTargetNode(
       if (!keepId) return definition.approachIds[0];
 
       // Find first non-ashed node on the spoke from the outer edge (shared board.ts geometry —
-      // the diagonal ray seam → forge → approach → keystone, §13 [T-224]).
+      // the edge-real serpentine seam → mid → forge → mid → approach → keystone, §13 [T-236]).
       const spokePath = getSpokePath(definition, steerQuadrant);
       for (const nodeId of spokePath) {
         const ns = state.board.state.nodes[nodeId];

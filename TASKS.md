@@ -1239,7 +1239,7 @@ Orchestration: graphify=shots-v3 gallery screenshot generation and m2 gallery te
 
 ---
 
-### T-207 · CHECKPOINT — user visual review of M2 — `status: BLOCKED(awaiting user visual review)` · `coder: sonnet` · `after: T-206, T-235`
+### T-207 · CHECKPOINT — user visual review of M2 — `status: DONE` · `coder: sonnet` · `after: T-206, T-235`
 Regenerate the gallery into `docs/Redesign-V3.1/m2/` (committed), then **set this task
 `BLOCKED(awaiting user visual review)` and halt the run** — do not proceed into M3. The user scores
 `docs/Redesign-V3.1/RUBRIC.md` (target ≥8/10) and runs the blind read test ("web app or board game?" on
@@ -1288,6 +1288,16 @@ T-227; connector-density hierarchy). Star ground accepted as-is (subtle-dark). T
 the board — erase the forge ring, weave a star lattice (+16/−4 edges) — filed as milestone **M2.6**
 (T-230…T-235), user-authorized under the M2.5 exception. T-207 stays BLOCKED for a **fifth** review of
 T-235's regenerated gallery.
+
+**Gate 1 fifth/sixth review (user, 2026-07-21): APPROVED → T-207 DONE.** The user reworked the board
+visuals directly (the sixth-review lattice), which surfaced two follow-ups fixed before the flip:
+**T-236** (the blight spoke had gone edge-abstract on the reworked lattice → serpentine, edge-real
+spoke + `validateClosingRing` check 10 + a dated §13 spec amendment) and **T-237** (the on-map KEY
+moved OFF the board into a collapsible `<details>` plaque in the left edge cluster; a `shots:v3` seed
+sweep re-covered the Wraith screen the topology changes had lost, at seed 13; m2 gallery regenerated
+7/7). User verdict: **"ready to call the UI acceptable for further playtesting and development."**
+Motion items remain provisional — verified live at the T-306 checkpoint, as at every prior review.
+M3 (T-301+) is unblocked.
 
 ---
 

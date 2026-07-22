@@ -36,6 +36,7 @@ import {
   getApproachForQuadrant,
   getForgeForQuadrant,
   getKeepForQuadrant,
+  getMidForQuadrant,
 } from '../../src/v3/board.js';
 import { BLIGHT_TO_ASH, ACT_THRESHOLDS, SPREAD_AMOUNT_BASE, withTunables } from '../../src/v3/tunables.js';
 import type { GameState } from '../../src/v3/types.js';
@@ -142,37 +143,67 @@ describe('Blight System', () => {
     });
   });
 
-  describe('getSpokePath() — 8-ray diagonal spoke (§13 [T-224])', () => {
-    it('is EXACTLY [seam-holding, forge, approach, keystone] for each quadrant', () => {
+  describe('getSpokePath() — edge-real serpentine spoke (§13 [T-236])', () => {
+    it('is EXACTLY [seam, mid(q+3), forge, mid(q), approach, keystone] for each quadrant', () => {
       const def = state.board.definition;
       for (let q = 0; q < 4; q++) {
         const path = getSpokePath(def, q);
-        // The diagonal ray: 4 nodes, outer → inner.
+        // The serpentine: 6 nodes, outer → inner.
         expect(path).toEqual([
           getSpokeSeam(def, q),
+          getMidForQuadrant(def, (q + 3) % 4),
           getForgeForQuadrant(def, q),
+          getMidForQuadrant(def, q),
           getApproachForQuadrant(def, q),
           def.keystoneId,
         ]);
-        expect(path.length).toBe(4);
+        expect(path.length).toBe(6);
         // First tier is a Holding (the seam), last id is the keystone.
         expect(def.nodes[path[0]].tier).toBe('holding');
         expect(path[path.length - 1]).toBe(def.keystoneId);
       }
     });
 
-    it('contains the quadrant Forge + Approach but NEVER a Keep or a Mid', () => {
+    it('every consecutive spoke hop is a REAL board edge (§13 [T-236])', () => {
+      const def = state.board.definition;
+      for (let q = 0; q < 4; q++) {
+        const path = getSpokePath(def, q);
+        for (let i = 0; i + 1 < path.length; i++) {
+          expect(
+            def.nodes[path[i]].connections,
+            `spoke ${q} hop ${path[i]} → ${path[i + 1]} must be a drawn edge`,
+          ).toContain(path[i + 1]);
+        }
+      }
+    });
+
+    it('contains the quadrant Forge + Approach + both flanking Mids but NEVER a Keep', () => {
       const def = state.board.definition;
       for (let q = 0; q < 4; q++) {
         const path = getSpokePath(def, q);
         expect(path).toContain(getForgeForQuadrant(def, q));
         expect(path).toContain(getApproachForQuadrant(def, q));
+        // T-236: the Mids joined the spoke (the mandatory-cut passes the front burns through)…
+        expect(path).toContain(getMidForQuadrant(def, q));
+        expect(path).toContain(getMidForQuadrant(def, (q + 3) % 4));
+        // …but the Keep (protected home) is still excluded from every blight spoke.
         const tiers = path.map(id => def.nodes[id].tier);
-        // The behavioural flip vs the 4-spoke version: Keeps (homes) and Mids
-        // (cardinal transit) are excluded from every blight spoke.
         expect(tiers).not.toContain('keep');
-        expect(tiers).not.toContain('mid');
       }
+    });
+
+    it('each Mid sits on exactly two spokes (exit of q, entry of q+1)', () => {
+      const def = state.board.definition;
+      const midSpokeCount = new Map<string, number>();
+      for (let q = 0; q < 4; q++) {
+        for (const id of getSpokePath(def, q)) {
+          if (def.nodes[id].tier === 'mid') {
+            midSpokeCount.set(id, (midSpokeCount.get(id) ?? 0) + 1);
+          }
+        }
+      }
+      expect(midSpokeCount.size).toBe(4);
+      for (const count of midSpokeCount.values()) expect(count).toBe(2);
     });
   });
 
@@ -212,15 +243,24 @@ describe('Blight System', () => {
       expect(state.board.definition.nodes[frontier[0]].tier).toBe('holding');
     });
 
-    it('advances inward to the FORGE when the seam holding is ashed', () => {
+    it('advances inward to the entry MID, then the FORGE, as the spoke ashes (§13 [T-236])', () => {
+      const def = state.board.definition;
       // Ash the seam holding on quadrant 0's spoke.
-      ashNode(state, getSpokeSeam(state.board.definition, 0)!);
+      ashNode(state, getSpokeSeam(def, 0)!);
 
-      const frontier = getSpokeFrontier(state, 0);
+      let frontier = getSpokeFrontier(state, 0);
       expect(frontier.length).toBe(1);
-      // After the seam ashes, the frontier is the Forge (Keep is not on the spoke).
-      expect(frontier[0]).toBe(getForgeForQuadrant(state.board.definition, 0));
-      expect(state.board.definition.nodes[frontier[0]].tier).toBe('forge');
+      // After the seam ashes, the frontier is the entry Mid — the pass the front burns through
+      // (the Keep is not on the spoke).
+      expect(frontier[0]).toBe(getMidForQuadrant(def, 3));
+      expect(def.nodes[frontier[0]].tier).toBe('mid');
+
+      // Ash the entry Mid too — the front reaches the Forge next.
+      ashNode(state, getMidForQuadrant(def, 3)!);
+      frontier = getSpokeFrontier(state, 0);
+      expect(frontier.length).toBe(1);
+      expect(frontier[0]).toBe(getForgeForQuadrant(def, 0));
+      expect(def.nodes[frontier[0]].tier).toBe('forge');
     });
   });
 

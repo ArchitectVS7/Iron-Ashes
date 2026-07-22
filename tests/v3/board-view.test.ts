@@ -8,7 +8,7 @@
  *      and all five tier silhouettes appear across the board.
  *   2. The chaos-star inlay is present in the DOM — the decorative `.star-inlay` rays/octagram
  *      AND a burned carved-wood `.star-carve` fill beneath the graph — while the TRUE playable
- *      edges (`.edge`) stay a distinct element class (topology count = 52, decorative rays = 8),
+ *      edges (`.edge`) stay a distinct element class (topology count = 48, decorative rays = 8),
  *      so a decorative ray is never mistaken for a playable edge.
  *   3. A claimed node's SOLE ownership signal is a planted `.claim-banner` carrying the owner's
  *      heraldry sigil class (`sigil-<name>`) — never a coloured ring.
@@ -101,11 +101,12 @@ describe('T-208 board — accept #2: carved chaos-star inlay present, edges dist
     expect(fill.length > 0 && fill !== 'none', 'carve has a real (non-none) burn fill').toBe(true);
   });
 
-  it('true edges are a distinct element class: 52 playable edges vs 8 decorative rays', () => {
+  it('true edges are a distinct element class: 48 playable edges vs 8 decorative rays', () => {
     const svg = boardSvg();
-    // 52 is the v3 ring-rewire Closing-Ring topology (data/board-v3.json): a decorative ray is
-    // NEVER an edge. (T-231: 40 − 4 removed forge ring + 16 new lattice edges.)
-    expect(svg.querySelectorAll('.edge').length, '52 real playable edges').toBe(52);
+    // 48 is the v3 Closing-Ring topology (data/board-v3.json): a decorative ray is NEVER an edge.
+    // (T-231: 40 − 4 forge ring + 16 lattice = 52; − 4 mid↔keep = 48; sixth review − 4 approach↔forge
+    // + swap 4 mid↔mid for 8 mid↔forge = 48.)
+    expect(svg.querySelectorAll('.edge').length, '48 real playable edges').toBe(48);
     expect(svg.querySelectorAll('.star-inlay.ray').length, '8 decorative rays').toBe(8);
   });
 
@@ -256,11 +257,11 @@ function dataEdgeSet(): Set<string> {
 describe('T-217 board — accept: edge-parity (render == data, no missing / no phantom edges)', () => {
   it('every data/board.json edge is rendered exactly once and no extra connectors exist', () => {
     const data = dataEdgeSet();
-    expect(data.size, 'v3 ring-rewire Closing-Ring topology has 52 undirected edges').toBe(52);
+    expect(data.size, 'v3 Closing-Ring topology has 48 undirected edges').toBe(48);
 
     const svg = boardSvg();
     const rendered = Array.from(svg.querySelectorAll('line.edge'));
-    expect(rendered.length, 'one line.edge per data edge (52)').toBe(52);
+    expect(rendered.length, 'one line.edge per data edge (48)').toBe(48);
 
     // Map each rendered endpoint back to a node id by nearest layout position (tight epsilon).
     const ids = new Set<string>();
@@ -322,7 +323,7 @@ describe('T-217 board — accept: edge-parity (render == data, no missing / no p
     expect((group?.getAttribute('filter') ?? '').includes('edgeGlow'), 'group carries the road glow').toBe(true);
     expect(svg.querySelector('defs filter#edgeGlow'), 'the edge-glow filter is defined').not.toBeNull();
     // The glow is a GROUP filter — the DOM still holds exactly one line.edge per edge.
-    expect(group?.querySelectorAll('line.edge').length, '52 edge lines live inside the group').toBe(52);
+    expect(group?.querySelectorAll('line.edge').length, '48 edge lines live inside the group').toBe(48);
   });
 });
 
@@ -346,11 +347,11 @@ describe('T-232 board — accept: rewired lattice renders, forge ring gone, prim
     });
   }
 
-  it('the rewired lattice renders exactly 52 edges (T-231 +16/−4 delta), data and render agree', () => {
-    // The exact NEW edge count (the +16 woven lattice − 4 removed forge ring against the old 40).
-    expect(dataEdgeSet().size, 'data has the 52-edge rewired topology').toBe(52);
+  it('the lattice renders exactly 48 edges (T-231 +16/−4, then −4 mid↔keep), data and render agree', () => {
+    // The exact edge count (T-231's 52, then the fifth-review −4 mid↔keep spokes).
+    expect(dataEdgeSet().size, 'data has the 48-edge topology').toBe(48);
     const svg = boardSvg();
-    expect(svg.querySelectorAll('line.edge').length, 'render draws all 52 from data').toBe(52);
+    expect(svg.querySelectorAll('line.edge').length, 'render draws all 48 from data').toBe(48);
   });
 
   it('the removed forge ring no longer renders (no edge joins two forge nodes)', () => {
@@ -367,16 +368,16 @@ describe('T-232 board — accept: rewired lattice renders, forge ring gone, prim
     expect(renderedForgeRing, 'the removed forge ring no longer renders').toEqual([]);
   });
 
-  it('primary rays are brighter than the secondary lattice (12 spokes vs 40 weave)', () => {
+  it('primary rays are brighter than the secondary lattice (4 spokes vs 44 weave)', () => {
     expect(PRIMARY_EDGE_OPACITY, 'primary ley-lines brighter than secondary').toBeGreaterThan(
       SECONDARY_EDGE_OPACITY,
     );
     const svg = boardSvg();
     const primary = Array.from(svg.querySelectorAll('line.edge.edge-primary'));
     const secondary = Array.from(svg.querySelectorAll('line.edge.edge-secondary'));
-    expect(primary.length, '12 primary radial spokes').toBe(12);
-    expect(secondary.length, '40 secondary lattice veins').toBe(40);
-    expect(primary.length + secondary.length, 'every edge is classified exactly once').toBe(52);
+    expect(primary.length, '4 primary radial spokes').toBe(4);
+    expect(secondary.length, '44 secondary lattice veins').toBe(44);
+    expect(primary.length + secondary.length, 'every edge is classified exactly once').toBe(48);
     for (const e of primary) {
       expect(e.getAttribute('stroke-opacity'), 'primary carries the brighter inline opacity').toBe(
         String(PRIMARY_EDGE_OPACITY),
@@ -389,36 +390,37 @@ describe('T-232 board — accept: rewired lattice renders, forge ring gone, prim
     }
   });
 
-  it('the 12 primary edges are exactly the radial spoke set (not an arbitrary 12)', () => {
+  it('the 4 primary edges are exactly the radial spoke set (not an arbitrary 4)', () => {
     const svg = boardSvg();
     const primaryKeys = new Set(renderedEdgeKeys(svg, 'line.edge.edge-primary'));
     const expected = new Set<string>();
     for (const d of ['nw', 'ne', 'se', 'sw']) {
       expected.add(edgeKey('keystone', `approach-${d}`)); // keystone ↔ approach
-      expected.add(edgeKey(`approach-${d}`, `forge-${d}`)); // approach ↔ forge
     }
-    for (const d of ['n', 'e', 's', 'w']) {
-      expected.add(edgeKey(`keep-${d}`, `mid-${d}`)); // keep ↔ mid
-    }
-    expect(primaryKeys.size, '12 distinct primary edges').toBe(12);
+    // Only the 4 keystone↔approach spokes are radial now — the sixth-review pass removed the
+    // approach↔forge spokes (the other former radial set).
+    expect(primaryKeys.size, '4 distinct primary edges').toBe(4);
     expect([...primaryKeys].sort(), 'primary set == the radial spokes').toEqual([...expected].sort());
   });
 });
 
 describe('T-217 board — accept: distinct forge / approach silhouettes', () => {
-  it('a forge carries its ember glow (halo + hot core) and an approach a watchtower gate', () => {
+  it('a forge carries its anvil silhouette and an approach a watchtower gate — structurally distinct', () => {
+    // Sixth-review: the forge's ember identity is now its orange silhouette fill on the uniform black
+    // space-disc (the old .loc-glow halo/core was retired), so distinctness rides the silhouette class
+    // + the gatehouse-only gate marker, not a glow element.
     const svg = boardSvg();
     const forge = svg.querySelector('g[data-node="forge-ne"]');
     const approach = svg.querySelector('g[data-node="approach-ne"]');
     expect(forge?.querySelector('.loc-forge'), 'forge has a .loc-forge silhouette').not.toBeNull();
-    expect(forge?.querySelector('.loc-glow'), 'forge has an ember halo').not.toBeNull();
-    expect(forge?.querySelector('.loc-glow-core'), 'forge has a hot ember core').not.toBeNull();
+    // Every space now sits on a black space-disc (the board-space marker).
+    expect(forge?.querySelector('.space-disc'), 'forge sits on a space disc').not.toBeNull();
 
     expect(approach?.querySelector('.loc-approach'), 'approach has a .loc-approach silhouette').not.toBeNull();
     expect(approach?.querySelector('.approach-gate'), 'approach has the watchtower gate marker').not.toBeNull();
-    // The forge silhouette has NO gate marker and the approach NO ember — structurally distinct.
+    // The forge silhouette has NO gate marker and the ember glow is gone — structurally distinct.
     expect(forge?.querySelector('.approach-gate'), 'forge is not a gatehouse').toBeNull();
-    expect(approach?.querySelector('.loc-glow'), 'approach is not an ember forge').toBeNull();
+    expect(forge?.querySelector('.loc-glow'), 'the retired ember glow no longer renders').toBeNull();
   });
 });
 
@@ -594,7 +596,7 @@ describe('T-220 board — accept #2: connectors thinned & materialized (worn-sto
     expect(EDGE_STROKE_W, 'vein weight reduced from the old 4').toBeLessThan(4);
     const svg = boardSvg();
     const edges = Array.from(svg.querySelectorAll('line.edge'));
-    expect(edges.length, 'still 52 playable edges').toBe(52);
+    expect(edges.length, 'still 48 playable edges').toBe(48);
     for (const e of edges) {
       expect(e.getAttribute('stroke-width'), 'edge carries the inline thinned width').toBe(String(EDGE_STROKE_W));
     }
@@ -605,7 +607,7 @@ describe('T-220 board — accept #2: connectors thinned & materialized (worn-sto
     const svg = boardSvg();
     const beds = Array.from(svg.querySelectorAll('line.edge-bed'));
     const edges = Array.from(svg.querySelectorAll('line.edge'));
-    expect(beds.length, 'one road bed per edge (52)').toBe(52);
+    expect(beds.length, 'one road bed per edge (48)').toBe(48);
     expect(beds.length, 'bed count matches edge count').toBe(edges.length);
     for (const b of beds) {
       expect(b.getAttribute('stroke-width'), 'bed carries the inline wider width').toBe(String(EDGE_BED_W));

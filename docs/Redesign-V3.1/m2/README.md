@@ -22,3 +22,9 @@ To regenerate: `npm run shots:v3 -- --out docs/Redesign-V3.1/m2`
 5. `05-wraith.png` — Wraith afterlife-input / Wraiths sidebar for an eliminated player.
 6. `06-bequest.png` — Death Bequest panel.
 7. `07-endgame.png` — Victory / defeat game-over frame.
+8. `board-clean.png` — **Board-only export** (fifth-review request): the board SVG with NO turn
+   marker (header) and NO HUD overlays, for easiest study of the node/edge lattice. (Sixth review:
+   the MAP KEY moved off the board into a collapsible plaque in the left edge cluster — T-237 — so
+   this export is now pure board; the key is visible, collapsed, in `02-board-midgame.png`.)
+   Captured off the early mid-game board so every node is pristine (an endgame capture scorches
+   nodes to ash, which vanish into the dark star).

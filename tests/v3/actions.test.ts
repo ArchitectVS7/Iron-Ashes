@@ -78,8 +78,9 @@ describe('Actions System', () => {
     });
 
     it('throws if rival holds Approach (ZoC)', () => {
-      // Move player 0 to forge-nw first
-      state.players[0].warlordNodeId = 'forge-nw';
+      // Move player 0 to mid-n, which is adjacent to approach-nw (the sixth-review topology removed
+      // the old approach↔forge edge, so the march source is now the mid-belt node, not the forge).
+      state.players[0].warlordNodeId = 'mid-n';
 
       // Put player 1 at approach-nw
       state.players[1].warlordNodeId = 'approach-nw';

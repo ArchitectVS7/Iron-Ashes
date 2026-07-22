@@ -248,11 +248,13 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
 .table-stage {
   height: 100vh;
   display: grid;
-  grid-template-columns: 264px minmax(0, 1fr) 264px;
+  /* Fifth-review FULL dissolution: the board fills the stage; the former left/right 264px status
+     columns are gone — realm + house plaques now float as board-EDGE overlays (see .edge-cluster). */
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr);
   grid-template-areas:
-    "top    top    top"
-    "realm  board  houses";
+    "top"
+    "board";
   gap: 8px;
   padding: 8px;
   /* Committed CC0 wood texture (see docs/CREDITS.md) over a candlelit warm base. */
@@ -265,9 +267,7 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
 }
 
 .header { grid-area: top; }
-.hud-realm { grid-area: realm; }
 .board-region { grid-area: board; }
-.hud-houses { grid-area: houses; }
 
 /* The board wrapper — the largest top-level region (asserted by shots:v3). It now also anchors the
    board-attached COMMAND PLAQUE + CHRONICLE overlays (T-210), so it is a positioning context. */
@@ -278,18 +278,71 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
   justify-content: center;
   min-width: 0;
   min-height: 0;
+  /* Side gutters hold the dissolved edge clusters on bare table; the board centres in what's left. */
+  padding: 4px clamp(150px, 19vw, 264px);
   filter: drop-shadow(0 8px 22px rgba(0, 0, 0, 0.55));
 }
 
-/* Edge HUD rails — diegetic plaque stacks, never a flat status column. */
-.hud {
+/* Edge clusters (fifth-review full dissolution) — the dissolved side rails as board-EDGE overlays
+   floating on the bare table in the gutters, never a flat status column. Each is a vertical plaque
+   stack pinned to a board edge, banded above the bottom command-plaque / chronicle / hand dock. */
+.edge-cluster {
+  position: absolute;
+  top: 6px;
+  bottom: 150px;
+  z-index: 4;
+  width: clamp(140px, 18.5vw, 258px);
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  min-height: 0;
+  gap: 6px;
   overflow-y: auto;
-  padding: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: #5a4a34 transparent;
+  pointer-events: auto;
 }
+.edge-realm { left: 6px; }
+.edge-houses { right: 6px; }
+.edge-cluster::-webkit-scrollbar { width: 6px; }
+.edge-cluster::-webkit-scrollbar-thumb { background: #5a4a34; border-radius: 3px; }
+
+/* The realm reference blocks read as carved plaques on the wood (not the flat web panel), matching
+   the house-plaque material language. Hold Rail keeps its own always-open treatment below. */
+.edge-realm .info-block {
+  background: linear-gradient(180deg, rgba(43, 36, 32, 0.94), rgba(23, 20, 26, 0.94));
+  border: 1px solid #3a2f26;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(232, 220, 195, 0.05), 0 2px 6px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(2px);
+}
+/* Mix by importance (fifth review): the reference blocks collapse to a hover/focus-expand tab so the
+   board reads clean; Hold Rail (§13 P0-11 — every hostage visible all game) stays open. Zero info
+   loss: the body is one hover/focus away, matching the rubric's "hover/expand plaques acceptable". */
+.edge-realm .info-block:not(.hold-rail) { cursor: pointer; outline-offset: 2px; }
+.edge-realm .info-block:not(.hold-rail) > :not(.block-title) { display: none; }
+.edge-realm .info-block:not(.hold-rail):hover > *,
+.edge-realm .info-block:not(.hold-rail):focus-within > * { display: revert; }
+.edge-realm .info-block:not(.hold-rail) .block-title { margin-bottom: 0; }
+.edge-realm .info-block:not(.hold-rail) .block-title::after { content: " \25B8"; opacity: 0.55; }
+.edge-realm .info-block:not(.hold-rail):hover .block-title,
+.edge-realm .info-block:not(.hold-rail):focus-within .block-title { margin-bottom: 6px; }
+.edge-realm .info-block:not(.hold-rail):hover .block-title::after,
+.edge-realm .info-block:not(.hold-rail):focus-within .block-title::after { content: " \25BE"; }
+
+/* The hand dock — the human's fanned hand pinned to the board's bottom edge (was the left rail),
+   centred between the bottom-left command plaque and the bottom-right chronicle. Cards float on the
+   wood; a low z keeps it under the two bottom plaques if a tall prompt ever reaches over it. */
+.hand-dock {
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  transform: translateX(-50%);
+  z-index: 3;
+  max-width: 44%;
+  display: flex;
+  justify-content: center;
+  pointer-events: auto;
+}
+.hand-dock .hand { justify-content: center; }
 /* ── Command plaque (T-210) — the phase controls, dissolved from the old full-width bottom tray into
    a compact carved-wood plaque anchored to the board's bottom-left corner. NEVER full-width: it sizes
    to its content and is clearly narrower than the board. Reuses the header/house-plaque material
@@ -384,9 +437,10 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
    soft-light lets the grain modulate the fill (charred flecks) rather than paint a flat wash,
    giving the dark burned ground material body (T-220). */
 .star-char { pointer-events: none; opacity: 0.5; mix-blend-mode: soft-light; }
-/* Ember/bevel rim — a warm blurred glow tracing the silhouette edge (keeps the outline crisp).
-   Nudged up (0.5→0.6) so the ember edge stays bold against the darker T-220 ground. */
-.star-ember { pointer-events: none; stroke: rgba(232, 134, 58, 0.6); stroke-width: 2.5; stroke-linejoin: round; }
+/* Bevel rim — a soft blurred DARK edge tracing the silhouette so the carved star still reads with
+   material depth. Fifth-review (user): the former ORANGE ember rim read like a node-to-node edge and
+   fought the real connectors, so the glow is now a dark inner-shadow bevel (no warm line). */
+.star-ember { pointer-events: none; stroke: rgba(8, 5, 3, 0.55); stroke-width: 2; stroke-linejoin: round; }
 
 /* Decorative chaos-magic star marquetry over the carve — NOT playable edges. Higher-contrast
    burn strokes so the ray/octagon/octagram read as inlaid lines, kept visually distinct from
@@ -395,6 +449,37 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
 .star-inlay.ray { stroke-width: 1.5; opacity: 0.3; }
 .star-inlay.octagon { stroke-width: 2; opacity: 0.5; }
 .star-inlay.octagram { stroke-width: 1.5; opacity: 0.4; }
+
+/* The MAP KEY — icon ↔ place-type. Sixth review (user): moved OFF the board into the left edge
+   cluster and made COLLAPSIBLE (a native `<details>`, closed by default), so it never overlays play
+   and costs nothing until asked for. It reuses the real `.loc-*` node silhouettes so it can't drift
+   from the board it explains, and is styled as a carved plaque like the sibling reference blocks. */
+.map-key {
+  background: linear-gradient(180deg, rgba(43, 36, 32, 0.94), rgba(23, 20, 26, 0.94));
+  border: 1px solid #3a2f26;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(232, 220, 195, 0.05), 0 2px 6px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(2px);
+  padding: 6px 8px;
+  flex: none;
+}
+.map-key > summary {
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #cdb277;
+}
+.map-key > summary::-webkit-details-marker { display: none; }
+.map-key > summary::before { content: '▸ '; opacity: 0.7; }
+.map-key[open] > summary::before { content: '▾ '; }
+.map-key[open] > summary { margin-bottom: 6px; }
+/* Authored size, never stretched to the plaque width — the key icons must match the board's scale. */
+.map-key-svg { display: block; max-width: 100%; height: auto; }
+.legend-section { font-family: var(--font-display); font-size: 9.5px; letter-spacing: 0.14em; fill: #8f7a52; }
+.legend-label { font-family: var(--font-body); font-size: 12.5px; fill: #e6dabf; }
 
 /* Real playable edges — MATERIAL roads on top of the inlay (T-220): a thin etched-gold vein riding
    a wider worn-stone road bed, distinct from the muted decorative rays they cross (the `.edges`
@@ -409,29 +494,28 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
    brightness signal is the inline `stroke-opacity` set in board-view.ts (PRIMARY_EDGE_OPACITY >
    SECONDARY_EDGE_OPACITY); these colour tweaks add in-browser warmth on top of that. */
 .edge-primary { stroke: #e6bb5c; }
-.edge-secondary { stroke: #b0863a; }
+.edge-secondary { stroke: #d4a94e; }
 
 /* The node-group wraps each location; the illustration IS the node body (no enclosing disc). */
 .node-group { cursor: pointer; }
 
 /* Illustrated map locations — the node bodies. */
 .loc { pointer-events: none; }
+/* Sixth-review (user): every space sits on a solid black disc with a white outline — the uniform
+   "board space" marker (following the old forge-circle idea). The tier silhouette draws on top. */
+.space-disc { fill: #0a0806; stroke: #f2eee2; stroke-width: 1.4; }
+/* Per-class silhouette colour (sixth-review, user): each building class gets a distinct hue that
+   reads on the black disc. `.loc-line` detail stays dark — it sits on the coloured fill, not the disc.
+   The tier rules below override this default. */
 .loc-fill { fill: #d8c7a6; stroke: #1a120b; stroke-width: 1; stroke-linejoin: round; }
 .loc-line { fill: none; stroke: #1a120b; stroke-width: 1.5; }
-.loc-keystone .loc-fill { fill: #6e5a86; stroke: var(--accent); stroke-width: 1.25; }
-/* Forge ember: a two-stage glow (outer halo + brighter hot core) so the lit anvil separates from
-   the dark carved star it stands on — it reads as a working forge, not another dark icon. */
-.loc-forge .loc-glow { fill: #e8863a; opacity: 0.55; }
-.loc-forge .loc-glow-core { fill: #ffb457; opacity: 0.7; }
-.loc-approach .loc-fill { fill: #cdbb96; }
-/* Mid transit BRIDGE (T-225): cool weathered river-stone — deliberately cooler + greyer than the warm
-   parchment-stone forge/keep/holding (#d8c7a6) and the approach gatehouse (#cdbb96), so the cardinal
-   waystation reads as a distinct masonry crossing. Kept pale enough to hold against the dark burned
-   star ground (mid-tier legibility, Gate-1). The `.mid-span` arch gets a slightly softened outline so
-   the span line reads as a stone arch, not a hard cut. Lower specificity (0,2,0) than the ashed/heart
-   state rules (0,3,0) below, so ash + danger-lit heart states still re-home correctly onto the bridge. */
-.loc-mid .loc-fill { fill: #a6a49c; }
-.loc-mid .mid-span { stroke: #2c2620; stroke-width: 1.75; }
+.loc-keystone .loc-fill { fill: #a98fd0; stroke: var(--accent); stroke-width: 1.25; } /* purple throne */
+.loc-keep .loc-fill { fill: #7fb0e0; }     /* steel blue */
+.loc-forge .loc-fill { fill: #ef9a4e; }    /* ember orange */
+.loc-holding .loc-fill { fill: #e6c65f; }  /* gold */
+.loc-approach .loc-fill { fill: #e08a8a; } /* rose */
+.loc-mid .loc-fill { fill: #7bcf92; }      /* green */
+.loc-mid .mid-span { stroke: #163a24; stroke-width: 1.75; }
 /* Ashed: the former ASH-disc fill re-homed onto the silhouette (zero info loss). */
 .loc.ashed { opacity: 0.7; }
 .loc.ashed .loc-fill { fill: var(--ash); stroke: #3a2128; }
@@ -452,11 +536,11 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
 .pip-on { fill: #e0552b; }
 .pip-off { fill: #3a3340; }
 .piece { stroke-width: 2; }
-.piece-glyph { fill: #fff; font-size: 8px; text-anchor: middle; pointer-events: none; }
-.crown-glyph { fill: var(--accent); font-size: 14px; text-anchor: middle; }
-.dk-glyph { fill: #c9b8ff; font-size: 16px; text-anchor: middle; }
+.piece-glyph { fill: #fff; font-size: 11px; text-anchor: middle; pointer-events: none; }
+.crown-glyph { fill: var(--accent); font-size: 19px; text-anchor: middle; }
+.dk-glyph { fill: #c9b8ff; font-size: 22px; text-anchor: middle; }
 .heart-hp { fill: #fca5a5; font-size: 12px; font-weight: 700; text-anchor: middle; }
-.sigil { font-size: 14px; text-anchor: middle; pointer-events: none; }
+.sigil { font-size: 21px; text-anchor: middle; pointer-events: none; }
 .sigil-bright { fill: #fde68a; }
 .sigil-dark { fill: #a855f7; }
 
@@ -737,7 +821,7 @@ button.primary { background: linear-gradient(180deg, #e2b23c, #c9a227); color: #
 
 /* The fanned hand — overlapping paper with a slight arc + hover-raise (T-204 static; M3 animates). */
 .hand-fan { display: inline-flex; align-items: flex-end; padding: 4px 6px 8px; max-width: 100%; }
-/* Deep overlap (−30px) so a full 6-card hand — 62 + 5×32 = 222px — fits the 264px realm column with
+/* Deep overlap (−30px) so a full 6-card hand — 62 + 5×32 = 222px — fits the bottom hand dock with
    no clipping; each earlier card shows its left index strip while the rightmost card shows full. */
 .card-slot { display: inline-block; width: 62px; margin-left: -30px; transition: transform 0.15s ease, filter 0.15s ease;
   filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.5)); }
