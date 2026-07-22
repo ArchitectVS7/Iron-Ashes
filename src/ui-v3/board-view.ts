@@ -32,6 +32,7 @@
 
 import type { ObservableState } from '../v3/index.js';
 import { BLIGHT_TO_ASH } from '../v3/tunables.js';
+import { AFFORDANCE_CLASS, type NodeVerdict } from './affordance.js';
 
 /**
  * The four muted HOUSE heraldry colours (Gate 0.5, 2026-07-18) — tuned to the candlelit
@@ -378,8 +379,18 @@ export function renderMapKey(): string {
   </details>`;
 }
 
-/** Build the full board SVG markup from the observable projection. */
-export function renderBoard(state: ObservableState): string {
+/**
+ * Build the full board SVG markup from the observable projection.
+ *
+ * `legality` (T-304, optional) is the per-node MARCH verdict map from `marchLegality`. When given,
+ * each `g.node-group` additionally carries `is-legal`/`is-illegal` + `data-legal` (and, when
+ * illegal, `data-illegal-reason`) so the glow and the `not-allowed` cursor are purely class-driven.
+ * When omitted the emitted markup is byte-identical to the affordance-free board.
+ */
+export function renderBoard(
+  state: ObservableState,
+  legality?: ReadonlyMap<string, NodeVerdict>,
+): string {
   const def = state.board.definition;
   const nodes = state.board.state.nodes;
   const heart = state.shadowking.heart;
@@ -510,7 +521,18 @@ export function renderBoard(state: ObservableState): string {
     const owned = owner !== null && !ns.ashed;
     const isHeart = heart !== null && heart.nodeId === id;
 
-    circles += `<g class="node-group" data-node="${id}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})">`;
+    // T-304 affordance classes — present only when a legality map was supplied. Every value here
+    // is derived from the fogged projection (adjacency, banners, public warlord positions), so no
+    // attribute can leak anything the viewer is not entitled to see.
+    const verdict = legality?.get(id);
+    let affordCls = '';
+    let affordAttrs = '';
+    if (verdict !== undefined) {
+      affordCls = ` ${verdict.legal ? AFFORDANCE_CLASS.legal : AFFORDANCE_CLASS.illegal}`;
+      affordAttrs = ` data-legal="${verdict.legal}"`;
+      if (!verdict.legal) affordAttrs += ` data-illegal-reason="${esc(verdict.reason ?? '')}"`;
+    }
+    circles += `<g class="node-group${affordCls}" data-node="${id}"${affordAttrs} transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})">`;
     circles += `<title>${esc(id)} — ${esc(ndef.tier)}${owner !== null ? ` · ${esc(HOUSES[owner]?.name ?? `P${owner + 1}`)}` : ' · unclaimed'}${ns.ashed ? ' · ASHED' : ''}</title>`;
 
     // The illustrated location IS the node body — no enclosing stone disc. The former disc's

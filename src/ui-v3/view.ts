@@ -15,7 +15,7 @@
 
 import type { GameSession, Exposure } from './session.js';
 import { renderBoard, renderMapKey, PLAYER_COLORS, HOUSES, houseSigilSvg } from './board-view.js';
-import { AnimationQueue } from './queue.js';
+import { AnimationQueue, resolveMode } from './queue.js';
 import { HandAnimator } from './hand-anim.js';
 import { FlipAnimator } from './flip-anim.js';
 import { SoundManager } from './sound.js';
@@ -23,6 +23,13 @@ import { diffObservable } from './moves.js';
 import { tokenChip, gauge } from './token-chip.js';
 import { turnTrack } from './turn-track.js';
 import { handFan } from './hand-fan.js';
+import {
+  AFFORDANCE_CLASS,
+  AffordanceAnimator,
+  actionSelector,
+  marchLegality,
+  nodeSelector,
+} from './affordance.js';
 import {
   TUNABLES,
   HERALD_RECRUIT_COST,
@@ -44,6 +51,30 @@ function findOath(oaths: readonly Oath[], me: number): Oath | undefined {
 
 function oathPartner(oath: Oath, me: number): number {
   return oath.a === me ? oath.b : oath.a;
+}
+
+/**
+ * The `data-action` verbs that route through `session.humanAction` — i.e. a PLAYER_ACTION command,
+ * which the session drops SILENTLY unless it is the human's live turn. T-304 refuses those clicks
+ * visibly instead. (Verbs outside this set — the Threat advance, wraith input, bequest, Last Stand,
+ * accusation, new game — are legal outside the human's ACTION turn and stay ungated.)
+ */
+const TURN_GATED_VERBS: ReadonlySet<string> = new Set([
+  'claim', 'strike', 'pass', 'raid', 'ransom', 'assault-heart', 'recruit', 'parley',
+  'herald-march', 'swear', 'break-oath', 'audit',
+]);
+
+/**
+ * Stamp the affordance class onto a rendered control (T-304). The ACTION panel only EMITS verbs the
+ * human may legally take, so everything it produces is `is-legal` — except the deliberately
+ * `disabled` gates (unaffordable ransom, below-margin capture, no wraith ammo), which are
+ * `is-illegal`. Class-driven: the glow itself lives entirely in CSS, never in an inline style.
+ */
+function markControl(html: string): string {
+  const cls = /\bdisabled\b/.test(html) ? AFFORDANCE_CLASS.illegal : AFFORDANCE_CLASS.legal;
+  return html.startsWith('<button class="')
+    ? html.replace('<button class="', `<button class="${cls} `)
+    : html.replace('<button', `<button class="${cls}"`);
 }
 
 /** Local adjacency check off the observable board definition (no full-state reach). */
@@ -91,6 +122,13 @@ export function mountView(root: HTMLElement, session: GameSession): void {
   // content can only enter the DOM at the midpoint. Fog-scoped to the human's seat.
   const flipAnim = new FlipAnimator(() => root, session.humanIndex);
   const queue = new AnimationQueue(settle, 'auto', sound, handAnim, flipAnim);
+  // Affordance feedback (T-304). Deliberately OUTSIDE the queue: a rejection is INPUT feedback, not
+  // a Move — it must never enter the Move stream, gate `isIdle`, or touch state. Instant mode
+  // (jsdom / prefers-reduced-motion) dispatches the preset with a null timeline: no tween is built,
+  // the path stays synchronous, and the static `is-shaking` mark carries the refusal instead.
+  const affordance = new AffordanceAnimator(() => root, session.humanIndex);
+  const beat = (): ReturnType<typeof AffordanceAnimator.beatTimeline> | null =>
+    (resolveMode() === 'instant' ? null : AffordanceAnimator.beatTimeline());
 
   let prev = session.observable();
   session.onChange = (): void => {
@@ -104,9 +142,23 @@ export function mountView(root: HTMLElement, session: GameSession): void {
     if (!target) return;
     const nodeAttr = target.getAttribute('data-node');
 
-    // A board-node click Marches the Warlord there (only on the human's live turn).
-    if (nodeAttr && session.isHumanTurn) {
+    // A board-node click Marches the Warlord there. Legality is pre-checked against the SAME
+    // presentational mirror that painted the glow (T-304) — an illegal target shakes and NO
+    // command is dispatched. No alert, no text: the refusal is the motion + the static mark.
+    if (nodeAttr) {
+      const verdict = marchLegality(session.observable(), session.humanIndex, session.isHumanTurn)
+        .get(nodeAttr);
+      if (verdict === undefined || !verdict.legal) {
+        affordance.shake(nodeSelector(nodeAttr), 'target', beat());
+        return;
+      }
       session.humanAction({ type: 'PLAYER_ACTION', playerIndex: session.humanIndex, action: { type: 'MARCH', targetNodeId: nodeAttr } });
+      // Drift guard: if the engine rejected a MARCH this mirror called legal, still refuse in the
+      // same visual language (and never leave a text error behind).
+      if (session.lastError !== null) {
+        session.lastError = null;
+        affordance.shake(nodeSelector(nodeAttr), 'target', beat());
+      }
       return;
     }
 
@@ -117,6 +169,18 @@ export function mountView(root: HTMLElement, session: GameSession): void {
     const act = (a: PlayerAction): void =>
       session.humanAction({ type: 'PLAYER_ACTION', playerIndex: h, action: a });
 
+    // Pre-empt the two SILENT rejections (T-304): `humanAction` and `submitHumanPledge` return
+    // without doing anything when it is not the human's live turn / not the Pledge — which used to
+    // give a player zero feedback. Refuse them visibly instead, in the same shake language.
+    const wrongMoment =
+      (TURN_GATED_VERBS.has(verb) && !session.isHumanTurn) ||
+      (verb === 'pledge' && session.observable().phase !== 'PLEDGE');
+    if (wrongMoment) {
+      affordance.shake(actionSelector(action), 'control', beat());
+      return;
+    }
+
+    const errBefore = session.lastError;
     switch (verb) {
       case 'advance-threat': session.advanceFromThreat(); break;
       case 'pledge': session.submitHumanPledge(Number(args[0])); break;
@@ -141,6 +205,14 @@ export function mountView(root: HTMLElement, session: GameSession): void {
       case 'laststand-commit': session.commitLastStand(); break;
       case 'new-game': location.reload(); break;
     }
+
+    // The single ILLEGALITY FUNNEL: any engine rejection raised by this click becomes a shake —
+    // never a text error, never an alert. `session.lastError` stays the session's own data field
+    // (unit tests still read it); it is simply cleared here so no illegality text can reach the DOM.
+    if (session.lastError !== null && session.lastError !== errBefore) {
+      session.lastError = null;
+      affordance.shake(actionSelector(action), 'control', beat());
+    }
   });
 
   // Initial paint also routes through the queue (an empty diff → settle → first render).
@@ -151,6 +223,9 @@ export function mountView(root: HTMLElement, session: GameSession): void {
 
 export function renderApp(session: GameSession): string {
   const s = session.observable();
+  // T-304 affordances: one pure pass over the fogged projection gives every board node its MARCH
+  // verdict, which the board turns into the `is-legal` glow / `is-illegal` cursor. No engine call.
+  const legality = marchLegality(s, session.humanIndex, session.isHumanTurn);
   // FULL diegetic dissolution (Gate 0.5 + Gate 1 fixes T-210 / fifth review): NO persistent status
   // COLUMN on either side and no full-width bottom bar. The board fills the stage on the textured
   // table; every datum the old side-panes showed now floats in a board-EDGE overlay on the bare wood
@@ -166,7 +241,7 @@ export function renderApp(session: GameSession): string {
     <div class="table-stage">
       ${renderHeader(s)}
       <div class="board-region">
-        ${renderBoard(s)}
+        ${renderBoard(s, legality)}
         <div class="edge-cluster edge-realm">
           ${renderHoldRail(s)}
           ${renderCourt(s, session.humanIndex)}
@@ -365,7 +440,10 @@ function renderAudits(s: ObservableState, human: number): string {
  */
 function renderNarration(session: GameSession): string {
   const items = session.narration.map(n => `<li class="narr ${n.kind}">${esc(n.text)}</li>`).join('');
-  const err = session.lastError ? `<div class="error">⛔ ${esc(session.lastError)}</div>` : '';
+  // T-304: illegality is NEVER surfaced as a visible text error (and never as an alert) — the
+  // refusal is the shake plus the static rejection mark. The message survives only in a
+  // visually-hidden polite live region, so the feedback is not motion-only for screen readers.
+  const err = `<div class="sr-only" role="status" aria-live="polite">${esc(session.lastError ?? '')}</div>`;
   return `<div class="chronicle-title">Chronicle</div>${err}<ul class="narration">${items}</ul>`;
 }
 
@@ -561,7 +639,7 @@ function renderActionPanel(session: GameSession, s: ObservableState): string {
     <div class="panel action">
       <div class="panel-title">Your turn — ${tokenChip('action', human.actionsRemaining, { stat: 'actions', title: 'actions remaining this turn' })} ${tokenChip('banner', human.banners, { stat: 'banners', title: 'your banners' })} · ${human.stance === 'political' ? '🕊 political' : '⚔ martial'}</div>
       ${marchHint}
-      <div class="action-btns">${btns.join('')}</div>
+      <div class="action-btns">${btns.map(markControl).join('')}</div>
       ${raidElections}
       <button class="end-turn wax-seal" data-action="pass" title="End your turn"><span class="seal-glyph" aria-hidden="true">✕</span><span class="seal-label">End turn</span></button>
       ${bequest}
@@ -604,7 +682,7 @@ function renderRaidElection(session: GameSession, s: ObservableState, here: stri
       : '';
     out.push(`<div class="raid-block">
       <div class="raid-head">Raid <b>P${rival + 1}</b> — you ${pr.atkPower} vs ${pr.defPower} (${verdict})</div>
-      <div class="raid-elects">${elects.join('')}</div>
+      <div class="raid-elects">${elects.map(markControl).join('')}</div>
       ${gateNote}
     </div>`);
   }

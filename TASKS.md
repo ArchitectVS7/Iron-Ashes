@@ -1416,11 +1416,67 @@ flip are explicitly T-402b, not this task.
 
 Orchestration: graphify=query "card flip reveal animation preset queue fog ui-v3" · attempts=1/4.
 
-### T-304 · Affordances — legal glow, illegal shake — `status: TODO` · `coder: sonnet` · `after: T-302`
+### T-304 · Affordances — legal glow, illegal shake — `status: DONE` · `coder: sonnet` · `after: T-302`
 Legal actions/targets glow on hover/selection; illegal interactions get a shake tween (no alert/text
 errors for illegality). Driven from the same legality data the UI already uses — no new engine calls.
 **Accept:** glow/shake are class+preset driven with spy tests; no `window.alert` remains for
 illegality paths; jsdom E2E green.
+
+**Delivered (2026-07-22, sonnet):** new `src/ui-v3/affordance.ts` owns both halves.
+`marchLegality(observable, viewerSeat, isHumanTurn)` is a **pure presentational mirror** of
+`executeMarch` computed over the already-fogged projection — same check ORDER as the engine
+(turn/actions → adjacency → cost vs banners → Approach ZoC) — returning a per-node
+`{legal, reason, cost}` verdict with a public-only reason union (`not-your-turn` / `no-actions` /
+`not-adjacent` / `no-banners` / `zoc-rival` / `zoc-dark`). `marchCost()` prices base +
+`ASHED_TRAVERSE_EXTRA_COST` + rival-Forge toll (waived between sworn seats) off `TUNABLES`
+read-only. **No new engine call on the render path**; the engine stays the authority, and drift is
+covered twice — a reducer-parity test and the post-dispatch funnel below.
+
+*Glow:* `renderBoard(state, legality?)` now stamps `is-legal`/`is-illegal` + `data-legal` (and
+`data-illegal-reason` when illegal) on each `g.node-group`; with the param omitted the markup is
+byte-identical to before, so `board-view`/`m2-gallery`/`baseline-gallery`/shots are untouched.
+`renderApp` computes the map once and passes it down; ACTION-panel verbs and raid elects get the
+same classes via `markControl()` (only-legal-verbs-are-emitted ⇒ `is-legal`; the deliberate
+`disabled` gates ⇒ `is-illegal`, with the `disabled` attribute left exactly as-is). CSS glow is the
+ember drop-shadow **plus a scale on the child `.loc`** (never colour-only, and never a CSS transform
+on the `<g>`, whose transform attribute carries board position).
+
+*Shake:* `SHAKE_PRESETS: Record<ShakeKind, ShakePreset>` (EXPLICIT annotation = the compile gate,
+plus a type-level cover const) with `target` (elastic rebuff, 0.34s) and `control` (3-beat, 0.28s).
+`AffordanceAnimator` resolves targets **by selector at fire time** (never a pre-`settle()`
+reference), adds/removes `is-shaking`, and never throws on missing DOM. It lives OUTSIDE the
+`AnimationQueue` — a rejection is input feedback, not a Move, so it never enters the Move stream or
+gates `isIdle`. **Instant mode** (jsdom / `prefers-reduced-motion`) passes a `null` timeline: the
+preset still dispatches (spy-observable), no tween is built, the path stays synchronous, and a
+static ember rejection mark outside the reduced-motion gate carries the refusal so it is never
+motion-only.
+
+*No text errors:* the visible `<div class="error">⛔ …</div>` is **gone** from `renderNarration` —
+replaced by a `.sr-only` `role="status" aria-live="polite"` region. `session.lastError` survives as
+session DATA (every existing unit test still reads it) but the view CLEARS it and shakes instead.
+Three funnels: (a) an illegal board node is pre-empted from the verdict map — shake, no command;
+(b) a turn-gated verb clicked outside the human's live turn (previously a **silent** `return` with
+zero feedback) shakes; (c) ANY engine rejection raised by a click shakes. No `window.alert` /
+`confirm` / `prompt` existed in `src/` and now a per-file source scan keeps it that way (it also
+scans for `Math.random` / `Date.now`).
+
+New `tests/v3/affordance.test.ts` (43 cases): mirror truth-table, reducer-parity sweep over every
+node (asserting both verdicts occur), registry coverage + compile-gate mirror, class-driven glow
+(and byte-clean board without the param), instant-mode `vi.spyOn` dispatch tests (illegal node /
+rival turn / engine-rejected control / legal click never shakes / stays synchronous), the source
+scan, and fog (§7 D2) presentation guards. `tests/v3/ui-e2e.test.ts` gained an illegal-click
+dead-end case (nothing changes, no soft-lock, the next legal march still lands). `npm run verify`
+exits 0 — 1407/1407.
+
+**Scope boundaries:** existing `disabled` controls stay `disabled` (NOT converted into clickable
+shake targets) so the `[data-action]:not([disabled])` drivers in `ui-e2e` / `replay-snap-count` /
+`token-chip-audit` and the margin-gate expectation in `ui-parity.test.ts` are unaffected. Engine
+(`src/v2/`, `src/v3/`, `src/utils/`) untouched — read-only imports of types/`TUNABLES`/
+`observableState` only; zero tunable changes; no new dependency, asset, or network fetch, so no
+dated `docs/ROADMAP-V3.1-UI.md` §3 decision was required. **T-306 remains
+`BLOCKED(awaiting user visual review)` — it must never be self-approved.**
+
+Orchestration: graphify=query "how does the v3 UI determine legal actions and targets, and where are illegality errors surfaced?" · attempts=1/4.
 
 ### T-305 · M3 close — DoD — `status: TODO` · `coder: sonnet` · `after: T-303, T-304`
 Milestone DoD: verify green → tick M3 boxes, `currentStage` → `V3.1-M3-CHECKPOINT`, dated §8 entry,

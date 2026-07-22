@@ -423,7 +423,6 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
   line-height: 1.35;
 }
 .chronicle .narr:last-child { border-bottom: none; }
-.chronicle .error { margin-bottom: 4px; }
 
 /* ── Board ── */
 .board-svg { width: 100%; height: 100%; max-height: 92vh; }
@@ -499,6 +498,38 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
 
 /* The node-group wraps each location; the illustration IS the node body (no enclosing disc). */
 .node-group { cursor: pointer; }
+
+/* ── T-304 affordances: legal glow, illegal shake ──────────────────
+   Purely class-driven (`is-legal` / `is-illegal` / `is-shaking` — see affordance.ts). The legal
+   glow is never colour-ONLY: the ember drop-shadow always rides with a SCALE (shape channel), so
+   the affordance survives colour-blindness and a greyscale screenshot. */
+.node-group.is-illegal { cursor: not-allowed; }
+.node-group.is-legal { cursor: pointer; }
+.node-group.is-legal:hover,
+.node-group.is-legal:focus-within { filter: drop-shadow(0 0 7px var(--accent)); }
+/* The shape channel rides on the CHILD illustration — the `<g>`'s own transform attribute carries
+   the node's board position and must never be overwritten by a CSS transform. */
+.node-group.is-legal:hover .loc,
+.node-group.is-legal:focus-within .loc { transform: scale(1.06); transform-box: fill-box; transform-origin: center; }
+button.is-legal:hover { border-color: var(--accent); box-shadow: inset 0 1px 0 rgba(232, 220, 195, 0.14), 0 0 14px rgba(201, 162, 39, 0.5); }
+button.is-illegal { cursor: not-allowed; }
+
+/* The REJECTION mark. Deliberately OUTSIDE the reduced-motion gate: instant mode builds no tween,
+   so a static ember rim is what carries the refusal there — illegality is never motion-only. */
+button.is-shaking { outline: 2px solid var(--ember); outline-offset: 2px; }
+.node-group.is-shaking { filter: drop-shadow(0 0 8px var(--ember)); }
+@media (prefers-reduced-motion: no-preference) {
+  /* CSS fallback wobble for controls. NOT applied to `.node-group`: a CSS transform there would
+     clobber the `<g>`'s positioning transform attribute — board nodes are shaken by GSAP only. */
+  button.is-shaking { animation: affordance-shake 0.28s ease-in-out both; }
+}
+@keyframes affordance-shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+  100% { transform: translateX(0); }
+}
 
 /* Illustrated map locations — the node bodies. */
 .loc { pointer-events: none; }
@@ -779,7 +810,12 @@ button.primary { background: linear-gradient(180deg, #e2b23c, #c9a227); color: #
 .chronicle .narr.villain { color: var(--ember); font-style: italic; text-shadow: 0 0 6px rgba(232, 134, 58, 0.35); }
 .chronicle .narr.beat { color: #e8dcc3; }
 .chronicle .narr.system { color: #b39c6f; }
-.error { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid #7f1d1d; border-radius: 6px; padding: 8px; font-size: 13px; }
+/* T-304: the visible ⛔ error bar is GONE — illegality is refused by the shake + rejection mark,
+   never by a text panel. The message survives only in this visually-hidden polite live region. */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
 
 /* The newest entry burns in — CSS-only, gated so instant mode / jsdom / reduced-motion get nothing. */
 @media (prefers-reduced-motion: no-preference) {

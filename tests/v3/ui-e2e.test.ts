@@ -150,6 +150,36 @@ describe('UI E2E (v3) — each control drives the engine through the DOM', () =>
     expect(session.state.players[0].warlordNodeId).toBe(dest);
   });
 
+  // T-304: an ILLEGAL board click must be a dead end that costs nothing — no thrown handler, no
+  // text error, no state change, and no soft-lock: the very next LEGAL click still Marches.
+  it('clicking a non-adjacent board node changes nothing and never soft-locks the flow', () => {
+    const session = toHumanTurnDom('competitive');
+    expect(session.isHumanTurn).toBe(true);
+    session.state.players[0].banners = 9;
+    rerender(session);
+
+    const here = session.state.players[0].warlordNodeId;
+    const adj = session.state.board.definition.nodes[here].connections;
+    const far = Object.keys(session.state.board.definition.nodes)
+      .find(n => n !== here && !adj.includes(n))!;
+    const farEl = root.querySelector<HTMLElement>(`[data-node="${far}"]`)!;
+    const beforeActions = session.state.players[0].actionsRemaining;
+    const beforeBanners = session.state.players[0].banners;
+
+    expect(() => click(farEl)).not.toThrow();
+    expect(session.lastError).toBeNull();
+    expect(session.state.players[0].warlordNodeId).toBe(here);
+    expect(session.state.players[0].actionsRemaining).toBe(beforeActions);
+    expect(session.state.players[0].banners).toBe(beforeBanners);
+    expect(root.querySelector('.error')).toBeNull();
+    expect(controls().length).toBeGreaterThan(0);
+
+    // The flow is untouched: a legal march still lands right afterwards.
+    const dest = adj.find(n => !session.state.board.state.nodes[n].ashed)!;
+    click(root.querySelector<HTMLElement>(`[data-node="${dest}"]`)!);
+    expect(session.state.players[0].warlordNodeId).toBe(dest);
+  });
+
   it('clicking "Recruit a Herald" commits the political stance (advanced toggle ON)', () => {
     const session = toHumanTurnDom('competitive', 42, true);
     session.state.players[0].stance = 'martial';
