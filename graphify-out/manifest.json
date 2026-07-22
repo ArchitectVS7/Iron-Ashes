@@ -15,8 +15,8 @@
     "semantic_hash": "d5761a1390c7de9de43a266f26e41793"
   },
   "docs/handoff/state.json": {
-    "mtime": 1784686555.7887506,
-    "ast_hash": "4d730fea548d60d5d0f542ce9f2ab574",
+    "mtime": 1784687103.3756735,
+    "ast_hash": "25cf77f48ecc64c02280be0543120b6d",
     "semantic_hash": ""
   },
   "docs/handoff/state.schema.json": {
@@ -620,8 +620,8 @@
     "semantic_hash": ""
   },
   "docs/ROADMAP-V3.md": {
-    "mtime": 1784686514.1555874,
-    "ast_hash": "dbddd3020e2346fc32d869a3d6ec8c9c",
+    "mtime": 1784687071.0820072,
+    "ast_hash": "2abfa93569989751086dafd782eeab7d",
     "semantic_hash": ""
   },
   "docs/Shadowlord.md": {
