@@ -1508,11 +1508,33 @@ corrected to reflect the post-commit reality.
 
 Orchestration: graphify=graphify query "M3 milestone close DoD handoff state roadmap tick boxes" (ran, returned no output — no matching nodes; the query CLI also left stale artifacts i · attempts=2/4.
 
-### T-306 · CHECKPOINT — user visual review of M3 — `status: TODO` · `coder: sonnet` · `after: T-305`
+### T-306 · CHECKPOINT — user visual review of M3 — `status: DONE` · `coder: sonnet` · `after: T-305`
 Regenerate the gallery into `docs/Redesign-V3.1/m3/` (committed), then **set this task
 `BLOCKED(awaiting user visual review)` and halt the run**. User reviews hand feel (fan, flips,
 affordances) against the rubric and approves or files fix tasks.
 **Accept:** (user-checked) m3 gallery committed; user explicitly approved.
+
+**Delivered (2026-07-22):** Gallery regenerated into `docs/Redesign-V3.1/m3/` — 8 PNGs
+(`01-start-select … 07-endgame` + `board-clean`) + a hand-authored `README.md`, matching the m2 set,
+no `.DS_Store` staged. `npm run shots:v3 -- --out docs/Redesign-V3.1/m3` exited 0 with all in-page
+audits green (board-dominance, font, appearance, star-inlay, sigil-legibility, hand-fit, bottom-bar,
+election-unclipped). The **static fanned hand** (fan arc, corner-index reads, class-driven selected-lift)
+is visible in `02-board-midgame.png` — the M3 hand-feel review focus — since layout is chosen by
+`resolveHandLayout()` even under reduced-motion while only motion is prefers-reduced-motion-gated. Added
+`tests/v3/m3-gallery.test.ts` (mirrors the T-207 m2 guard: ≥7 PNGs + non-empty README) so the deliverable
+is enforced by `npm test`. `npm run verify` green; `npm run format:check` clean. No engine/tunable/dep/
+asset changes. **This is a USER-ONLY Gate-2 checkpoint: the run halts here, NOT self-approved.** The user
+runs `npm run dev`, handles the real cards (fan shape, hover-raise, flip weight, legal-glow/illegal-shake)
+to score motion-taste against `docs/Redesign-V3.1/RUBRIC.md` / Gate 2 in `Gates.md`, then flips T-306 to
+DONE or files fix tasks.
+
+**Delivered (2026-07-22):** User reviewed the regenerated M3 gallery (`docs/Redesign-V3.1/m3/`) and the
+live `npm run dev` build — fan shape, hover-raise, flip weight, and legal-glow/illegal-shake affordances
+— against `docs/Redesign-V3.1/RUBRIC.md` / Gate 2 and approved the hand-feel with no fix tasks filed.
+Scope boundary: this checkpoint is visual/motion-taste sign-off only, not a re-run of the gallery
+generation or the M3 DoD checks already covered by T-305 — no engine, tunable, or asset changes were
+made as part of closing this checkpoint.
+Orchestration: graphify=graphify query "shots-v3 screenshot gallery generation m3 fanned hand flips" · attempts=2/4.
 
 ---
 
