@@ -1547,33 +1547,33 @@ T-404 mechanic-visibility map) but were flagged at the M3 gate, so they are capt
 "engine untouched" standing constraint (no `src/v2`, `src/v3`, `src/utils`, no tunable value) holds —
 these are all `src/ui-v3` / presentation changes.
 
-### T-307 · Enlarge hand + preview cards — `status: TODO` · `coder: sonnet` · `after: T-306`
+### T-307 · Enlarge hand + preview cards — `status: TODO` · `coder: sonnet` · `after: T-305`
 Rubric #2 (scored 6). Cards in the fanned hand read too small at arm's length, and the raised/preview
 card is also too small. Increase hand-card and preview-card size while preserving the fan geometry,
 corner-index legibility, hand-fit-in-dock audit, and selected-lift behaviour.
 **Accept:** `npm run dev` shows larger hand + preview cards; `shots:v3` hand-fit / bottom-bar / board-
 dominance audits stay green; corner value+suit still legible in the fan; `npm run verify` green.
 
-### T-308 · Turn/act track legibility — `status: TODO` · `coder: sonnet` · `after: T-306`
+### T-308 · Turn/act track legibility — `status: TODO` · `coder: sonnet` · `after: T-305`
 Rubric #4 (scored 6). The round counter ("R1/14") is small and does not read as the turn/act tracker.
 Make it obviously the turn tracker (label/size/diegetic framing per the tabletop-ui house style) so a
 first-time viewer reads it as "which round of how many" without explanation.
 **Accept:** the act/turn track is unmistakable in the gallery + live build; no default-font regression
 (rubric #3); `npm run verify` green.
 
-### T-309 · Enlarge resource icon tokens — `status: TODO` · `coder: sonnet` · `after: T-306`
+### T-309 · Enlarge resource icon tokens — `status: TODO` · `coder: sonnet` · `after: T-305`
 Rubric #7 (scored 8). Resource icon tokens are slightly too small. Bump the icon-token size a step
 while keeping them as icon+count chips (no bare numerals — rubric #7 definition).
 **Accept:** resource tokens read larger; still chips/gauges, no bare numeral; `npm run verify` green.
 
-### T-310 · Smooth choppy motion — `status: TODO` · `coder: opus` · `after: T-306`
+### T-310 · Smooth choppy motion — `status: TODO` · `coder: opus` · `after: T-305`
 Rubric #9 (scored 7). Motion is present but **choppy**. Track down the jank (hand-delta / flip /
 affordance transitions — GSAP easing, layout thrash, per-frame recompute) and make transitions read
 smooth. Respect prefers-reduced-motion (motion-gated) and the SeededRandom-only jitter rule.
 **Accept:** transitions read smooth in the live build; reduced-motion path unchanged; instant/replay
 "snap count 0" test still green; `npm run verify` green. Overlaps M4 T-401/T-403 — note any deferral.
 
-### T-311 · Player-orientation affordance (turn order · how to move · which player am I) — `status: TODO` · `coder: opus` · `after: T-306`
+### T-311 · Player-orientation affordance (turn order · how to move · which player am I) — `status: TODO` · `coder: opus` · `after: T-305`
 NEW usability gap from the review (outside the fixed rubric ten): from the board the user cannot tell
 **(a)** what the turn order is, **(b)** how to move, or **(c)** which player they are. Add diegetic
 orientation cues — a visible turn-order indicator (whose turn / seat order), a clear "you are this
