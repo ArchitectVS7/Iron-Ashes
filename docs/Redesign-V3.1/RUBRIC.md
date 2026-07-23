@@ -18,16 +18,16 @@ across checkpoints.
 
 ## Checklist (score /10)
 
-- [ ] Table texture visible
-- [ ] Cards read as cards at arm's length
-- [ ] No default-font text
-- [ ] Act/turn track visible
-- [ ] Palette cohesive
-- [ ] Board is the largest element
-- [ ] Resources are icon tokens
-- [ ] HUD reads diegetic
-- [ ] Motion present in transitions
-- [ ] Screens consistent
+- [9] Table texture visible
+- [6] Cards read as cards at arm's length **Cards in hand need to be larger, hards when previewed also need to be larger**
+- [9] No default-font text
+- [6] Act/turn track visible **Not obvious. The "R1/14" is a little small, and not obvious this is the turn tracker**
+- [9] Palette cohesive
+- [9] Board is the largest element
+- [8] Resources are icon tokens **Slightly larger on the resource icons**
+- [9] HUD reads diegetic
+- [7] Motion present in transitions **Motion present but choppy**
+- [9] Screens consistent
 
 ## Scoring definitions (Gate 0.5, user-calibrated 2026-07-18)
 
@@ -93,3 +93,12 @@ decisions (see ROADMAP-V3.1-UI §4 M2 "Gate 0.5 aesthetic decisions"):
   all `shots:v3` machine audits pass (board-dominance now 1.02M vs 85k px²; font; hand-fit-in-dock;
   no-bottom-bar; election-unclipped). **T-207 stays BLOCKED** — the user does the in-person re-score
   and the flip; this entry is the rework record, not a self-awarded pass.
+- **2026-07-22 (Gate 2 / T-306, M3 first review — user in-person)** — the user handled the live M3
+  build and scored the ten items per-item /10 (inline in the checklist above): 9 / **6** / 9 / **6** /
+  9 / 9 / 8 / 9 / **7** / 9 = **81/100**. Four items flagged with fixes: **#2 cards (6)** — hand cards
+  and preview cards both need to be larger; **#4 act/turn track (6)** — not obvious; "R1/14" is small
+  and doesn't read as the turn tracker; **#7 resource tokens (8)** — resource icons slightly larger;
+  **#9 motion (7)** — present but **choppy**. Plus a **NEW usability gap outside the fixed ten** (the
+  10-item set is not modified): from the board it is **not clear (a) what the turn order is, (b) how to
+  move, or (c) which player I am**. Verdict: fix round filed — **T-307…T-311** (TASKS.md, M3). **T-306
+  stays BLOCKED** for a re-review after the fixes; this entry is the review record, not a pass.

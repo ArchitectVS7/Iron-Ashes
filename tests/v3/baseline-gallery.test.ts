@@ -20,9 +20,13 @@ describe('T-004 baseline gallery + M2 rubric', () => {
     expect(readme.trim().length).toBeGreaterThan(0);
   });
 
-  it('RUBRIC.md exists with exactly 10 checkable items', () => {
+  it('RUBRIC.md exists with exactly 10 scorable items', () => {
     const rubric = readFileSync(RUBRIC, 'utf8');
-    const checkboxes = rubric.match(/^\s*-\s*\[ \]/gm) ?? [];
-    expect(checkboxes.length).toBe(10);
+    // The fixed ten items carry a leading bracket that holds either a checkbox
+    // state (`[ ]` / `[x]`) or a per-item numeric score (`[9]`, `[10]`) — the
+    // rubric is scored /10 and the user records per-item scores in place. The
+    // guard's intent is that the set stays exactly ten items, in any marker form.
+    const items = rubric.match(/^\s*-\s*\[(?: |x|X|\d{1,2})\]/gm) ?? [];
+    expect(items.length).toBe(10);
   });
 });
