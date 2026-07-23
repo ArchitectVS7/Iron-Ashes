@@ -23,6 +23,7 @@ import { SoundManager } from './sound.js';
 import { diffObservable } from './moves.js';
 import { tokenChip, gauge } from './token-chip.js';
 import { turnTrack } from './turn-track.js';
+import { orientationBar } from './orientation.js';
 import { handFan } from './hand-fan.js';
 import {
   AFFORDANCE_CLASS,
@@ -243,9 +244,9 @@ export function renderApp(session: GameSession): string {
   return `
     ${renderGambitBanner(s)}
     <div class="table-stage">
-      ${renderHeader(s)}
+      ${renderHeader(session, s)}
       <div class="board-region">
-        ${renderBoard(s, legality)}
+        ${renderBoard(s, legality, session.humanIndex)}
         <div class="edge-cluster edge-realm">
           ${renderHoldRail(s)}
           ${renderCourt(s, session.humanIndex)}
@@ -273,19 +274,22 @@ function renderGambitBanner(s: ObservableState): string {
   return `<div class="gambit-alarm">⚠ CROWN'S GAMBIT — Player ${who} on the Keystone (${status})</div>`;
 }
 
-function renderHeader(s: ObservableState): string {
+function renderHeader(session: GameSession, s: ObservableState): string {
   const sk = s.shadowking;
   // The heart-HP gauge (preserved from the old .clock line — zero information loss) rides beside the
   // visual turn track. It stays a `.gauge` with `data-stat="heartHp"` so the token-chip audit passes.
   const heart = sk.heart
     ? `<span class="header-heart header-stat">Heart ${gauge('heart', sk.heart.hp, TUNABLES.HEART_HP, { stat: 'heartHp', title: sk.heart.exposed ? "the dark's heart HP" : "the dark's heart (broken)" })}${sk.heart.exposed ? '' : ' (broken)'}</span>`
     : '';
+  // T-311 orientation ribbon: turn order · whose turn · which house is mine · how to move. Reads only
+  // public seat/turn/phase fields of the fogged projection (no leak) and sits on the board-edge top.
   return `
     <div class="header">
       <div class="title">Iron Throne of Ashes <span class="v-tag">v3</span></div>
       ${turnTrack(s)}
       ${heart}
       <div class="sk-meter">Dark patience ${gauge('hourglass', sk.patience, TUNABLES.PATIENCE_CAP, { stat: 'patience', title: "the dark's patience clock" })}${s.mode === 'blood_pact' ? ' · <b>Blood Pact</b>' : ''} · Strike pool ${tokenChip('embers', sk.strikePool.length, { stat: 'strikepool', title: "the dark's strike-pool cards" })}</div>
+      ${orientationBar(s, session.humanIndex, session.isHumanTurn)}
     </div>`;
 }
 
@@ -383,11 +387,15 @@ function renderHoldRail(s: ObservableState): string {
 function renderHand(s: ObservableState, human: number): string {
   const hand = s.players[human].hand;
   const limit = s.players[human].handLimit;
-  if (hand.length === 0) return `<div class="hand"><span class="hand-label">Your hand (0/${limit}):</span> <i>empty</i></div>`;
+  // T-311 self-marker (c): name the human's house on the hand dock ("you are Emberfall") so a
+  // first-time viewer can tie their hand + their board Warlord to one heraldry at a glance.
+  const houseName = HOUSES[human]?.name ?? `Player ${human + 1}`;
+  const selfTag = `<span class="hand-self" title="this is your house">${houseSigilSvg(human, 14, PLAYER_COLORS[human] ?? '#888')}<b>${esc(houseName)}</b></span>`;
+  if (hand.length === 0) return `<div class="hand">${selfTag}<span class="hand-label">Your hand (0/${limit}):</span> <i>empty</i></div>`;
   // The hand DOM IS the fan component (T-301) — which renders every card through the T-204
   // generator. No bespoke card markup lives in this layout file.
   const fan = handFan({ values: hand, ariaLabel: `Your hand, ${hand.length} cards` });
-  return `<div class="hand"><span class="hand-label">Your hand (${hand.length}/${limit}):</span> ${fan}</div>`;
+  return `<div class="hand">${selfTag}<span class="hand-label">Your hand (${hand.length}/${limit}):</span> ${fan}</div>`;
 }
 
 function renderOaths(s: ObservableState): string {
@@ -633,6 +641,9 @@ function renderActionPanel(session: GameSession, s: ObservableState): string {
   // March is board-attached (click a node); the per-node toll readout collapses behind a hover/expand
   // affordance so it no longer bulks the plaque. The <ul class="adj-costs"><li> nodes stay rendered
   // (the shots driver + march legibility depend on them) — only the always-open framing is dropped.
+  // T-311 how-to-move (b): a one-line, ALWAYS-VISIBLE instruction promoted OUT of the collapsed
+  // <details> so a first-time viewer reads "how to move" without expanding anything.
+  const moveHint = `<div class="move-hint">Click a <b>glowing node</b> to March your Warlord, or use a command below.</div>`;
   const marchHint = `<details class="march-costs"><summary>March costs from <b>${esc(here)}</b></summary><div class="hint">Click an adjacent board node to <b>March</b> your Warlord.<ul class="adj-costs">${adjCosts}</ul></div></details>`;
   const raidElections = raidBlocks.length > 0 ? `<div class="raid-elections">${raidBlocks.join('')}</div>` : '';
   const bequest = (session.exposure(session.humanIndex) === 'can-be-deposed' || session.exposure(session.humanIndex) === 'deposed')
@@ -642,6 +653,7 @@ function renderActionPanel(session: GameSession, s: ObservableState): string {
   return `
     <div class="panel action">
       <div class="panel-title">Your turn — ${tokenChip('action', human.actionsRemaining, { stat: 'actions', title: 'actions remaining this turn' })} ${tokenChip('banner', human.banners, { stat: 'banners', title: 'your banners' })} · ${human.stance === 'political' ? '🕊 political' : '⚔ martial'}</div>
+      ${moveHint}
       ${marchHint}
       <div class="action-btns">${btns.map(markControl).join('')}</div>
       ${raidElections}

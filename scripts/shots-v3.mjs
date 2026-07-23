@@ -489,6 +489,50 @@ async function auditElectionUnclipped(page) {
   }, VIEWPORT.height);
 }
 
+/**
+ * T-311 accept criterion — the player-orientation affordance is present and honest on a live board:
+ * a first-time viewer can read (a) TURN ORDER / whose turn, (b) HOW to move, (c) WHICH house is
+ * theirs, from the screen alone, without leaking rivals' hidden info. jsdom has no layout engine, so
+ * the "visible prompt" half runs in the real Playwright page. Returns a verdict bag hard-asserted by
+ * the caller. `playerCount` is the configured seat count (the seat-chip row must have one per seat).
+ */
+async function auditOrientation(page, playerCount) {
+  return page.evaluate((pc) => {
+    const bar = document.querySelector('.orientation[data-active-seat]');
+    if (!bar) return { ok: false, why: 'no .orientation[data-active-seat] on the board' };
+    const seats = Array.from(bar.querySelectorAll('.orient-seats .orient-seat'));
+    if (seats.length !== pc) return { ok: false, why: `seat chips ${seats.length} != player count ${pc}` };
+    // Exactly one "you" self-marker in the ribbon, and it names a house + carries an ordinal.
+    const you = bar.querySelectorAll('.orient-seat.is-you');
+    if (you.length !== 1) return { ok: false, why: `expected exactly one .orient-seat.is-you, got ${you.length}` };
+    const youHouse = you[0].querySelector('.orient-house');
+    const youOrd = you[0].querySelector('.orient-ord');
+    if (!youHouse || !youHouse.textContent.trim()) return { ok: false, why: 'the "you" seat chip has no house label' };
+    if (!youOrd || !youOrd.textContent.trim()) return { ok: false, why: 'the "you" seat chip has no turn-order ordinal' };
+    // The prompt (how to move) is on-screen with real text + a non-zero client rect.
+    const prompt = bar.querySelector('.orient-prompt[data-phase]');
+    if (!prompt || !prompt.textContent.trim()) return { ok: false, why: 'no visible .orient-prompt text' };
+    const pr = prompt.getBoundingClientRect();
+    if (pr.width <= 0 || pr.height <= 0) return { ok: false, why: 'the .orient-prompt has a zero client rect (not visible)' };
+    // During ACTION, the active seat must be the one lit as `is-acting` (guarded on phase so a
+    // THREAT/PLEDGE capture cannot false-fail). Turn order is public — this leaks nothing.
+    const phase = prompt.getAttribute('data-phase');
+    if (phase === 'ACTION') {
+      const activeSeat = bar.getAttribute('data-active-seat');
+      const acting = bar.querySelectorAll('.orient-seat.is-acting');
+      if (acting.length !== 1) return { ok: false, why: `ACTION: expected one .is-acting seat, got ${acting.length}` };
+      if (acting[0].getAttribute('data-seat') !== activeSeat) {
+        return { ok: false, why: `ACTION: is-acting seat ${acting[0].getAttribute('data-seat')} != data-active-seat ${activeSeat}` };
+      }
+    }
+    // The board self-locator (c): exactly one `[data-you]` on the board — the human's Warlord — and
+    // no rival piece carries it (proves it is self-info, not a fog leak).
+    const boardYou = document.querySelectorAll('.board-svg [data-you]');
+    if (boardYou.length !== 1) return { ok: false, why: `board [data-you] count ${boardYou.length} != 1` };
+    return { ok: true, why: `orientation intact — ${seats.length} seat chips, one "you", visible prompt (${phase}), one board self-marker`, phase };
+  }, playerCount);
+}
+
 async function main() {
   const { out } = parseArgs(process.argv.slice(2));
   const outDir = resolve(process.cwd(), out);
@@ -540,6 +584,9 @@ async function main() {
   // the election-unclipped verdict on the election screen. Both hard-assert at the end.
   const bottomBarViolations = [];
   let electionAudit = null;
+  // T-311: assert the player-orientation affordance (turn order · self-marker · move prompt) once on
+  // a live mid-game board. Prefer an ACTION frame so the whose-turn `is-acting` invariant is checked.
+  let orientation = null;
 
   const captureIfNeeded = async (sigs) => {
     for (const screen of SCREENS) {
@@ -622,6 +669,11 @@ async function main() {
         // T-217: audit house-sigil legibility once on the live mid-game board (all four plaques up).
         if (sigilAudit === null && obs.round >= 2 && obs.sigs.board) {
           sigilAudit = await auditSigils(page);
+        }
+        // T-311: audit the orientation affordance once on the live mid-game board. `obs.sigs.board`
+        // is the human's ACTION turn (round >= 2), so the ACTION whose-turn invariant is exercised.
+        if (orientation === null && obs.round >= 2 && obs.sigs.board) {
+          orientation = await auditOrientation(page, 4);
         }
         // T-209: sample the hand fit on every live mid-game board, keeping the fullest hand seen.
         if (obs.round >= 2 && obs.sigs.board) {
@@ -753,6 +805,17 @@ async function main() {
     process.exit(1);
   }
   console.log(`election unclipped: ${electionAudit.why}`);
+
+  // T-311 accept: the player-orientation affordance (turn order · self-marker · move prompt) is present.
+  if (orientation === null) {
+    console.error('\nORIENTATION assertion never ran (no live board at round >= 2)');
+    process.exit(1);
+  }
+  if (!orientation.ok) {
+    console.error(`\nORIENTATION FAILED — ${orientation.why}`);
+    process.exit(1);
+  }
+  console.log(`orientation: ${orientation.why}`);
 
   if (needed.size === 0) {
     console.log(`\ncaptured ${captured.size}/${SCREENS.length} screens → ${outDir}`);

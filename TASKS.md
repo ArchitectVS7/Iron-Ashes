@@ -1627,7 +1627,7 @@ T-402a/T-402b; and the full-`innerHTML` `settle()` flash is a render-path concer
 Orchestration: graphify=gsap (BFS depth=2 — the graph only indexes the dep node, not the ui-v3
 animation modules; grounded the plan in the real source instead) · attempts=1/4.
 
-### T-311 · Player-orientation affordance (turn order · how to move · which player am I) — `status: TODO` · `coder: opus` · `after: T-305`
+### T-311 · Player-orientation affordance (turn order · how to move · which player am I) — `status: DONE` · `coder: opus` · `after: T-305`
 NEW usability gap from the review (outside the fixed rubric ten): from the board the user cannot tell
 **(a)** what the turn order is, **(b)** how to move, or **(c)** which player they are. Add diegetic
 orientation cues — a visible turn-order indicator (whose turn / seat order), a clear "you are this
@@ -1636,6 +1636,30 @@ board-EDGE / HUD-diegetic (rubric #8 — no persistent web panel) and fog-respec
 seats' hidden info). Coordinate with M4 T-404 (mechanic-visibility map) so this isn't duplicated.
 **Accept:** a first-time viewer can state turn order, which house is theirs, and how to move, from the
 screen alone; HUD-diegetic + fog rules intact; `shots:v3` audits + `npm run verify` green.
+
+**Delivered (2026-07-22):** Added a new board-EDGE orientation ribbon (`src/ui-v3/orientation.ts`,
+`orientationBar()`) mounted at the top of the header — one seat-order chip per house (ordinal +
+sigil + name, the viewer's own seat badged "you", the acting seat lit `is-acting` during ACTION,
+eliminated seats marked `is-out`) plus an always-visible plain-language "what to do now" prompt keyed
+off `s.phase`. Added a board self-locator (T-311c): the viewer's own Warlord carries `is-you` +
+`data-you` and a chevron/ring `.you-marker` overlay (`board-view.ts#renderBoard`, new optional
+`viewerSeat` param — omitted call sites stay byte-identical), plus a house-tagged self-marker on the
+hand dock (`view.ts#renderHand`). Promoted the "how to move" hint out of the collapsed march-costs
+`<details>` into an always-visible `.move-hint` line in the action panel. All of it reads only
+already-public `turnOrder` / `activePlayerIndex` / `phase` / `isEliminated` fields of the viewer's
+fogged `observableState` projection — turn order is public information set at setup, and marking the
+viewer's own pieces/hand is self-info, never a fog leak (no rival piece or seat ever gets `is-you`/
+`data-you`). Stays HUD-diegetic per rubric #8 — the ribbon is header-anchored, not bottom-anchored,
+and isn't named `*panel*`, so it neither trips `auditNoBottomBar` nor duplicates a web panel. Added
+`tests/v3/orientation.test.ts` (unit coverage of `orientationBar()` seat order/acting/you-badge/
+prompt text across phases) and a new `shots:v3` audit (`scripts/shots-v3.mjs#auditOrientation`) that
+hard-asserts on a live mid-game board: one seat chip per player, exactly one `.is-you` chip with a
+house label and ordinal, a visible non-zero-rect `.orient-prompt`, the `is-acting` seat matching
+`data-active-seat` during ACTION, and exactly one `[data-you]` self-marker on the board SVG. Scope
+boundary — M4 T-404 (the mechanic-visibility map) is left to cross-reference this affordance rather
+than duplicating it, per the task's own coordination note; no mechanic-visibility table was added
+here. `npm run verify` green (112 files / 1429 tests, up from 111/1419).
+Orchestration: graphify=graphify query "board turn order indicator, which player am I, how to move affordance HUD" · attempts=1/4.
 
 ---
 

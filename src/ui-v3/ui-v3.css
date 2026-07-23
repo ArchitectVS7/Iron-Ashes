@@ -568,6 +568,16 @@ button.is-shaking { outline: 2px solid var(--ember); outline-offset: 2px; }
 .pip-on { fill: #e0552b; }
 .pip-off { fill: #3a3340; }
 .piece { stroke-width: 2; }
+/* T-311 self-marker: the viewer's OWN pieces read with a warm accent outline; their Warlord also
+   carries the `.you-marker` ring + chevron so "which house is mine" is findable ON the board. */
+.piece.is-you { stroke: var(--accent); stroke-width: 2.5; }
+.you-marker { pointer-events: none; }
+.you-ring { stroke: var(--accent); stroke-width: 1.6; stroke-dasharray: 3 3; opacity: 0.9; }
+.you-chevron { fill: var(--accent); font-size: 13px; text-anchor: middle; }
+@media (prefers-reduced-motion: no-preference) {
+  .you-marker { animation: you-marker-pulse 2s ease-in-out infinite; }
+  @keyframes you-marker-pulse { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; } }
+}
 .piece-glyph { fill: #fff; font-size: 11px; text-anchor: middle; pointer-events: none; }
 .crown-glyph { fill: var(--accent); font-size: 19px; text-anchor: middle; }
 .dk-glyph { fill: #c9b8ff; font-size: 22px; text-anchor: middle; }
@@ -666,6 +676,59 @@ button.is-shaking { outline: 2px solid var(--ember); outline-offset: 2px; }
   .track-marker { animation: none; }
 }
 
+/* ── Orientation ribbon (T-311) — turn order · whose turn · which house is mine · how to move ──
+   A board-EDGE cue in the header (never a persistent web panel). Reads only public seat/turn/phase
+   fields, so it leaks nothing under the fog. Fonts inherit Cinzel/Alegreya (no new font-family). */
+.orientation {
+  flex-basis: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  margin-top: 2px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(58, 47, 38, 0.7);
+}
+.orient-seats { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.orient-arrow { color: var(--muted); opacity: 0.55; font-size: 12px; }
+.orient-seat {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 7px; border-radius: 11px;
+  border: 1px solid #3a2f26; background: rgba(23, 20, 26, 0.6);
+  font-family: var(--font-display); font-size: 11px; color: var(--muted); white-space: nowrap;
+}
+.orient-seat .sigil-svg { display: block; }
+.orient-ord {
+  font-variant-numeric: tabular-nums; font-size: 10px; color: var(--muted);
+  opacity: 0.85; min-width: 8px; text-align: center;
+}
+.orient-house { color: var(--ink); letter-spacing: 0.02em; }
+.orient-you {
+  font-family: var(--font-body); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #1a1206; background: var(--accent); border-radius: 6px; padding: 0 5px; font-weight: 700;
+}
+.orient-seat.is-you { border-color: var(--accent); background: rgba(201, 162, 39, 0.12); }
+.orient-seat.is-acting {
+  border-color: var(--house-emberfall);
+  background: color-mix(in srgb, var(--house-emberfall) 22%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--house-emberfall) 40%, transparent);
+}
+.orient-seat.is-acting .orient-house { color: #f7e9d6; }
+.orient-seat.is-out { opacity: 0.4; text-decoration: line-through; }
+.orient-prompt {
+  font-family: var(--font-body); font-size: 13px; color: var(--ink);
+  font-style: italic; opacity: 0.95;
+}
+.orient-prompt[data-phase="ACTION"] { color: var(--accent); font-style: normal; }
+/* The acting-seat pulse is motion — gate it so instant mode / jsdom / reduced-motion stay static. */
+@media (prefers-reduced-motion: no-preference) {
+  .orient-seat.is-acting { animation: orient-acting-pulse 1.8s ease-in-out infinite; }
+  @keyframes orient-acting-pulse {
+    0%, 100% { box-shadow: 0 0 0 1px color-mix(in srgb, var(--house-emberfall) 40%, transparent); }
+    50% { box-shadow: 0 0 6px 1px color-mix(in srgb, var(--house-emberfall) 55%, transparent); }
+  }
+}
+
 /* ── House plaques (dissolved standings + exposure) ── */
 .houses-title, .realm-title {
   font-family: var(--font-display); font-size: 13px; letter-spacing: 0.06em;
@@ -747,6 +810,10 @@ button:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 button.primary { background: linear-gradient(180deg, #e2b23c, #c9a227); color: #1a1206; border: 1px solid #8a6d1e; font-weight: 600; font-family: var(--font-display); }
 .action-btns { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
 .action-btns button { font-size: 13px; }
+
+/* T-311 how-to-move — an always-visible lead line above the collapsed march-cost details. */
+.move-hint { font-size: 13px; color: var(--accent); margin: 4px 0 2px; }
+.move-hint b { color: var(--ink); }
 
 /* March-cost readout — collapsed behind a hover/expand affordance (the <li> nodes stay in the DOM). */
 .march-costs { font-size: 12px; margin: 4px 0; }
@@ -878,6 +945,10 @@ button.primary { background: linear-gradient(180deg, #e2b23c, #c9a227); color: #
 /* ── Hand / court / info blocks ── */
 .hand { font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
 .hand-label { color: var(--muted); }
+/* T-311 self-marker on the hand dock: names the human's house ("you are Emberfall"). */
+.hand-self { display: inline-flex; align-items: center; gap: 4px; color: var(--ink);
+  font-family: var(--font-display); font-size: 12px; }
+.hand-self .sigil-svg { display: block; }
 
 /* ── Data-driven card faces (T-204) — the ONLY card DOM; art/frame swaps never touch layout ── */
 .card-face { display: block; width: 100%; height: auto; overflow: visible; }

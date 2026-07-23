@@ -386,10 +386,17 @@ export function renderMapKey(): string {
  * each `g.node-group` additionally carries `is-legal`/`is-illegal` + `data-legal` (and, when
  * illegal, `data-illegal-reason`) so the glow and the `not-allowed` cursor are purely class-driven.
  * When omitted the emitted markup is byte-identical to the affordance-free board.
+ *
+ * `viewerSeat` (T-311, optional) is the viewer's own seat. When given, the viewer's OWN pieces carry
+ * an `is-you` class and their Warlord gets a `.you-marker` self-locator (a chevron + ring above the
+ * piece) so a first-time viewer can find "which house is mine" ON the board. Fog note: identifying
+ * the viewer's OWN pieces (`pc.owner === viewerSeat`) is self-information, never a leak — rival
+ * pieces receive no `is-you`/`data-you`. When omitted the markup stays byte-identical.
  */
 export function renderBoard(
   state: ObservableState,
   legality?: ReadonlyMap<string, NodeVerdict>,
+  viewerSeat?: number,
 ): string {
   const def = state.board.definition;
   const nodes = state.board.state.nodes;
@@ -584,9 +591,22 @@ export function renderBoard(
       const spread = 18;
       const px = (i - (n - 1) / 2) * spread;
       const crown = state.crownHolder === pc.owner && pc.type === 'warlord';
-      circles += `<circle cx="${px.toFixed(1)}" cy="${-r - 11}" r="8.5" class="piece piece-${pc.type}" fill="${PLAYER_COLORS[pc.owner]}" stroke="#000" />`;
+      // T-311: mark the viewer's OWN pieces (self-info, never a leak — rivals get no `is-you`).
+      const mine = viewerSeat !== undefined && pc.owner === viewerSeat;
+      circles += `<circle cx="${px.toFixed(1)}" cy="${-r - 11}" r="8.5" class="piece piece-${pc.type}${mine ? ' is-you' : ''}" fill="${PLAYER_COLORS[pc.owner]}" stroke="#000" />`;
       circles += `<text x="${px.toFixed(1)}" y="${-r - 7}" class="piece-glyph">${ARCH_GLYPH[pc.type] ?? '?'}</text>`;
       if (crown) circles += `<text x="${px.toFixed(1)}" y="${-r - 24}" class="crown-glyph">♛</text>`;
+      // T-311 self-locator (c): the human's Warlord carries a small chevron/ring above it + a title
+      // telling a first-time viewer this is their piece and how to move it. Additive only — the
+      // planted banner stays the sole OWNERSHIP signal; this is a pure self-locator.
+      if (mine && pc.type === 'warlord') {
+        // Anchored on the piece centre: a ring around your Warlord + a chevron pointing down at it.
+        circles += `<g class="you-marker" data-you="true" transform="translate(${px.toFixed(1)},${-r - 11})">` +
+          `<title>This is your Warlord — click a glowing node to move here.</title>` +
+          `<circle class="you-ring" cx="0" cy="0" r="13" fill="none" />` +
+          `<text class="you-chevron" x="0" y="-14">▾</text>` +
+          `</g>`;
+      }
     });
 
     // Planted house banner for an owned node.
