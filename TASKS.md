@@ -1566,12 +1566,26 @@ were touched — corner-index SVG layout, selected-lift behaviour, and the hover
 were left as-is per the Accept criteria.
 Orchestration: graphify=graphify query "hand card fan geometry preview card size in ui-v3" · attempts=1/4.
 
-### T-308 · Turn/act track legibility — `status: TODO` · `coder: sonnet` · `after: T-305`
+### T-308 · Turn/act track legibility — `status: DONE` · `coder: sonnet` · `after: T-305`
 Rubric #4 (scored 6). The round counter ("R1/14") is small and does not read as the turn/act tracker.
 Make it obviously the turn tracker (label/size/diegetic framing per the tabletop-ui house style) so a
 first-time viewer reads it as "which round of how many" without explanation.
 **Accept:** the act/turn track is unmistakable in the gallery + live build; no default-font regression
 (rubric #3); `npm run verify` green.
+
+**Delivered (2026-07-22):** Replaced the cramped `R1/14` label in `turnTrack()`
+(`src/ui-v3/turn-track.ts`) with a labelled, engraved-plaque "Round N of CAP" readout —
+an uppercase `Round` caption, a large tabular-nums round number in accent gold, an italic
+`of` separator, and the round cap, styled as a bordered/inset plaque (`.trk-round-readout` +
+supporting classes in `src/ui-v3/ui-v3.css`) so it reads as a diegetic tracker rather than a
+bare stat at a glance. Round pips and the phase-dot readout are unchanged. Added a dedicated
+legibility test (`tests/v3/turn-track.test.ts`) asserting the caption, round number, and cap
+render as separate human-readable text nodes, and updated the `ui-parity` full-state-display
+assertion (`tests/v3/ui-parity.test.ts`) to match the new markup. Scope boundary: only the
+round readout's markup/label/framing was touched — the escalation rail (Whisper→March→
+Reckoning stations), round-pip mechanism, and phase-dot indicator were left as-is per the
+Accept criteria; font family/sizing elsewhere was not touched (no rubric #3 regression).
+Orchestration: graphify=graphify query "turn track round counter act tracker turn-track" · attempts=1/4.
 
 ### T-309 · Enlarge resource icon tokens — `status: TODO` · `coder: sonnet` · `after: T-305`
 Rubric #7 (scored 8). Resource icon tokens are slightly too small. Bump the icon-token size a step

@@ -1,7 +1,8 @@
 /**
- * Turn / round / Act visual track (T-205) — replaces the textual `Round N/14 · Act X · Phase Y`
- * status line with a diegetic escalation rail: a marker advances along Whisper→March→Reckoning,
- * each act visually distinct, with round pips and the current phase. Marker movement rides the
+ * Turn / round / Act visual track (T-205; round readout made unmistakable in T-308) — replaces the
+ * textual `Round N/14 · Act X · Phase Y` status line with a diegetic escalation rail: a marker
+ * advances along Whisper→March→Reckoning, each act visually distinct, with a labelled
+ * `Round N of CAP` readout, round pips, and the current phase. Marker movement rides the
  * EXISTING M1 queue (the `act_advance` / `round_advance` / `phase_advance` Moves `diffObservable`
  * already emits, each with its own preset hold) — this component is pure, deterministic markup
  * re-rendered wholesale on `settle`, so a state change re-positions the marker for free.
@@ -70,7 +71,15 @@ export function turnTrack(s: ObservableState): string {
       title="Round ${s.round} of ${cap} · Act ${esc(s.act)} · Phase ${esc(s.phase)}">
     <div class="trk-rail-row">${stations}</div>
     <div class="trk-meta-row">
-      <span class="trk-rounds"><span class="trk-pips">${pips}</span><span class="trk-round-label">R${s.round}/${cap}</span></span>
+      <span class="trk-rounds">
+        <span class="trk-round-label trk-round-readout">
+          <span class="trk-caption">Round</span>
+          <span class="trk-round-num">${s.round}</span>
+          <span class="trk-round-sep">of</span>
+          <span class="trk-round-cap">${cap}</span>
+        </span>
+        <span class="trk-pips">${pips}</span>
+      </span>
       <span class="trk-phase"><span class="trk-phase-dots">${phaseDots}</span><b class="trk-phase-label">${esc(s.phase)}</b></span>
     </div>
   </div>`;

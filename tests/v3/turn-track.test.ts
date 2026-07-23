@@ -53,6 +53,21 @@ describe('turnTrack — component render', () => {
     // No resource-stat leakage: the track carries no data-stat (token-chip audit exemption).
     expect(host.querySelectorAll('[data-stat]')).toHaveLength(0);
   });
+
+  it('renders a labelled, human-readable "Round N of CAP" readout (T-308 legibility)', () => {
+    const s = baseObs();
+    const host = document.createElement('div');
+    host.innerHTML = turnTrack(s);
+
+    // The caption names the block as a tracker (not a bare "R1/14").
+    const caption = host.querySelector('.trk-caption');
+    expect(caption).not.toBeNull();
+    expect(caption!.textContent!.trim().length).toBeGreaterThan(0);
+
+    // "Which round of how many" is rendered as human-readable text, not only in data-round.
+    expect(host.querySelector('.trk-round-num')!.textContent).toBe(String(s.round));
+    expect(host.querySelector('.trk-round-cap')!.textContent).toBe(String(TUNABLES.ROUND_CAP));
+  });
 });
 
 describe('turnTrack — mounted on the board screen', () => {
