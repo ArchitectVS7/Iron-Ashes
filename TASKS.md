@@ -1601,12 +1601,31 @@ palette and gauge-track dimensions were left untouched, and no other component's
 adjusted.
 Orchestration: graphify=query "resource icon token chip size" · attempts=1/4.
 
-### T-310 · Smooth choppy motion — `status: TODO` · `coder: opus` · `after: T-305`
+### T-310 · Smooth choppy motion — `status: DONE` · `coder: opus` · `after: T-305`
 Rubric #9 (scored 7). Motion is present but **choppy**. Track down the jank (hand-delta / flip /
 affordance transitions — GSAP easing, layout thrash, per-frame recompute) and make transitions read
 smooth. Respect prefers-reduced-motion (motion-gated) and the SeededRandom-only jitter rule.
 **Accept:** transitions read smooth in the live build; reduced-motion path unchanged; instant/replay
 "snap count 0" test still green; `npm run verify` green. Overlaps M4 T-401/T-403 — note any deferral.
+
+**Delivered (2026-07-22):** Root-caused the primary jank to a GSAP↔CSS-transition fight — the
+hand-delta presets tween `transform` on `.card-slot` (and the affordance shake on control buttons),
+but those elements also carry a `transition: transform …` rule, so the browser re-eased every
+per-frame inline write, reading as laggy rubber-banding. Fixed with a shared
+`src/ui-v3/anim-util.ts#suppressTransition(targets, tl)` that tags tweened targets `is-tweening`
+(`transition: none`, scoped inside `@media (prefers-reduced-motion: no-preference)`) for the life of
+the timeline and removes it on completion — wired into all four hand-delta presets and the affordance
+shake. Also added `src/ui-v3/anim-config.ts#configureGsap()` (one-time `force3D: true, overwrite:
+'auto'` GSAP defaults at `mountView`, guarded on animated-mode only) and widened the flip overlay
+`.flip-card` 76px → 84px to match the T-307 card size and remove a midpoint scale pop. Both fixes are
+strict no-ops on a null timeline, so the instant/reduced-motion/jsdom path is byte-identical and the
+snap-count replay is untouched. Scope boundary — three items deliberately deferred as owned, dated
+decisions rather than silently carried: piece-movement still teleports on settle (waypoint-following
+is T-401, not T-310); multi-move scene cadence for capture/election/discovery/telegraph staging is
+T-402a/T-402b; and the full-`innerHTML` `settle()` flash is a render-path concern whose real cure
+(incremental/diff DOM) is beyond M4's task set. `npm run verify` green (111 files / 1419 tests).
+Orchestration: graphify=gsap (BFS depth=2 — the graph only indexes the dep node, not the ui-v3
+animation modules; grounded the plan in the real source instead) · attempts=1/4.
 
 ### T-311 · Player-orientation affordance (turn order · how to move · which player am I) — `status: TODO` · `coder: opus` · `after: T-305`
 NEW usability gap from the review (outside the fixed rubric ten): from the board the user cannot tell

@@ -865,7 +865,7 @@ button.primary { background: linear-gradient(180deg, #e2b23c, #c9a227); color: #
   .fx-layer { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
   /* The perspective wrapper — HTML, because 3D transforms flatten inside an `<svg>`. */
   .flip-card { position: absolute; transform: translate(-50%, -50%); perspective: 900px;
-    width: 76px; will-change: transform; }
+    width: 84px; will-change: transform; }
   .flip-card > * { transform-style: preserve-3d; backface-visibility: hidden;
     will-change: transform, opacity; display: block; }
 }
@@ -935,6 +935,14 @@ button.primary { background: linear-gradient(180deg, #e2b23c, #c9a227); color: #
      hint lives inside the no-preference block because reduced motion runs the instant path, where
      no hand tween is ever built. GSAP writes inline transforms, which win over the rules above. */
   .hand-dock .card-slot { will-change: transform, opacity; }
+  /* T-310 — the transition-fight fix. While GSAP owns an element's transform (a hand-delta preset,
+     or an affordance shake beat), `anim-util.ts` tags it `is-tweening` so the CSS `transition:
+     transform` above (and on buttons) does not re-ease every per-frame inline write, which read as
+     laggy rubber-banding. Scoped inside no-preference; the class is NEVER added on the instant path
+     (null timeline), so reduced-motion / jsdom / shots DOM is byte-identical. */
+  .card-slot.is-tweening,
+  .card-face-btn.is-tweening,
+  button.is-tweening { transition: none; }
 }
 /* The last-stand fan lives inside a scrollable panel, so its hover-zoom stays modest (the rules text
    there is not the decision-relevant read — the projected total is). */

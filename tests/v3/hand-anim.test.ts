@@ -10,6 +10,7 @@
  */
 
 import { describe, expect, it, vi, afterEach } from 'vitest';
+import { gsap } from 'gsap';
 import {
   HAND_DELTA_PRESETS,
   HAND_MOVE_PRESETS,
@@ -19,6 +20,7 @@ import {
   handTickContext,
   isHandDeltaMove,
 } from '../../src/ui-v3/hand-anim.js';
+import { TWEENING_CLASS, suppressTransition } from '../../src/ui-v3/anim-util.js';
 import type { HandDeltaKind, HandTickContext } from '../../src/ui-v3/hand-anim.js';
 import { AnimationQueue } from '../../src/ui-v3/queue.js';
 import type { HandDeltaMove, Move } from '../../src/ui-v3/moves.js';
@@ -263,6 +265,53 @@ describe('animated mode splits pre-settle from post-settle', () => {
     q.flush();
     expect(settle).toHaveBeenCalled();
     expect(q.isIdle).toBe(true);
+  });
+});
+
+describe('T-310 transition-fight suppression (is-tweening)', () => {
+  it('suppressTransition tags targets with a live timeline and registers their removal', () => {
+    const el = document.createElement('span');
+    el.className = 'card-slot';
+    const tl = gsap.timeline({ paused: true });
+
+    suppressTransition([el], tl);
+    // Added synchronously so the very first tween frame is already transition-free.
+    expect(el.classList.contains(TWEENING_CLASS)).toBe(true);
+
+    // The removal rides the timeline's onComplete — invoking it clears the class (jsdom-stable, no
+    // dependence on GSAP ticking under a headless clock).
+    const onComplete = tl.eventCallback('onComplete');
+    expect(typeof onComplete).toBe('function');
+    onComplete!();
+    expect(el.classList.contains(TWEENING_CLASS)).toBe(false);
+    tl.kill();
+  });
+
+  it('is a strict no-op on the instant path — a null timeline adds NO class', () => {
+    const el = document.createElement('span');
+    el.className = 'card-slot';
+    suppressTransition([el], null);
+    expect(el.classList.contains(TWEENING_CLASS)).toBe(false);
+    // Empty targets are also inert.
+    expect(() => suppressTransition([], gsap.timeline({ paused: true }))).not.toThrow();
+  });
+
+  it('a hand-delta preset fired with a real timeline tags exactly the tweened slots', () => {
+    const root = mountFakeDom(4);
+    const anim = new HandAnimator(() => root, 0);
+    const tl = gsap.timeline({ paused: true });
+
+    anim.fire(delta(4, 2, 0), NO_CTX, tl); // a `play` spend on the 2 trailing slots
+    const tagged = Array.from(root.querySelectorAll('.card-slot.is-tweening'));
+    expect(tagged).toHaveLength(2);
+    tl.kill();
+  });
+
+  it('the same preset fired in instant mode (null tl) leaves no is-tweening class anywhere', () => {
+    const root = mountFakeDom(4);
+    const anim = new HandAnimator(() => root, 0);
+    anim.fire(delta(4, 2, 0), NO_CTX, null);
+    expect(root.querySelectorAll(`.${TWEENING_CLASS}`)).toHaveLength(0);
   });
 });
 

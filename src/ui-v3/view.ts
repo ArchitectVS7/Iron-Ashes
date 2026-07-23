@@ -16,6 +16,7 @@
 import type { GameSession, Exposure } from './session.js';
 import { renderBoard, renderMapKey, PLAYER_COLORS, HOUSES, houseSigilSvg } from './board-view.js';
 import { AnimationQueue, resolveMode } from './queue.js';
+import { configureGsap } from './anim-config.js';
 import { HandAnimator } from './hand-anim.js';
 import { FlipAnimator } from './flip-anim.js';
 import { SoundManager } from './sound.js';
@@ -108,6 +109,9 @@ function territoryOf(s: ObservableState, idx: number): number {
 }
 
 export function mountView(root: HTMLElement, session: GameSession): void {
+  // T-310: apply the global GSAP smoothness defaults once. No-op under jsdom / reduced-motion (no
+  // `window.matchMedia`), so the instant path and the snap-count / shots gates are untouched.
+  configureGsap();
   // The SINGLE render path: `renderApp(session)` is invoked ONLY here, inside `settle`, which is
   // owned and called ONLY by the queue. Every state change routes `diffObservable` → queue →
   // settle; there is no direct re-render call left. Instant mode (jsdom / prefers-reduced-motion)

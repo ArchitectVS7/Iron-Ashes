@@ -17,6 +17,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { gsap } from 'gsap';
 import {
   AFFORDANCE_CLASS,
   AffordanceAnimator,
@@ -26,6 +27,7 @@ import {
   marchLegality,
   nodeSelector,
 } from '../../src/ui-v3/affordance.js';
+import { TWEENING_CLASS } from '../../src/ui-v3/anim-util.js';
 import type { ShakeKind } from '../../src/ui-v3/affordance.js';
 import { renderBoard } from '../../src/ui-v3/board-view.js';
 import { mountView } from '../../src/ui-v3/view.js';
@@ -243,8 +245,29 @@ describe('AffordanceAnimator', () => {
     root.innerHTML = '<button data-action="pass"></button>';
     const anim = new AffordanceAnimator(() => root, 0);
     expect(anim.shake(actionSelector('pass'), 'control', null)).toBe('control');
-    expect(root.querySelector('[data-action="pass"]')!.classList.contains(AFFORDANCE_CLASS.shaking))
-      .toBe(true);
+    const btn = root.querySelector('[data-action="pass"]')!;
+    expect(btn.classList.contains(AFFORDANCE_CLASS.shaking)).toBe(true);
+    // T-310: instant mode (null timeline) must NOT add the transition-suppression class — the
+    // static rejection mark carries the refusal and the DOM stays byte-identical to pre-T-310.
+    expect(btn.classList.contains(TWEENING_CLASS)).toBe(false);
+  });
+
+  it('T-310: a live-timeline shake suppresses the control transition during the beat', () => {
+    root.innerHTML = '<button data-action="pass"></button>';
+    const anim = new AffordanceAnimator(() => root, 0);
+    const tl = gsap.timeline({ paused: true });
+    anim.shake(actionSelector('pass'), 'control', tl);
+    const btn = root.querySelector('[data-action="pass"]')!;
+    // Both the static rejection mark and the transition-suppression class ride the beat.
+    expect(btn.classList.contains(AFFORDANCE_CLASS.shaking)).toBe(true);
+    expect(btn.classList.contains(TWEENING_CLASS)).toBe(true);
+    // Completion clears both.
+    const onComplete = tl.eventCallback('onComplete');
+    expect(typeof onComplete).toBe('function');
+    onComplete!();
+    expect(btn.classList.contains(AFFORDANCE_CLASS.shaking)).toBe(false);
+    expect(btn.classList.contains(TWEENING_CLASS)).toBe(false);
+    tl.kill();
   });
 
   it('never throws on missing DOM and returns null', () => {

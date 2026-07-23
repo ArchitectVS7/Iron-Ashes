@@ -29,6 +29,7 @@
  */
 
 import { gsap } from 'gsap';
+import { suppressTransition } from './anim-util.js';
 import type { HandDeltaMove, HandDeltaMoveType, Move } from './moves.js';
 
 /** The four presentational flavours of a hand-size change. */
@@ -94,6 +95,7 @@ export const HAND_DELTA_PRESETS: Record<HandDeltaKind, HandDeltaPreset> = {
     stage: 'post-settle',
     build(targets, tl) {
       if (tl === null || targets.length === 0) return;
+      suppressTransition(targets, tl);
       tl.from(targets as Element[], {
         y: 48,
         opacity: 0,
@@ -111,6 +113,7 @@ export const HAND_DELTA_PRESETS: Record<HandDeltaKind, HandDeltaPreset> = {
     stage: 'post-settle',
     build(targets, tl) {
       if (tl === null || targets.length === 0) return;
+      suppressTransition(targets, tl);
       tl.from(targets as Element[], {
         y: 28,
         opacity: 0,
@@ -127,6 +130,7 @@ export const HAND_DELTA_PRESETS: Record<HandDeltaKind, HandDeltaPreset> = {
     stage: 'pre-settle',
     build(targets, tl) {
       if (tl === null || targets.length === 0) return;
+      suppressTransition(targets, tl);
       tl.to(targets as Element[], {
         y: -56,
         opacity: 0,
@@ -143,6 +147,7 @@ export const HAND_DELTA_PRESETS: Record<HandDeltaKind, HandDeltaPreset> = {
     stage: 'pre-settle',
     build(targets, tl) {
       if (tl === null || targets.length === 0) return;
+      suppressTransition(targets, tl);
       tl.to(targets as Element[], {
         y: 36,
         opacity: 0,

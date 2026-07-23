@@ -354,3 +354,23 @@ screenshot loop. M5's playtest is the whole point; M6 amortizes the sprint acros
   Guard `tests/v3/m2-gallery.test.ts` green; verify 0 (1244 tests); handoff:check 0. **V3.1-M2-CHECKPOINT
   (T-207) stays BLOCKED(awaiting user visual review)** for the second Gate 1 review — never self-approved;
   M3 not started. Engine/tunables untouched, no `Math.random`, no new deps; shots audits unchanged.
+- **2026-07-22 (T-310)** — **Smoothed choppy motion (rubric #9).** Root cause of the primary jank: a
+  GSAP↔CSS-transition fight — the hand-delta presets tween `transform` on `.card-slot` (and the affordance
+  beat on control buttons), but those elements also carry a `transition: transform …` rule in `ui-v3.css`,
+  so the browser re-eased every per-frame inline write, reading as laggy rubber-banding. Fix: a shared
+  `src/ui-v3/anim-util.ts#suppressTransition(targets, tl)` tags tweened targets `is-tweening`
+  (`transition: none`, scoped inside `@media (prefers-reduced-motion: no-preference)`) for the life of the
+  timeline and removes it on completion — wired into all four hand-delta presets (`hand-anim.ts`) and the
+  affordance shake (`affordance.ts`). It is a **strict no-op on a null timeline**, so the instant /
+  reduced-motion / jsdom path adds no class and stays byte-identical (snap-count replay untouched). Also:
+  `src/ui-v3/anim-config.ts#configureGsap()` sets `gsap.defaults({ force3D: true, overwrite: 'auto' })`
+  once at `mountView`, guarded on `window.matchMedia` presence (never runs under jsdom/reduced-motion); and
+  the flip overlay `.flip-card` width 76→84px to match the T-307 card size (removes a midpoint scale pop).
+  New tests: is-tweening add/remove + null-tl no-op (hand-anim, affordance), config guard (anim-config).
+  Engine/tunables untouched, no `Math.random`/`Date.now`, no new deps; balance LOCKED.
+  **Deferrals (owned, dated — not vague):** (1) `piece_move` still teleports on settle — its
+  waypoint-following movement is **T-401**, not T-310. (2) Multi-move scene cadence
+  (capture/election/discovery/telegraph staging) is **T-402a/T-402b**. (3) The full-`innerHTML` `settle()`
+  flash (freeze → whole-page rebuild → motion) is a render-path concern; the deepest cure is an
+  incremental/diff DOM instead of `root.innerHTML =`, which is beyond M4's task set (T-401 adds movement
+  motion, not a diff renderer) — recorded here as an open item so it is not carried as a vague deferral.

@@ -35,6 +35,7 @@
  */
 
 import { gsap } from 'gsap';
+import { TWEENING_CLASS } from './anim-util.js';
 import { TUNABLES, type ObservableState } from '../v3/index.js';
 
 // ─── 1. The legality mirror ───────────────────────────────────────
@@ -249,9 +250,16 @@ export class AffordanceAnimator {
 
     const preset = SHAKE_PRESETS[kind];
     el.classList.add(AFFORDANCE_CLASS.shaking);
+    // T-310: while GSAP owns the beat, suppress the control's CSS `transition: transform` so the
+    // per-frame inline transform is not fought (added only with a live timeline — instant mode keeps
+    // the static `is-shaking` mark and adds no `is-tweening`, so its DOM is byte-identical).
+    if (tl !== null) el.classList.add(TWEENING_CLASS);
     preset.build([el], tl);
     if (tl !== null) {
-      tl.eventCallback('onComplete', () => el.classList.remove(AFFORDANCE_CLASS.shaking));
+      tl.eventCallback('onComplete', () => {
+        el.classList.remove(AFFORDANCE_CLASS.shaking);
+        el.classList.remove(TWEENING_CLASS);
+      });
     }
     return preset.kind;
   }
