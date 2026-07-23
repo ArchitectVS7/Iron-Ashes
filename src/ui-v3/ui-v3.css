@@ -693,16 +693,16 @@ button.is-shaking { outline: 2px solid var(--ember); outline-offset: 2px; }
   background: rgba(0, 0, 0, 0.3); border: 1px solid #4a3d31; border-radius: 10px; padding: 1px 7px; color: #e8dcc3; }
 
 /* ── Token chips + gauges (T-203) — every resource/stat is an icon + count, never a bare number ── */
-.token-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700;
-  background: rgba(0, 0, 0, 0.3); border: 1px solid #4a3d31; border-radius: 10px; padding: 1px 7px;
+.token-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 700;
+  background: rgba(0, 0, 0, 0.3); border: 1px solid #4a3d31; border-radius: 10px; padding: 2px 8px;
   color: #e8dcc3; vertical-align: middle; line-height: 1; }
-.tc-icon { width: 14px; height: 14px; display: inline-flex; flex: 0 0 auto; color: inherit; }
+.tc-icon { width: 16px; height: 16px; display: inline-flex; flex: 0 0 auto; color: inherit; }
 .tc-icon svg { width: 100%; height: 100%; display: block; fill: currentColor; }
 .tc-count { font-variant-numeric: tabular-nums; font-weight: 700; }
 /* The grudge chip reuses the danger tag palette (it is the dark's Ledger mark). */
 .token-chip.grudge { background: rgba(239, 68, 68, 0.22); border-color: #7f1d1d; color: #fca5a5; }
 
-.gauge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; vertical-align: middle;
+.gauge { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; vertical-align: middle;
   line-height: 1; color: #e8dcc3; }
 .gauge-track { width: 38px; height: 6px; background: rgba(0, 0, 0, 0.45); border-radius: 3px;
   overflow: hidden; border: 1px solid #4a3d31; }

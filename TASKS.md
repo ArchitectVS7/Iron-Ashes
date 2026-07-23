@@ -1587,10 +1587,19 @@ Reckoning stations), round-pip mechanism, and phase-dot indicator were left as-i
 Accept criteria; font family/sizing elsewhere was not touched (no rubric #3 regression).
 Orchestration: graphify=graphify query "turn track round counter act tracker turn-track" · attempts=1/4.
 
-### T-309 · Enlarge resource icon tokens — `status: TODO` · `coder: sonnet` · `after: T-305`
+### T-309 · Enlarge resource icon tokens — `status: DONE` · `coder: sonnet` · `after: T-305`
 Rubric #7 (scored 8). Resource icon tokens are slightly too small. Bump the icon-token size a step
 while keeping them as icon+count chips (no bare numerals — rubric #7 definition).
 **Accept:** resource tokens read larger; still chips/gauges, no bare numeral; `npm run verify` green.
+
+**Delivered (2026-07-22):** Bumped the `.token-chip` and `.gauge` sizing one step in
+`src/ui-v3/ui-v3.css` — icon (`.tc-icon`) 14px → 16px, chip/gauge font-size 12px → 13px, chip padding
+1px 7px → 2px 8px, and the icon/count gap 4px → 5px — so resource icon tokens read visibly larger at a
+glance without changing their structure. Scope boundary: only sizing tokens were touched; the chip is
+still an icon+count pairing (no bare numerals, per rubric #7's definition), the grudge-chip danger
+palette and gauge-track dimensions were left untouched, and no other component's type scale was
+adjusted.
+Orchestration: graphify=query "resource icon token chip size" · attempts=1/4.
 
 ### T-310 · Smooth choppy motion — `status: TODO` · `coder: opus` · `after: T-305`
 Rubric #9 (scored 7). Motion is present but **choppy**. Track down the jank (hand-delta / flip /
