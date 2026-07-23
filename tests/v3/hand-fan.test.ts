@@ -174,7 +174,7 @@ describe('T-301 — class-driven hover / selected states', () => {
     expect(css).toMatch(/\.card-slot:focus-visible/); // keyboard-reachable, not hover-only
     expect(css).toMatch(/\.card-slot\.is-selected/);
     expect(css).toMatch(/\.hand-fan--flat \.card-slot \{[^}]*transform: none/);
-    // Hover-raise must zoom enough to READ the rules text (62px × ≥2 ⇒ .cf-rules ≥ 5.7 CSS px).
+    // Hover-raise must zoom enough to READ the rules text (84px × ≥2 ⇒ .cf-rules ≥ 7.7 CSS px).
     const scale = /--fan-hover-scale,\s*([0-9.]+)/.exec(css);
     expect(scale, 'the hover scale is declared').not.toBeNull();
     expect(Number(scale![1])).toBeGreaterThanOrEqual(2.5);
@@ -182,6 +182,15 @@ describe('T-301 — class-driven hover / selected states', () => {
     expect(css).toMatch(/@media \(prefers-reduced-motion: no-preference\) \{\s*\.card-slot \{[^}]*transition/);
     // The nth-child fan hack is gone — geometry is data now.
     expect(css).not.toMatch(/\.card-slot:nth-child/);
+  });
+
+  it('sizes the fan card large enough for an arm\'s-length read (T-307 rubric #2)', () => {
+    const css = readFileSync(resolve(ROOT, 'src/ui-v3/ui-v3.css'), 'utf8');
+    // Guard the enlargement so a future shrink regresses here. `>=` (not an exact px) keeps it
+    // non-brittle: the corner index is SVG-unit-based, so a bigger slot only improves legibility.
+    const width = /\.card-slot \{[^}]*\bwidth:\s*([0-9.]+)px/.exec(css);
+    expect(width, 'the .card-slot base width is declared in px').not.toBeNull();
+    expect(Number(width![1])).toBeGreaterThanOrEqual(78);
   });
 });
 

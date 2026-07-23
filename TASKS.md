@@ -1547,12 +1547,24 @@ T-404 mechanic-visibility map) but were flagged at the M3 gate, so they are capt
 "engine untouched" standing constraint (no `src/v2`, `src/v3`, `src/utils`, no tunable value) holds —
 these are all `src/ui-v3` / presentation changes.
 
-### T-307 · Enlarge hand + preview cards — `status: TODO` · `coder: sonnet` · `after: T-305`
+### T-307 · Enlarge hand + preview cards — `status: DONE` · `coder: sonnet` · `after: T-305`
 Rubric #2 (scored 6). Cards in the fanned hand read too small at arm's length, and the raised/preview
 card is also too small. Increase hand-card and preview-card size while preserving the fan geometry,
 corner-index legibility, hand-fit-in-dock audit, and selected-lift behaviour.
 **Accept:** `npm run dev` shows larger hand + preview cards; `shots:v3` hand-fit / bottom-bar / board-
 dominance audits stay green; corner value+suit still legible in the fan; `npm run verify` green.
+
+**Delivered (2026-07-22):** Enlarged the fanned hand card from 62px to 84px (and its −30px overlap to
+−40px) in `src/ui-v3/ui-v3.css`, scaling the fan arc/spread constants (`ARC_LIFT_PX` 10→14,
+`SPREAD_X_PX` 4→5 in `src/ui-v3/hand-fan.ts`) and the dock side padding (40px→56px) so the larger,
+more-tilted cards still land inside the hand dock rect. The hover/preview raise keeps its existing
+2.7× scale, which now renders a bigger absolute preview (≈227px vs ≈167px) and correspondingly larger
+`.cf-rules` glyphs, satisfying the "preview card too small" half of the rubric without a separate
+preview-specific size knob. Added a regression test asserting `.card-slot` width stays ≥78px. Scope
+boundary: only the hand-card/preview size and the fan geometry constants that keep it fitting the dock
+were touched — corner-index SVG layout, selected-lift behaviour, and the hover-scale factor itself
+were left as-is per the Accept criteria.
+Orchestration: graphify=graphify query "hand card fan geometry preview card size in ui-v3" · attempts=1/4.
 
 ### T-308 · Turn/act track legibility — `status: TODO` · `coder: sonnet` · `after: T-305`
 Rubric #4 (scored 6). The round counter ("R1/14") is small and does not read as the turn/act tracker.

@@ -53,9 +53,10 @@ export interface FanSlotGeometry {
 /** Half-spread: the outermost card tilts this many degrees. Kept modest so rotated rects stay in the dock. */
 export const MAX_SPREAD_DEG = 14;
 /** Parabolic arc depth in px: the outermost card sits this far BELOW the centre card. */
-export const ARC_LIFT_PX = 10;
+/* Scaled with the T-307 card enlargement (62→84px) to keep the arc proportional to the larger cards. */
+export const ARC_LIFT_PX = 14;
 /** Extra horizontal spread in px applied to the outermost card (on top of the CSS overlap). */
-export const SPREAD_X_PX = 4;
+export const SPREAD_X_PX = 5;
 
 /**
  * The arc math. `t` runs -1 (leftmost) .. 0 (exact centre) .. +1 (rightmost), so the fan is always

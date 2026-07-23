@@ -337,7 +337,7 @@ h1 { font-family: var(--font-display); letter-spacing: 1px; }
   bottom: 4px;
   transform: translateX(-50%);
   z-index: 3;
-  /* Wide enough for the T-301 fan: 222px of overlapped cards + the rotation bulge padding + label. */
+  /* Wide enough for the enlarged T-307 fan: 304px of overlapped cards + the rotation bulge padding. */
   max-width: 52%;
   display: flex;
   justify-content: center;
@@ -874,17 +874,18 @@ button.primary { background: linear-gradient(180deg, #e2b23c, #c9a227); color: #
 .card-face.cf-sigil-dark { color: #a855f7; }
 .card-face .cf-sigil-mark { font-family: var(--font-display); }
 
-/* ── The fanned hand (T-301) — a CSS-3D arc of overlapping paper ──
+/* ── The fanned hand (T-301, enlarged T-307) — a CSS-3D arc of overlapping paper ──
    Geometry comes from `hand-fan.ts` as per-slot custom properties (--fan-rot/-x/-y/-z); this file
    owns only the treatment. `.hand-fan--flat` (jsdom / no layout engine) is a transform-free row.
-   The 40px side padding absorbs the rotation bulge: the arc pivots BELOW the card (origin 50% 130%),
-   so a 14° tilt throws the outer card's corner ~26px sideways (+4px of spread offset). The padding
-   keeps every rotated `.card-slot` rect inside the `.hand-dock` rect (the shots hand-fit audit). */
-.hand-fan { display: inline-flex; align-items: flex-end; padding: 14px 40px 12px; max-width: 100%;
+   The 56px side padding absorbs the rotation bulge: the arc pivots BELOW the card (origin 50% 130%),
+   so a 14° tilt throws the outer 84px card's corner ~35px sideways (+5px of spread offset). The
+   padding keeps every rotated `.card-slot` rect inside the `.hand-dock` rect (the shots hand-fit
+   audit). Cards were enlarged 62→84px for arm's-length legibility (rubric #2 / T-307). */
+.hand-fan { display: inline-flex; align-items: flex-end; padding: 18px 56px 16px; max-width: 100%;
   perspective: 900px; transform-style: preserve-3d; overflow: visible; }
-/* Deep overlap (−30px) so a full 6-card hand — 62 + 5×32 = 222px — fits the bottom hand dock with
+/* Deep overlap (−40px) so a full 6-card hand — 84 + 5×44 = 304px — fits the bottom hand dock with
    no clipping; each earlier card shows its left index strip while the rightmost card shows full. */
-.card-slot { display: inline-block; width: 62px; margin-left: -30px; position: relative;
+.card-slot { display: inline-block; width: 84px; margin-left: -40px; position: relative;
   filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.5)); }
 .card-slot:first-child { margin-left: 0; }
 /* The arc: pivot below the card's bottom edge so rotation reads as a hand held in the fist. */
@@ -897,9 +898,9 @@ button.primary { background: linear-gradient(180deg, #e2b23c, #c9a227); color: #
 .hand-fan .card-slot.is-selected { transform: translate(var(--fan-x, 0px), calc(var(--fan-y, 0px) - 18px)) rotate(var(--fan-rot, 0deg));
   z-index: 30; filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 4px rgba(201, 162, 39, 0.9)); }
 .hand-fan--flat .card-slot.is-selected { transform: translateY(-8px); }
-/* Hover-raise — zooms enough to READ the rules text: the 62px card × 2.7 ≈ 167px wide, so the
-   `.cf-rules` glyphs (4.6 units of a 100-unit viewBox) render at ≈7.7 CSS px. Straightens the card,
-   drops the arc offset, and lifts above the board overlays. */
+/* Hover-raise / preview — zooms enough to READ the rules text: the 84px card × 2.7 ≈ 227px wide, so
+   the `.cf-rules` glyphs (4.6 units of a 100-unit viewBox) render at ≈10.4 CSS px. Straightens the
+   card, drops the arc offset, and lifts above the board overlays. */
 .hand-fan--fan .card-slot:hover,
 .hand-fan--fan .card-slot:focus-visible {
   transform: translate(var(--fan-x, 0px), calc(var(--fan-y, 0px) - 34px)) rotate(0deg) scale(var(--fan-hover-scale, 2.7));
